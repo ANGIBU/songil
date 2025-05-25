@@ -1,0 +1,137 @@
+{# templates/base.html #}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}실종자 찾기 플랫폼{% endblock %}</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- 로고 -->
+                <div class="logo">
+                    <a href="{{ url_for('index') }}">
+                        <i class="fas fa-search-location"></i>
+                        <span>실종자 찾기</span>
+                    </a>
+                </div>
+                
+                <!-- 메인 네비게이션 -->
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> 홈</a></li>
+                        <li><a href="{{ url_for('search') }}"><i class="fas fa-search"></i> 실종자 조회</a></li>
+                        <li class="auth-required"><a href="{{ url_for('missing_report') }}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
+                        <li class="auth-required"><a href="{{ url_for('pointshop') }}"><i class="fas fa-gift"></i> 포인트샵</a></li>
+                        <li><a href="{{ url_for('ranking') }}"><i class="fas fa-trophy"></i> 순위</a></li>
+                    </ul>
+                </nav>
+                
+                <!-- 사용자 메뉴 -->
+                <div class="user-menu">
+                    <div class="auth-required user-actions">
+                        <a href="{{ url_for('notifications') }}" class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </a>
+                        <a href="{{ url_for('mypage') }}" class="profile-btn">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                    </div>
+                    <div class="guest-actions">
+                        <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
+                        <a href="{{ url_for('register') }}" class="register-btn">회원가입</a>
+                    </div>
+                </div>
+                
+                <!-- 모바일 메뉴 버튼 -->
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 모바일 네비게이션 -->
+        <nav class="mobile-nav">
+            <ul>
+                <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> 홈</a></li>
+                <li><a href="{{ url_for('search') }}"><i class="fas fa-search"></i> 실종자 조회</a></li>
+                <li class="auth-required"><a href="{{ url_for('missing_report') }}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
+                <li class="auth-required"><a href="{{ url_for('pointshop') }}"><i class="fas fa-gift"></i> 포인트샵</a></li>
+                <li><a href="{{ url_for('ranking') }}"><i class="fas fa-trophy"></i> 순위</a></li>
+                <li class="auth-required"><a href="{{ url_for('mypage') }}"><i class="fas fa-user-circle"></i> 마이페이지</a></li>
+                <li class="guest-actions">
+                    <a href="{{ url_for('login') }}">로그인</a>
+                    <a href="{{ url_for('register') }}">회원가입</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>사이트 정보</h4>
+                    <ul>
+                        <li><a href="{{ url_for('about') }}">서비스 소개</a></li>
+                        <li><a href="#how-it-works">이용 방법</a></li>
+                        <li><a href="#faq">자주 묻는 질문</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>경찰청 연계</h4>
+                    <ul>
+                        <li><a href="#police-api">경찰청 API 연동</a></li>
+                        <li><a href="#data-sharing">데이터 공유 정책</a></li>
+                        <li><a href="#privacy">개인정보 보호</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객센터</h4>
+                    <ul>
+                        <li>전화: 1588-0000</li>
+                        <li>이메일: help@missing-finder.kr</li>
+                        <li>운영시간: 24시간 연중무휴</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>공공데이터 경진대회</h4>
+                    <p>본 서비스는 공공데이터 활용 경진대회 출품작입니다.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 실종자 찾기 플랫폼. All rights reserved.</p>
+                <ul class="footer-links">
+                    <li><a href="#privacy-policy">개인정보처리방침</a></li>
+                    <li><a href="#terms">이용약관</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

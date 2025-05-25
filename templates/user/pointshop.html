@@ -1,0 +1,857 @@
+{# templates/user/pointshop.html #}
+{% extends "base.html" %}
+
+{% block title %}포인트샵 - 실종자 찾기 플랫폼{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 포인트샵 헤더 -->
+<section class="pointshop-header">
+    <div class="container">
+        <div class="shop-title">
+            <h1><i class="fas fa-gift"></i> 포인트샵</h1>
+            <p>실종자 찾기에 기여한 포인트로 다양한 상품을 받아보세요</p>
+        </div>
+        
+        <!-- 사용자 포인트 정보 -->
+        <div class="user-points-card">
+            <div class="points-info">
+                <div class="points-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="points-details">
+                    <div class="current-points">
+                        <span class="points-amount" id="userPoints">1,250</span>
+                        <span class="points-unit">P</span>
+                    </div>
+                    <div class="points-label">보유 포인트</div>
+                </div>
+            </div>
+            <div class="points-actions">
+                <button class="points-history-btn" onclick="showPointsHistory()">
+                    <i class="fas fa-history"></i>
+                    포인트 내역
+                </button>
+                <a href="{{ url_for('mypage') }}" class="earnings-btn">
+                    <i class="fas fa-chart-line"></i>
+                    적립 현황
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 상품 카테고리 -->
+<section class="shop-categories">
+    <div class="container">
+        <div class="category-tabs">
+            <button class="tab-btn active" data-category="all" onclick="switchCategory('all')">
+                <i class="fas fa-th"></i>
+                전체
+            </button>
+            <button class="tab-btn" data-category="giftcard" onclick="switchCategory('giftcard')">
+                <i class="fas fa-credit-card"></i>
+                기프티콘
+            </button>
+            <button class="tab-btn" data-category="randombox" onclick="switchCategory('randombox')">
+                <i class="fas fa-gift"></i>
+                랜덤박스
+            </button>
+            <button class="tab-btn" data-category="special" onclick="switchCategory('special')">
+                <i class="fas fa-star"></i>
+                특별상품
+            </button>
+        </div>
+        
+        <!-- 정렬 옵션 -->
+        <div class="sort-options">
+            <select id="sortSelect" onchange="sortProducts()">
+                <option value="popular">인기순</option>
+                <option value="price-low">낮은 가격순</option>
+                <option value="price-high">높은 가격순</option>
+                <option value="new">신상품순</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- 상품 목록 -->
+<section class="products-section">
+    <div class="container">
+        <!-- 추천 상품 섹션 -->
+        <div class="recommended-section">
+            <h2>
+                <i class="fas fa-fire"></i>
+                추천 상품
+            </h2>
+            <div class="recommended-products">
+                <div class="product-card featured" data-category="giftcard" data-price="500">
+                    <div class="product-badge">베스트</div>
+                    <div class="product-image">
+                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="스타벅스 아메리카노">
+                        <div class="product-overlay">
+                            <button class="quick-buy-btn" onclick="quickBuy(1)">
+                                <i class="fas fa-shopping-cart"></i>
+                                바로구매
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>스타벅스 아메리카노</h3>
+                        <p class="product-description">따뜻한 아메리카노 기프티콘</p>
+                        <div class="product-price">
+                            <span class="points">500P</span>
+                            <span class="original-price">₹5,000</span>
+                        </div>
+                        <div class="product-stats">
+                            <span class="popularity">
+                                <i class="fas fa-fire"></i>
+                                인기 1위
+                            </span>
+                            <span class="stock">
+                                <i class="fas fa-box"></i>
+                                재고 95개
+                            </span>
+                        </div>
+                        <button class="buy-btn" onclick="purchaseProduct(1)">
+                            <i class="fas fa-shopping-cart"></i>
+                            구매하기
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-card featured" data-category="randombox" data-price="1000">
+                    <div class="product-badge new">신규</div>
+                    <div class="product-image">
+                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="럭키박스">
+                        <div class="product-overlay">
+                            <button class="quick-buy-btn" onclick="quickBuy(2)">
+                                <i class="fas fa-gift"></i>
+                                바로구매
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3>럭키박스 골드</h3>
+                        <p class="product-description">최대 10,000원 상당의 랜덤 상품</p>
+                        <div class="product-price">
+                            <span class="points">1,000P</span>
+                            <span class="expected">평균 ₹7,500</span>
+                        </div>
+                        <div class="product-stats">
+                            <span class="probability">
+                                <i class="fas fa-percentage"></i>
+                                대박확률 15%
+                            </span>
+                            <span class="stock">
+                                <i class="fas fa-box"></i>
+                                재고 50개
+                            </span>
+                        </div>
+                        <button class="buy-btn" onclick="purchaseProduct(2)">
+                            <i class="fas fa-gift"></i>
+                            구매하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 전체 상품 목록 -->
+        <div class="products-grid" id="productsGrid">
+            <!-- 기프티콘 상품들 -->
+            <div class="product-card" data-category="giftcard" data-price="300">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="이디야 아이스아메리카노">
+                </div>
+                <div class="product-info">
+                    <h3>이디야 아이스아메리카노</h3>
+                    <p class="product-description">시원한 아이스아메리카노 1잔</p>
+                    <div class="product-price">
+                        <span class="points">300P</span>
+                        <span class="original-price">₹3,000</span>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(3)">구매하기</button>
+                </div>
+            </div>
+            
+            <div class="product-card" data-category="giftcard" data-price="800">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="맥도날드 빅맥세트">
+                </div>
+                <div class="product-info">
+                    <h3>맥도날드 빅맥세트</h3>
+                    <p class="product-description">빅맥 + 감자튀김 + 음료</p>
+                    <div class="product-price">
+                        <span class="points">800P</span>
+                        <span class="original-price">₹8,500</span>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(4)">구매하기</button>
+                </div>
+            </div>
+            
+            <div class="product-card" data-category="giftcard" data-price="1200">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="CU 편의점">
+                </div>
+                <div class="product-info">
+                    <h3>CU 편의점 상품권</h3>
+                    <p class="product-description">CU에서 사용 가능한 상품권</p>
+                    <div class="product-price">
+                        <span class="points">1,200P</span>
+                        <span class="original-price">₹15,000</span>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(5)">구매하기</button>
+                </div>
+            </div>
+            
+            <!-- 랜덤박스 상품들 -->
+            <div class="product-card" data-category="randombox" data-price="500">
+                <div class="product-badge">HOT</div>
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="럭키박스 실버">
+                </div>
+                <div class="product-info">
+                    <h3>럭키박스 실버</h3>
+                    <p class="product-description">최대 5,000원 상당의 랜덤 상품</p>
+                    <div class="product-price">
+                        <span class="points">500P</span>
+                        <span class="expected">평균 ₹3,500</span>
+                    </div>
+                    <div class="randombox-info">
+                        <div class="probability-list">
+                            <div class="prob-item">
+                                <span class="grade gold">대박</span>
+                                <span class="percent">5%</span>
+                            </div>
+                            <div class="prob-item">
+                                <span class="grade silver">중박</span>
+                                <span class="percent">25%</span>
+                            </div>
+                            <div class="prob-item">
+                                <span class="grade bronze">꽝</span>
+                                <span class="percent">70%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(6)">구매하기</button>
+                </div>
+            </div>
+            
+            <div class="product-card" data-category="randombox" data-price="2000">
+                <div class="product-badge premium">프리미엄</div>
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="럭키박스 플래티넘">
+                </div>
+                <div class="product-info">
+                    <h3>럭키박스 플래티넘</h3>
+                    <p class="product-description">최대 50,000원 상당의 랜덤 상품</p>
+                    <div class="product-price">
+                        <span class="points">2,000P</span>
+                        <span class="expected">평균 ₹25,000</span>
+                    </div>
+                    <div class="randombox-info">
+                        <div class="probability-list">
+                            <div class="prob-item">
+                                <span class="grade diamond">잭팟</span>
+                                <span class="percent">3%</span>
+                            </div>
+                            <div class="prob-item">
+                                <span class="grade gold">대박</span>
+                                <span class="percent">20%</span>
+                            </div>
+                            <div class="prob-item">
+                                <span class="grade silver">중박</span>
+                                <span class="percent">77%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(7)">구매하기</button>
+                </div>
+            </div>
+            
+            <!-- 특별상품들 -->
+            <div class="product-card limited" data-category="special" data-price="5000">
+                <div class="product-badge limited">한정</div>
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="애플 에어팟">
+                </div>
+                <div class="product-info">
+                    <h3>애플 에어팟 3세대</h3>
+                    <p class="product-description">애플 정품 에어팟 (1주일 한정)</p>
+                    <div class="product-price">
+                        <span class="points">5,000P</span>
+                        <span class="original-price">₹249,000</span>
+                    </div>
+                    <div class="limited-info">
+                        <div class="limited-time">
+                            <i class="fas fa-clock"></i>
+                            <span id="limitedTimer">5일 23:45:12 남음</span>
+                        </div>
+                        <div class="limited-stock">
+                            <div class="stock-bar">
+                                <div class="stock-fill" style="width: 20%"></div>
+                            </div>
+                            <span>2/10 남음</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn limited-btn" onclick="purchaseProduct(8)">
+                        <i class="fas fa-bolt"></i>
+                        한정구매
+                    </button>
+                </div>
+            </div>
+            
+            <div class="product-card" data-category="special" data-price="3000">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="치킨 상품권">
+                </div>
+                <div class="product-info">
+                    <h3>치킨 브랜드 통합상품권</h3>
+                    <p class="product-description">BBQ, 교촌, 네네 등에서 사용 가능</p>
+                    <div class="product-price">
+                        <span class="points">3,000P</span>
+                        <span class="original-price">₹25,000</span>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(9)">구매하기</button>
+                </div>
+            </div>
+            
+            <div class="product-card" data-category="giftcard" data-price="1500">
+                <div class="product-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="영화 관람권">
+                </div>
+                <div class="product-info">
+                    <h3>CGV 영화 관람권</h3>
+                    <p class="product-description">일반 상영관 영화 1편 관람</p>
+                    <div class="product-price">
+                        <span class="points">1,500P</span>
+                        <span class="original-price">₹14,000</span>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(10)">구매하기</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 더보기 버튼 -->
+        <div class="load-more-section">
+            <button class="load-more-btn" onclick="loadMoreProducts()">
+                <i class="fas fa-plus"></i>
+                더 많은 상품 보기
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- 구매 확인 모달 -->
+<div class="purchase-modal" id="purchaseModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>상품 구매</h3>
+            <button class="close-modal" onclick="closePurchaseModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="purchase-product" id="purchaseProduct">
+                <!-- 선택된 상품 정보가 여기에 표시됩니다 -->
+            </div>
+            <div class="purchase-summary">
+                <div class="summary-row">
+                    <span>보유 포인트:</span>
+                    <span class="user-points">1,250P</span>
+                </div>
+                <div class="summary-row">
+                    <span>상품 가격:</span>
+                    <span class="product-cost" id="productCost">500P</span>
+                </div>
+                <div class="summary-row total">
+                    <span>구매 후 잔액:</span>
+                    <span class="remaining-points" id="remainingPoints">750P</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closePurchaseModal()">취소</button>
+            <button class="btn btn-primary" onclick="confirmPurchase()" id="confirmPurchaseBtn">
+                <i class="fas fa-shopping-cart"></i>
+                구매하기
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 포인트 내역 모달 -->
+<div class="points-history-modal" id="pointsHistoryModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>포인트 내역</h3>
+            <button class="close-modal" onclick="closePointsHistoryModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="history-filters">
+                <select id="historyPeriod">
+                    <option value="all">전체 기간</option>
+                    <option value="month" selected>최근 1개월</option>
+                    <option value="3month">최근 3개월</option>
+                </select>
+                <select id="historyType">
+                    <option value="all">전체</option>
+                    <option value="earn">적립</option>
+                    <option value="use">사용</option>
+                </select>
+            </div>
+            <div class="points-history-list">
+                <div class="history-item earn">
+                    <div class="history-info">
+                        <div class="history-title">목격 신고 승인</div>
+                        <div class="history-date">2024.05.23 14:30</div>
+                    </div>
+                    <div class="history-points positive">+150P</div>
+                </div>
+                <div class="history-item use">
+                    <div class="history-info">
+                        <div class="history-title">스타벅스 아메리카노 구매</div>
+                        <div class="history-date">2024.05.22 16:45</div>
+                    </div>
+                    <div class="history-points negative">-500P</div>
+                </div>
+                <div class="history-item earn">
+                    <div class="history-info">
+                        <div class="history-title">실종자 UP 버튼</div>
+                        <div class="history-date">2024.05.22 09:15</div>
+                    </div>
+                    <div class="history-points positive">+10P</div>
+                </div>
+                <div class="history-item earn">
+                    <div class="history-info">
+                        <div class="history-title">목격 신고 승인</div>
+                        <div class="history-date">2024.05.21 18:20</div>
+                    </div>
+                    <div class="history-points positive">+300P</div>
+                </div>
+                <div class="history-item earn">
+                    <div class="history-info">
+                        <div class="history-title">회원가입 보너스</div>
+                        <div class="history-date">2024.05.20 12:00</div>
+                    </div>
+                    <div class="history-points positive">+100P</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 구매 성공 모달 -->
+<div class="success-modal" id="successModal">
+    <div class="modal-content">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>구매 완료!</h2>
+        <div class="success-product" id="successProduct">
+            <!-- 구매한 상품 정보 -->
+        </div>
+        <div class="success-info">
+            <p>기프티콘은 마이페이지에서 확인할 수 있습니다.</p>
+            <div class="remaining-points-display">
+                남은 포인트: <span id="finalRemainingPoints">750P</span>
+            </div>
+        </div>
+        <div class="success-actions">
+            <button class="btn btn-secondary" onclick="closeSuccessModal()">확인</button>
+            <a href="{{ url_for('mypage') }}" class="btn btn-primary">
+                <i class="fas fa-user"></i>
+                마이페이지
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+<script>
+// 포인트샵 페이지 JavaScript
+let currentCategory = 'all';
+let userPoints = 1250;
+let selectedProduct = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializePointShop();
+    updateLimitedTimer();
+});
+
+// 포인트샵 초기화
+function initializePointShop() {
+    // 페이지 로드 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.pointshop-header', {
+            duration: 0.8,
+            y: -30,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+        
+        gsap.from('.user-points-card', {
+            duration: 0.6,
+            scale: 0.9,
+            opacity: 0,
+            delay: 0.2,
+            ease: 'power2.out'
+        });
+        
+        gsap.from('.product-card', {
+            duration: 0.5,
+            y: 30,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.4,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 카테고리 전환
+function switchCategory(category) {
+    currentCategory = category;
+    
+    // 탭 버튼 업데이트
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${category}"]`).classList.add('active');
+    
+    // 상품 필터링
+    const products = document.querySelectorAll('.product-card');
+    products.forEach(product => {
+        if (category === 'all' || product.dataset.category === category) {
+            product.style.display = 'block';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+    
+    // 애니메이션 효과
+    if (typeof gsap !== 'undefined') {
+        const visibleProducts = document.querySelectorAll('.product-card[style*="block"], .product-card:not([style*="none"])');
+        gsap.from(visibleProducts, {
+            duration: 0.4,
+            y: 20,
+            opacity: 0,
+            stagger: 0.05,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 상품 정렬
+function sortProducts() {
+    const sortValue = document.getElementById('sortSelect').value;
+    const productsGrid = document.getElementById('productsGrid');
+    const products = Array.from(productsGrid.children);
+    
+    products.sort((a, b) => {
+        const priceA = parseInt(a.dataset.price);
+        const priceB = parseInt(b.dataset.price);
+        
+        switch(sortValue) {
+            case 'price-low':
+                return priceA - priceB;
+            case 'price-high':
+                return priceB - priceA;
+            case 'new':
+                return b.querySelector('.product-badge.new') ? 1 : -1;
+            case 'popular':
+            default:
+                return b.querySelector('.product-badge') ? 1 : -1;
+        }
+    });
+    
+    products.forEach(product => productsGrid.appendChild(product));
+    
+    // 정렬 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.product-card', {
+            duration: 0.4,
+            y: 20,
+            opacity: 0,
+            stagger: 0.03,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 빠른 구매
+function quickBuy(productId) {
+    purchaseProduct(productId);
+}
+
+// 상품 구매
+function purchaseProduct(productId) {
+    // 상품 정보 가져오기 (실제로는 서버에서)
+    const productData = getProductData(productId);
+    
+    if (userPoints < productData.price) {
+        if (window.showNotification) {
+            window.showNotification('포인트가 부족합니다.', 'error');
+        }
+        return;
+    }
+    
+    selectedProduct = productData;
+    showPurchaseModal(productData);
+}
+
+// 상품 데이터 가져오기 (더미 데이터)
+function getProductData(productId) {
+    const products = {
+        1: { id: 1, name: '스타벅스 아메리카노', price: 500, image: 'starbucks.jpg', description: '따뜻한 아메리카노 기프티콘' },
+        2: { id: 2, name: '럭키박스 골드', price: 1000, image: 'lucky-gold.jpg', description: '최대 10,000원 상당의 랜덤 상품' },
+        3: { id: 3, name: '이디야 아이스아메리카노', price: 300, image: 'ediya.jpg', description: '시원한 아이스아메리카노 1잔' },
+        4: { id: 4, name: '맥도날드 빅맥세트', price: 800, image: 'mcdonalds.jpg', description: '빅맥 + 감자튀김 + 음료' },
+        5: { id: 5, name: 'CU 편의점 상품권', price: 1200, image: 'cu.jpg', description: 'CU에서 사용 가능한 상품권' },
+        6: { id: 6, name: '럭키박스 실버', price: 500, image: 'lucky-silver.jpg', description: '최대 5,000원 상당의 랜덤 상품' },
+        7: { id: 7, name: '럭키박스 플래티넘', price: 2000, image: 'lucky-platinum.jpg', description: '최대 50,000원 상당의 랜덤 상품' },
+        8: { id: 8, name: '애플 에어팟 3세대', price: 5000, image: 'airpods.jpg', description: '애플 정품 에어팟 (1주일 한정)' },
+        9: { id: 9, name: '치킨 브랜드 통합상품권', price: 3000, image: 'chicken.jpg', description: 'BBQ, 교촌, 네네 등에서 사용 가능' },
+        10: { id: 10, name: 'CGV 영화 관람권', price: 1500, image: 'cgv.jpg', description: '일반 상영관 영화 1편 관람' }
+    };
+    
+    return products[productId];
+}
+
+// 구매 모달 표시
+function showPurchaseModal(product) {
+    const modal = document.getElementById('purchaseModal');
+    const productElement = document.getElementById('purchaseProduct');
+    const productCost = document.getElementById('productCost');
+    const remainingPoints = document.getElementById('remainingPoints');
+    
+    productElement.innerHTML = `
+        <div class="modal-product">
+            <img src="${window.location.origin}/static/images/placeholder.jpg" alt="${product.name}">
+            <div class="modal-product-info">
+                <h4>${product.name}</h4>
+                <p>${product.description}</p>
+            </div>
+        </div>
+    `;
+    
+    productCost.textContent = product.price + 'P';
+    remainingPoints.textContent = (userPoints - product.price) + 'P';
+    
+    modal.style.display = 'flex';
+    
+    // 모달 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.modal-content', {
+            duration: 0.3,
+            scale: 0.8,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 구매 확인
+async function confirmPurchase() {
+    if (!selectedProduct) return;
+    
+    const confirmBtn = document.getElementById('confirmPurchaseBtn');
+    const originalText = confirmBtn.innerHTML;
+    
+    // 로딩 상태
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 구매 중...';
+    confirmBtn.disabled = true;
+    
+    try {
+        // API 호출 시뮬레이션
+        await simulateAPICall(1500);
+        
+        // 포인트 차감
+        userPoints -= selectedProduct.price;
+        document.getElementById('userPoints').textContent = userPoints.toLocaleString();
+        
+        // 구매 완료
+        closePurchaseModal();
+        showSuccessModal(selectedProduct);
+        
+    } catch (error) {
+        if (window.showNotification) {
+            window.showNotification('구매 중 오류가 발생했습니다.', 'error');
+        }
+    } finally {
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.disabled = false;
+    }
+}
+
+// 구매 성공 모달 표시
+function showSuccessModal(product) {
+    const modal = document.getElementById('successModal');
+    const productElement = document.getElementById('successProduct');
+    const finalRemainingPoints = document.getElementById('finalRemainingPoints');
+    
+    productElement.innerHTML = `
+        <div class="success-product-info">
+            <img src="${window.location.origin}/static/images/placeholder.jpg" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <div class="purchase-price">${product.price}P</div>
+        </div>
+    `;
+    
+    finalRemainingPoints.textContent = userPoints.toLocaleString() + 'P';
+    
+    modal.style.display = 'flex';
+    
+    // 성공 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.modal-content', {
+            duration: 0.5,
+            scale: 0.8,
+            opacity: 0,
+            ease: 'back.out(1.7)'
+        });
+        
+        gsap.from('.success-icon', {
+            duration: 0.8,
+            scale: 0,
+            rotation: 180,
+            delay: 0.3,
+            ease: 'back.out(1.7)'
+        });
+    }
+}
+
+// 포인트 내역 표시
+function showPointsHistory() {
+    document.getElementById('pointsHistoryModal').style.display = 'flex';
+    
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.modal-content', {
+            duration: 0.3,
+            y: -30,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 한정 상품 타이머 업데이트
+function updateLimitedTimer() {
+    const timerElement = document.getElementById('limitedTimer');
+    if (!timerElement) return;
+    
+    let timeLeft = 5 * 24 * 60 * 60 + 23 * 60 * 60 + 45 * 60 + 12; // 5일 23시간 45분 12초
+    
+    const timer = setInterval(() => {
+        const days = Math.floor(timeLeft / (24 * 60 * 60));
+        const hours = Math.floor((timeLeft % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
+        const seconds = timeLeft % 60;
+        
+        timerElement.textContent = `${days}일 ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} 남음`;
+        
+        timeLeft--;
+        
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            timerElement.textContent = '판매 종료';
+        }
+    }, 1000);
+}
+
+// 더 많은 상품 로드
+function loadMoreProducts() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로딩 중...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        // 더미 상품 추가
+        const productsGrid = document.getElementById('productsGrid');
+        
+        for (let i = 0; i < 6; i++) {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.setAttribute('data-category', 'giftcard');
+            productCard.setAttribute('data-price', '600');
+            
+            productCard.innerHTML = `
+                <div class="product-image">
+                    <img src="${window.location.origin}/static/images/placeholder.jpg" alt="추가 상품">
+                </div>
+                <div class="product-info">
+                    <h3>추가 상품 ${i + 1}</h3>
+                    <p class="product-description">새로 추가된 상품입니다</p>
+                    <div class="product-price">
+                        <span class="points">600P</span>
+                        <span class="original-price">₹6,000</span>
+                    </div>
+                    <button class="buy-btn" onclick="purchaseProduct(${i + 11})">구매하기</button>
+                </div>
+            `;
+            
+            productsGrid.appendChild(productCard);
+        }
+        
+        // 애니메이션 효과
+        if (typeof gsap !== 'undefined') {
+            const newProducts = productsGrid.querySelectorAll('.product-card:nth-last-child(-n+6)');
+            gsap.from(newProducts, {
+                duration: 0.5,
+                y: 30,
+                opacity: 0,
+                stagger: 0.1,
+                ease: 'power2.out'
+            });
+        }
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        if (window.showNotification) {
+            window.showNotification('새로운 상품이 추가되었습니다!', 'success');
+        }
+    }, 1000);
+}
+
+// 모달 닫기 함수들
+function closePurchaseModal() {
+    document.getElementById('purchaseModal').style.display = 'none';
+    selectedProduct = null;
+}
+
+function closePointsHistoryModal() {
+    document.getElementById('pointsHistoryModal').style.display = 'none';
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
+
+// 모달 외부 클릭시 닫기
+document.querySelectorAll('.purchase-modal, .points-history-modal, .success-modal').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
+});
+
+// 유틸리티 함수
+function simulateAPICall(delay = 1000) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, delay);
+    });
+}
+</script>
+{% endblock %}

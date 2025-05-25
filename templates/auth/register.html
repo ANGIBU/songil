@@ -1,0 +1,236 @@
+{# templates/auth/register.html #}
+{% extends "base.html" %}
+
+{% block title %}회원가입 - 실종자 찾기 플랫폼{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1>회원가입</h1>
+                <p>실종자를 찾는 일에 함께해주세요</p>
+            </div>
+            
+            <!-- 진행률 표시 -->
+            <div class="progress-bar">
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">기본정보</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">본인인증</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">가입완료</div>
+                    </div>
+                </div>
+                <div class="progress-line">
+                    <div class="progress-fill" style="width: 33.33%"></div>
+                </div>
+            </div>
+            
+            <!-- 1단계: 기본 정보 입력 -->
+            <form class="auth-form step-form active" id="step1Form" data-step="1">
+                <div class="step-title">
+                    <h2>기본 정보를 입력해주세요</h2>
+                    <p>실명과 정확한 연락처를 입력해주세요</p>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lastName">
+                            <i class="fas fa-user"></i>
+                            성
+                        </label>
+                        <input type="text" id="lastName" name="lastName" required>
+                        <div class="error-message" id="lastNameError"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">
+                            <i class="fas fa-user"></i>
+                            이름
+                        </label>
+                        <input type="text" id="firstName" name="firstName" required>
+                        <div class="error-message" id="firstNameError"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        이메일
+                    </label>
+                    <div class="input-with-button">
+                        <input type="email" id="email" name="email" required>
+                        <button type="button" class="btn btn-outline btn-sm" id="emailCheckBtn">중복확인</button>
+                    </div>
+                    <div class="error-message" id="emailError"></div>
+                    <div class="success-message" id="emailSuccess"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">
+                        <i class="fas fa-phone"></i>
+                        휴대폰 번호
+                    </label>
+                    <input type="tel" id="phone" name="phone" placeholder="010-0000-0000" required>
+                    <div class="error-message" id="phoneError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        비밀번호
+                    </label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength"></div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passwordConfirm">
+                        <i class="fas fa-lock"></i>
+                        비밀번호 확인
+                    </label>
+                    <div class="password-input">
+                        <input type="password" id="passwordConfirm" name="passwordConfirm" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('passwordConfirm')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="passwordConfirmError"></div>
+                </div>
+                
+                <button type="button" class="btn btn-primary btn-full" onclick="nextStep(2)">
+                    다음 단계
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            
+            <!-- 2단계: 본인 인증 -->
+            <form class="auth-form step-form" id="step2Form" data-step="2">
+                <div class="step-title">
+                    <h2>본인 인증을 진행해주세요</h2>
+                    <p>SMS 인증을 통해 본인 확인을 완료해주세요</p>
+                </div>
+                
+                <div class="verification-info">
+                    <div class="info-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span id="phoneDisplay"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="verificationCode">
+                        <i class="fas fa-key"></i>
+                        인증번호
+                    </label>
+                    <div class="input-with-button">
+                        <input type="text" id="verificationCode" name="verificationCode" placeholder="6자리 인증번호" required>
+                        <button type="button" class="btn btn-outline btn-sm" id="sendCodeBtn">인증번호 발송</button>
+                    </div>
+                    <div class="verification-timer" id="verificationTimer"></div>
+                    <div class="error-message" id="verificationError"></div>
+                </div>
+                
+                <div class="agreement-section">
+                    <h3>약관 동의</h3>
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreeAll" id="agreeAll">
+                            <span class="checkmark"></span>
+                            전체 동의
+                        </label>
+                    </div>
+                    <div class="agreement-list">
+                        <div class="agreement-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="agreeTerms" required>
+                                <span class="checkmark"></span>
+                                [필수] 이용약관 동의
+                            </label>
+                            <a href="#" class="agreement-link">보기</a>
+                        </div>
+                        <div class="agreement-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="agreePrivacy" required>
+                                <span class="checkmark"></span>
+                                [필수] 개인정보처리방침 동의
+                            </label>
+                            <a href="#" class="agreement-link">보기</a>
+                        </div>
+                        <div class="agreement-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="agreeMarketing">
+                                <span class="checkmark"></span>
+                                [선택] 마케팅 정보 수신 동의
+                            </label>
+                            <a href="#" class="agreement-link">보기</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                        <i class="fas fa-arrow-left"></i>
+                        이전
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                        인증 완료
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- 3단계: 가입 완료 -->
+            <div class="auth-form step-form" id="step3Form" data-step="3">
+                <div class="completion-section">
+                    <div class="completion-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>회원가입이 완료되었습니다!</h2>
+                    <p>실종자 찾기 플랫폼에 오신 것을 환영합니다.</p>
+                    
+                    <div class="welcome-benefits">
+                        <h3>가입 혜택</h3>
+                        <ul>
+                            <li><i class="fas fa-gift"></i> 신규 가입 포인트 100P 지급</li>
+                            <li><i class="fas fa-bell"></i> 실종자 알림 서비스 제공</li>
+                            <li><i class="fas fa-trophy"></i> 랭킹 시스템 참여 가능</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-large">
+                            <i class="fas fa-sign-in-alt"></i>
+                            로그인하기
+                        </a>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-large">
+                            <i class="fas fa-home"></i>
+                            홈으로 가기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+{% endblock %}

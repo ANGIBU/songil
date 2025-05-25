@@ -1,0 +1,648 @@
+{# templates/user/missing_detail.html #}
+{% extends "base.html" %}
+
+{% block title %}실종자 상세정보 - 실종자 찾기 플랫폼{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 실종자 상세 헤더 -->
+<section class="missing-detail-header">
+    <div class="container">
+        <div class="detail-navigation">
+            <a href="{{ url_for('search') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                목록으로 돌아가기
+            </a>
+            <div class="detail-actions">
+                <button class="share-btn" onclick="shareContent()">
+                    <i class="fas fa-share-alt"></i>
+                    공유하기
+                </button>
+                <button class="bookmark-btn" onclick="toggleBookmark()">
+                    <i class="fas fa-bookmark"></i>
+                    관심등록
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 실종자 기본 정보 -->
+<section class="missing-basic-info">
+    <div class="container">
+        <div class="missing-profile">
+            <div class="profile-image-section">
+                <div class="main-image">
+                    <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" id="mainImage" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                    <div class="danger-level high">긴급</div>
+                    <div class="missing-period">3일째</div>
+                </div>
+                <div class="additional-images">
+                    <div class="image-thumbnail active" onclick="changeMainImage(this)">
+                        <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진 1">
+                    </div>
+                    <div class="image-thumbnail" onclick="changeMainImage(this)">
+                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진 2">
+                    </div>
+                    <div class="image-thumbnail" onclick="changeMainImage(this)">
+                        <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진 3">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-details">
+                <div class="profile-header">
+                    <h1>김○○ (32세)</h1>
+                    <div class="profile-status">
+                        <span class="status-badge urgent">수색 중</span>
+                        <span class="report-id">신고번호: #2024-0520-001</span>
+                    </div>
+                </div>
+                
+                <div class="basic-info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar"></i>
+                            실종일시
+                        </div>
+                        <div class="info-value">2024년 5월 20일 오후 6시경</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-map-marker-alt"></i>
+                            실종장소
+                        </div>
+                        <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i>
+                            성별/나이
+                        </div>
+                        <div class="info-value">남성 / 32세</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-ruler-vertical"></i>
+                            신체정보
+                        </div>
+                        <div class="info-value">175cm, 중간체형, 단발머리</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-tshirt"></i>
+                            착용의상
+                        </div>
+                        <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-exclamation-circle"></i>
+                            특이사항
+                        </div>
+                        <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="up-btn large" onclick="handleUpClick()">
+                        <i class="fas fa-arrow-up"></i>
+                        UP <span id="upCount">246</span>
+                    </button>
+                    <a href="{{ url_for('witness_report', missing_id=missing_id) }}" class="witness-btn">
+                        <i class="fas fa-eye"></i>
+                        목격 신고하기
+                        <span class="expected-points">예상 포인트: 100~500P</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 상세 정보 탭 -->
+<section class="missing-details-tabs">
+    <div class="container">
+        <div class="tabs-navigation">
+            <button class="tab-btn active" data-tab="situation" onclick="switchTab('situation')">
+                <i class="fas fa-info-circle"></i>
+                실종 상황
+            </button>
+            <button class="tab-btn" data-tab="witness" onclick="switchTab('witness')">
+                <i class="fas fa-eye"></i>
+                목격 정보
+            </button>
+            <button class="tab-btn" data-tab="location" onclick="switchTab('location')">
+                <i class="fas fa-map"></i>
+                실종 위치
+            </button>
+            <button class="tab-btn" data-tab="timeline" onclick="switchTab('timeline')">
+                <i class="fas fa-clock"></i>
+                수사 진행
+            </button>
+        </div>
+        
+        <!-- 실종 상황 탭 -->
+        <div class="tab-content active" id="situationTab">
+            <div class="situation-content">
+                <h3>실종 당시 상황</h3>
+                <div class="situation-text">
+                    <p>
+                        김○○씨는 5월 20일 오후 회사에서 퇴근한 후 평소와 같이 지하철을 이용하여 귀가하는 중이었습니다. 
+                        오후 6시경 테헤란로 역삼역 2번 출구 근처에서 동료와 통화한 것이 마지막 연락이었으며, 
+                        이후 가족들의 연락에 응답하지 않고 있습니다.
+                    </p>
+                    <p>
+                        평소 규칙적인 생활을 하며 무단으로 외박을 한 적이 없어 가족들이 매우 걱정하고 있는 상황입니다. 
+                        최근 직장 스트레스로 인해 우울감을 호소했다고 가족이 증언했습니다.
+                    </p>
+                </div>
+                
+                <div class="additional-info">
+                    <h4>추가 정보</h4>
+                    <ul>
+                        <li>• 평소 이용하는 교통수단: 지하철 2호선</li>
+                        <li>• 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
+                        <li>• 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
+                        <li>• 신용카드: 실종 이후 사용 내역 없음</li>
+                        <li>• 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
+                    </ul>
+                </div>
+                
+                <div class="family-message">
+                    <h4>가족 메시지</h4>
+                    <blockquote>
+                        "김○○은 책임감이 강하고 가족을 사랑하는 사람입니다. 
+                        혹시 어디서든 보신다면 꼭 연락 부탁드립니다. 
+                        우리는 항상 기다리고 있습니다."
+                        <cite>- 가족 일동</cite>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 목격 정보 탭 -->
+        <div class="tab-content" id="witnessTab">
+            <div class="witness-reports">
+                <div class="witness-header">
+                    <h3>목격 신고 현황</h3>
+                    <div class="witness-stats">
+                        <span class="stat">총 <strong>7건</strong></span>
+                        <span class="stat">검토 중 <strong>3건</strong></span>
+                        <span class="stat">승인 <strong>4건</strong></span>
+                    </div>
+                </div>
+                
+                <div class="witness-list">
+                    <div class="witness-item verified">
+                        <div class="witness-status">
+                            <i class="fas fa-check-circle"></i>
+                            <span>승인됨</span>
+                        </div>
+                        <div class="witness-info">
+                            <div class="witness-details">
+                                <div class="witness-time">5월 20일 오후 6시 15분</div>
+                                <div class="witness-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    역삼역 2번 출구 근처 편의점 앞
+                                </div>
+                                <div class="witness-description">
+                                    "검은색 정장을 입은 남성이 휴대폰을 보며 서 있었습니다. 
+                                    표정이 심각해 보였고, 약 5분 정도 그 자리에 서 있다가 강남역 방향으로 걸어갔습니다."
+                                </div>
+                            </div>
+                            <div class="witness-reliability">
+                                신뢰도: <span class="high">높음</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="witness-item verified">
+                        <div class="witness-status">
+                            <i class="fas fa-check-circle"></i>
+                            <span>승인됨</span>
+                        </div>
+                        <div class="witness-info">
+                            <div class="witness-details">
+                                <div class="witness-time">5월 20일 오후 6시 30분</div>
+                                <div class="witness-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    강남역 지하 2층 푸드코트 입구
+                                </div>
+                                <div class="witness-description">
+                                    "비슷한 체형의 남성을 봤습니다. 서류가방을 들고 있었고, 
+                                    음식점 앞에서 메뉴를 보다가 그냥 지나갔습니다."
+                                </div>
+                            </div>
+                            <div class="witness-reliability">
+                                신뢰도: <span class="medium">보통</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="witness-item pending">
+                        <div class="witness-status">
+                            <i class="fas fa-clock"></i>
+                            <span>검토 중</span>
+                        </div>
+                        <div class="witness-info">
+                            <div class="witness-details">
+                                <div class="witness-time">5월 21일 오전 8시</div>
+                                <div class="witness-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    한강공園 반포대교 근처
+                                </div>
+                                <div class="witness-description">
+                                    "정장 입은 남성이 한강을 바라보며 서 있었습니다. 
+                                    뒷모습이라 확실하지 않지만 체형이 비슷했습니다."
+                                </div>
+                            </div>
+                            <div class="witness-reliability">
+                                신뢰도: <span class="pending">검토중</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="witness-cta">
+                    <div class="cta-content">
+                        <h4>목격하셨나요?</h4>
+                        <p>작은 정보도 큰 도움이 됩니다. 목격 정보를 신고해주세요.</p>
+                        <a href="{{ url_for('witness_report', missing_id=missing_id) }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            목격 정보 신고하기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 실종 위치 탭 -->
+        <div class="tab-content" id="locationTab">
+            <div class="location-content">
+                <h3>실종 위치 및 주변 정보</h3>
+                <div class="map-container">
+                    <div id="missing-map" class="map-placeholder">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <p>지도가 여기에 표시됩니다</p>
+                        <small>실제 구현시 카카오맵 또는 구글맵 API 사용</small>
+                    </div>
+                </div>
+                
+                <div class="location-details">
+                    <div class="location-info">
+                        <h4>주요 위치 정보</h4>
+                        <div class="location-list">
+                            <div class="location-item primary">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="location-text">
+                                    <strong>최종 목격 지점</strong>
+                                    <p>역삼역 2번 출구 (2024.05.20 18:15)</p>
+                                </div>
+                            </div>
+                            <div class="location-item">
+                                <i class="fas fa-building"></i>
+                                <div class="location-text">
+                                    <strong>직장</strong>
+                                    <p>테헤란로 ○○빌딩 (평소 퇴근 경로)</p>
+                                </div>
+                            </div>
+                            <div class="location-item">
+                                <i class="fas fa-home"></i>
+                                <div class="location-text">
+                                    <strong>자택</strong>
+                                    <p>강남구 대치동 (평소 거주지)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nearby-info">
+                        <h4>주변 시설</h4>
+                        <ul>
+                            <li>• CCTV 설치: 역삼역 출구, 주요 건물 입구</li>
+                            <li>• 병원: 강남성심병원 (0.5km)</li>
+                            <li>• 경찰서: 강남경찰서 (1.2km)</li>
+                            <li>• 대중교통: 지하철 2호선, 버스 정류장 다수</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 수사 진행 탭 -->
+        <div class="tab-content" id="timelineTab">
+            <div class="timeline-content">
+                <h3>수사 진행 현황</h3>
+                <div class="timeline">
+                    <div class="timeline-item completed">
+                        <div class="timeline-marker">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="timeline-content-item">
+                            <div class="timeline-time">5월 20일 22:00</div>
+                            <div class="timeline-title">실종 신고 접수</div>
+                            <div class="timeline-description">가족이 경찰서에 공식 실종 신고</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item completed">
+                        <div class="timeline-marker">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="timeline-content-item">
+                            <div class="timeline-time">5월 21일 09:00</div>
+                            <div class="timeline-title">수사팀 배정</div>
+                            <div class="timeline-description">강남경찰서 실종수사팀 배정 및 수사 개시</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item completed">
+                        <div class="timeline-marker">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="timeline-content-item">
+                            <div class="timeline-time">5월 21일 14:00</div>
+                            <div class="timeline-title">CCTV 분석 착수</div>
+                            <div class="timeline-description">역삼역 및 주변 CCTV 영상 수집·분석 시작</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item in-progress">
+                        <div class="timeline-marker">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="timeline-content-item">
+                            <div class="timeline-time">5월 22일 현재</div>
+                            <div class="timeline-title">목격자 조사 진행 중</div>
+                            <div class="timeline-description">시민 제보를 바탕으로 목격자 조사 및 추가 수색</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item planned">
+                        <div class="timeline-marker">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <div class="timeline-content-item">
+                            <div class="timeline-time">예정</div>
+                            <div class="timeline-title">광역 수색</div>
+                            <div class="timeline-description">필요시 인근 지역 확대 수색 예정</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="investigation-status">
+                    <h4>현재 수사 현황</h4>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">담당 기관</div>
+                            <div class="status-value">강남경찰서 실종수사팀</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">수사 진행률</div>
+                            <div class="status-value">65%</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">CCTV 분석</div>
+                            <div class="status-value">20개소 완료</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">목격자 조사</div>
+                            <div class="status-value">4명 조사 완료</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 관련 실종자 -->
+<section class="related-missing">
+    <div class="container">
+        <h3>유사 실종자</h3>
+        <p>비슷한 조건의 다른 실종자들을 확인해보세요</p>
+        
+        <div class="related-cards">
+            <div class="missing-card">
+                <div class="card-image">
+                    <img src="{{ url_for('static', filename='images/sample-missing-2.jpg') }}" alt="실종자 사진">
+                    <div class="danger-level medium">주의</div>
+                </div>
+                <div class="card-content">
+                    <h4>이○○ (28세)</h4>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> 강남구 일대</p>
+                    <p class="date"><i class="fas fa-calendar"></i> 2024.05.18 실종</p>
+                </div>
+                <a href="#" class="detail-link">상세보기</a>
+            </div>
+            
+            <div class="missing-card">
+                <div class="card-image">
+                    <img src="{{ url_for('static', filename='images/sample-missing-3.jpg') }}" alt="실종자 사진">
+                    <div class="danger-level low">관심</div>
+                </div>
+                <div class="card-content">
+                    <h4>박○○ (35세)</h4>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> 서초구 일대</p>
+                    <p class="date"><i class="fas fa-calendar"></i> 2024.05.19 실종</p>
+                </div>
+                <a href="#" class="detail-link">상세보기</a>
+            </div>
+            
+            <div class="missing-card">
+                <div class="card-image">
+                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진">
+                    <div class="danger-level high">긴급</div>
+                </div>
+                <div class="card-content">
+                    <h4>정○○ (30세)</h4>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> 송파구 일대</p>
+                    <p class="date"><i class="fas fa-calendar"></i> 2024.05.21 실종</p>
+                </div>
+                <a href="#" class="detail-link">상세보기</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 긴급 신고 플로팅 버튼 -->
+<div class="floating-emergency">
+    <a href="tel:112" class="emergency-btn">
+        <i class="fas fa-phone"></i>
+        <span>긴급신고 112</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+<script>
+// 실종자 상세 페이지 JavaScript
+let currentTab = 'situation';
+let isBookmarked = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMissingDetail();
+});
+
+function initializeMissingDetail() {
+    // 페이지 로드 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.missing-profile', {
+            duration: 0.8,
+            y: 30,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+        
+        gsap.from('.basic-info-grid .info-item', {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.3,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 탭 전환
+function switchTab(tabName) {
+    // 탭 버튼 활성화
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // 탭 콘텐츠 표시
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(tabName + 'Tab').classList.add('active');
+    
+    currentTab = tabName;
+    
+    // 탭 전환 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.tab-content.active', {
+            duration: 0.5,
+            y: 20,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+    }
+}
+
+// 메인 이미지 변경
+function changeMainImage(thumbnail) {
+    const mainImage = document.getElementById('mainImage');
+    const newSrc = thumbnail.querySelector('img').src;
+    
+    // 기존 활성 썸네일 제거
+    document.querySelectorAll('.image-thumbnail').forEach(thumb => {
+        thumb.classList.remove('active');
+    });
+    
+    // 새 썸네일 활성화
+    thumbnail.classList.add('active');
+    
+    // 이미지 변경 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.to(mainImage, {
+            duration: 0.3,
+            opacity: 0,
+            onComplete: () => {
+                mainImage.src = newSrc;
+                gsap.to(mainImage, {
+                    duration: 0.3,
+                    opacity: 1
+                });
+            }
+        });
+    } else {
+        mainImage.src = newSrc;
+    }
+}
+
+// UP 버튼 클릭
+function handleUpClick() {
+    const upCount = document.getElementById('upCount');
+    const currentCount = parseInt(upCount.textContent);
+    
+    // 애니메이션 효과
+    const upBtn = document.querySelector('.up-btn.large');
+    if (typeof gsap !== 'undefined') {
+        gsap.to(upBtn, {
+            duration: 0.2,
+            scale: 1.1,
+            ease: 'power2.out',
+            yoyo: true,
+            repeat: 1
+        });
+    }
+    
+    // 카운트 증가
+    upCount.textContent = currentCount + 1;
+    
+    // 알림 표시
+    if (window.showNotification) {
+        window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+    }
+    
+    // TODO: 서버에 UP 정보 전송
+}
+
+// 북마크 토글
+function toggleBookmark() {
+    const bookmarkBtn = document.querySelector('.bookmark-btn');
+    const icon = bookmarkBtn.querySelector('i');
+    
+    isBookmarked = !isBookmarked;
+    
+    if (isBookmarked) {
+        icon.className = 'fas fa-bookmark';
+        bookmarkBtn.classList.add('active');
+        if (window.showNotification) {
+            window.showNotification('관심 실종자로 등록되었습니다.', 'success');
+        }
+    } else {
+        icon.className = 'far fa-bookmark';
+        bookmarkBtn.classList.remove('active');
+        if (window.showNotification) {
+            window.showNotification('관심 실종자에서 해제되었습니다.', 'info');
+        }
+    }
+    
+    // TODO: 서버에 북마크 상태 전송
+}
+
+// 콘텐츠 공유
+function shareContent() {
+    const shareData = {
+        title: '실종자 찾기 - 김○○ (32세)',
+        text: '실종자를 목격하신 분은 신고 부탁드립니다.',
+        url: window.location.href
+    };
+    
+    if (navigator.share) {
+        navigator.share(shareData);
+    } else {
+        // 폴백: URL 복사
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            if (window.showNotification) {
+                window.showNotification('링크가 클립보드에 복사되었습니다.', 'success');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

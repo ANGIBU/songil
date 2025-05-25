@@ -1,0 +1,541 @@
+{# templates/public/about.html #}
+{% extends "base.html" %}
+
+{% block title %}서비스 소개 - 실종자 찾기 플랫폼{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 서비스 소개 헤더 -->
+<section class="about-header">
+    <div class="container">
+        <div class="about-hero">
+            <div class="hero-content">
+                <h1>함께 만드는 안전한 사회</h1>
+                <p class="hero-subtitle">
+                    실종자 찾기 플랫폼은 시민 참여를 통해<br>
+                    실종자를 더 빠르고 효과적으로 찾는 서비스입니다
+                </p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="number">1,203</div>
+                        <div class="label">해결된 사건</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number">15,429</div>
+                        <div class="label">참여 시민</div>
+                    </div>
+                    <div class="stat">
+                        <div class="number">94%</div>
+                        <div class="label">해결률</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="visual-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 미션 & 비전 -->
+<section class="mission-vision">
+    <div class="container">
+        <div class="mission-vision-grid">
+            <div class="mission-card">
+                <div class="card-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3>미션 (Mission)</h3>
+                <p>
+                    시민 참여를 통한 협력적 실종자 찾기 시스템을 구축하여, 
+                    모든 실종자가 안전하게 가족의 품으로 돌아갈 수 있도록 돕습니다.
+                </p>
+            </div>
+            <div class="vision-card">
+                <div class="card-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3>비전 (Vision)</h3>
+                <p>
+                    기술과 시민의 힘을 결합하여 실종자 발생률을 최소화하고, 
+                    더 안전하고 따뜻한 사회를 만드는 대한민국 최고의 플랫폼이 되겠습니다.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 서비스 작동 방식 -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <h2>어떻게 작동하나요?</h2>
+            <p>간단한 4단계로 실종자를 찾는 선순환 구조입니다</p>
+        </div>
+        
+        <div class="process-flow">
+            <div class="process-step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3>실종자 신고</h3>
+                    <p>
+                        가족이나 지인이 실종되면 즉시 플랫폼에 신고합니다. 
+                        사진, 인적사항, 실종 상황 등 상세 정보를 입력하면 
+                        자동으로 경찰청 시스템과 연동됩니다.
+                    </p>
+                    <ul class="step-features">
+                        <li>• 24시간 언제든지 신고 가능</li>
+                        <li>• 경찰청 공식 연동</li>
+                        <li>• 자동 위험도 분석</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>실종자 공개</h3>
+                    <p>
+                        관리자의 승인을 거쳐 실종자 정보가 플랫폼에 공개됩니다. 
+                        시민들은 실종자 정보를 확인하고 주변에서 주의 깊게 살펴봅니다.
+                    </p>
+                    <ul class="step-features">
+                        <li>• 개인정보 보호 처리</li>
+                        <li>• 위험도별 우선 노출</li>
+                        <li>• 지역별 맞춤 알림</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>목격 신고</h3>
+                    <p>
+                        실종자를 목격한 시민이 정확한 시간, 장소, 상황을 신고합니다. 
+                        포인트 보상 시스템으로 적극적인 참여를 유도합니다.
+                    </p>
+                    <ul class="step-features">
+                        <li>• 정확한 GPS 위치 기록</li>
+                        <li>• 포인트 보상 지급</li>
+                        <li>• 실시간 정보 전달</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>가족 상봉</h3>
+                    <p>
+                        수집된 목격 정보를 바탕으로 경찰이 주변 CCTV를 분석하고 
+                        수사를 진행하여 실종자를 찾아 가족과 상봉시킵니다.
+                    </p>
+                    <ul class="step-features">
+                        <li>• 경찰 전문 수사팀 연계</li>
+                        <li>• CCTV 통합 분석</li>
+                        <li>• 신속한 구조 작업</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 주요 기능 -->
+<section class="key-features">
+    <div class="container">
+        <div class="section-header">
+            <h2>주요 기능</h2>
+            <p>효율적이고 안전한 실종자 찾기를 위한 핵심 기능들</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>경찰청 공식 연동</h3>
+                <p>신고된 실종자 정보는 즉시 경찰청 시스템과 연동되어 공식적인 수사가 시작됩니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>실시간 위치 추적</h3>
+                <p>GPS 기반의 정확한 목격 위치 정보로 실종자의 이동 경로를 파악할 수 있습니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <h3>포인트 보상 시스템</h3>
+                <p>유용한 목격 정보를 제공한 시민에게 포인트를 지급하여 적극적인 참여를 유도합니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>스마트 알림</h3>
+                <p>사용자의 위치와 관심사에 맞는 맞춤형 실종자 알림을 제공합니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+                <h3>개인정보 보호</h3>
+                <p>실종자와 신고자의 개인정보를 안전하게 보호하며 필요한 정보만 공개합니다.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>모바일 최적화</h3>
+                <p>언제 어디서나 쉽게 접근할 수 있는 반응형 웹 플랫폼을 제공합니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>자주 묻는 질문</h2>
+            <p>실종자 찾기 플랫폼에 대한 궁금한 점들을 해결해드립니다</p>
+        </div>
+        
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3>실종자 신고는 어떻게 하나요?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        회원가입 후 '신고하기' 메뉴에서 실종자의 기본 정보, 사진, 실종 상황 등을 입력하면 됩니다. 
+                        신고된 정보는 관리자의 검토를 거쳐 경찰청에 전달되며, 승인 후 플랫폼에 공개됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3>목격 신고시 포인트는 얼마나 받나요?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        목격 신고의 정확성과 유용성에 따라 50P~500P까지 차등 지급됩니다. 
+                        실종자 발견에 결정적 도움을 준 정보는 추가 보너스 포인트를 받을 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3>개인정보는 어떻게 보호되나요?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        실명은 이니셜로 처리되며, 연락처 등 민감한 정보는 암호화되어 관리자만 접근 가능합니다. 
+                        또한 실종자 발견 후에는 관련 게시물이 자동으로 비공개 처리됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3>허위 신고나 목격 신고에 대한 제재가 있나요?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        허위 신고가 확인되면 계정 정지 및 법적 조치가 취해질 수 있습니다. 
+                        정확하고 성실한 신고만이 실종자를 찾는데 도움이 됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3>경찰청과는 어떻게 연계되나요?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        공공데이터 API를 통해 경찰청 실종자 정보 시스템과 실시간 연동됩니다. 
+                        신고된 정보는 즉시 관할 경찰서에 전달되어 공식 수사가 시작됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3>포인트로 무엇을 할 수 있나요?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        포인트샵에서 다양한 기프티콘(카페, 편의점, 온라인 쇼핑몰 등)으로 교환하거나 
+                        랜덤박스를 구매할 수 있습니다. 또한 일정 포인트 이상 보유시 특별 혜택을 받을 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 참여 방법 -->
+<section class="participation">
+    <div class="container">
+        <div class="section-header">
+            <h2>참여 방법</h2>
+            <p>누구나 손쉽게 참여할 수 있는 실종자 찾기</p>
+        </div>
+        
+        <div class="participation-steps">
+            <div class="participation-card">
+                <div class="card-number">1</div>
+                <div class="card-content">
+                    <h3>회원가입</h3>
+                    <p>간단한 본인인증으로 회원가입을 완료하세요</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline">
+                        <i class="fas fa-user-plus"></i>
+                        가입하기
+                    </a>
+                </div>
+            </div>
+            
+            <div class="participation-card">
+                <div class="card-number">2</div>
+                <div class="card-content">
+                    <h3>실종자 확인</h3>
+                    <p>주변의 실종자 정보를 확인하고 기억해두세요</p>
+                    <a href="{{ url_for('search') }}" class="btn btn-outline">
+                        <i class="fas fa-search"></i>
+                        조회하기
+                    </a>
+                </div>
+            </div>
+            
+            <div class="participation-card">
+                <div class="card-number">3</div>
+                <div class="card-content">
+                    <h3>목격시 신고</h3>
+                    <p>실종자를 목격하면 즉시 정확한 정보를 신고하세요</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i>
+                        신고하기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 공공데이터 활용 -->
+<section class="public-data">
+    <div class="container">
+        <div class="public-data-content">
+            <div class="data-info">
+                <h2>공공데이터 경진대회 출품작</h2>
+                <p>
+                    본 플랫폼은 공공데이터를 활용하여 만든 사회 문제 해결 프로젝트입니다. 
+                    경찰청의 실종자 관련 공공데이터와 시민 참여를 결합하여 
+                    더 효과적인 실종자 찾기 시스템을 구축했습니다.
+                </p>
+                <div class="data-sources">
+                    <h3>활용 공공데이터</h3>
+                    <ul>
+                        <li>• 경찰청 실종아동등 신고 현황</li>
+                        <li>• 실종자 수사 관련 통계</li>
+                        <li>• 지역별 CCTV 설치 현황</li>
+                        <li>• 인구 통계 및 지역 정보</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="data-visual">
+                <div class="data-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA 섹션 -->
+<section class="about-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>지금 바로 참여하세요</h2>
+            <p>여러분의 작은 관심이 소중한 생명을 구할 수 있습니다</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
+                    <i class="fas fa-user-plus"></i>
+                    회원가입하고 참여하기
+                </a>
+                <a href="{{ url_for('search') }}" class="btn btn-secondary btn-large">
+                    <i class="fas fa-search"></i>
+                    실종자 정보 확인하기
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// About 페이지 JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAboutPage();
+});
+
+function initializeAboutPage() {
+    // 통계 애니메이션
+    animateHeroStats();
+    
+    // 스크롤 애니메이션
+    initializeScrollAnimations();
+}
+
+// 히어로 통계 애니메이션
+function animateHeroStats() {
+    const statNumbers = document.querySelectorAll('.hero-stats .number');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target;
+                const finalNumber = parseInt(target.textContent.replace(/[,%]/g, ''));
+                animateCounter(target, finalNumber, target.textContent.includes('%'));
+                observer.unobserve(target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    statNumbers.forEach(stat => {
+        observer.observe(stat);
+    });
+}
+
+// 카운터 애니메이션
+function animateCounter(element, target, isPercent = false) {
+    let current = 0;
+    const increment = target / 50;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        element.textContent = Math.floor(current).toLocaleString() + (isPercent ? '%' : '');
+    }, 40);
+}
+
+// 스크롤 애니메이션 초기화
+function initializeScrollAnimations() {
+    if (typeof gsap === 'undefined') return;
+    
+    // 프로세스 스텝 애니메이션
+    gsap.from('.process-step', {
+        scrollTrigger: {
+            trigger: '.how-it-works',
+            start: 'top 80%'
+        },
+        duration: 0.8,
+        y: 50,
+        opacity: 0,
+        stagger: 0.2,
+        ease: 'power2.out'
+    });
+    
+    // 기능 카드 애니메이션
+    gsap.from('.feature-card', {
+        scrollTrigger: {
+            trigger: '.key-features',
+            start: 'top 80%'
+        },
+        duration: 0.6,
+        y: 30,
+        opacity: 0,
+        stagger: 0.1,
+        ease: 'power2.out'
+    });
+    
+    // FAQ 아이템 애니메이션
+    gsap.from('.faq-item', {
+        scrollTrigger: {
+            trigger: '.faq-section',
+            start: 'top 80%'
+        },
+        duration: 0.5,
+        x: -30,
+        opacity: 0,
+        stagger: 0.1,
+        ease: 'power2.out'
+    });
+}
+
+// FAQ 토글 기능
+function toggleFAQ(element) {
+    const faqItem = element.parentNode;
+    const answer = faqItem.querySelector('.faq-answer');
+    const icon = element.querySelector('i');
+    
+    const isActive = faqItem.classList.contains('active');
+    
+    // 모든 FAQ 닫기
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('.faq-answer').style.maxHeight = '0';
+        item.querySelector('.faq-question i').style.transform = 'rotate(0deg)';
+    });
+    
+    // 클릭된 FAQ 열기/닫기
+    if (!isActive) {
+        faqItem.classList.add('active');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+
+// 부드러운 스크롤
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

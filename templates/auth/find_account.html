@@ -1,0 +1,194 @@
+{# templates/auth/find_account.html #}
+{% extends "base.html" %}
+
+{% block title %}아이디/비밀번호 찾기 - 실종자 찾기 플랫폼{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h1>아이디/비밀번호 찾기</h1>
+                <p>가입 시 등록한 정보로 계정을 찾아보세요</p>
+            </div>
+            
+            <!-- 탭 메뉴 -->
+            <div class="tab-menu">
+                <button class="tab-btn active" data-tab="find-id">
+                    <i class="fas fa-user"></i>
+                    아이디 찾기
+                </button>
+                <button class="tab-btn" data-tab="find-password">
+                    <i class="fas fa-lock"></i>
+                    비밀번호 찾기
+                </button>
+            </div>
+            
+            <!-- 아이디 찾기 -->
+            <div class="tab-content active" id="find-id">
+                <form class="auth-form" id="findIdForm">
+                    <div class="step-title">
+                        <h2>아이디 찾기</h2>
+                        <p>가입 시 등록한 이름과 휴대폰 번호를 입력해주세요</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findIdName">
+                            <i class="fas fa-user"></i>
+                            이름
+                        </label>
+                        <input type="text" id="findIdName" name="name" required>
+                        <div class="error-message" id="findIdNameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findIdPhone">
+                            <i class="fas fa-phone"></i>
+                            휴대폰 번호
+                        </label>
+                        <input type="tel" id="findIdPhone" name="phone" placeholder="010-0000-0000" required>
+                        <div class="error-message" id="findIdPhoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findIdVerificationCode">
+                            <i class="fas fa-key"></i>
+                            인증번호
+                        </label>
+                        <div class="input-with-button">
+                            <input type="text" id="findIdVerificationCode" name="verificationCode" placeholder="6자리 인증번호" required>
+                            <button type="button" class="btn btn-outline btn-sm" id="findIdSendCodeBtn">인증번호 발송</button>
+                        </div>
+                        <div class="verification-timer" id="findIdTimer"></div>
+                        <div class="error-message" id="findIdVerificationError"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-search"></i>
+                        아이디 찾기
+                    </button>
+                </form>
+                
+                <!-- 아이디 찾기 결과 -->
+                <div class="result-section" id="idResult" style="display: none;">
+                    <div class="result-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>아이디 찾기 완료</h3>
+                    </div>
+                    <div class="result-content">
+                        <p>회원님의 아이디는 다음과 같습니다:</p>
+                        <div class="found-id">
+                            <span id="foundEmail">test****@example.com</span>
+                            <button class="btn btn-outline btn-sm" onclick="copyToClipboard('foundEmail')">
+                                <i class="fas fa-copy"></i>
+                                복사
+                            </button>
+                        </div>
+                        <div class="result-info">
+                            <p>가입일: <span id="joinDate">2024.05.01</span></p>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            로그인하기
+                        </a>
+                        <button class="btn btn-secondary" onclick="switchTab('find-password')">
+                            <i class="fas fa-lock"></i>
+                            비밀번호 찾기
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 비밀번호 찾기 -->
+            <div class="tab-content" id="find-password">
+                <form class="auth-form" id="findPasswordForm">
+                    <div class="step-title">
+                        <h2>비밀번호 찾기</h2>
+                        <p>가입 시 등록한 이메일과 휴대폰 번호를 입력해주세요</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findPwEmail">
+                            <i class="fas fa-envelope"></i>
+                            이메일
+                        </label>
+                        <input type="email" id="findPwEmail" name="email" required>
+                        <div class="error-message" id="findPwEmailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findPwPhone">
+                            <i class="fas fa-phone"></i>
+                            휴대폰 번호
+                        </label>
+                        <input type="tel" id="findPwPhone" name="phone" placeholder="010-0000-0000" required>
+                        <div class="error-message" id="findPwPhoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findPwVerificationCode">
+                            <i class="fas fa-key"></i>
+                            인증번호
+                        </label>
+                        <div class="input-with-button">
+                            <input type="text" id="findPwVerificationCode" name="verificationCode" placeholder="6자리 인증번호" required>
+                            <button type="button" class="btn btn-outline btn-sm" id="findPwSendCodeBtn">인증번호 발송</button>
+                        </div>
+                        <div class="verification-timer" id="findPwTimer"></div>
+                        <div class="error-message" id="findPwVerificationError"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-paper-plane"></i>
+                        임시 비밀번호 발송
+                    </button>
+                </form>
+                
+                <!-- 비밀번호 찾기 결과 -->
+                <div class="result-section" id="passwordResult" style="display: none;">
+                    <div class="result-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>임시 비밀번호 발송 완료</h3>
+                    </div>
+                    <div class="result-content">
+                        <p>임시 비밀번호가 등록된 이메일로 발송되었습니다.</p>
+                        <div class="sent-email">
+                            <i class="fas fa-envelope"></i>
+                            <span id="sentToEmail">test****@example.com</span>
+                        </div>
+                        <div class="result-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>보안을 위해 로그인 후 반드시 비밀번호를 변경해주세요.</p>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            로그인하기
+                        </a>
+                        <button class="btn btn-secondary" onclick="switchTab('find-id')">
+                            <i class="fas fa-user"></i>
+                            아이디 찾기
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="auth-footer">
+                <p>계정이 기억나셨나요? <a href="{{ url_for('login') }}" class="link">로그인</a></p>
+                <p>계정이 없으신가요? <a href="{{ url_for('register') }}" class="link">회원가입</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/find-account.js') }}"></script>
+{% endblock %}
