@@ -38,17 +38,17 @@ function initializeEmailSaveFeature() {
     const emailInput = document.getElementById('email');
     
     if (saveEmailCheckbox && rememberCheckbox) {
-        // 이메일 저장이 체크되면 로그인 상태 유지도 자동 체크
-        saveEmailCheckbox.addEventListener('change', function() {
+        // 로그인 상태 유지가 체크되면 이메일 저장도 자동 체크
+        rememberCheckbox.addEventListener('change', function() {
             if (this.checked) {
-                rememberCheckbox.checked = true;
+                saveEmailCheckbox.checked = true;
             }
         });
         
-        // 로그인 상태 유지가 해제되면 이메일 저장도 해제
-        rememberCheckbox.addEventListener('change', function() {
+        // 이메일 저장이 해제되면 로그인 상태 유지도 해제
+        saveEmailCheckbox.addEventListener('change', function() {
             if (!this.checked) {
-                saveEmailCheckbox.checked = false;
+                rememberCheckbox.checked = false;
             }
         });
     }

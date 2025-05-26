@@ -1,16 +1,17 @@
 // static/js/register.js
 
 let currentStep = 1;
-let isPassVerified = false;
+let isEmailVerified = false;
 
 // 회원가입 페이지 초기화
 document.addEventListener('DOMContentLoaded', function() {
     initializeRegister();
     initializeEmailCheck();
     initializePasswordValidation();
-    initializePassAuth();
+    initializeEmailAuth();
     initializeAgreements();
     initializeAddressSearch();
+    initializeFormValidation();
 });
 
 // 회원가입 시스템 초기화
@@ -28,14 +29,83 @@ function initializeRegister() {
     }
 }
 
+// 폼 유효성 검사 초기화
+function initializeFormValidation() {
+    // 실시간 유효성 검사
+    const inputs = document.querySelectorAll('#step1Form input, #step1Form select');
+    inputs.forEach(input => {
+        input.addEventListener('input', checkFormValidity);
+        input.addEventListener('change', checkFormValidity);
+    });
+    
+    // 약관 체크박스 이벤트
+    const checkboxes = document.querySelectorAll('#step1Form input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', checkFormValidity);
+    });
+}
+
+// 폼 유효성 검사 및 버튼 활성화
+function checkFormValidity() {
+    const nextBtn = document.getElementById('nextToEmailBtn');
+    if (!nextBtn) return;
+    
+    // 필수 입력 필드 검사
+    const requiredFields = [
+        'fullName', 'email', 'password', 'passwordConfirm', 
+        'birthDate', 'phone', 'gender', 'address'
+    ];
+    
+    let allFieldsValid = true;
+    
+    // 각 필드 검사
+    for (const fieldId of requiredFields) {
+        const field = document.getElementById(fieldId);
+        if (!field || !field.value.trim()) {
+            allFieldsValid = false;
+            break;
+        }
+    }
+    
+    // 이메일 중복확인 검사
+    const emailCheckBtn = document.getElementById('emailCheckBtn');
+    const emailChecked = emailCheckBtn && emailCheckBtn.classList.contains('btn-success');
+    
+    // 비밀번호 유효성 검사
+    const password = document.getElementById('password').value;
+    const passwordValid = validatePassword(password);
+    
+    // 비밀번호 확인 검사
+    const passwordConfirmValid = validatePasswordConfirm();
+    
+    // 필수 약관 동의 검사
+    const agreeTerms = document.querySelector('input[name="agreeTerms"]').checked;
+    const agreePrivacy = document.querySelector('input[name="agreePrivacy"]').checked;
+    
+    // 모든 조건 확인
+    const isValid = allFieldsValid && emailChecked && passwordValid && 
+                   passwordConfirmValid && agreeTerms && agreePrivacy;
+    
+    // 버튼 활성화/비활성화
+    nextBtn.disabled = !isValid;
+    
+    if (isValid) {
+        nextBtn.classList.remove('disabled');
+        nextBtn.style.opacity = '1';
+    } else {
+        nextBtn.classList.add('disabled');
+        nextBtn.style.opacity = '0.6';
+    }
+}
+
 // 단계 전환
 window.nextStep = function(step) {
     if (step === 2 && !validateStep1()) {
         return;
     }
     
-    if (step === 3 && !isPassVerified) {
-        showNotification('PASS 인증을 완료해주세요.', 'error');
+    if (step === 3 && !isEmailVerified) {
+        showNotification('이메일 인증을 완료해주세요.', 'error');
         return;
     }
     
@@ -45,9 +115,9 @@ window.nextStep = function(step) {
     // 2단계로 넘어갈 때 정보 표시
     if (step === 2) {
         const nameDisplay = document.getElementById('nameDisplay');
-        const phoneDisplay = document.getElementById('phoneDisplay');
+        const emailDisplay = document.getElementById('emailDisplay');
         if (nameDisplay) nameDisplay.textContent = document.getElementById('fullName').value;
-        if (phoneDisplay) phoneDisplay.textContent = document.getElementById('phone').value;
+        if (emailDisplay) emailDisplay.textContent = document.getElementById('email').value;
     }
     
     if (typeof gsap !== 'undefined') {
@@ -141,6 +211,7 @@ function initializeEmailCheck() {
         emailCheckBtn.addEventListener('click', checkEmailDuplicate);
         emailInput.addEventListener('input', function() {
             clearEmailValidation();
+            checkFormValidity();
         });
     }
 }
@@ -166,6 +237,7 @@ async function checkEmailDuplicate() {
             showValidationMessage('emailValidation', '사용 가능한 이메일입니다.', 'valid');
             emailCheckBtn.textContent = '확인완료';
             emailCheckBtn.classList.add('btn-success');
+            checkFormValidity();
         } else {
             showValidationMessage('emailValidation', '이미 사용중인 이메일입니다.', 'invalid');
             emailCheckBtn.textContent = originalText;
@@ -202,19 +274,21 @@ function initializePasswordValidation() {
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
             validatePassword(this.value);
+            checkFormValidity();
         });
     }
     
     if (passwordConfirmInput) {
         passwordConfirmInput.addEventListener('input', function() {
             validatePasswordConfirm();
+            checkFormValidity();
         });
     }
 }
 
 function validatePassword(password) {
     const validation = document.getElementById('passwordValidation');
-    if (!validation) return;
+    if (!validation) return false;
     
     const minLength = password.length >= 8;
     const maxLength = password.length <= 15;
@@ -258,45 +332,132 @@ function validatePasswordConfirm() {
     return true;
 }
 
-// PASS 인증
-function initializePassAuth() {
-    const passAuthBtn = document.getElementById('passAuthBtn');
-    if (passAuthBtn) {
-        passAuthBtn.addEventListener('click', performPassAuth);
+// 이메일 인증
+function initializeEmailAuth() {
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    
+    if (sendCodeBtn) {
+        sendCodeBtn.addEventListener('click', sendVerificationCode);
+    }
+    
+    if (verifyCodeBtn) {
+        verifyCodeBtn.addEventListener('click', verifyEmailCode);
+    }
+    
+    if (resendBtn) {
+        resendBtn.addEventListener('click', resendVerificationCode);
     }
 }
 
-async function performPassAuth() {
-    const authBtn = document.getElementById('passAuthBtn');
-    const authStatus = document.getElementById('authStatus');
-    const nextBtn = document.getElementById('step2NextBtn');
+async function sendVerificationCode() {
+    const email = document.getElementById('emailDisplay').textContent;
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const verificationSection = document.getElementById('verificationSection');
     
-    const originalText = authBtn.innerHTML;
-    authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 인증 중...';
-    authBtn.disabled = true;
+    const originalText = sendCodeBtn.innerHTML;
+    sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 발송 중...';
+    sendCodeBtn.disabled = true;
     
     try {
-        await simulateAPICall(3000);
+        await simulateAPICall(1500);
         
-        // 인증 성공
-        const name = document.getElementById('fullName').value;
-        const phone = document.getElementById('phone').value;
+        // 발송 성공
+        verificationSection.style.display = 'block';
+        sendCodeBtn.style.display = 'none';
         
-        document.getElementById('verifiedName').textContent = name;
-        document.getElementById('verifiedPhone').textContent = phone;
-        
-        authStatus.style.display = 'block';
-        authBtn.style.display = 'none';
-        nextBtn.disabled = false;
-        isPassVerified = true;
-        
-        showNotification('PASS 인증이 완료되었습니다.', 'success');
+        showNotification('인증코드가 발송되었습니다. 이메일을 확인해주세요.', 'success');
+        startResendTimer();
         
     } catch (error) {
-        showNotification('PASS 인증에 실패했습니다. 다시 시도해주세요.', 'error');
-        authBtn.innerHTML = originalText;
-        authBtn.disabled = false;
+        showNotification('인증코드 발송에 실패했습니다. 다시 시도해주세요.', 'error');
+        sendCodeBtn.innerHTML = originalText;
+        sendCodeBtn.disabled = false;
     }
+}
+
+async function verifyEmailCode() {
+    const code = document.getElementById('verificationCode').value.trim();
+    const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+    
+    if (!code || code.length !== 6) {
+        showNotification('6자리 인증코드를 입력해주세요.', 'error');
+        return;
+    }
+    
+    const originalText = verifyCodeBtn.innerHTML;
+    verifyCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 확인 중...';
+    verifyCodeBtn.disabled = true;
+    
+    try {
+        await simulateAPICall(1000);
+        
+        // 인증 성공
+        const email = document.getElementById('emailDisplay').textContent;
+        document.getElementById('verifiedEmail').textContent = email;
+        
+        const verificationSection = document.getElementById('verificationSection');
+        const authSuccess = document.getElementById('authSuccess');
+        const step2NextBtn = document.getElementById('step2NextBtn');
+        
+        verificationSection.style.display = 'none';
+        authSuccess.style.display = 'block';
+        step2NextBtn.disabled = false;
+        
+        isEmailVerified = true;
+        
+        showNotification('이메일 인증이 완료되었습니다.', 'success');
+        
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.from(authSuccess, {
+                duration: 0.6,
+                scale: 0.9,
+                opacity: 0,
+                ease: 'back.out(1.7)'
+            });
+        }
+        
+    } catch (error) {
+        showNotification('인증코드가 올바르지 않습니다. 다시 확인해주세요.', 'error');
+        document.getElementById('verificationCode').value = '';
+        verifyCodeBtn.innerHTML = originalText;
+        verifyCodeBtn.disabled = false;
+    }
+}
+
+async function resendVerificationCode() {
+    const email = document.getElementById('emailDisplay').textContent;
+    
+    try {
+        await simulateAPICall(1000);
+        
+        showNotification('인증코드가 재발송되었습니다.', 'success');
+        startResendTimer();
+        
+    } catch (error) {
+        showNotification('재발송에 실패했습니다. 다시 시도해주세요.', 'error');
+    }
+}
+
+function startResendTimer() {
+    const resendBtn = document.getElementById('resendBtn');
+    const countdown = document.getElementById('countdown');
+    let seconds = 60;
+    
+    resendBtn.disabled = true;
+    
+    const timer = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        
+        if (seconds <= 0) {
+            clearInterval(timer);
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = '재발송';
+        }
+    }, 1000);
 }
 
 // 주소 검색
@@ -318,6 +479,7 @@ function searchAddress() {
     address.value = '서울특별시 강남구 테헤란로 123';
     
     showNotification('주소가 입력되었습니다.', 'success');
+    checkFormValidity();
 }
 
 // 약관 동의
@@ -329,6 +491,7 @@ function initializeAgreements() {
             allCheckboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
+            checkFormValidity();
         });
     }
     
@@ -339,6 +502,7 @@ function initializeAgreements() {
             if (agreeAllCheckbox) {
                 agreeAllCheckbox.checked = allChecked;
             }
+            checkFormValidity();
         });
     });
 }
@@ -584,6 +748,33 @@ function showNotification(message, type = 'info') {
         alert(message);
     }
 }
+
+// 전화번호 형식 처리
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+    
+    if (value.length >= 11) {
+        value = value.substring(0, 11);
+        value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+    } else if (value.length >= 7) {
+        value = value.replace(/(\d{3})(\d{3,4})(\d{0,4})/, '$1-$2-$3');
+    } else if (value.length >= 3) {
+        value = value.replace(/(\d{3})(\d{0,4})/, '$1-$2');
+    }
+    
+    input.value = value;
+}
+
+// 전화번호 입력 이벤트 추가
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            formatPhoneNumber(this);
+            checkFormValidity();
+        });
+    }
+});
 
 // 약관 내용
 function getTermsContent() {

@@ -1,7 +1,7 @@
 // static/js/find-account.js
 
-let findIdPassVerified = false;
-let findPwPassVerified = false;
+let findIdEmailVerified = false;
+let findPwEmailVerified = false;
 
 // 계정 찾기 페이지 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,43 +24,69 @@ function initializeFindAccount() {
         findPasswordForm.addEventListener('submit', handleFindPassword);
     }
     
-    // PASS 인증 버튼들
-    const findIdPassBtn = document.getElementById('findIdPassBtn');
-    if (findIdPassBtn) {
-        findIdPassBtn.addEventListener('click', () => performPassAuth('findId'));
+    // 이메일 인증 버튼들
+    const findIdSendCodeBtn = document.getElementById('findIdSendCodeBtn');
+    if (findIdSendCodeBtn) {
+        findIdSendCodeBtn.addEventListener('click', () => sendVerificationCode('findId'));
     }
     
-    const findPwPassBtn = document.getElementById('findPwPassBtn');
-    if (findPwPassBtn) {
-        findPwPassBtn.addEventListener('click', () => performPassAuth('findPw'));
+    const findIdVerifyBtn = document.getElementById('findIdVerifyBtn');
+    if (findIdVerifyBtn) {
+        findIdVerifyBtn.addEventListener('click', () => verifyEmailCode('findId'));
+    }
+    
+    const findIdResendBtn = document.getElementById('findIdResendBtn');
+    if (findIdResendBtn) {
+        findIdResendBtn.addEventListener('click', () => resendVerificationCode('findId'));
+    }
+    
+    const findPwSendCodeBtn = document.getElementById('findPwSendCodeBtn');
+    if (findPwSendCodeBtn) {
+        findPwSendCodeBtn.addEventListener('click', () => sendVerificationCode('findPw'));
+    }
+    
+    const findPwVerifyBtn = document.getElementById('findPwVerifyBtn');
+    if (findPwVerifyBtn) {
+        findPwVerifyBtn.addEventListener('click', () => verifyEmailCode('findPw'));
+    }
+    
+    const findPwResendBtn = document.getElementById('findPwResendBtn');
+    if (findPwResendBtn) {
+        findPwResendBtn.addEventListener('click', () => resendVerificationCode('findPw'));
     }
 }
 
 // 아이디 찾기 폼 초기화
 function initializeFindIdForm() {
-    const phoneInput = document.getElementById('findIdPhone');
+    const nameInput = document.getElementById('findIdName');
+    const emailInput = document.getElementById('findIdEmail');
     
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            formatPhoneNumber(this);
-        });
-        
-        phoneInput.addEventListener('blur', function() {
-            validateFindIdPhone();
-        });
+    if (nameInput) {
+        nameInput.addEventListener('blur', validateFindIdName);
+        nameInput.addEventListener('input', clearFieldError.bind(null, 'findIdNameError'));
+    }
+    
+    if (emailInput) {
+        emailInput.addEventListener('blur', validateFindIdEmail);
+        emailInput.addEventListener('input', clearFieldError.bind(null, 'findIdEmailError'));
     }
 }
 
 // 비밀번호 찾기 폼 초기화
 function initializeFindPasswordForm() {
+    const nameInput = document.getElementById('findPwName');
     const emailInput = document.getElementById('findPwEmail');
     const newPasswordInput = document.getElementById('newPassword');
     const newPasswordConfirmInput = document.getElementById('newPasswordConfirm');
     
+    if (nameInput) {
+        nameInput.addEventListener('blur', validateFindPwName);
+        nameInput.addEventListener('input', clearFieldError.bind(null, 'findPwNameError'));
+    }
+    
     if (emailInput) {
-        emailInput.addEventListener('blur', function() {
-            validateFindPwEmail();
-        });
+        emailInput.addEventListener('blur', validateFindPwEmail);
+        emailInput.addEventListener('input', clearFieldError.bind(null, 'findPwEmailError'));
     }
     
     if (newPasswordInput) {
@@ -70,44 +96,141 @@ function initializeFindPasswordForm() {
     }
     
     if (newPasswordConfirmInput) {
-        newPasswordConfirmInput.addEventListener('input', function() {
-            validateNewPasswordConfirm();
-        });
+        newPasswordConfirmInput.addEventListener('input', validateNewPasswordConfirm);
     }
 }
 
-// PASS 인증 수행
-async function performPassAuth(type) {
-    const authBtn = document.getElementById(type === 'findId' ? 'findIdPassBtn' : 'findPwPassBtn');
-    const authStatus = document.getElementById(type === 'findId' ? 'findIdAuthStatus' : 'findPwAuthStatus');
-    const submitBtn = document.getElementById(type === 'findId' ? 'findIdSubmitBtn' : 'findPwSubmitBtn');
+// 이메일 인증 코드 발송
+async function sendVerificationCode(type) {
+    const nameInput = document.getElementById(type === 'findId' ? 'findIdName' : 'findPwName');
+    const emailInput = document.getElementById(type === 'findId' ? 'findIdEmail' : 'findPwEmail');
+    const sendCodeBtn = document.getElementById(type === 'findId' ? 'findIdSendCodeBtn' : 'findPwSendCodeBtn');
+    const verificationSection = document.getElementById(type === 'findId' ? 'findIdVerificationSection' : 'findPwVerificationSection');
     
-    const originalText = authBtn.innerHTML;
-    authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 인증 중...';
-    authBtn.disabled = true;
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    
+    // 유효성 검사
+    if (type === 'findId') {
+        if (!validateFindIdName() || !validateFindIdEmail()) {
+            return;
+        }
+    } else {
+        if (!validateFindPwName() || !validateFindPwEmail()) {
+            return;
+        }
+    }
+    
+    const originalText = sendCodeBtn.innerHTML;
+    sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 발송 중...';
+    sendCodeBtn.disabled = true;
     
     try {
-        // PASS 인증 시뮬레이션
-        await simulateAPICall(3000);
+        // 이메일 인증 코드 발송 API 호출 시뮬레이션
+        await simulateAPICall(1500);
+        
+        // 발송 성공
+        verificationSection.style.display = 'block';
+        sendCodeBtn.style.display = 'none';
+        
+        showNotification('인증코드가 발송되었습니다. 이메일을 확인해주세요.', 'success');
+        startResendTimer(type);
+        
+    } catch (error) {
+        showNotification('인증코드 발송에 실패했습니다. 다시 시도해주세요.', 'error');
+        sendCodeBtn.innerHTML = originalText;
+        sendCodeBtn.disabled = false;
+    }
+}
+
+// 이메일 인증 코드 확인
+async function verifyEmailCode(type) {
+    const codeInput = document.getElementById(type === 'findId' ? 'findIdVerificationCode' : 'findPwVerificationCode');
+    const verifyBtn = document.getElementById(type === 'findId' ? 'findIdVerifyBtn' : 'findPwVerifyBtn');
+    const authStatus = document.getElementById(type === 'findId' ? 'findIdAuthStatus' : 'findPwAuthStatus');
+    const verificationSection = document.getElementById(type === 'findId' ? 'findIdVerificationSection' : 'findPwVerificationSection');
+    const submitBtn = document.getElementById(type === 'findId' ? 'findIdSubmitBtn' : 'findPwSubmitBtn');
+    
+    const code = codeInput.value.trim();
+    
+    if (!code || code.length !== 6) {
+        showNotification('6자리 인증코드를 입력해주세요.', 'error');
+        return;
+    }
+    
+    const originalText = verifyBtn.innerHTML;
+    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 확인 중...';
+    verifyBtn.disabled = true;
+    
+    try {
+        // 인증 코드 확인 API 호출 시뮬레이션
+        await simulateAPICall(1000);
         
         // 인증 성공
+        verificationSection.style.display = 'none';
         authStatus.style.display = 'block';
-        authBtn.style.display = 'none';
         submitBtn.disabled = false;
         
         if (type === 'findId') {
-            findIdPassVerified = true;
+            findIdEmailVerified = true;
         } else {
-            findPwPassVerified = true;
+            findPwEmailVerified = true;
         }
         
-        showNotification('PASS 인증이 완료되었습니다.', 'success');
+        showNotification('이메일 인증이 완료되었습니다.', 'success');
+        
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.from(authStatus, {
+                duration: 0.6,
+                scale: 0.9,
+                opacity: 0,
+                ease: 'back.out(1.7)'
+            });
+        }
         
     } catch (error) {
-        showNotification('PASS 인증에 실패했습니다. 다시 시도해주세요.', 'error');
-        authBtn.innerHTML = originalText;
-        authBtn.disabled = false;
+        showNotification('인증코드가 올바르지 않습니다. 다시 확인해주세요.', 'error');
+        codeInput.value = '';
+        verifyBtn.innerHTML = originalText;
+        verifyBtn.disabled = false;
     }
+}
+
+// 인증 코드 재발송
+async function resendVerificationCode(type) {
+    const emailInput = document.getElementById(type === 'findId' ? 'findIdEmail' : 'findPwEmail');
+    const email = emailInput.value.trim();
+    
+    try {
+        await simulateAPICall(1000);
+        
+        showNotification('인증코드가 재발송되었습니다.', 'success');
+        startResendTimer(type);
+        
+    } catch (error) {
+        showNotification('재발송에 실패했습니다. 다시 시도해주세요.', 'error');
+    }
+}
+
+// 재발송 타이머 시작
+function startResendTimer(type) {
+    const resendBtn = document.getElementById(type === 'findId' ? 'findIdResendBtn' : 'findPwResendBtn');
+    const countdown = document.getElementById(type === 'findId' ? 'findIdCountdown' : 'findPwCountdown');
+    let seconds = 60;
+    
+    resendBtn.disabled = true;
+    
+    const timer = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        
+        if (seconds <= 0) {
+            clearInterval(timer);
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = '재발송';
+        }
+    }, 1000);
 }
 
 // 아이디 찾기 처리
@@ -118,8 +241,8 @@ async function handleFindId(e) {
         return;
     }
     
-    if (!findIdPassVerified) {
-        showNotification('PASS 인증을 완료해주세요.', 'error');
+    if (!findIdEmailVerified) {
+        showNotification('이메일 인증을 완료해주세요.', 'error');
         return;
     }
     
@@ -159,8 +282,8 @@ async function handleFindPassword(e) {
         return;
     }
     
-    if (!findPwPassVerified) {
-        showNotification('PASS 인증을 완료해주세요.', 'error');
+    if (!findPwEmailVerified) {
+        showNotification('이메일 인증을 완료해주세요.', 'error');
         return;
     }
     
@@ -342,7 +465,7 @@ function validateNewPasswordConfirm() {
 
 // 유효성 검사 함수들
 function validateFindIdForm() {
-    return validateFindIdName() && validateFindIdPhone();
+    return validateFindIdName() && validateFindIdEmail();
 }
 
 function validateFindPasswordForm() {
@@ -364,19 +487,19 @@ function validateFindIdName() {
     return true;
 }
 
-function validateFindIdPhone() {
-    const phone = document.getElementById('findIdPhone').value.trim();
-    const phoneRegex = /^010-\d{4}-\d{4}$/;
+function validateFindIdEmail() {
+    const email = document.getElementById('findIdEmail').value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
-    if (!phone) {
-        showFieldError('findIdPhoneError', '휴대폰 번호를 입력해주세요.');
+    if (!email) {
+        showFieldError('findIdEmailError', '이메일을 입력해주세요.');
         return false;
     }
-    if (!phoneRegex.test(phone)) {
-        showFieldError('findIdPhoneError', '올바른 휴대폰 번호 형식으로 입력해주세요.');
+    if (!emailRegex.test(email)) {
+        showFieldError('findIdEmailError', '올바른 이메일 형식을 입력해주세요.');
         return false;
     }
-    clearFieldError('findIdPhoneError');
+    clearFieldError('findIdEmailError');
     return true;
 }
 
@@ -407,21 +530,6 @@ function validateFindPwEmail() {
 }
 
 // 유틸리티 함수들
-function formatPhoneNumber(input) {
-    let value = input.value.replace(/\D/g, '');
-    
-    if (value.length >= 11) {
-        value = value.substring(0, 11);
-        value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-    } else if (value.length >= 7) {
-        value = value.replace(/(\d{3})(\d{3,4})(\d{0,4})/, '$1-$2-$3');
-    } else if (value.length >= 3) {
-        value = value.replace(/(\d{3})(\d{0,4})/, '$1-$2');
-    }
-    
-    input.value = value;
-}
-
 function generateMaskedEmail(name) {
     // 시뮬레이션용 이메일 생성
     const domains = ['gmail.com', 'naver.com', 'daum.net', 'hanmail.net'];

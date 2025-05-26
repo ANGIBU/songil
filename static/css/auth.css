@@ -688,18 +688,21 @@
     font-size: var(--font-size-sm);
 }
 
-/* 로그인 버튼 전용 스타일 */
+/* 로그인 버튼 전용 스타일 - 회색으로 변경 */
 .btn-login-submit {
-    background-color: var(--gray-300);
+    background-color: #e5e7eb;
     color: var(--gray-700);
-    border: 2px solid var(--gray-300);
+    border: 2px solid #e5e7eb;
     font-weight: 600;
+    padding: var(--spacing-3) var(--spacing-6);
+    border-radius: var(--radius-lg);
+    transition: var(--transition-all);
 }
 
 .btn-login-submit:hover {
-    background-color: var(--gray-200);
+    background-color: #d1d5db;
     color: var(--gray-800);
-    border-color: var(--gray-200);
+    border-color: #d1d5db;
     transform: none;
     box-shadow: none;
 }
@@ -736,6 +739,7 @@
     padding: 0 var(--spacing-4);
     font-size: var(--font-size-sm);
     font-weight: 500;
+    z-index: 1;
 }
 
 .social-login {
