@@ -3,16 +3,18 @@
 // React 컴포넌트 활용
 const { useState, useEffect } = React;
 
-// 실종자 카드 데이터 - 더 간결하고 희망적으로
-const urgentMissingData = [
+// 실종자 검색 페이지의 데이터를 가져와서 긴급 실종자용으로 활용
+const allMissingData = [
     {
         id: 1,
         name: "김○○",
         age: 32,
         gender: "남성",
-        date: "2024.05.20",
-        location: "서울시 강남구",
+        date: "2024-05-20",
+        location: "서울시 강남구 역삼동",
+        region: "seoul",
         description: "검은색 정장, 갈색 구두",
+        physicalInfo: "175cm, 중간체형",
         dangerLevel: "high",
         upCount: 246,
         period: "3일째",
@@ -23,9 +25,11 @@ const urgentMissingData = [
         name: "박○○",
         age: 8,
         gender: "남성",
-        date: "2024.05.21",
-        location: "부산시 해운대구",
+        date: "2024-05-21",
+        location: "부산시 해운대구 중동",
+        region: "busan",
         description: "파란색 티셔츠, 검은색 반바지",
+        physicalInfo: "120cm, 마른체형",
         dangerLevel: "high",
         upCount: 189,
         period: "2일째",
@@ -36,15 +40,145 @@ const urgentMissingData = [
         name: "최○○",
         age: 67,
         gender: "여성",
-        date: "2024.05.22",
-        location: "대구시 중구",
+        date: "2024-05-22",
+        location: "대구시 중구 삼덕동",
+        region: "daegu",
         description: "흰색 블라우스, 검은색 바지",
-        dangerLevel: "medium",
+        physicalInfo: "160cm, 중간체형",
+        dangerLevel: "high",
         upCount: 134,
         period: "1일째",
         image: "/static/images/sample-missing-3.jpg"
+    },
+    {
+        id: 4,
+        name: "이○○",
+        age: 45,
+        gender: "남성",
+        date: "2024-05-19",
+        location: "인천시 남동구 구월동",
+        region: "incheon",
+        description: "회색 후드티, 청바지",
+        physicalInfo: "168cm, 뚱뚱한체형",
+        dangerLevel: "high",
+        upCount: 87,
+        period: "4일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 5,
+        name: "정○○",
+        age: 23,
+        gender: "여성",
+        date: "2024-05-18",
+        location: "광주시 서구 상무동",
+        region: "gwangju",
+        description: "분홍색 원피스, 흰색 운동화",
+        physicalInfo: "165cm, 마른체형",
+        dangerLevel: "medium",
+        upCount: 156,
+        period: "5일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 6,
+        name: "홍○○",
+        age: 14,
+        gender: "남성",
+        date: "2024-05-23",
+        location: "대전시 유성구 봉명동",
+        region: "daejeon",
+        description: "교복, 검은색 가방",
+        physicalInfo: "160cm, 마른체형",
+        dangerLevel: "high",
+        upCount: 23,
+        period: "방금",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 7,
+        name: "강○○",
+        age: 28,
+        gender: "여성",
+        date: "2024-05-17",
+        location: "울산시 남구 삼산동",
+        region: "ulsan",
+        description: "빨간색 코트, 검은색 부츠",
+        physicalInfo: "162cm, 마른체형",
+        dangerLevel: "high",
+        upCount: 98,
+        period: "6일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 8,
+        name: "윤○○",
+        age: 52,
+        gender: "남성",
+        date: "2024-05-16",
+        location: "경기도 성남시 분당구",
+        region: "gyeonggi",
+        description: "네이비 셔츠, 베이지 바지",
+        physicalInfo: "172cm, 중간체형",
+        dangerLevel: "high",
+        upCount: 143,
+        period: "7일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 9,
+        name: "서○○",
+        age: 19,
+        gender: "여성",
+        date: "2024-05-20",
+        location: "강원도 춘천시 후평동",
+        region: "gangwon",
+        description: "흰색 맨투맨, 청바지",
+        physicalInfo: "158cm, 마른체형",
+        dangerLevel: "medium",
+        upCount: 76,
+        period: "3일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 10,
+        name: "조○○",
+        age: 75,
+        gender: "남성",
+        date: "2024-05-15",
+        location: "제주시 일도2동",
+        region: "jeju",
+        description: "갈색 자켓, 검은색 바지",
+        physicalInfo: "165cm, 마른체형",
+        dangerLevel: "high",
+        upCount: 234,
+        period: "8일째",
+        image: "/static/images/placeholder.jpg"
     }
 ];
+
+// 위험도가 높은 실종자들을 필터링하고 랜덤으로 8명 선택
+function getUrgentMissingData() {
+    const highDangerMissing = allMissingData.filter(person => person.dangerLevel === 'high');
+    const mediumDangerMissing = allMissingData.filter(person => person.dangerLevel === 'medium');
+    
+    // 높은 위험도 우선, 부족하면 중간 위험도로 채움
+    let urgentList = [...highDangerMissing];
+    if (urgentList.length < 8) {
+        urgentList = urgentList.concat(mediumDangerMissing.slice(0, 8 - urgentList.length));
+    }
+    
+    // 배열을 섞어서 랜덤하게 배치
+    for (let i = urgentList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [urgentList[i], urgentList[j]] = [urgentList[j], urgentList[i]];
+    }
+    
+    return urgentList.slice(0, 8);
+}
+
+// 긴급 실종자 데이터 (동적으로 생성)
+const urgentMissingData = getUrgentMissingData();
 
 // 실종자 카드 React 컴포넌트
 function MissingCard({ data, onUpClick }) {
@@ -68,6 +202,10 @@ function MissingCard({ data, onUpClick }) {
             case 'low': return '관심';
             default: return '일반';
         }
+    };
+
+    const formatDate = (dateStr) => {
+        return dateStr.replace(/-/g, '.');
     };
 
     return React.createElement('div', {
@@ -701,7 +839,7 @@ class ScrollObserver {
                         this.startStatCounter(entry.target);
                     }
                 } else {
-                    // 스크롤 아웃 시에도 클래스 유지 (버그 수정)
+                    // 스크rol� 아웃 시에도 클래스 유지 (버그 수정)
                     // entry.target.classList.remove('in-view');
                 }
             });
@@ -847,9 +985,9 @@ class IndexPage {
         setInterval(() => {
             hopeLight.style.animation = 'none';
             setTimeout(() => {
-                hopeLight.style.animation = 'hopeLightMove 12s ease-in-out';
+                hopeLight.style.animation = 'hopeLightMove 15s ease-in-out';
             }, 100);
-        }, 15000); // 15초마다 실행
+        }, 18000); // 18초마다 실행
     }
 
     initNetworkVisualization() {

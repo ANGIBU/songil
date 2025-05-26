@@ -182,12 +182,10 @@ body {
     color: var(--primary-orange);
     font-size: var(--font-size-xl);
     font-weight: 700;
-    transition: var(--transition-all);
 }
 
 .logo a:hover {
     color: var(--primary-orange-dark);
-    transform: scale(1.05);
 }
 
 .main-nav ul {
@@ -203,7 +201,6 @@ body {
     text-decoration: none;
     color: var(--gray-600);
     font-weight: 500;
-    transition: var(--transition-all);
     padding: var(--spacing-2) var(--spacing-3);
     border-radius: var(--radius-md);
 }
@@ -211,7 +208,12 @@ body {
 .main-nav a:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
-    transform: translateY(-1px);
+}
+
+.main-nav a.active {
+    color: var(--primary-orange);
+    background-color: var(--primary-orange-soft);
+    font-weight: 600;
 }
 
 .user-menu {
@@ -224,7 +226,6 @@ body {
     position: relative;
     color: var(--gray-600);
     font-size: var(--font-size-lg);
-    transition: var(--transition-all);
     padding: var(--spacing-2);
     border-radius: var(--radius-md);
 }
@@ -232,7 +233,6 @@ body {
 .notification-btn:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
-    transform: scale(1.1);
 }
 
 .notification-badge {
@@ -252,7 +252,6 @@ body {
 .profile-btn {
     color: var(--gray-600);
     font-size: var(--font-size-xl);
-    transition: var(--transition-all);
     padding: var(--spacing-2);
     border-radius: var(--radius-md);
 }
@@ -260,7 +259,6 @@ body {
 .profile-btn:hover {
     color: var(--secondary-green);
     background-color: var(--secondary-green-soft);
-    transform: scale(1.1);
 }
 
 .guest-actions {
@@ -291,7 +289,6 @@ body {
     cursor: pointer;
     padding: var(--spacing-2);
     border-radius: var(--radius-md);
-    transition: var(--transition-all);
 }
 
 .mobile-menu-btn:hover {
@@ -322,12 +319,17 @@ body {
     padding: var(--spacing-3) var(--spacing-4);
     text-decoration: none;
     color: var(--gray-600);
-    transition: var(--transition-all);
 }
 
 .mobile-nav a:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
+}
+
+.mobile-nav a.active {
+    color: var(--primary-orange);
+    background-color: var(--primary-orange-soft);
+    font-weight: 600;
 }
 
 /* 메인 콘텐츠 */
@@ -779,6 +781,11 @@ body {
 
 .footer-section i {
     color: var(--primary-orange-light);
+    width: 16px;
+}
+
+.footer-section i.team-icon {
+    color: var(--gray-300);
     width: 16px;
 }
 
