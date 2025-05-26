@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}실종자 찾기 플랫폼{% endblock %}</title>
+    <title>{% block title %}손길 - 실종자 찾기 플랫폼{% endblock %}</title>
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -25,8 +25,8 @@
                 <!-- 로고 -->
                 <div class="logo">
                     <a href="{{ url_for('index') }}">
-                        <i class="fas fa-search-location"></i>
-                        <span>실종자 찾기</span>
+                        <i class="fas fa-hands-helping"></i>
+                        <span>손길</span>
                     </a>
                 </div>
                 
@@ -111,21 +111,21 @@
                     <h4>고객센터</h4>
                     <ul>
                         <li>전화: 1588-0000</li>
-                        <li>이메일: help@missing-finder.kr</li>
+                        <li>이메일: help@songil.kr</li>
                         <li>운영시간: 24시간 연중무휴</li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>공공데이터 경진대회</h4>
-                    <p>본 서비스는 공공데이터 활용 경진대회 출품작입니다.</p>
+                    <h4>개발팀</h4>
+                    <ul>
+                        <li><i class="fas fa-users-cog"></i> 손유빈 (PM)</li>
+                        <li><i class="fas fa-code"></i> 안기부 (프론트엔드)</li>
+                        <li><i class="fas fa-server"></i> 황수용 (백엔드)</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #6b7280;">
+                        공공데이터 활용 경진대회 출품작
+                    </p>
                 </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 실종자 찾기 플랫폼. All rights reserved.</p>
-                <ul class="footer-links">
-                    <li><a href="#privacy-policy">개인정보처리방침</a></li>
-                    <li><a href="#terms">이용약관</a></li>
-                </ul>
             </div>
         </div>
     </footer>

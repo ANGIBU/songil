@@ -6,26 +6,64 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
     initializePasswordToggle();
     initializeTabSystem();
+    initializeLoginAnimation();
 });
 
 // 인증 시스템 초기화
 function initializeAuth() {
-    // CSS 파일 로드
-    const authCSS = document.createElement('link');
-    authCSS.rel = 'stylesheet';
-    authCSS.href = '/static/css/auth.css';
-    document.head.appendChild(authCSS);
-    
     // 로그인 폼 이벤트
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
     }
     
-    // 애니메이션 초기화
-    if (typeof gsap !== 'undefined') {
-        initializeAuthAnimations();
+    // 소셜 로그인 버튼 이벤트
+    const googleLoginBtn = document.querySelector('.btn-google');
+    const kakaoLoginBtn = document.querySelector('.btn-kakao');
+    
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', handleGoogleLogin);
     }
+    
+    if (kakaoLoginBtn) {
+        kakaoLoginBtn.addEventListener('click', handleKakaoLogin);
+    }
+}
+
+// 로그인 페이지 애니메이션 초기화
+function initializeLoginAnimation() {
+    // 로그인 페이지인지 확인
+    const loginForm = document.getElementById('loginForm');
+    if (!loginForm) return;
+    
+    // 헤더 애니메이션 후 폼 요소들 순차 등장
+    setTimeout(() => {
+        showLoginForm();
+    }, 800);
+}
+
+// 로그인 폼 요소들 순차적으로 표시
+function showLoginForm() {
+    const formElements = [
+        document.getElementById('loginForm'),
+        ...document.querySelectorAll('.form-group'),
+        document.querySelector('.form-options'),
+        document.querySelector('.btn-full'),
+        document.querySelector('.auth-divider'),
+        document.querySelector('.social-login'),
+        document.querySelector('.auth-footer')
+    ];
+    
+    let delay = 0;
+    
+    formElements.forEach((element, index) => {
+        if (element) {
+            setTimeout(() => {
+                element.classList.add('show');
+            }, delay);
+            delay += 150; // 150ms 간격으로 순차 등장
+        }
+    });
 }
 
 // 로그인 처리
@@ -80,6 +118,70 @@ async function handleLogin(e) {
     } finally {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
+    }
+}
+
+// Google 로그인 처리
+async function handleGoogleLogin() {
+    const btn = document.querySelector('.btn-google');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Google 연결 중...';
+    btn.disabled = true;
+    
+    try {
+        await simulateAPICall(2000);
+        
+        // 성공 시 사용자 정보 저장
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', 'google@example.com');
+        localStorage.setItem('userName', 'Google 사용자');
+        localStorage.setItem('userPoints', '1000');
+        localStorage.setItem('loginMethod', 'google');
+        
+        showNotification('Google 로그인이 완료되었습니다!', 'success');
+        
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+        
+    } catch (error) {
+        showNotification('Google 로그인에 실패했습니다.', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// 카카오 로그인 처리
+async function handleKakaoLogin() {
+    const btn = document.querySelector('.btn-kakao');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 카카오 연결 중...';
+    btn.disabled = true;
+    
+    try {
+        await simulateAPICall(2000);
+        
+        // 성공 시 사용자 정보 저장
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', 'kakao@example.com');
+        localStorage.setItem('userName', '카카오 사용자');
+        localStorage.setItem('userPoints', '1000');
+        localStorage.setItem('loginMethod', 'kakao');
+        
+        showNotification('카카오 로그인이 완료되었습니다!', 'success');
+        
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+        
+    } catch (error) {
+        showNotification('카카오 로그인에 실패했습니다.', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 }
 
@@ -361,51 +463,6 @@ function simulateAPICall(delay = 1000) {
     });
 }
 
-// 인증 애니메이션 초기화
-function initializeAuthAnimations() {
-    // 페이지 로드 애니메이션
-    gsap.from('.auth-container', {
-        duration: 0.8,
-        y: 50,
-        opacity: 0,
-        ease: 'power2.out'
-    });
-    
-    gsap.from('.auth-logo', {
-        duration: 1,
-        scale: 0,
-        rotation: 180,
-        delay: 0.3,
-        ease: 'back.out(1.7)'
-    });
-    
-    gsap.from('.auth-header h1', {
-        duration: 0.6,
-        y: 30,
-        opacity: 0,
-        delay: 0.5,
-        ease: 'power2.out'
-    });
-    
-    gsap.from('.auth-header p', {
-        duration: 0.6,
-        y: 20,
-        opacity: 0,
-        delay: 0.7,
-        ease: 'power2.out'
-    });
-    
-    // 폼 요소들 순차적 등장
-    gsap.from('.form-group', {
-        duration: 0.5,
-        y: 20,
-        opacity: 0,
-        delay: 0.9,
-        stagger: 0.1,
-        ease: 'power2.out'
-    });
-}
-
 // 알림 함수 (기본 script.js의 함수 사용하되, 없으면 간단한 버전 사용)
 function showNotification(message, type = 'info') {
     // 전역 showNotification 함수가 있으면 사용
@@ -415,5 +472,48 @@ function showNotification(message, type = 'info') {
     }
     
     // 간단한 알림 구현
-    alert(message);
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    notification.textContent = message;
+    
+    // 애니메이션 CSS 추가
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // 3초 후 제거
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
 }
