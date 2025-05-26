@@ -3,7 +3,7 @@
 // React 컴포넌트 활용
 const { useState, useEffect } = React;
 
-// 실종자 카드 데이터
+// 실종자 카드 데이터 - 더 간결하고 희망적으로
 const urgentMissingData = [
     {
         id: 1,
@@ -97,7 +97,7 @@ function MissingCard({ data, onUpClick }) {
             React.createElement('p', { className: 'missing-info', key: 'info' }, [
                 React.createElement('span', { key: 'date' }, [
                     React.createElement('i', { className: 'fas fa-calendar', key: 'date-icon' }),
-                    ` ${data.date} 실종`
+                    ` ${formatDate(data.date)} 실종`
                 ]),
                 React.createElement('br', { key: 'br1' }),
                 React.createElement('span', { key: 'location' }, [
@@ -779,12 +779,20 @@ class IndexPage {
             }
         }, 300);
         
+        // 희망의 빛 효과 초기화
+        setTimeout(() => {
+            if (!this.isDestroyed) {
+                this.initHopeLightEffect();
+            }
+        }, 500);
+        
         // 이벤트 리스너 설정
         this.setupEventListeners();
         
         console.log('Index page initialized successfully');
     }
 
+    // React 컴포넌트 렌더링
     renderUrgentCards() {
         const urgentContainer = document.querySelector('.urgent-cards');
         if (!urgentContainer || typeof React === 'undefined') {
@@ -801,9 +809,9 @@ class IndexPage {
                 this.animations.animateUpButton(button);
             }
             
-            // 알림 표시 (전역 함수 사용)
+            // 희망적인 알림 표시
             if (window.showNotification) {
-                window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+                window.showNotification('소중한 참여에 감사합니다! 함께라면 찾을 수 있어요.', 'success');
             }
         };
 
@@ -823,6 +831,25 @@ class IndexPage {
         } catch (error) {
             console.error('React rendering failed:', error);
         }
+    }
+
+    // 희망의 빛 효과 초기화
+    initHopeLightEffect() {
+        const statsSection = document.querySelector('.stats-section');
+        if (!statsSection) return;
+
+        // 빛 효과 요소 생성
+        const hopeLight = document.createElement('div');
+        hopeLight.className = 'hope-light';
+        statsSection.appendChild(hopeLight);
+
+        // 주기적으로 빛 효과 실행
+        setInterval(() => {
+            hopeLight.style.animation = 'none';
+            setTimeout(() => {
+                hopeLight.style.animation = 'hopeLightMove 12s ease-in-out';
+            }, 100);
+        }, 15000); // 15초마다 실행
     }
 
     initNetworkVisualization() {
@@ -940,7 +967,7 @@ window.handleUpClick = function(button, missingId) {
     }
     
     if (window.showNotification) {
-        window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+        window.showNotification('소중한 참여에 감사합니다! 함께라면 찾을 수 있어요.', 'success');
     }
 };
 

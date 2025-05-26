@@ -468,7 +468,7 @@
     font-size: 0.95rem;
 }
 
-/* 통계 섹션 */
+/* 희망 메시지 섹션 (기존 통계 섹션) */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -481,26 +481,81 @@
 .stats-section::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: -50px;
     left: 0;
     right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="10" cy="90" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(34, 197, 94, 0.1) 100%);
     pointer-events: none;
+}
+
+.stats-section::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(249, 115, 22, 0.1) 100%);
+    pointer-events: none;
+}
+
+/* 희망의 빛 효과 */
+.hope-light {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 30%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.1) 70%, 
+        transparent 100%);
+    animation: hopeLightMove 12s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes hopeLightMove {
+    0% { 
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    20% { 
+        opacity: 0.8;
+    }
+    80% { 
+        opacity: 0.8;
+    }
+    100% { 
+        transform: translateX(-100vw);
+        opacity: 0;
+    }
 }
 
 .stats-section h2 {
     font-size: 2.75rem;
     font-weight: 700;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.hope-message {
+    font-size: 1.4rem;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto 50px;
+    opacity: 0.95;
     position: relative;
     z-index: 1;
 }
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
     position: relative;
     z-index: 1;
 }

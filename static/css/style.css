@@ -269,20 +269,16 @@ body {
 }
 
 .login-btn {
-    padding: var(--spacing-3) var(--spacing-6);
+    padding: var(--spacing-2) var(--spacing-4);
     text-decoration: none;
-    border-radius: var(--radius-lg);
-    font-weight: 600;
-    transition: var(--transition-all);
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-    color: var(--white);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: var(--transition-opacity);
+    color: var(--gray-600);
 }
 
 .login-btn:hover {
-    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    opacity: 0.6;
 }
 
 /* 모바일 메뉴 */

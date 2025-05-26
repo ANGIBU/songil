@@ -136,26 +136,30 @@
     </div>
 </section>
 
-<!-- 통계 섹션 -->
+<!-- 희망 메시지 섹션 -->
 <section class="stats-section">
     <div class="container">
-        <h2>우리의 성과</h2>
+        <h2>지금도 누군가는 간절히 기다리고 있습니다</h2>
+        <p class="hope-message">
+            소중한 사람을 찾는 가족들의 마음에 희망의 불씨가 꺼지지 않도록,<br>
+            우리 모두의 작은 관심과 참여가 기적 같은 상봉을 만들어갑니다.
+        </p>
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-number" data-count="1847">0</div>
-                <div class="stat-label">누적 신고 건수</div>
+                <div class="stat-label">함께한 신고</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" data-count="1203">0</div>
-                <div class="stat-label">해결 건수</div>
+                <div class="stat-label">이루어진 상봉</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" data-count="15429">0</div>
-                <div class="stat-label">참여자 수</div>
+                <div class="stat-label">희망을 나눈 분들</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number" data-count="94">0%</div>
-                <div class="stat-label">해결률</div>
+                <div class="stat-label">포기하지 않는 마음</div>
             </div>
         </div>
     </div>
@@ -168,9 +172,9 @@
             <h2>지금 바로 참여하세요</h2>
             <p>실종자를 찾는 일에 함께해 주세요. 작은 관심이 큰 변화를 만듭니다.</p>
             <div class="cta-buttons">
-                <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">
-                    <i class="fas fa-user-plus"></i>
-                    회원가입하기
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-large">
+                    <i class="fas fa-sign-in-alt"></i>
+                    로그인하기
                 </a>
                 <a href="{{ url_for('search') }}" class="btn btn-secondary btn-large">
                     <i class="fas fa-search"></i>
