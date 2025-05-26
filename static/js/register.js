@@ -1,4 +1,49 @@
-// static/js/register.js
+// 생년월일 유효성 검사
+function validateBirthDate() {
+    const birthDate = document.getElementById('birthDate').value.trim();
+    
+    if (!birthDate) {
+        showFieldError('birthDateError', '생년월일을 입력해주세요.');
+        return false;
+    }
+    
+    if (birthDate.length !== 8) {
+        showFieldError('birthDateError', '생년월일을 8자리로 입력해주세요. (예: 20020101)');
+        return false;
+    }
+    
+    // 날짜 형식 검증
+    const year = parseInt(birthDate.substring(0, 4));
+    const month = parseInt(birthDate.substring(4, 6));
+    const day = parseInt(birthDate.substring(6, 8));
+    
+    const currentYear = new Date().getFullYear();
+    
+    if (year < 1900 || year > currentYear) {
+        showFieldError('birthDateError', '올바른 연도를 입력해주세요.');
+        return false;
+    }
+    
+    if (month < 1 || month > 12) {
+        showFieldError('birthDateError', '올바른 월을 입력해주세요.');
+        return false;
+    }
+    
+    if (day < 1 || day > 31) {
+        showFieldError('birthDateError', '올바른 일을 입력해주세요.');
+        return false;
+    }
+    
+    // 실제 날짜 유효성 검사
+    const testDate = new Date(year, month - 1, day);
+    if (testDate.getFullYear() !== year || testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
+        showFieldError('birthDateError', '유효하지 않은 날짜입니다.');
+        return false;
+    }
+    
+    clearFieldError('birthDateError');
+    return true;
+}// static/js/register.js
 
 let currentStep = 1;
 let isEmailVerified = false;
@@ -12,6 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAgreements();
     initializeAddressSearch();
     initializeFormValidation();
+    
+    // 모든 폼 요소를 즉시 표시
+    const allFormElements = document.querySelectorAll('.auth-form .form-group, .auth-form .btn-full, .auth-form .agreement-section');
+    allFormElements.forEach(element => {
+        if (element) {
+            element.classList.add('show');
+        }
+    });
 });
 
 // 회원가입 시스템 초기화
@@ -51,6 +104,40 @@ function initializeFormValidation() {
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', checkFormValidity);
     });
+    
+    // 성별 버튼 이벤트
+    const genderButtons = document.querySelectorAll('.gender-btn');
+    genderButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // 모든 버튼에서 active 클래스 제거
+            genderButtons.forEach(btn => btn.classList.remove('active'));
+            // 클릭된 버튼에 active 클래스 추가
+            this.classList.add('active');
+            // 라디오 버튼 체크
+            const radioInput = this.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.checked = true;
+            }
+            checkFormValidity();
+        });
+    });
+    
+    // 생년월일 숫자만 입력
+    const birthDateInput = document.getElementById('birthDate');
+    if (birthDateInput) {
+        birthDateInput.addEventListener('input', function() {
+            // 숫자만 허용
+            this.value = this.value.replace(/\D/g, '');
+            if (this.value.length > 8) {
+                this.value = this.value.substring(0, 8);
+            }
+            checkFormValidity();
+        });
+        
+        birthDateInput.addEventListener('blur', function() {
+            validateBirthDate();
+        });
+    }
 }
 
 // 폼 유효성 검사 및 버튼 활성화
@@ -61,7 +148,7 @@ function checkFormValidity() {
     // 필수 입력 필드 검사
     const requiredFields = [
         'fullName', 'email', 'password', 'passwordConfirm', 
-        'birthDate', 'phone', 'gender', 'address'
+        'birthDate', 'phone', 'address'
     ];
     
     let allFieldsValid = true;
@@ -75,6 +162,12 @@ function checkFormValidity() {
         }
     }
     
+    // 성별 선택 검사
+    const genderSelected = document.querySelector('input[name="gender"]:checked');
+    if (!genderSelected) {
+        allFieldsValid = false;
+    }
+    
     // 이메일 중복확인 검사
     const emailCheckBtn = document.getElementById('emailCheckBtn');
     const emailChecked = emailCheckBtn && emailCheckBtn.classList.contains('btn-success');
@@ -86,13 +179,16 @@ function checkFormValidity() {
     // 비밀번호 확인 검사
     const passwordConfirmValid = validatePasswordConfirm();
     
+    // 생년월일 검사
+    const birthDateValid = validateBirthDate();
+    
     // 필수 약관 동의 검사
     const agreeTerms = document.querySelector('input[name="agreeTerms"]').checked;
     const agreePrivacy = document.querySelector('input[name="agreePrivacy"]').checked;
     
     // 모든 조건 확인
-    const isValid = allFieldsValid && emailChecked && passwordValid && 
-                   passwordConfirmValid && agreeTerms && agreePrivacy;
+    const isValid = allFieldsValid && genderSelected && emailChecked && passwordValid && 
+                   passwordConfirmValid && birthDateValid && agreeTerms && agreePrivacy;
     
     // 버튼 활성화/비활성화
     nextBtn.disabled = !isValid;
@@ -477,17 +573,30 @@ function initializeAddressSearch() {
 }
 
 function searchAddress() {
-    // 실제 구현에서는 Daum 우편번호 API 사용
-    // 여기서는 시뮬레이션
-    const postcode = document.getElementById('postcode');
-    const address = document.getElementById('address');
-    
-    // 시뮬레이션 데이터
-    postcode.value = '12345';
-    address.value = '서울특별시 강남구 테헤란로 123';
-    
-    showNotification('주소가 입력되었습니다.', 'success');
-    checkFormValidity();
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.getElementById('postcode').value = data.zonecode;
+            
+            let addr = ''; // 주소 변수
+            
+            // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+            if (data.userSelectedType === 'R') { // 도로명 주소를 선택했을 경우
+                addr = data.roadAddress;
+            } else { // 지번 주소를 선택했을 경우(J)
+                addr = data.jibunAddress;
+            }
+            
+            // 주소 정보를 해당 필드에 넣는다.
+            document.getElementById('address').value = addr;
+            
+            // 커서를 상세주소 필드로 이동한다.
+            document.getElementById('detailAddress').focus();
+            
+            showNotification('주소가 입력되었습니다.', 'success');
+            checkFormValidity();
+        }
+    }).open();
 }
 
 // 약관 동의
@@ -598,9 +707,7 @@ function validateStep1() {
     }
     
     // 생년월일 검사
-    const birthDate = document.getElementById('birthDate').value;
-    if (!birthDate) {
-        showFieldError('birthDateError', '생년월일을 선택해주세요.');
+    if (!validateBirthDate()) {
         isValid = false;
     }
     
@@ -610,10 +717,12 @@ function validateStep1() {
     }
     
     // 성별 검사
-    const gender = document.getElementById('gender').value;
-    if (!gender) {
+    const genderSelected = document.querySelector('input[name="gender"]:checked');
+    if (!genderSelected) {
         showFieldError('genderError', '성별을 선택해주세요.');
         isValid = false;
+    } else {
+        clearFieldError('genderError');
     }
     
     // 주소 검사

@@ -1,4 +1,37 @@
-/* static/css/auth.css */
+/* 성별 버튼 스타일 */
+.gender-buttons {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.gender-btn {
+    flex: 1;
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    background-color: var(--white);
+    color: var(--gray-600);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-all);
+    text-align: center;
+}
+
+.gender-btn:hover {
+    border-color: var(--primary-orange-light);
+    color: var(--primary-orange);
+}
+
+.gender-btn.active {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: var(--white);
+    border-color: var(--primary-orange);
+}
+
+.gender-btn input[type="radio"] {
+    display: none;
+}/* static/css/auth.css */
 
 /* 인증 페이지 전용 스타일 - 기존 디자인 시스템과 일관성 유지 */
 
@@ -76,6 +109,7 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: var(--spacing-6);
+    gap: var(--spacing-4);
 }
 
 .step {
@@ -84,6 +118,7 @@
     align-items: center;
     flex: 1;
     position: relative;
+    min-width: 80px;
 }
 
 .step-number {
@@ -97,7 +132,7 @@
     justify-content: center;
     font-weight: 600;
     margin-bottom: var(--spacing-2);
-    transition: var(--transition-all);
+    transition: none;
 }
 
 .step.active .step-number {
@@ -113,8 +148,9 @@
 .step-label {
     font-size: var(--font-size-sm);
     color: var(--gray-500);
-    transition: var(--transition-all);
+    transition: none;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .step.active .step-label {
@@ -413,7 +449,7 @@
 }
 
 .btn-verify:hover {
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
 }
 
 .resend-section {
@@ -773,8 +809,7 @@
 }
 
 .btn-social:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    background-color: var(--gray-50);
 }
 
 .btn-google {
