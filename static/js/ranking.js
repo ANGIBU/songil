@@ -31,6 +31,7 @@ const rankingData = {
             stats: { reports: 22 },
             avatar: "fas fa-user-circle"
         }
+        }
     ],
     points: [
         {
@@ -56,6 +57,22 @@ const rankingData = {
             points: 14250,
             change: { type: 'same', value: 0 },
             stats: { totalPoints: "14,250P" },
+            avatar: "fas fa-user-circle"
+        },
+        {
+            rank: 4,
+            username: "열심히모으기",
+            points: 12800,
+            change: { type: 'up', value: 2 },
+            stats: { totalPoints: "12,800P" },
+            avatar: "fas fa-user-circle"
+        },
+        {
+            rank: 5,
+            username: "꾸준한활동",
+            points: 11950,
+            change: { type: 'same', value: 0 },
+            stats: { totalPoints: "11,950P" },
             avatar: "fas fa-user-circle"
         }
     ]
@@ -1008,3 +1025,26 @@ if (typeof window !== 'undefined') {
         },
         {
             rank: 3,
+            username: "정확한제보",
+            points: 8450,
+            change: { type: 'up', value: 1 },
+            stats: { reports: 22 },
+            avatar: "fas fa-user-circle"
+        },
+        {
+            rank: 4,
+            username: "신속대응",
+            points: 7200,
+            change: { type: 'same', value: 0 },
+            stats: { reports: 19 },
+            avatar: "fas fa-user-circle"
+        },
+        {
+            rank: 5,
+            username: "시민의무",
+            points: 6800,
+            change: { type: 'up', value: 2 },
+            stats: { reports: 17 },
+            avatar: "fas fa-user-circle"
+        }
+    ],
