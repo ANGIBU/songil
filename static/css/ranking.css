@@ -17,7 +17,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -91,7 +91,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -108,7 +108,7 @@
 .stat-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--secondary-green) 100%);
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -207,7 +207,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.1), transparent);
     transition: left 0.5s;
 }
 
@@ -217,13 +217,13 @@
 
 .tab-btn:hover {
     background: var(--gray-200);
-    color: var(--primary-blue);
+    color: var(--primary-orange);
 }
 
 .tab-btn.active {
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
 }
 
 .tab-btn i {
@@ -265,8 +265,8 @@
 
 .period-selector select:focus {
     outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .period-info {
@@ -344,7 +344,7 @@
 }
 
 .ranking-item:hover::before {
-    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
 }
 
 /* 상위 3위 특별 스타일 */
@@ -357,7 +357,7 @@
 }
 
 .ranking-item.rank-3::before {
-    background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(90deg, var(--accent-coral) 0%, var(--accent-coral-light) 100%);
 }
 
 .ranking-item.rank-1 {
@@ -372,8 +372,8 @@
 }
 
 .ranking-item.rank-3 {
-    background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
-    border-color: #f97316;
+    background: linear-gradient(135deg, #fef7f7 0%, #ffffff 100%);
+    border-color: var(--accent-coral);
 }
 
 /* 순위 번호 */
@@ -428,7 +428,7 @@
 .user-avatar {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--secondary-green) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -473,11 +473,11 @@
 }
 
 .badge.reports {
-    background: linear-gradient(135deg, var(--secondary-red) 0%, var(--secondary-red-light) 100%);
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
 }
 
 .badge.witnesses {
-    background: linear-gradient(135deg, var(--success-green) 0%, var(--success-green-light) 100%);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
 /* 순위 점수 */
@@ -492,7 +492,7 @@
 .points {
     font-size: 1.8rem;
     font-weight: 700;
-    color: var(--primary-blue);
+    color: var(--primary-orange);
     line-height: 1;
 }
 
@@ -512,13 +512,13 @@
 }
 
 .change.up {
-    color: var(--success-green);
-    background: var(--success-green-soft);
+    color: var(--secondary-green);
+    background: var(--secondary-green-soft);
 }
 
 .change.down {
-    color: var(--secondary-red);
-    background: var(--secondary-red-soft);
+    color: var(--danger-red);
+    background: var(--danger-red-soft);
 }
 
 .change.same {
@@ -527,8 +527,8 @@
 }
 
 .change.new {
-    color: var(--primary-blue);
-    background: var(--primary-blue-soft);
+    color: var(--primary-orange);
+    background: var(--primary-orange-soft);
     animation: newBadgePulse 2s infinite;
 }
 
@@ -539,7 +539,7 @@
 
 /* 개인 순위 CTA */
 .personal-ranking-cta {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
     border-radius: 25px;
     padding: 50px 40px;
     margin: 60px 0 40px;
@@ -558,6 +558,11 @@
     height: 200%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
     animation: float 20s infinite linear;
+}
+
+@keyframes float {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .cta-content {
@@ -609,7 +614,7 @@
 
 .cta-actions .btn-primary {
     background: white;
-    color: var(--primary-blue);
+    color: var(--primary-orange);
 }
 
 .cta-actions .btn-outline {
@@ -660,7 +665,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -683,13 +688,13 @@
 }
 
 .benefit-item:nth-child(3)::before {
-    background: linear-gradient(90deg, var(--success-green) 0%, var(--success-green-light) 100%);
+    background: linear-gradient(90deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
 .benefit-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--secondary-green) 100%);
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -708,7 +713,7 @@
 }
 
 .benefit-item:nth-child(3) .benefit-icon {
-    background: linear-gradient(135deg, var(--success-green) 0%, var(--success-green-light) 100%);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
 .benefit-item h4 {
@@ -736,8 +741,27 @@
 
 .benefit-item li::before {
     content: '✓';
-    color: var(--success-green);
+    color: var(--secondary-green);
     font-weight: 700;
+}
+
+/* 로딩 상태 */
+.ranking-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-500);
+}
+
+.ranking-loading i {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--primary-orange);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* 반응형 디자인 */

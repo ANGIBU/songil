@@ -1,29 +1,24 @@
 {# templates/base.html #}
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}함께 찾아요, 소중한 사람을 - 손길길{% endblock %}</title>
-{# templates/base.html #}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}손길 - 실종자 찾기 플랫폼{% endblock %}</title>
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
+
     {% block extra_head %}{% endblock %}
 </head>
+
 <body>
     <!-- 헤더 -->
     <header class="header">
@@ -36,18 +31,20 @@
                         <span>손길</span>
                     </a>
                 </div>
-                
+
                 <!-- 메인 네비게이션 -->
                 <nav class="main-nav">
                     <ul>
                         <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> 홈</a></li>
                         <li><a href="{{ url_for('search') }}"><i class="fas fa-search"></i> 실종자 조회</a></li>
-                        <li class="auth-required"><a href="{{ url_for('missing_report') }}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
-                        <li class="auth-required"><a href="{{ url_for('pointshop') }}"><i class="fas fa-gift"></i> 포인트샵</a></li>
+                        <li class="auth-required"><a href="{{ url_for('missing_report') }}"><i
+                                    class="fas fa-plus-circle"></i> 신고하기</a></li>
+                        <li class="auth-required"><a href="{{ url_for('pointshop') }}"><i class="fas fa-gift"></i>
+                                포인트샵</a></li>
                         <li><a href="{{ url_for('ranking') }}"><i class="fas fa-trophy"></i> 순위</a></li>
                     </ul>
                 </nav>
-                
+
                 <!-- 사용자 메뉴 -->
                 <div class="user-menu">
                     <div class="auth-required user-actions">
@@ -63,35 +60,37 @@
                         <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
                     </div>
                 </div>
-                
+
                 <!-- 모바일 메뉴 버튼 -->
                 <button class="mobile-menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
-        
+
         <!-- 모바일 네비게이션 -->
         <nav class="mobile-nav">
             <ul>
                 <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> 홈</a></li>
                 <li><a href="{{ url_for('search') }}"><i class="fas fa-search"></i> 실종자 조회</a></li>
-                <li class="auth-required"><a href="{{ url_for('missing_report') }}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
+                <li class="auth-required"><a href="{{ url_for('missing_report') }}"><i class="fas fa-plus-circle"></i>
+                        신고하기</a></li>
                 <li class="auth-required"><a href="{{ url_for('pointshop') }}"><i class="fas fa-gift"></i> 포인트샵</a></li>
                 <li><a href="{{ url_for('ranking') }}"><i class="fas fa-trophy"></i> 순위</a></li>
-                <li class="auth-required"><a href="{{ url_for('mypage') }}"><i class="fas fa-user-circle"></i> 마이페이지</a></li>
+                <li class="auth-required"><a href="{{ url_for('mypage') }}"><i class="fas fa-user-circle"></i> 마이페이지</a>
+                </li>
                 <li class="guest-actions">
                     <a href="{{ url_for('login') }}">로그인</a>
                 </li>
             </ul>
         </nav>
     </header>
-    
+
     <!-- 메인 콘텐츠 -->
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
-    
+
     <!-- 푸터 -->
     <footer class="footer">
         <div class="container">
@@ -134,9 +133,10 @@
             </div>
         </div>
     </footer>
-    
+
     <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>
