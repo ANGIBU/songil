@@ -4,7 +4,14 @@
 {% block title %}순위 - 실종자 찾기 플랫폼{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ranking.css') }}">
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r144/three.min.js"></script>
+<!-- GSAP ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -63,19 +70,19 @@
     <div class="container">
         <!-- 순위 카테고리 탭 -->
         <div class="ranking-tabs">
-            <button class="tab-btn active" data-tab="total" onclick="switchRankingTab('total')">
+            <button class="tab-btn active" data-tab="total">
                 <i class="fas fa-star"></i>
                 종합 랭킹
             </button>
-            <button class="tab-btn" data-tab="witness" onclick="switchRankingTab('witness')">
+            <button class="tab-btn" data-tab="witness">
                 <i class="fas fa-eye"></i>
                 목격 신고
             </button>
-            <button class="tab-btn" data-tab="report" onclick="switchRankingTab('report')">
+            <button class="tab-btn" data-tab="report">
                 <i class="fas fa-plus-circle"></i>
                 실종자 신고
             </button>
-            <button class="tab-btn" data-tab="points" onclick="switchRankingTab('points')">
+            <button class="tab-btn" data-tab="points">
                 <i class="fas fa-coins"></i>
                 포인트
             </button>
@@ -84,7 +91,7 @@
         <!-- 기간 선택 -->
         <div class="period-selector">
             <label>기간:</label>
-            <select id="periodSelect" onchange="changePeriod()">
+            <select id="periodSelect">
                 <option value="monthly">이번 달</option>
                 <option value="weekly">이번 주</option>
                 <option value="all">전체</option>
@@ -92,250 +99,15 @@
             <span class="period-info">2024년 5월 기준</span>
         </div>
         
-        <!-- 종합 랭킹 -->
+        <!-- 순위 패널 (React 컴포넌트가 렌더링됩니다) -->
         <div class="ranking-panel active" id="totalRanking">
-            <div class="ranking-header-info">
-                <h2>종합 랭킹 TOP 10</h2>
-                <p>실종자 신고, 목격 신고, 포인트를 종합한 순위입니다</p>
-            </div>
+            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
             
-            <div class="ranking-list">
-                <!-- 1위 - 특별 표시 -->
-                <div class="ranking-item rank-1">
-                    <div class="rank-number">
-                        <i class="fas fa-crown"></i>
-                        <span>1</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="user-details">
-                            <div class="username">시민영웅★★★</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 23건</span>
-                                <span class="badge witnesses">목격 89건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">12,450P</div>
-                        <div class="change up">
-                            <i class="fas fa-arrow-up"></i>
-                            +2
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 2위 -->
-                <div class="ranking-item rank-2">
-                    <div class="rank-number">
-                        <i class="fas fa-medal"></i>
-                        <span>2</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="user-details">
-                            <div class="username">따뜻한마음</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 15건</span>
-                                <span class="badge witnesses">목격 67건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">9,830P</div>
-                        <div class="change down">
-                            <i class="fas fa-arrow-down"></i>
-                            -1
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 3위 -->
-                <div class="ranking-item rank-3">
-                    <div class="rank-number">
-                        <i class="fas fa-medal"></i>
-                        <span>3</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="user-details">
-                            <div class="username">도움이되고싶어요</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 8건</span>
-                                <span class="badge witnesses">목격 78건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">8,960P</div>
-                        <div class="change up">
-                            <i class="fas fa-arrow-up"></i>
-                            +1
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 4-10위 -->
-                <div class="ranking-item">
-                    <div class="rank-number"><span>4</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">정의의사자</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 12건</span>
-                                <span class="badge witnesses">목격 45건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">7,820P</div>
-                        <div class="change same">-</div>
-                    </div>
-                </div>
-                
-                <div class="ranking-item">
-                    <div class="rank-number"><span>5</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">희망의빛</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 6건</span>
-                                <span class="badge witnesses">목격 52건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">6,940P</div>
-                        <div class="change up">
-                            <i class="fas fa-arrow-up"></i>
-                            +3
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="ranking-item">
-                    <div class="rank-number"><span>6</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">착한시민</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 9건</span>
-                                <span class="badge witnesses">목격 38건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">6,120P</div>
-                        <div class="change down">
-                            <i class="fas fa-arrow-down"></i>
-                            -2
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="ranking-item">
-                    <div class="rank-number"><span>7</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">사랑나눔</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 4건</span>
-                                <span class="badge witnesses">목격 41건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">5,680P</div>
-                        <div class="change same">-</div>
-                    </div>
-                </div>
-                
-                <div class="ranking-item">
-                    <div class="rank-number"><span>8</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">관찰자</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 2건</span>
-                                <span class="badge witnesses">목격 48건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">5,240P</div>
-                        <div class="change up">
-                            <i class="fas fa-arrow-up"></i>
-                            +1
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="ranking-item">
-                    <div class="rank-number"><span>9</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">경찰아저씨</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 11건</span>
-                                <span class="badge witnesses">목격 22건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">4,890P</div>
-                        <div class="change down">
-                            <i class="fas fa-arrow-down"></i>
-                            -1
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="ranking-item">
-                    <div class="rank-number"><span>10</span></div>
-                    <div class="user-info">
-                        <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
-                        <div class="user-details">
-                            <div class="username">평범한사람</div>
-                            <div class="user-stats">
-                                <span class="badge reports">신고 5건</span>
-                                <span class="badge witnesses">목격 28건</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rank-score">
-                        <div class="points">4,150P</div>
-                        <div class="change new">
-                            <i class="fas fa-star"></i>
-                            NEW
-                        </div>
-                    </div>
-                </div>
+            <!-- 폴백용 로딩 메시지 -->
+            <div class="ranking-loading" style="text-align: center; padding: 60px 20px; color: #6b7280;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                <p>순위 정보를 불러오는 중...</p>
             </div>
-        </div>
-        
-        <!-- 다른 랭킹 패널들은 JavaScript로 동적 생성 -->
-        <div class="ranking-panel" id="witnessRanking" style="display: none;">
-            <!-- 목격 신고 랭킹 내용 -->
-        </div>
-        
-        <div class="ranking-panel" id="reportRanking" style="display: none;">
-            <!-- 실종자 신고 랭킹 내용 -->
-        </div>
-        
-        <div class="ranking-panel" id="pointsRanking" style="display: none;">
-            <!-- 포인트 랭킹 내용 -->
         </div>
         
         <!-- 개인 순위 안내 -->
@@ -374,6 +146,7 @@
                         <li>월간 50,000원 상품권</li>
                         <li>명예의 전당 등록</li>
                         <li>특별 배지 지급</li>
+                        <li>우선 알림 서비스</li>
                     </ul>
                 </div>
                 <div class="benefit-item">
@@ -385,6 +158,7 @@
                         <li>월간 30,000원 상품권</li>
                         <li>명예 배지 지급</li>
                         <li>우선 알림 서비스</li>
+                        <li>포인트 보너스</li>
                     </ul>
                 </div>
                 <div class="benefit-item">
@@ -396,6 +170,7 @@
                         <li>월간 10,000원 상품권</li>
                         <li>참여 배지 지급</li>
                         <li>포인트 보너스</li>
+                        <li>특별 이벤트 참여</li>
                     </ul>
                 </div>
             </div>
@@ -405,211 +180,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/user.js') }}"></script>
-<script>
-// 순위 페이지 JavaScript
-let currentTab = 'total';
-let currentPeriod = 'monthly';
-
-// 페이지 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    initializeRanking();
-    animateRankingStats();
-});
-
-// 순위 페이지 초기화
-function initializeRanking() {
-    // 초기 데이터 로드
-    loadRankingData(currentTab, currentPeriod);
-    
-    // 애니메이션 효과
-    if (typeof gsap !== 'undefined') {
-        gsap.from('.ranking-item', {
-            duration: 0.6,
-            y: 30,
-            opacity: 0,
-            stagger: 0.1,
-            ease: 'power2.out',
-            delay: 0.3
-        });
-    }
-}
-
-// 통계 카운트업 애니메이션
-function animateRankingStats() {
-    const statNumbers = document.querySelectorAll('.stat-number');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const target = entry.target;
-                const finalNumber = parseInt(target.textContent.replace(/,/g, ''));
-                animateCounter(target, finalNumber);
-                observer.unobserve(target);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    statNumbers.forEach(stat => {
-        observer.observe(stat);
-    });
-}
-
-// 카운터 애니메이션
-function animateCounter(element, target) {
-    let current = 0;
-    const increment = target / 50;
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            current = target;
-            clearInterval(timer);
-        }
-        element.textContent = Math.floor(current).toLocaleString();
-    }, 40);
-}
-
-// 랭킹 탭 전환
-function switchRankingTab(tab) {
-    // 탭 버튼 업데이트
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-    
-    // 랭킹 패널 업데이트
-    document.querySelectorAll('.ranking-panel').forEach(panel => {
-        panel.classList.remove('active');
-        panel.style.display = 'none';
-    });
-    
-    const targetPanel = document.getElementById(tab + 'Ranking');
-    targetPanel.classList.add('active');
-    targetPanel.style.display = 'block';
-    
-    currentTab = tab;
-    loadRankingData(tab, currentPeriod);
-    
-    // 애니메이션 효과
-    if (typeof gsap !== 'undefined') {
-        gsap.from('.ranking-item', {
-            duration: 0.5,
-            x: 30,
-            opacity: 0,
-            stagger: 0.05,
-            ease: 'power2.out'
-        });
-    }
-}
-
-// 기간 변경
-function changePeriod() {
-    currentPeriod = document.getElementById('periodSelect').value;
-    loadRankingData(currentTab, currentPeriod);
-    
-    // 기간 정보 업데이트
-    const periodInfo = document.querySelector('.period-info');
-    const currentDate = new Date();
-    
-    switch(currentPeriod) {
-        case 'weekly':
-            periodInfo.textContent = `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월 ${Math.ceil(currentDate.getDate() / 7)}주차`;
-            break;
-        case 'monthly':
-            periodInfo.textContent = `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월 기준`;
-            break;
-        case 'all':
-            periodInfo.textContent = '전체 기간';
-            break;
-    }
-}
-
-// 랭킹 데이터 로드
-function loadRankingData(tab, period) {
-    console.log(`Loading ranking data: ${tab}, ${period}`);
-    
-    // TODO: 실제 API에서 데이터 로드
-    // 현재는 더미 데이터 사용
-    
-    // 탭별 다른 데이터 표시
-    if (tab !== 'total') {
-        generateTabRanking(tab);
-    }
-}
-
-// 탭별 랭킹 생성
-function generateTabRanking(tab) {
-    const panel = document.getElementById(tab + 'Ranking');
-    
-    let title, description;
-    switch(tab) {
-        case 'witness':
-            title = '목격 신고 랭킹 TOP 10';
-            description = '실종자 목격 신고 건수 기준 순위입니다';
-            break;
-        case 'report':
-            title = '실종자 신고 랭킹 TOP 10';
-            description = '실종자 신고 건수 기준 순위입니다';
-            break;
-        case 'points':
-            title = '포인트 랭킹 TOP 10';
-            description = '획득 포인트 기준 순위입니다';
-            break;
-    }
-    
-    panel.innerHTML = `
-        <div class="ranking-header-info">
-            <h2>${title}</h2>
-            <p>${description}</p>
-        </div>
-        <div class="ranking-list">
-            <!-- 랭킹 아이템들이 여기에 동적으로 생성됩니다 -->
-            <div class="ranking-item rank-1">
-                <div class="rank-number">
-                    <i class="fas fa-crown"></i>
-                    <span>1</span>
-                </div>
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="user-details">
-                        <div class="username">${tab}왕★★★</div>
-                        <div class="user-stats">
-                            <span class="badge">${getTabSpecificStat(tab)} 건</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="rank-score">
-                    <div class="points">${getTabSpecificPoints(tab)}P</div>
-                    <div class="change up">
-                        <i class="fas fa-arrow-up"></i>
-                        +1
-                    </div>
-                </div>
-            </div>
-            <!-- 더 많은 랭킹 아이템들... -->
-        </div>
-    `;
-}
-
-// 탭별 특정 통계 반환
-function getTabSpecificStat(tab) {
-    switch(tab) {
-        case 'witness': return '목격신고 156';
-        case 'report': return '신고 34';
-        case 'points': return '포인트 15,680';
-        default: return '활동 200';
-    }
-}
-
-function getTabSpecificPoints(tab) {
-    switch(tab) {
-        case 'witness': return '15,680';
-        case 'report': return '12,340';
-        case 'points': return '18,920';
-        default: return '12,450';
-    }
-}
-</script>
+<script src="{{ url_for('static', filename='js/ranking.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,1262 @@
+/* ===== 순위 상세 페이지 ===== */
+.ranking-header {
+    background: linear-gradient(135deg, var(--gray-50), var(--primary-blue-soft));
+    padding: 40px 0;
+}
+
+.ranking-title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.ranking-title h1 {
+    font-size: 36px;
+    color: var(--gray-800);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.ranking-title h1 i {
+    color: var(--warning-orange);
+}
+
+.ranking-title p {
+    font-size: 18px;
+    color: var(--gray-600);
+}
+
+/* 내 순위 요약 */
+.my-ranking-summary {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.my-rank-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.rank-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light));
+    border-radius: 16px;
+    color: white;
+    min-width: 120px;
+}
+
+.rank-badge i {
+    font-size: 32px;
+}
+
+.rank-number {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.rank-info {
+    flex: 1;
+}
+
+.rank-info h3 {
+    font-size: 24px;
+    color: var(--gray-800);
+    margin-bottom: 16px;
+}
+
+.rank-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.detail-item {
+    text-align: center;
+}
+
+.detail-item .label {
+    display: block;
+    font-size: 14px;
+    color: var(--gray-500);
+    margin-bottom: 4px;
+}
+
+.detail-item .value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.trend-up {
+    color: var(--success-green);
+}
+
+.trend-down {
+    color: var(--danger-red);
+}
+
+.rank-progress {
+    min-width: 200px;
+}
+
+.next-rank-info {
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+.progress-bar {
+    height: 8px;
+    background-color: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-blue), var(--primary-blue-light));
+    transition: width 0.3s ease;
+}
+
+/* 순위 컨트롤 */
+.ranking-controls {
+    background-color: white;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.period-tabs {
+    display: flex;
+    gap: 4px;
+    background-color: var(--gray-100);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.period-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: var(--gray-600);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.period-btn:hover {
+    opacity: 0.7;
+}
+
+.period-btn.active {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.ranking-filters {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.view-options {
+    display: flex;
+    gap: 4px;
+    background-color: var(--gray-100);
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.view-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--gray-600);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+    opacity: 0.7;
+}
+
+.view-btn.active {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.ranking-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--gray-50);
+    border-radius: 12px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+/* TOP 3 순위 */
+.top-three-ranking {
+    background: linear-gradient(135deg, var(--primary-blue-soft), var(--warning-orange-soft));
+    padding: 60px 0;
+}
+
+.top-three-ranking h2 {
+    text-align: center;
+    font-size: 32px;
+    color: var(--gray-800);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.top-three-ranking h2 i {
+    color: var(--warning-orange);
+}
+
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.podium-place {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.podium-place.first {
+    order: 2;
+    transform: scale(1.1);
+    z-index: 3;
+}
+
+.podium-place.second {
+    order: 1;
+    z-index: 2;
+}
+
+.podium-place.third {
+    order: 3;
+    z-index: 1;
+}
+
+.place-number {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 40px;
+    height: 40px;
+    background: var(--gray-800);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.user-avatar {
+    position: relative;
+    margin: 0 auto 16px;
+}
+
+.user-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--gray-200);
+}
+
+.medal {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+}
+
+.medal.gold {
+    background: linear-gradient(135deg, #ffd700, #ffed4a);
+}
+
+.medal.silver {
+    background: linear-gradient(135deg, #c0c0c0, #e2e8f0);
+}
+
+.medal.bronze {
+    background: linear-gradient(135deg, #cd7f32, #d69e2e);
+}
+
+.user-info h3 {
+    font-size: 20px;
+    color: var(--gray-800);
+    margin-bottom: 8px;
+}
+
+.user-points {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 12px;
+}
+
+.user-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+.achievement-badge {
+    margin-top: 12px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, var(--warning-orange), var(--warning-orange-light));
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 전체 순위 리스트 */
+.full-ranking-list {
+    padding: 60px 0;
+    background-color: var(--gray-50);
+}
+
+.ranking-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.ranking-list-header h2 {
+    font-size: 28px;
+    color: var(--gray-800);
+}
+
+.list-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding: 12px 16px 12px 40px;
+    border: 1px solid var(--gray-300);
+    border-radius: 12px;
+    font-size: 14px;
+    width: 250px;
+    transition: border-color 0.2s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-400);
+}
+
+.find-me-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.find-me-btn:hover {
+    opacity: 0.8;
+}
+
+.ranking-table-container {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.ranking-row {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ranking-row:hover {
+    background-color: var(--gray-50);
+}
+
+.ranking-row.current-user {
+    background-color: var(--primary-blue-soft);
+    font-weight: 600;
+}
+
+.ranking-row.animating {
+    transform: scale(0.98);
+}
+
+/* 상세 보기 */
+.ranking-row.detailed {
+    padding: 20px 24px;
+}
+
+.rank-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    margin-right: 24px;
+}
+
+.rank-info .rank-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: 4px;
+}
+
+.trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.trend i {
+    font-size: 10px;
+}
+
+.trend-up {
+    color: var(--success-green);
+}
+
+.trend-down {
+    color: var(--danger-red);
+}
+
+.trend-same {
+    color: var(--gray-400);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    margin-right: 24px;
+}
+
+.user-profile .user-avatar {
+    width: 50px;
+    height: 50px;
+}
+
+.user-profile .user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 4px;
+}
+
+.user-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+}
+
+.badge.crown {
+    background: linear-gradient(135deg, #ffd700, #ffed4a);
+}
+
+.badge.expert {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light));
+}
+
+.badge.active {
+    background: linear-gradient(135deg, var(--success-green), var(--success-green-light));
+}
+
+.badge.helper {
+    background: linear-gradient(135deg, var(--warning-orange), var(--warning-orange-light));
+}
+
+.badge.contributor {
+    background: linear-gradient(135deg, var(--danger-red), var(--danger-red-light));
+}
+
+.user-stats {
+    display: flex;
+    gap: 32px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 2px;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+/* 간단 보기 */
+.ranking-row.compact {
+    gap: 20px;
+    padding: 12px 24px;
+}
+
+.ranking-row.compact .rank-number {
+    min-width: 40px;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.ranking-row.compact .user-avatar {
+    width: 40px;
+    height: 40px;
+}
+
+.ranking-row.compact .user-name {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.ranking-row.compact .user-points {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    min-width: 80px;
+    text-align: right;
+}
+
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px;
+    color: var(--gray-500);
+}
+
+.load-more-section {
+    text-align: center;
+    padding: 30px;
+}
+
+.load-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: none;
+    border: 1px solid var(--gray-300);
+    border-radius: 12px;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0 auto;
+}
+
+.load-more-btn:hover {
+    opacity: 0.7;
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+/* 포인트 시스템 가이드 */
+.points-system-guide {
+    padding: 60px 0;
+    background: white;
+}
+
+.points-system-guide h2 {
+    text-align: center;
+    font-size: 28px;
+    color: var(--gray-800);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.guide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+}
+
+.guide-section h3 {
+    font-size: 24px;
+    color: var(--gray-800);
+    margin-bottom: 24px;
+}
+
+.earning-methods {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.method-card {
+    background: var(--gray-50);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.method-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+}
+
+.method-info h4 {
+    font-size: 16px;
+    color: var(--gray-800);
+    margin-bottom: 8px;
+}
+
+.points-range {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 8px;
+}
+
+.method-info p {
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+.ranking-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.benefit-tier {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    background: var(--gray-50);
+}
+
+.tier-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.benefit-tier.gold .tier-icon {
+    background: linear-gradient(135deg, #ffd700, #ffed4a);
+    color: white;
+}
+
+.benefit-tier.silver .tier-icon {
+    background: linear-gradient(135deg, #c0c0c0, #e2e8f0);
+    color: var(--gray-700);
+}
+
+.benefit-tier.bronze .tier-icon {
+    background: linear-gradient(135deg, #cd7f32, #d69e2e);
+    color: white;
+}
+
+.tier-info h4 {
+    font-size: 18px;
+    color: var(--gray-800);
+    margin-bottom: 12px;
+}
+
+.tier-info ul {
+    list-style: none;
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+.tier-info li {
+    margin-bottom: 6px;
+}
+
+/* 순위 변화 차트 */
+.ranking-trends {
+    padding: 60px 0;
+    background: var(--gray-50);
+}
+
+.ranking-trends h2 {
+    text-align: center;
+    font-size: 28px;
+    color: var(--gray-800);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.trends-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.chart-placeholder {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--gray-500);
+    text-align: center;
+}
+
+.chart-placeholder i {
+    font-size: 48px;
+}
+
+.trends-summary {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.trends-summary h3 {
+    font-size: 20px;
+    color: var(--gray-800);
+    margin-bottom: 20px;
+}
+
+.summary-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+.summary-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.summary-value.best {
+    color: var(--warning-orange);
+}
+
+.summary-value.trend-up {
+    color: var(--success-green);
+}
+
+.monthly-activities h4 {
+    font-size: 16px;
+    color: var(--gray-800);
+    margin-bottom: 16px;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.activity-item i {
+    color: var(--primary-blue);
+    width: 16px;
+}
+
+.activity-item .points {
+    margin-left: auto;
+    font-weight: 600;
+    color: var(--success-green);
+}
+
+/* CTA 섹션 */
+.ranking-cta {
+    padding: 60px 0;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light));
+    color: white;
+}
+
+.cta-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.cta-text h2 {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.cta-text p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.cta-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.cta-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.cta-btn:hover {
+    opacity: 0.8;
+}
+
+.cta-btn.primary {
+    background: white;
+    color: var(--primary-blue);
+}
+
+.cta-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ===== 유틸리티 클래스 ===== */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+.mb-4 { margin-bottom: 32px; }
+.mb-5 { margin-bottom: 40px; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mt-4 { margin-top: 32px; }
+.mt-5 { margin-top: 40px; }
+
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+
+.opacity-50 { opacity: 0.5; }
+.opacity-70 { opacity: 0.7; }
+.opacity-80 { opacity: 0.8; }
+
+/* ===== 반응형 디자인 ===== */
+@media (max-width: 1024px) {
+    .missing-profile {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .location-details {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    /* 순위 상세 페이지 반응형 */
+    .my-rank-card {
+        flex-direction: column;
+        gap: 24px;
+        text-align: center;
+    }
+    
+    .rank-details {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .controls-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .ranking-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .podium {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .podium-place.first {
+        order: 1;
+        transform: none;
+    }
+    
+    .podium-place.second {
+        order: 2;
+    }
+    
+    .podium-place.third {
+        order: 3;
+    }
+    
+    .guide-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .earning-methods {
+        grid-template-columns: 1fr;
+    }
+    
+    .trends-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+    
+    .cta-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+    
+    .detail-navigation {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .tabs-navigation {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .basic-info-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .witness-item {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .related-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .floating-emergency {
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    .emergency-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    /* 순위 상세 페이지 모바일 */
+    .ranking-title h1 {
+        font-size: 28px;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .my-rank-card {
+        padding: 24px;
+    }
+    
+    .rank-details {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .period-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .period-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .ranking-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .ranking-stats {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .ranking-list-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
+    }
+    
+    .list-controls {
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .find-me-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .ranking-row.detailed {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px;
+    }
+    
+    .rank-info {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 0;
+    }
+    
+    .user-profile {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .user-stats {
+        width: 100%;
+        justify-content: space-around;
+    }
+    
+    .ranking-row.compact {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .ranking-row.compact .user-name {
+        order: 3;
+        width: 100%;
+    }
+    
+    .benefit-tier {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .chart-placeholder {
+        height: 200px;
+    }
+    
+    .cta-text h2 {
+        font-size: 24px;
+    }
+    
+    .cta-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .cta-btn {
+        justify-content: center;
+    }
+}
