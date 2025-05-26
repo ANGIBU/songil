@@ -196,20 +196,13 @@ function initializeFormValidation() {
         
         input.addEventListener('input', function() {
             clearFieldError(this.id + 'Error');
+            clearValidationMessage(this.id + 'Validation');
         });
     });
     
     const passwordInputs = document.querySelectorAll('input[type="password"]');
     passwordInputs.forEach(input => {
         input.addEventListener('input', function() {
-            if (this.id === 'password' && document.getElementById('passwordStrength')) {
-                updatePasswordStrength(this.value);
-            }
-            
-            if (this.id === 'passwordConfirm') {
-                validatePasswordConfirm();
-            }
-            
             clearFieldError(this.id + 'Error');
         });
     });
@@ -222,6 +215,13 @@ function initializeFormValidation() {
         
         input.addEventListener('blur', function() {
             validatePhoneField(this);
+        });
+    });
+    
+    const textInputs = document.querySelectorAll('input[type="text"]');
+    textInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearFieldError(this.id + 'Error');
         });
     });
 }
@@ -429,6 +429,24 @@ function showFieldSuccess(successId, message) {
         if (inputElement) {
             inputElement.classList.add('success');
         }
+    }
+}
+
+// 유효성 검사 메시지 표시
+function showValidationMessage(elementId, message, type) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = message;
+        element.className = `validation-message ${type}`;
+    }
+}
+
+// 유효성 검사 메시지 제거
+function clearValidationMessage(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = '';
+        element.className = 'validation-message';
     }
 }
 

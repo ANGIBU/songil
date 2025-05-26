@@ -1085,10 +1085,12 @@
     .auth-container {
         margin: var(--spacing-4);
         padding: var(--spacing-8);
+        max-width: none;
     }
     
     .form-row {
         grid-template-columns: 1fr;
+        gap: var(--spacing-4);
     }
     
     .form-buttons {
@@ -1103,16 +1105,39 @@
         gap: var(--spacing-2);
     }
     
-    .hero-title {
-        font-size: var(--font-size-2xl);
-    }
-    
     .tab-menu {
         flex-direction: column;
     }
     
     .tab-btn {
         border-radius: 0;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .tab-btn.active {
+        border-bottom: 3px solid var(--primary-orange);
+    }
+    
+    .address-input {
+        gap: var(--spacing-3);
+    }
+    
+    .popup-content {
+        margin: var(--spacing-2);
+        padding: var(--spacing-6);
+        max-height: 90vh;
+    }
+    
+    .pass-auth-section {
+        padding: var(--spacing-6) var(--spacing-4);
+    }
+    
+    .progress-steps {
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .step-label {
+        font-size: var(--font-size-xs);
     }
 }
 
@@ -1140,5 +1165,239 @@
         width: 80px;
         height: 80px;
         font-size: var(--font-size-3xl);
+    }
+    
+    .popup-content {
+        margin: var(--spacing-1);
+        padding: var(--spacing-4);
+    }
+    
+    .popup-header h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .input-with-button {
+        flex-direction: column;
+        gap: var(--spacing-2);
+    }
+    
+    .input-with-button .btn {
+        width: 100%;
+        padding: var(--spacing-2) var(--spacing-3);
+    }
+    
+    .pass-auth-section {
+        padding: var(--spacing-4);
+    }
+    
+    .pass-auth-info i {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .progress-steps {
+        gap: var(--spacing-2);
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* 버튼 성공 상태 */
+.btn.btn-success {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    color: var(--white);
+    border-color: var(--secondary-green);
+}
+
+.btn.btn-success:hover {
+    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
+    border-color: var(--secondary-green-dark);
+}
+
+/* 로딩 애니메이션 */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fa-spinner.fa-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 포커스 효과 개선 */
+.form-group input:focus,
+.form-group select:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 체크박스 호버 효과 */
+.checkbox-label:hover .checkmark {
+    border-color: var(--primary-orange-light);
+    background-color: var(--primary-orange-soft);
+}
+
+/* 링크 호버 효과 개선 */
+.agreement-link:hover,
+.link:hover {
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+
+/* 결과 섹션 애니메이션 */
+.result-section {
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 인증 상태 표시기 개선 */
+.auth-status {
+    animation: fadeInScale 0.6s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 에러 상태 개선 */
+.form-group input.error {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* 성공 상태 개선 */
+.form-group input.success {
+    border-color: var(--secondary-green);
+    background-color: var(--secondary-green-soft);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* 진행률 애니메이션 */
+.progress-fill {
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: progressShine 2s infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* 카드 효과 개선 */
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--primary-orange), var(--secondary-green), var(--primary-orange));
+    border-radius: var(--radius-2xl);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.auth-container:hover::before {
+    opacity: 0.1;
+}
+
+/* 스크롤바 스타일 */
+.popup-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.popup-content::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb {
+    background: var(--primary-orange-light);
+    border-radius: 3px;
+}
+
+.popup-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-orange);
+}
+
+/* 접근성 개선 */
+.form-group input[aria-invalid="true"] {
+    border-color: var(--danger-red);
+    background-color: var(--danger-red-soft);
+}
+
+.form-group input[aria-invalid="false"] {
+    border-color: var(--secondary-green);
+    background-color: var(--secondary-green-soft);
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .auth-container {
+        border: 2px solid var(--gray-800);
+    }
+    
+    .form-group input {
+        border-width: 2px;
+    }
+    
+    .btn {
+        border-width: 2px;
+    }
+}
+
+/* 모션 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .auth-form,
+    .form-group,
+    .btn-full,
+    .auth-divider,
+    .social-login,
+    .auth-footer {
+        opacity: 1;
+        transform: none;
     }
 }

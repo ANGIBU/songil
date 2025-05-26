@@ -1,4 +1,11 @@
-{# templates/auth/find_account.html #}
+<div class="form-group">
+                        <label for="findPwName">
+                            <i class="fas fa-user"></i>
+                            성함
+                        </label>
+                        <input type="text" id="findPwName" name="name" required placeholder="실명을 입력해주세요">
+                        <div class="error-message" id="findPwNameError"></div>
+                    </div>{# templates/auth/find_account.html #}
 {% extends "base.html" %}
 
 {% block title %}아이디/비밀번호 찾기 - 실종자 찾기 플랫폼{% endblock %}

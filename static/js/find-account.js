@@ -1,9 +1,7 @@
 // static/js/find-account.js
 
-let findIdTimer = null;
-let findPwTimer = null;
-let findIdTimeLeft = 0;
-let findPwTimeLeft = 0;
+let findIdPassVerified = false;
+let findPwPassVerified = false;
 
 // 계정 찾기 페이지 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -26,21 +24,20 @@ function initializeFindAccount() {
         findPasswordForm.addEventListener('submit', handleFindPassword);
     }
     
-    // 인증번호 발송 버튼들
-    const findIdSendBtn = document.getElementById('findIdSendCodeBtn');
-    if (findIdSendBtn) {
-        findIdSendBtn.addEventListener('click', () => sendFindIdVerificationCode());
+    // PASS 인증 버튼들
+    const findIdPassBtn = document.getElementById('findIdPassBtn');
+    if (findIdPassBtn) {
+        findIdPassBtn.addEventListener('click', () => performPassAuth('findId'));
     }
     
-    const findPwSendBtn = document.getElementById('findPwSendCodeBtn');
-    if (findPwSendBtn) {
-        findPwSendBtn.addEventListener('click', () => sendFindPwVerificationCode());
+    const findPwPassBtn = document.getElementById('findPwPassBtn');
+    if (findPwPassBtn) {
+        findPwPassBtn.addEventListener('click', () => performPassAuth('findPw'));
     }
 }
 
 // 아이디 찾기 폼 초기화
 function initializeFindIdForm() {
-    const nameInput = document.getElementById('findIdName');
     const phoneInput = document.getElementById('findIdPhone');
     
     if (phoneInput) {
@@ -52,18 +49,13 @@ function initializeFindIdForm() {
             validateFindIdPhone();
         });
     }
-    
-    if (nameInput) {
-        nameInput.addEventListener('blur', function() {
-            validateFindIdName();
-        });
-    }
 }
 
 // 비밀번호 찾기 폼 초기화
 function initializeFindPasswordForm() {
     const emailInput = document.getElementById('findPwEmail');
-    const phoneInput = document.getElementById('findPwPhone');
+    const newPasswordInput = document.getElementById('newPassword');
+    const newPasswordConfirmInput = document.getElementById('newPasswordConfirm');
     
     if (emailInput) {
         emailInput.addEventListener('blur', function() {
@@ -71,14 +63,50 @@ function initializeFindPasswordForm() {
         });
     }
     
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            formatPhoneNumber(this);
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            validateNewPassword(this.value);
         });
+    }
+    
+    if (newPasswordConfirmInput) {
+        newPasswordConfirmInput.addEventListener('input', function() {
+            validateNewPasswordConfirm();
+        });
+    }
+}
+
+// PASS 인증 수행
+async function performPassAuth(type) {
+    const authBtn = document.getElementById(type === 'findId' ? 'findIdPassBtn' : 'findPwPassBtn');
+    const authStatus = document.getElementById(type === 'findId' ? 'findIdAuthStatus' : 'findPwAuthStatus');
+    const submitBtn = document.getElementById(type === 'findId' ? 'findIdSubmitBtn' : 'findPwSubmitBtn');
+    
+    const originalText = authBtn.innerHTML;
+    authBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 인증 중...';
+    authBtn.disabled = true;
+    
+    try {
+        // PASS 인증 시뮬레이션
+        await simulateAPICall(3000);
         
-        phoneInput.addEventListener('blur', function() {
-            validateFindPwPhone();
-        });
+        // 인증 성공
+        authStatus.style.display = 'block';
+        authBtn.style.display = 'none';
+        submitBtn.disabled = false;
+        
+        if (type === 'findId') {
+            findIdPassVerified = true;
+        } else {
+            findPwPassVerified = true;
+        }
+        
+        showNotification('PASS 인증이 완료되었습니다.', 'success');
+        
+    } catch (error) {
+        showNotification('PASS 인증에 실패했습니다. 다시 시도해주세요.', 'error');
+        authBtn.innerHTML = originalText;
+        authBtn.disabled = false;
     }
 }
 
@@ -90,10 +118,12 @@ async function handleFindId(e) {
         return;
     }
     
-    const formData = new FormData(e.target);
-    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (!findIdPassVerified) {
+        showNotification('PASS 인증을 완료해주세요.', 'error');
+        return;
+    }
     
-    // 로딩 상태
+    const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 찾는 중...';
     submitBtn.disabled = true;
@@ -103,15 +133,18 @@ async function handleFindId(e) {
         await simulateAPICall(1500);
         
         // 결과 표시
+        const name = document.getElementById('findIdName').value;
+        const maskedEmail = generateMaskedEmail(name);
+        
         showFindIdResult({
-            email: 'test****@example.com',
+            email: maskedEmail,
             joinDate: '2024.05.01'
         });
         
         showNotification('아이디를 찾았습니다!', 'success');
         
     } catch (error) {
-        showFieldError('findIdVerificationError', '일치하는 정보가 없습니다.');
+        showNotification('일치하는 정보가 없습니다.', 'error');
     } finally {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
@@ -126,124 +159,51 @@ async function handleFindPassword(e) {
         return;
     }
     
-    const formData = new FormData(e.target);
-    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (!findPwPassVerified) {
+        showNotification('PASS 인증을 완료해주세요.', 'error');
+        return;
+    }
     
-    // 로딩 상태
+    const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 발송 중...';
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 확인 중...';
     submitBtn.disabled = true;
     
     try {
         // API 호출 시뮬레이션
-        await simulateAPICall(2000);
+        await simulateAPICall(1500);
         
-        // 결과 표시
-        showFindPasswordResult({
-            email: formData.get('email')
-        });
+        // 비밀번호 변경 폼 표시
+        showPasswordChangeForm();
         
-        showNotification('임시 비밀번호가 발송되었습니다!', 'success');
+        showNotification('본인 확인이 완료되었습니다. 새 비밀번호를 설정해주세요.', 'success');
         
     } catch (error) {
-        showFieldError('findPwVerificationError', '일치하는 정보가 없습니다.');
+        showNotification('일치하는 정보가 없습니다.', 'error');
     } finally {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }
 }
 
-// 아이디 찾기 인증번호 발송
-async function sendFindIdVerificationCode() {
-    if (!validateFindIdName() || !validateFindIdPhone()) {
+// 비밀번호 변경 처리
+window.changePassword = async function() {
+    if (!validateNewPasswordForm()) {
         return;
     }
     
-    const sendBtn = document.getElementById('findIdSendCodeBtn');
-    const originalText = sendBtn.textContent;
-    
-    sendBtn.textContent = '발송 중...';
-    sendBtn.disabled = true;
-    
     try {
         await simulateAPICall(1000);
-        showNotification('인증번호가 발송되었습니다.', 'success');
-        startFindIdTimer(180); // 3분
+        
+        // 비밀번호 변경 완료 표시
+        showPasswordChanged();
+        
+        showNotification('비밀번호가 성공적으로 변경되었습니다.', 'success');
+        
     } catch (error) {
-        showFieldError('findIdVerificationError', '인증번호 발송에 실패했습니다.');
-        sendBtn.textContent = originalText;
-        sendBtn.disabled = false;
+        showNotification('비밀번호 변경에 실패했습니다.', 'error');
     }
-}
-
-// 비밀번호 찾기 인증번호 발송
-async function sendFindPwVerificationCode() {
-    if (!validateFindPwEmail() || !validateFindPwPhone()) {
-        return;
-    }
-    
-    const sendBtn = document.getElementById('findPwSendCodeBtn');
-    const originalText = sendBtn.textContent;
-    
-    sendBtn.textContent = '발송 중...';
-    sendBtn.disabled = true;
-    
-    try {
-        await simulateAPICall(1000);
-        showNotification('인증번호가 발송되었습니다.', 'success');
-        startFindPwTimer(180); // 3분
-    } catch (error) {
-        showFieldError('findPwVerificationError', '인증번호 발송에 실패했습니다.');
-        sendBtn.textContent = originalText;
-        sendBtn.disabled = false;
-    }
-}
-
-// 아이디 찾기 타이머
-function startFindIdTimer(seconds) {
-    findIdTimeLeft = seconds;
-    const timerElement = document.getElementById('findIdTimer');
-    const sendBtn = document.getElementById('findIdSendCodeBtn');
-    
-    findIdTimer = setInterval(() => {
-        const minutes = Math.floor(findIdTimeLeft / 60);
-        const secs = findIdTimeLeft % 60;
-        
-        timerElement.textContent = `${minutes}:${secs.toString().padStart(2, '0')} 후 재발송 가능`;
-        
-        findIdTimeLeft--;
-        
-        if (findIdTimeLeft < 0) {
-            clearInterval(findIdTimer);
-            timerElement.textContent = '';
-            sendBtn.textContent = '재발송';
-            sendBtn.disabled = false;
-        }
-    }, 1000);
-}
-
-// 비밀번호 찾기 타이머
-function startFindPwTimer(seconds) {
-    findPwTimeLeft = seconds;
-    const timerElement = document.getElementById('findPwTimer');
-    const sendBtn = document.getElementById('findPwSendCodeBtn');
-    
-    findPwTimer = setInterval(() => {
-        const minutes = Math.floor(findPwTimeLeft / 60);
-        const secs = findPwTimeLeft % 60;
-        
-        timerElement.textContent = `${minutes}:${secs.toString().padStart(2, '0')} 후 재발송 가능`;
-        
-        findPwTimeLeft--;
-        
-        if (findPwTimeLeft < 0) {
-            clearInterval(findPwTimer);
-            timerElement.textContent = '';
-            sendBtn.textContent = '재발송';
-            sendBtn.disabled = false;
-        }
-    }, 1000);
-}
+};
 
 // 아이디 찾기 결과 표시
 function showFindIdResult(data) {
@@ -278,17 +238,11 @@ function showFindIdResult(data) {
     }
 }
 
-// 비밀번호 찾기 결과 표시
-function showFindPasswordResult(data) {
+// 비밀번호 변경 폼 표시
+function showPasswordChangeForm() {
     const form = document.getElementById('findPasswordForm');
-    const result = document.getElementById('passwordResult');
+    const changeForm = document.getElementById('passwordChangeForm');
     
-    // 이메일 마스킹
-    const email = data.email;
-    const maskedEmail = maskEmail(email);
-    document.getElementById('sentToEmail').textContent = maskedEmail;
-    
-    // 폼 숨기기, 결과 표시
     if (typeof gsap !== 'undefined') {
         gsap.to(form, {
             duration: 0.3,
@@ -296,9 +250,9 @@ function showFindPasswordResult(data) {
             y: -20,
             onComplete: () => {
                 form.style.display = 'none';
-                result.style.display = 'block';
+                changeForm.style.display = 'block';
                 
-                gsap.from(result, {
+                gsap.from(changeForm, {
                     duration: 0.5,
                     opacity: 0,
                     y: 20,
@@ -308,43 +262,102 @@ function showFindPasswordResult(data) {
         });
     } else {
         form.style.display = 'none';
-        result.style.display = 'block';
+        changeForm.style.display = 'block';
     }
 }
 
-// 이메일 마스킹 함수
-function maskEmail(email) {
-    const [localPart, domain] = email.split('@');
-    if (localPart.length <= 3) {
-        return localPart[0] + '***@' + domain;
+// 비밀번호 변경 완료 표시
+function showPasswordChanged() {
+    const changeForm = document.getElementById('passwordChangeForm');
+    const changedForm = document.getElementById('passwordChanged');
+    
+    if (typeof gsap !== 'undefined') {
+        gsap.to(changeForm, {
+            duration: 0.3,
+            opacity: 0,
+            y: -20,
+            onComplete: () => {
+                changeForm.style.display = 'none';
+                changedForm.style.display = 'block';
+                
+                gsap.from(changedForm, {
+                    duration: 0.5,
+                    opacity: 0,
+                    y: 20,
+                    ease: 'power2.out'
+                });
+            }
+        });
+    } else {
+        changeForm.style.display = 'none';
+        changedForm.style.display = 'block';
+    }
+}
+
+// 새 비밀번호 유효성 검사
+function validateNewPassword(password) {
+    const validation = document.getElementById('newPasswordValidation');
+    if (!validation) return false;
+    
+    const minLength = password.length >= 8;
+    const maxLength = password.length <= 15;
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    
+    let message = '';
+    let isValid = true;
+    
+    if (!minLength || !maxLength) {
+        message = '비밀번호는 8~15자여야 합니다.';
+        isValid = false;
+    } else if (!hasLetter) {
+        message = '영문자를 포함해야 합니다.';
+        isValid = false;
+    } else if (!hasNumber) {
+        message = '숫자를 포함해야 합니다.';
+        isValid = false;
+    } else {
+        message = '사용 가능한 비밀번호입니다.';
+        isValid = true;
     }
     
-    const visibleChars = Math.ceil(localPart.length / 3);
-    const maskedPart = localPart.substring(0, visibleChars) + '****';
-    return maskedPart + '@' + domain;
+    validation.textContent = message;
+    validation.className = `password-validation ${isValid ? 'valid' : 'invalid'}`;
+    
+    return isValid;
+}
+
+function validateNewPasswordConfirm() {
+    const password = document.getElementById('newPassword').value;
+    const passwordConfirm = document.getElementById('newPasswordConfirm').value;
+    
+    if (passwordConfirm && password !== passwordConfirm) {
+        showFieldError('newPasswordConfirmError', '비밀번호가 일치하지 않습니다.');
+        return false;
+    }
+    
+    clearFieldError('newPasswordConfirmError');
+    return true;
 }
 
 // 유효성 검사 함수들
 function validateFindIdForm() {
-    return validateFindIdName() && 
-           validateFindIdPhone() && 
-           validateFindIdVerificationCode();
+    return validateFindIdName() && validateFindIdPhone();
 }
 
 function validateFindPasswordForm() {
-    return validateFindPwEmail() && 
-           validateFindPwPhone() && 
-           validateFindPwVerificationCode();
+    return validateFindPwName() && validateFindPwEmail();
+}
+
+function validateNewPasswordForm() {
+    const password = document.getElementById('newPassword').value;
+    return validateNewPassword(password) && validateNewPasswordConfirm();
 }
 
 function validateFindIdName() {
     const name = document.getElementById('findIdName').value.trim();
-    if (!name) {
-        showFieldError('findIdNameError', '이름을 입력해주세요.');
-        return false;
-    }
-    if (name.length < 2) {
-        showFieldError('findIdNameError', '올바른 이름을 입력해주세요.');
+    if (!name || name.length < 2) {
+        showFieldError('findIdNameError', '성함을 정확히 입력해주세요.');
         return false;
     }
     clearFieldError('findIdNameError');
@@ -367,17 +380,13 @@ function validateFindIdPhone() {
     return true;
 }
 
-function validateFindIdVerificationCode() {
-    const code = document.getElementById('findIdVerificationCode').value.trim();
-    if (!code) {
-        showFieldError('findIdVerificationError', '인증번호를 입력해주세요.');
+function validateFindPwName() {
+    const name = document.getElementById('findPwName').value.trim();
+    if (!name || name.length < 2) {
+        showFieldError('findPwNameError', '성함을 정확히 입력해주세요.');
         return false;
     }
-    if (code.length !== 6) {
-        showFieldError('findIdVerificationError', '6자리 인증번호를 입력해주세요.');
-        return false;
-    }
-    clearFieldError('findIdVerificationError');
+    clearFieldError('findPwNameError');
     return true;
 }
 
@@ -397,36 +406,6 @@ function validateFindPwEmail() {
     return true;
 }
 
-function validateFindPwPhone() {
-    const phone = document.getElementById('findPwPhone').value.trim();
-    const phoneRegex = /^010-\d{4}-\d{4}$/;
-    
-    if (!phone) {
-        showFieldError('findPwPhoneError', '휴대폰 번호를 입력해주세요.');
-        return false;
-    }
-    if (!phoneRegex.test(phone)) {
-        showFieldError('findPwPhoneError', '올바른 휴대폰 번호 형식으로 입력해주세요.');
-        return false;
-    }
-    clearFieldError('findPwPhoneError');
-    return true;
-}
-
-function validateFindPwVerificationCode() {
-    const code = document.getElementById('findPwVerificationCode').value.trim();
-    if (!code) {
-        showFieldError('findPwVerificationError', '인증번호를 입력해주세요.');
-        return false;
-    }
-    if (code.length !== 6) {
-        showFieldError('findPwVerificationError', '6자리 인증번호를 입력해주세요.');
-        return false;
-    }
-    clearFieldError('findPwVerificationError');
-    return true;
-}
-
 // 유틸리티 함수들
 function formatPhoneNumber(input) {
     let value = input.value.replace(/\D/g, '');
@@ -441,6 +420,26 @@ function formatPhoneNumber(input) {
     }
     
     input.value = value;
+}
+
+function generateMaskedEmail(name) {
+    // 시뮬레이션용 이메일 생성
+    const domains = ['gmail.com', 'naver.com', 'daum.net', 'hanmail.net'];
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const localPart = name.toLowerCase() + Math.floor(Math.random() * 1000);
+    
+    return maskEmail(localPart + '@' + domain);
+}
+
+function maskEmail(email) {
+    const [localPart, domain] = email.split('@');
+    if (localPart.length <= 3) {
+        return localPart[0] + '***@' + domain;
+    }
+    
+    const visibleChars = Math.ceil(localPart.length / 3);
+    const maskedPart = localPart.substring(0, visibleChars) + '****';
+    return maskedPart + '@' + domain;
 }
 
 function showFieldError(errorId, message) {
@@ -473,7 +472,7 @@ function clearFieldError(errorId) {
 function simulateAPICall(delay = 1000) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            if (Math.random() > 0.2) { // 80% 성공률
+            if (Math.random() > 0.2) {
                 resolve({ success: true });
             } else {
                 reject(new Error('API 오류'));
