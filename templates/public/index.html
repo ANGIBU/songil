@@ -26,11 +26,7 @@
                     모두가 함께하는 실종자 찾기 플랫폼
                 </p>
                 <div class="hero-buttons">
-                    <a href="{{ url_for('missing_report') }}" class="btn btn-primary btn-large">
-                        <i class="fas fa-plus-circle"></i>
-                        실종자 신고하기
-                    </a>
-                    <a href="{{ url_for('search') }}" class="btn btn-secondary btn-large">
+                    <a href="{{ url_for('search') }}" class="btn btn-primary btn-large">
                         <i class="fas fa-search"></i>
                         실종자 찾기
                     </a>
@@ -42,10 +38,10 @@
                         <!-- Three.js 시각화가 여기에 렌더링됩니다 -->
                         <div class="network-placeholder">
                             <i class="fas fa-network-wired"></i>
-                            <div>연결된 시민들이<br>함께 찾아요</div>
+                            <div>네트워크 시각화</div>
                         </div>
                     </div>
-                    <!-- 순위 시스템 추가 -->
+                    <!-- 순위 시스템 -->
                     <div class="ranking-display">
                         <h3 class="ranking-title">
                             <i class="fas fa-trophy"></i>
@@ -100,8 +96,8 @@
         </div>
         <div class="section-footer">
             <a href="{{ url_for('search') }}" class="btn btn-outline btn-large">
-                <i class="fas fa-list"></i>
-                모든 실종자 보기
+                <i class="fas fa-plus"></i>
+                더보기
             </a>
         </div>
     </div>
@@ -176,26 +172,6 @@
         </div>
         <!-- 개선된 파도 효과 캔버스 -->
         <canvas id="waveCanvas" class="wave-canvas"></canvas>
-    </div>
-</section>
-
-<!-- CTA 섹션 -->
-<section class="cta-section">
-    <div class="container">
-        <div class="cta-content">
-            <h2>지금 바로 참여하세요</h2>
-            <p>실종자를 찾는 일에 함께해 주세요. 작은 관심이 큰 변화를 만듭니다.</p>
-            <div class="cta-buttons">
-                <a href="{{ url_for('login') }}" class="btn btn-primary btn-large">
-                    <i class="fas fa-sign-in-alt"></i>
-                    로그인하기
-                </a>
-                <a href="{{ url_for('search') }}" class="btn btn-secondary btn-large">
-                    <i class="fas fa-search"></i>
-                    실종자 찾아보기
-                </a>
-            </div>
-        </div>
     </div>
 </section>
 {% endblock %}

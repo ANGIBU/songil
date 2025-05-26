@@ -635,7 +635,7 @@ function showNotification(message, type = 'info') {
         document.head.appendChild(style);
     }
     
-    document.body.appendChild(notification);
+    document.body.appendChild(notification);ㅈ
     
     // 3초 후 제거
     setTimeout(() => {

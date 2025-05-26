@@ -157,16 +157,16 @@ const allMissingData = [
     }
 ];
 
-// 순위 데이터 (전체 기간 누적)
+// 순위 데이터 (전체 기간 누적) - 제보 건수와 기여도 추가
 const rankingData = [
-    { rank: 1, name: "김희망", points: 2847, region: "서울시" },
-    { rank: 2, name: "박도움", points: 2134, region: "부산시" },
-    { rank: 3, name: "이나눔", points: 1895, region: "대구시" },
-    { rank: 4, name: "최참여", points: 1672, region: "인천시" },
-    { rank: 5, name: "정협력", points: 1543, region: "광주시" }
+    { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 23, witnesses: 45, contribution: 8.2 },
+    { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 18, witnesses: 38, contribution: 6.7 },
+    { rank: 3, name: "이나눔", points: 1895, region: "대구시", reports: 15, witnesses: 42, contribution: 5.9 },
+    { rank: 4, name: "최참여", points: 1672, region: "인천시", reports: 12, witnesses: 36, contribution: 5.1 },
+    { rank: 5, name: "정협력", points: 1543, region: "광주시", reports: 14, witnesses: 29, contribution: 4.8 }
 ];
 
-// 위험도가 높은 실종자들을 필터링하고 랜덤으로 8명 선택
+// 위험도가 높은 실종자들을 필터링하고 정확히 8명 선택
 function getUrgentMissingData() {
     const highDangerMissing = allMissingData.filter(person => person.dangerLevel === 'high');
     const mediumDangerMissing = allMissingData.filter(person => person.dangerLevel === 'medium');
@@ -183,13 +183,14 @@ function getUrgentMissingData() {
         [urgentList[i], urgentList[j]] = [urgentList[j], urgentList[i]];
     }
     
+    // 정확히 8개만 반환
     return urgentList.slice(0, 8);
 }
 
 // 긴급 실종자 데이터 (동적으로 생성)
 const urgentMissingData = getUrgentMissingData();
 
-// 순위 React 컴포넌트
+// 순위 React 컴포넌트 - 제보 건수와 기여도 추가
 function RankingDisplay({ rankings }) {
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) =>
@@ -218,6 +219,31 @@ function RankingDisplay({ rankings }) {
                             key: 'icon'
                         }),
                         `${rank.points.toLocaleString()}P`
+                    ]),
+                    React.createElement('div', {
+                        className: 'ranking-stats',
+                        key: 'stats'
+                    }, [
+                        React.createElement('div', {
+                            className: 'stat-item',
+                            key: 'reports'
+                        }, [
+                            React.createElement('i', {
+                                className: 'fas fa-user-plus',
+                                key: 'reports-icon'
+                            }),
+                            `신고 ${rank.reports}건`
+                        ]),
+                        React.createElement('div', {
+                            className: 'stat-item',
+                            key: 'witnesses'
+                        }, [
+                            React.createElement('i', {
+                                className: 'fas fa-eye',
+                                key: 'witnesses-icon'
+                            }),
+                            `목격 ${rank.witnesses}건`
+                        ])
                     ])
                 ])
             ])
@@ -570,7 +596,7 @@ class NetworkVisualization {
     }
 
     createNodes() {
-        const nodeCount = 20; // 노드 수 줄임
+        const nodeCount = 15; // 노드 수 줄임
         const nodeGeometry = new THREE.SphereGeometry(0.12, 8, 6);
         
         for (let i = 0; i < nodeCount; i++) {
@@ -588,7 +614,7 @@ class NetworkVisualization {
             const node = new THREE.Mesh(nodeGeometry, material);
             
             // 구형 배치
-            const radius = 4 + Math.random() * 3;
+            const radius = 3 + Math.random() * 2;
             const phi = Math.acos(-1 + (2 * i) / nodeCount);
             const theta = Math.sqrt(nodeCount * Math.PI) * phi;
             
@@ -611,7 +637,7 @@ class NetworkVisualization {
         });
         
         const hubNode = new THREE.Mesh(
-            new THREE.SphereGeometry(0.25, 12, 8),
+            new THREE.SphereGeometry(0.2, 12, 8),
             hubMaterial
         );
         
@@ -721,7 +747,7 @@ class NetworkVisualization {
         this.container.innerHTML = `
             <div class="network-placeholder">
                 <i class="fas fa-network-wired"></i>
-                <div>연결된 시민들이<br>함께 찾아요</div>
+                <div>네트워크 시각화</div>
             </div>
         `;
     }

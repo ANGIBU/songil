@@ -85,8 +85,8 @@
 }
 
 #network-canvas {
-    width: 350px;
-    height: 350px;
+    width: 300px;
+    height: 300px;
     border-radius: 25px;
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
@@ -138,14 +138,14 @@
     50% { transform: scale(1.1); opacity: 1; }
 }
 
-/* 순위 디스플레이 */
+/* 순위 디스플레이 - 크기 증가 및 레이아웃 개선 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 25px 20px;
+    padding: 30px 25px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 280px;
+    width: 380px;
     position: relative;
     overflow: hidden;
 }
@@ -164,7 +164,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -180,20 +180,21 @@
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 18px;
 }
 
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
+    gap: 15px;
+    padding: 15px 15px;
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    min-height: 65px;
 }
 
 .ranking-item:hover {
@@ -202,20 +203,20 @@
 }
 
 .ranking-position {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: white;
     flex-shrink: 0;
     position: relative;
 }
 
-/* 순위별 색상 */
+/* 순위별 색상 - 4등 5등 더 어둡게 */
 .ranking-item:nth-child(1) .ranking-position {
     background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
@@ -233,8 +234,8 @@
 
 .ranking-item:nth-child(4) .ranking-position,
 .ranking-item:nth-child(5) .ranking-position {
-    background: linear-gradient(135deg, var(--gray-400) 0%, var(--gray-300) 100%);
-    box-shadow: 0 4px 15px rgba(156, 163, 175, 0.3);
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
 }
 
 .ranking-info {
@@ -245,23 +246,42 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.9rem;
-    margin-bottom: 2px;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .ranking-points {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--gray-600);
     display: flex;
     align-items: center;
     gap: 4px;
+    margin-bottom: 2px;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
+    font-size: 0.75rem;
+}
+
+.ranking-stats {
+    font-size: 0.8rem;
+    color: var(--gray-500);
+    display: flex;
+    gap: 12px;
+}
+
+.ranking-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.ranking-stats .stat-item i {
+    color: var(--secondary-green);
     font-size: 0.7rem;
 }
 
@@ -318,12 +338,12 @@
     margin: 0 auto;
 }
 
-/* 4x2 그리드 레이아웃으로 변경 */
+/* 4x2 그리드 레이아웃 */
 .urgent-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 20px;
+    gap: 25px;
     margin-bottom: 50px;
     position: relative;
     z-index: 1;
@@ -341,7 +361,7 @@
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
-    height: 280px;
+    height: 300px;
     display: flex;
     flex-direction: column;
 }
@@ -364,7 +384,7 @@
 
 .card-image {
     position: relative;
-    height: 140px;
+    height: 150px;
     overflow: hidden;
     flex-shrink: 0;
 }
@@ -760,53 +780,6 @@
     opacity: 0.3;
 }
 
-/* CTA 섹션 */
-.cta-section {
-    padding: 100px 0;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    text-align: center;
-    position: relative;
-}
-
-.cta-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
-    pointer-events: none;
-}
-
-.cta-content {
-    position: relative;
-    z-index: 1;
-}
-
-.cta-content h2 {
-    font-size: 2.75rem;
-    font-weight: 700;
-    color: var(--gray-900);
-    margin-bottom: 20px;
-}
-
-.cta-content p {
-    font-size: 1.25rem;
-    color: var(--gray-600);
-    margin-bottom: 40px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
 /* 버튼 호버 효과 개선 */
 .btn {
     transition: all 0.3s ease;
@@ -861,18 +834,18 @@
     }
     
     #network-canvas {
-        width: 320px;
-        height: 320px;
+        width: 280px;
+        height: 280px;
     }
     
     .ranking-display {
-        width: 320px;
+        width: 350px;
     }
     
     .urgent-cards {
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(3, 1fr);
-        gap: 18px;
+        gap: 20px;
     }
     
     .intro-steps {
@@ -912,13 +885,13 @@
     }
     
     #network-canvas {
-        width: 280px;
-        height: 280px;
+        width: 250px;
+        height: 250px;
         margin: 0 auto;
     }
     
     .ranking-display {
-        width: 280px;
+        width: 320px;
         margin: 0 auto;
     }
     
@@ -933,7 +906,7 @@
     }
     
     .missing-card {
-        height: 260px;
+        height: 270px;
     }
     
     .intro-text h2 {
@@ -949,20 +922,6 @@
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 25px;
     }
-    
-    .cta-content h2 {
-        font-size: 2.25rem;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .cta-buttons .btn {
-        width: 100%;
-        max-width: 300px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -975,10 +934,6 @@
     }
     
     .intro-text h2 {
-        font-size: 1.875rem;
-    }
-    
-    .cta-content h2 {
         font-size: 1.875rem;
     }
     
@@ -1001,16 +956,16 @@
     }
     
     .missing-card {
-        height: 240px;
-    }
-    
-    #network-canvas {
-        width: 250px;
         height: 250px;
     }
     
+    #network-canvas {
+        width: 220px;
+        height: 220px;
+    }
+    
     .ranking-display {
-        width: 250px;
-        padding: 20px 15px;
+        width: 280px;
+        padding: 25px 20px;
     }
 }

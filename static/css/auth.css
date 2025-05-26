@@ -385,6 +385,10 @@
     border-radius: var(--radius-xl);
     border: 2px solid var(--gray-200);
     margin-bottom: var(--spacing-6);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .email-auth-info {
@@ -476,23 +480,28 @@
 
 .auth-status {
     background: linear-gradient(135deg, var(--secondary-green-soft) 0%, var(--white) 100%);
-    padding: var(--spacing-6);
+    padding: var(--spacing-4);
     border-radius: var(--radius-lg);
     border: 2px solid var(--secondary-green-light);
     margin-top: var(--spacing-4);
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .status-icon i {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     color: var(--secondary-green);
-    margin-bottom: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
 }
 
 .auth-status p {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-base);
     font-weight: 600;
     color: var(--gray-900);
-    margin-bottom: var(--spacing-3);
+    margin-bottom: var(--spacing-2);
 }
 
 .auth-info {
