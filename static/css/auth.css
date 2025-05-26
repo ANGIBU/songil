@@ -53,25 +53,6 @@
     justify-content: center;
     font-size: var(--font-size-2xl);
     margin: 0 auto var(--spacing-4);
-    position: relative;
-    transition: var(--transition-all);
-}
-
-.auth-logo::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: inherit;
-    border-radius: inherit;
-    opacity: 0.3;
-    transform: scale(1.2);
-    animation: logoGlow 3s infinite;
-}
-
-@keyframes logoGlow {
-    0%, 100% { transform: scale(1.2); opacity: 0.3; }
-    50% { transform: scale(1.4); opacity: 0.1; }
 }
 
 .auth-header h1 {
@@ -88,13 +69,13 @@
 
 /* 진행률 표시 (회원가입용) */
 .progress-bar {
-    margin-bottom: var(--spacing-8);
+    margin-bottom: var(--spacing-12);
 }
 
 .progress-steps {
     display: flex;
     justify-content: space-between;
-    margin-bottom: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
 }
 
 .step {
@@ -237,7 +218,7 @@
 }
 
 .form-group label i {
-    color: var(--primary-orange);
+    color: var(--gray-400);
     width: 16px;
 }
 
@@ -301,23 +282,217 @@
     flex: 1;
 }
 
-/* 비밀번호 강도 표시 */
-.password-strength {
-    margin-top: var(--spacing-2);
+/* 유효성 검사 메시지 */
+.validation-message {
     font-size: var(--font-size-sm);
+    margin-top: var(--spacing-1);
     font-weight: 500;
 }
 
-.password-strength.weak {
+.validation-message.valid {
+    color: var(--secondary-green);
+}
+
+.validation-message.invalid {
     color: var(--danger-red);
 }
 
-.password-strength.medium {
-    color: var(--warning-amber);
+.password-validation {
+    margin-top: var(--spacing-2);
+    font-size: var(--font-size-sm);
 }
 
-.password-strength.strong {
+.password-validation.valid {
     color: var(--secondary-green);
+}
+
+.password-validation.invalid {
+    color: var(--danger-red);
+}
+
+/* 폼 필드 스타일 확장 */
+.form-group select {
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
+    transition: var(--transition-all);
+    background-color: var(--white);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* 주소 입력 */
+.address-input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.address-input input {
+    margin-bottom: 0;
+}
+
+/* PASS 인증 스타일 */
+.pass-auth-section {
+    text-align: center;
+    padding: var(--spacing-8) var(--spacing-6);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--gray-200);
+    margin-bottom: var(--spacing-6);
+}
+
+.pass-auth-info {
+    margin-bottom: var(--spacing-6);
+}
+
+.pass-auth-info i {
+    font-size: var(--font-size-4xl);
+    color: var(--primary-orange);
+    margin-bottom: var(--spacing-3);
+}
+
+.pass-auth-info h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-2);
+}
+
+.pass-auth-info p {
+    color: var(--gray-600);
+    line-height: 1.6;
+}
+
+.auth-status {
+    background: linear-gradient(135deg, var(--secondary-green-soft) 0%, var(--white) 100%);
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--secondary-green-light);
+    margin-top: var(--spacing-4);
+}
+
+.status-icon i {
+    font-size: var(--font-size-3xl);
+    color: var(--secondary-green);
+    margin-bottom: var(--spacing-3);
+}
+
+.auth-status p {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-3);
+}
+
+.auth-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+}
+
+/* 팝업 스타일 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: var(--spacing-4);
+}
+
+.popup-content {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-8);
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-6);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.popup-header h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.popup-close {
+    background: none;
+    border: none;
+    font-size: var(--font-size-xl);
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: var(--spacing-1);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-all);
+}
+
+.popup-close:hover {
+    color: var(--gray-600);
+    background-color: var(--gray-100);
+}
+
+.popup-body {
+    line-height: 1.6;
+    color: var(--gray-700);
+}
+
+.popup-body h4 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: var(--spacing-4) 0 var(--spacing-2);
+}
+
+.popup-body p {
+    margin-bottom: var(--spacing-3);
+}
+
+.popup-body ul, .popup-body ol {
+    margin-left: var(--spacing-4);
+    margin-bottom: var(--spacing-3);
+}
+
+.popup-body li {
+    margin-bottom: var(--spacing-1);
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--gray-200);
 }
 
 /* 에러 및 성공 메시지 */
@@ -525,25 +700,52 @@
     left: 100%;
 }
 
-.btn-google:hover {
-    background-color: #4285f4;
-    color: var(--white);
-    border-color: #4285f4;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+/* 로그인 페이지 전용 버튼 스타일 */
+.login-form .btn-primary {
+    background-color: var(--gray-200);
+    color: var(--gray-700);
+    border: 2px solid var(--gray-300);
 }
 
-.btn-kakao {
-    background-color: #fee500;
-    color: #000000;
-    border-color: #fee500;
+.login-form .btn-primary:hover {
+    background-color: var(--gray-100);
+    color: var(--gray-800);
+    border-color: var(--gray-200);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-google {
+    background-color: #4285f4;
+    color: var(--white);
+    border: 2px solid #4285f4;
+}
+
+.btn-google:hover {
+    background-color: #5a95f5;
+    border-color: #5a95f5;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-google i {
+    color: #ffffff;
+}
+
+/* 구글 로고 색상 */
+.btn-google i.fab.fa-google {
+    background: linear-gradient(45deg, #4285f4 0%, #34a853 25%, #fbbc05 50%, #ea4335 75%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
 }
 
 .btn-kakao:hover {
     background-color: #fdd835;
     border-color: #fdd835;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: none;
+    box-shadow: none;
 }
 
 /* 인증 푸터 */
@@ -767,8 +969,8 @@
 }
 
 .tab-btn:hover {
-    color: var(--primary-orange);
-    background: linear-gradient(135deg, var(--primary-orange-soft) 0%, var(--gray-50) 100%);
+    color: var(--gray-600);
+    background: var(--gray-100);
 }
 
 .tab-btn.active {

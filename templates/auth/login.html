@@ -3,7 +3,7 @@
 
 {% block title %}로그인 - 실종자 찾기 플랫폼{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 {% endblock %}
 
@@ -19,7 +19,7 @@
                 <p>실종자 찾기에 함께 참여해주세요</p>
             </div>
             
-            <form class="auth-form" id="loginForm">
+            <form class="auth-form login-form" id="loginForm">
                 <div class="form-group">
                     <label for="email">
                         <i class="fas fa-envelope"></i>
@@ -49,7 +49,6 @@
                         <span class="checkmark"></span>
                         로그인 상태 유지
                     </label>
-                    <a href="{{ url_for('find_account') }}" class="link">아이디/비밀번호 찾기</a>
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-full">
@@ -74,6 +73,7 @@
                 
                 <div class="auth-footer">
                     <p>계정이 없으신가요? <a href="{{ url_for('register') }}" class="link">회원가입</a></p>
+                    <p><a href="{{ url_for('find_account') }}" class="link">아이디/비밀번호 찾기</a></p>
                 </div>
             </form>
         </div>

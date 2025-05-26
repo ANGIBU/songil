@@ -36,15 +36,15 @@
                 <form class="auth-form" id="findIdForm">
                     <div class="step-title">
                         <h2>아이디 찾기</h2>
-                        <p>가입 시 등록한 이름과 휴대폰 번호를 입력해주세요</p>
+                        <p>가입 시 등록한 성함과 휴대폰 번호를 입력해주세요</p>
                     </div>
                     
                     <div class="form-group">
                         <label for="findIdName">
                             <i class="fas fa-user"></i>
-                            이름
+                            성함
                         </label>
-                        <input type="text" id="findIdName" name="name" required>
+                        <input type="text" id="findIdName" name="name" required placeholder="실명을 입력해주세요">
                         <div class="error-message" id="findIdNameError"></div>
                     </div>
                     
@@ -57,20 +57,27 @@
                         <div class="error-message" id="findIdPhoneError"></div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="findIdVerificationCode">
-                            <i class="fas fa-key"></i>
-                            인증번호
-                        </label>
-                        <div class="input-with-button">
-                            <input type="text" id="findIdVerificationCode" name="verificationCode" placeholder="6자리 인증번호" required>
-                            <button type="button" class="btn btn-outline btn-sm" id="findIdSendCodeBtn">인증번호 발송</button>
+                    <div class="pass-auth-section">
+                        <div class="pass-auth-info">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>PASS 인증</h3>
+                            <p>휴대폰에 설치된 PASS 앱을 통해 본인인증을 진행합니다.</p>
                         </div>
-                        <div class="verification-timer" id="findIdTimer"></div>
-                        <div class="error-message" id="findIdVerificationError"></div>
+                        
+                        <button type="button" class="btn btn-primary btn-full" id="findIdPassBtn">
+                            <i class="fas fa-mobile-alt"></i>
+                            PASS 인증하기
+                        </button>
+                        
+                        <div class="auth-status" id="findIdAuthStatus" style="display: none;">
+                            <div class="status-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p>본인 인증이 완료되었습니다.</p>
+                        </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-full">
+                    <button type="submit" class="btn btn-primary btn-full" id="findIdSubmitBtn" disabled>
                         <i class="fas fa-search"></i>
                         아이디 찾기
                     </button>
@@ -113,7 +120,16 @@
                 <form class="auth-form" id="findPasswordForm">
                     <div class="step-title">
                         <h2>비밀번호 찾기</h2>
-                        <p>가입 시 등록한 이메일과 휴대폰 번호를 입력해주세요</p>
+                        <p>가입 시 등록한 성함과 이메일을 입력해주세요</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findPwName">
+                            <i class="fas fa-user"></i>
+                            성함
+                        </label>
+                        <input type="text" id="findPwName" name="name" required placeholder="실명을 입력해주세요">
+                        <div class="error-message" id="findPwNameError"></div>
                     </div>
                     
                     <div class="form-group">
@@ -121,53 +137,96 @@
                             <i class="fas fa-envelope"></i>
                             이메일
                         </label>
-                        <input type="email" id="findPwEmail" name="email" required>
+                        <input type="email" id="findPwEmail" name="email" required placeholder="가입시 사용한 이메일">
                         <div class="error-message" id="findPwEmailError"></div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="findPwPhone">
-                            <i class="fas fa-phone"></i>
-                            휴대폰 번호
-                        </label>
-                        <input type="tel" id="findPwPhone" name="phone" placeholder="010-0000-0000" required>
-                        <div class="error-message" id="findPwPhoneError"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="findPwVerificationCode">
-                            <i class="fas fa-key"></i>
-                            인증번호
-                        </label>
-                        <div class="input-with-button">
-                            <input type="text" id="findPwVerificationCode" name="verificationCode" placeholder="6자리 인증번호" required>
-                            <button type="button" class="btn btn-outline btn-sm" id="findPwSendCodeBtn">인증번호 발송</button>
+                    <div class="pass-auth-section">
+                        <div class="pass-auth-info">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>PASS 인증</h3>
+                            <p>휴대폰에 설치된 PASS 앱을 통해 본인인증을 진행합니다.</p>
                         </div>
-                        <div class="verification-timer" id="findPwTimer"></div>
-                        <div class="error-message" id="findPwVerificationError"></div>
+                        
+                        <button type="button" class="btn btn-primary btn-full" id="findPwPassBtn">
+                            <i class="fas fa-mobile-alt"></i>
+                            PASS 인증하기
+                        </button>
+                        
+                        <div class="auth-status" id="findPwAuthStatus" style="display: none;">
+                            <div class="status-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p>본인 인증이 완료되었습니다.</p>
+                        </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-full">
-                        <i class="fas fa-paper-plane"></i>
-                        임시 비밀번호 발송
+                    <button type="submit" class="btn btn-primary btn-full" id="findPwSubmitBtn" disabled>
+                        <i class="fas fa-key"></i>
+                        비밀번호 찾기
                     </button>
                 </form>
                 
-                <!-- 비밀번호 찾기 결과 -->
-                <div class="result-section" id="passwordResult" style="display: none;">
+                <!-- 비밀번호 변경 폼 -->
+                <div class="result-section" id="passwordChangeForm" style="display: none;">
                     <div class="result-header">
-                        <i class="fas fa-check-circle"></i>
-                        <h3>임시 비밀번호 발송 완료</h3>
+                        <i class="fas fa-key"></i>
+                        <h3>새 비밀번호 설정</h3>
                     </div>
                     <div class="result-content">
-                        <p>임시 비밀번호가 등록된 이메일로 발송되었습니다.</p>
-                        <div class="sent-email">
-                            <i class="fas fa-envelope"></i>
-                            <span id="sentToEmail">test****@example.com</span>
+                        <p>새로운 비밀번호를 설정해주세요</p>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">
+                                <i class="fas fa-lock"></i>
+                                새 비밀번호
+                            </label>
+                            <div class="password-input">
+                                <input type="password" id="newPassword" name="newPassword" placeholder="8~15자 영문, 숫자 조합" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('newPassword')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-validation" id="newPasswordValidation"></div>
                         </div>
+                        
+                        <div class="form-group">
+                            <label for="newPasswordConfirm">
+                                <i class="fas fa-lock"></i>
+                                새 비밀번호 확인
+                            </label>
+                            <div class="password-input">
+                                <input type="password" id="newPasswordConfirm" name="newPasswordConfirm" placeholder="비밀번호를 다시 입력해주세요" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('newPasswordConfirm')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="error-message" id="newPasswordConfirmError"></div>
+                        </div>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn btn-primary" onclick="changePassword()">
+                            <i class="fas fa-save"></i>
+                            비밀번호 변경
+                        </button>
+                        <button class="btn btn-secondary" onclick="switchTab('find-id')">
+                            <i class="fas fa-user"></i>
+                            아이디 찾기
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 비밀번호 변경 완료 -->
+                <div class="result-section" id="passwordChanged" style="display: none;">
+                    <div class="result-header">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>비밀번호 변경 완료</h3>
+                    </div>
+                    <div class="result-content">
+                        <p>비밀번호가 성공적으로 변경되었습니다.</p>
                         <div class="result-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>보안을 위해 로그인 후 반드시 비밀번호를 변경해주세요.</p>
+                            <i class="fas fa-info-circle"></i>
+                            <p>새로운 비밀번호로 로그인해주세요.</p>
                         </div>
                     </div>
                     <div class="result-actions">
@@ -175,10 +234,6 @@
                             <i class="fas fa-sign-in-alt"></i>
                             로그인하기
                         </a>
-                        <button class="btn btn-secondary" onclick="switchTab('find-id')">
-                            <i class="fas fa-user"></i>
-                            아이디 찾기
-                        </button>
                     </div>
                 </div>
             </div>
