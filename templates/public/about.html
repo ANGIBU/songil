@@ -4,7 +4,14 @@
 {% block title %}서비스 소개 - 실종자 찾기 플랫폼{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r144/three.min.js"></script>
+<!-- GSAP ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -92,9 +99,9 @@
                         자동으로 경찰청 시스템과 연동됩니다.
                     </p>
                     <ul class="step-features">
-                        <li>• 24시간 언제든지 신고 가능</li>
-                        <li>• 경찰청 공식 연동</li>
-                        <li>• 자동 위험도 분석</li>
+                        <li>24시간 언제든지 신고 가능</li>
+                        <li>경찰청 공식 연동</li>
+                        <li>자동 위험도 분석</li>
                     </ul>
                 </div>
             </div>
@@ -111,9 +118,9 @@
                         시민들은 실종자 정보를 확인하고 주변에서 주의 깊게 살펴봅니다.
                     </p>
                     <ul class="step-features">
-                        <li>• 개인정보 보호 처리</li>
-                        <li>• 위험도별 우선 노출</li>
-                        <li>• 지역별 맞춤 알림</li>
+                        <li>개인정보 보호 처리</li>
+                        <li>위험도별 우선 노출</li>
+                        <li>지역별 맞춤 알림</li>
                     </ul>
                 </div>
             </div>
@@ -130,9 +137,9 @@
                         포인트 보상 시스템으로 적극적인 참여를 유도합니다.
                     </p>
                     <ul class="step-features">
-                        <li>• 정확한 GPS 위치 기록</li>
-                        <li>• 포인트 보상 지급</li>
-                        <li>• 실시간 정보 전달</li>
+                        <li>정확한 GPS 위치 기록</li>
+                        <li>포인트 보상 지급</li>
+                        <li>실시간 정보 전달</li>
                     </ul>
                 </div>
             </div>
@@ -149,9 +156,9 @@
                         수사를 진행하여 실종자를 찾아 가족과 상봉시킵니다.
                     </p>
                     <ul class="step-features">
-                        <li>• 경찰 전문 수사팀 연계</li>
-                        <li>• CCTV 통합 분석</li>
-                        <li>• 신속한 구조 작업</li>
+                        <li>경찰 전문 수사팀 연계</li>
+                        <li>CCTV 통합 분석</li>
+                        <li>신속한 구조 작업</li>
                     </ul>
                 </div>
             </div>
@@ -227,84 +234,9 @@
             <p>실종자 찾기 플랫폼에 대한 궁금한 점들을 해결해드립니다</p>
         </div>
         
+        <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
         <div class="faq-list">
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <h3>실종자 신고는 어떻게 하나요?</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>
-                        회원가입 후 '신고하기' 메뉴에서 실종자의 기본 정보, 사진, 실종 상황 등을 입력하면 됩니다. 
-                        신고된 정보는 관리자의 검토를 거쳐 경찰청에 전달되며, 승인 후 플랫폼에 공개됩니다.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <h3>목격 신고시 포인트는 얼마나 받나요?</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>
-                        목격 신고의 정확성과 유용성에 따라 50P~500P까지 차등 지급됩니다. 
-                        실종자 발견에 결정적 도움을 준 정보는 추가 보너스 포인트를 받을 수 있습니다.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <h3>개인정보는 어떻게 보호되나요?</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>
-                        실명은 이니셜로 처리되며, 연락처 등 민감한 정보는 암호화되어 관리자만 접근 가능합니다. 
-                        또한 실종자 발견 후에는 관련 게시물이 자동으로 비공개 처리됩니다.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <h3>허위 신고나 목격 신고에 대한 제재가 있나요?</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>
-                        허위 신고가 확인되면 계정 정지 및 법적 조치가 취해질 수 있습니다. 
-                        정확하고 성실한 신고만이 실종자를 찾는데 도움이 됩니다.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <h3>경찰청과는 어떻게 연계되나요?</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>
-                        공공데이터 API를 통해 경찰청 실종자 정보 시스템과 실시간 연동됩니다. 
-                        신고된 정보는 즉시 관할 경찰서에 전달되어 공식 수사가 시작됩니다.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <h3>포인트로 무엇을 할 수 있나요?</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>
-                        포인트샵에서 다양한 기프티콘(카페, 편의점, 온라인 쇼핑몰 등)으로 교환하거나 
-                        랜덤박스를 구매할 수 있습니다. 또한 일정 포인트 이상 보유시 특별 혜택을 받을 수 있습니다.
-                    </p>
-                </div>
-            </div>
+            <!-- FAQ 아이템들이 JavaScript로 동적 생성됩니다 -->
         </div>
     </div>
 </section>
@@ -371,10 +303,10 @@
                 <div class="data-sources">
                     <h3>활용 공공데이터</h3>
                     <ul>
-                        <li>• 경찰청 실종아동등 신고 현황</li>
-                        <li>• 실종자 수사 관련 통계</li>
-                        <li>• 지역별 CCTV 설치 현황</li>
-                        <li>• 인구 통계 및 지역 정보</li>
+                        <li>경찰청 실종아동등 신고 현황</li>
+                        <li>실종자 수사 관련 통계</li>
+                        <li>지역별 CCTV 설치 현황</li>
+                        <li>인구 통계 및 지역 정보</li>
                     </ul>
                 </div>
             </div>
@@ -409,133 +341,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// About 페이지 JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    initializeAboutPage();
-});
-
-function initializeAboutPage() {
-    // 통계 애니메이션
-    animateHeroStats();
-    
-    // 스크롤 애니메이션
-    initializeScrollAnimations();
-}
-
-// 히어로 통계 애니메이션
-function animateHeroStats() {
-    const statNumbers = document.querySelectorAll('.hero-stats .number');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const target = entry.target;
-                const finalNumber = parseInt(target.textContent.replace(/[,%]/g, ''));
-                animateCounter(target, finalNumber, target.textContent.includes('%'));
-                observer.unobserve(target);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    statNumbers.forEach(stat => {
-        observer.observe(stat);
-    });
-}
-
-// 카운터 애니메이션
-function animateCounter(element, target, isPercent = false) {
-    let current = 0;
-    const increment = target / 50;
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            current = target;
-            clearInterval(timer);
-        }
-        element.textContent = Math.floor(current).toLocaleString() + (isPercent ? '%' : '');
-    }, 40);
-}
-
-// 스크롤 애니메이션 초기화
-function initializeScrollAnimations() {
-    if (typeof gsap === 'undefined') return;
-    
-    // 프로세스 스텝 애니메이션
-    gsap.from('.process-step', {
-        scrollTrigger: {
-            trigger: '.how-it-works',
-            start: 'top 80%'
-        },
-        duration: 0.8,
-        y: 50,
-        opacity: 0,
-        stagger: 0.2,
-        ease: 'power2.out'
-    });
-    
-    // 기능 카드 애니메이션
-    gsap.from('.feature-card', {
-        scrollTrigger: {
-            trigger: '.key-features',
-            start: 'top 80%'
-        },
-        duration: 0.6,
-        y: 30,
-        opacity: 0,
-        stagger: 0.1,
-        ease: 'power2.out'
-    });
-    
-    // FAQ 아이템 애니메이션
-    gsap.from('.faq-item', {
-        scrollTrigger: {
-            trigger: '.faq-section',
-            start: 'top 80%'
-        },
-        duration: 0.5,
-        x: -30,
-        opacity: 0,
-        stagger: 0.1,
-        ease: 'power2.out'
-    });
-}
-
-// FAQ 토글 기능
-function toggleFAQ(element) {
-    const faqItem = element.parentNode;
-    const answer = faqItem.querySelector('.faq-answer');
-    const icon = element.querySelector('i');
-    
-    const isActive = faqItem.classList.contains('active');
-    
-    // 모든 FAQ 닫기
-    document.querySelectorAll('.faq-item').forEach(item => {
-        item.classList.remove('active');
-        item.querySelector('.faq-answer').style.maxHeight = '0';
-        item.querySelector('.faq-question i').style.transform = 'rotate(0deg)';
-    });
-    
-    // 클릭된 FAQ 열기/닫기
-    if (!isActive) {
-        faqItem.classList.add('active');
-        answer.style.maxHeight = answer.scrollHeight + 'px';
-        icon.style.transform = 'rotate(180deg)';
-    }
-}
-
-// 부드러운 스크롤
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-</script>
+<script src="{{ url_for('static', filename='js/about.js') }}"></script>
 {% endblock %}

@@ -3,6 +3,17 @@
 
 {% block title %}함께 찾아요, 소중한 사람을 - 실종자 찾기 플랫폼{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r144/three.min.js"></script>
+<!-- GSAP ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <!-- 히어로 섹션 -->
 <section class="hero-section">
@@ -15,18 +26,24 @@
                     모두가 함께하는 실종자 찾기 플랫폼입니다.
                 </p>
                 <div class="hero-buttons">
-                    <a href="{{ url_for('missing_report') }}" class="btn btn-primary">
+                    <a href="{{ url_for('missing_report') }}" class="btn btn-primary btn-large">
                         <i class="fas fa-plus-circle"></i>
                         실종자 신고하기
                     </a>
-                    <a href="{{ url_for('search') }}" class="btn btn-secondary">
+                    <a href="{{ url_for('search') }}" class="btn btn-secondary btn-large">
                         <i class="fas fa-search"></i>
                         실종자 찾기
                     </a>
                 </div>
             </div>
             <div class="hero-visual">
-                <div id="network-canvas"></div>
+                <div id="network-canvas">
+                    <!-- Three.js 시각화가 여기에 렌더링됩니다 -->
+                    <div class="network-placeholder">
+                        <i class="fas fa-network-wired"></i>
+                        <div>연결된 시민들이<br>함께 찾아요</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -40,72 +57,40 @@
             <p>위험도가 높은 최신 실종자 정보입니다</p>
         </div>
         <div class="urgent-cards">
-            <!-- 샘플 긴급 실종자 카드들 -->
-            <div class="missing-card urgent">
+            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+            
+            <!-- 폴백용 샘플 카드 (React 로드 실패시) -->
+            <div class="missing-card urgent" data-id="1" style="display: none;">
                 <div class="card-image">
                     <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level high">위험</div>
+                    <div class="danger-level high">긴급</div>
+                    <div class="missing-period">3일째</div>
                 </div>
                 <div class="card-content">
                     <h3>김○○ (32세)</h3>
                     <p class="missing-info">
                         <i class="fas fa-calendar"></i> 2024.05.20 실종<br>
-                        <i class="fas fa-map-marker-alt"></i> 서울시 강남구
+                        <i class="fas fa-map-marker-alt"></i> 서울시 강남구<br>
+                        <i class="fas fa-tshirt"></i> 검은색 정장, 갈색 구두
                     </p>
                     <div class="card-actions">
-                        <button class="up-btn">
+                        <button class="up-btn" onclick="handleUpClick(this, 1)">
                             <i class="fas fa-arrow-up"></i>
                             <span>246</span>
                         </button>
-                        <a href="{{ url_for('missing_detail', missing_id=1) }}" class="detail-btn">상세보기</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="missing-card urgent">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/sample-missing-2.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level high">위험</div>
-                </div>
-                <div class="card-content">
-                    <h3>박○○ (8세)</h3>
-                    <p class="missing-info">
-                        <i class="fas fa-calendar"></i> 2024.05.21 실종<br>
-                        <i class="fas fa-map-marker-alt"></i> 부산시 해운대구
-                    </p>
-                    <div class="card-actions">
-                        <button class="up-btn">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>189</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=2) }}" class="detail-btn">상세보기</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="missing-card urgent">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/sample-missing-3.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level medium">주의</div>
-                </div>
-                <div class="card-content">
-                    <h3>최○○ (67세)</h3>
-                    <p class="missing-info">
-                        <i class="fas fa-calendar"></i> 2024.05.22 실종<br>
-                        <i class="fas fa-map-marker-alt"></i> 대구시 중구
-                    </p>
-                    <div class="card-actions">
-                        <button class="up-btn">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>134</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=3) }}" class="detail-btn">상세보기</a>
+                        <a href="{{ url_for('missing_detail', missing_id=1) }}" class="detail-btn">
+                            <i class="fas fa-eye"></i>
+                            상세보기
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="section-footer">
-            <a href="{{ url_for('search') }}" class="btn btn-outline">모든 실종자 보기</a>
+            <a href="{{ url_for('search') }}" class="btn btn-outline btn-large">
+                <i class="fas fa-list"></i>
+                모든 실종자 보기
+            </a>
         </div>
     </div>
 </section>
@@ -169,8 +154,8 @@
                 <div class="stat-label">참여자 수</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" data-count="94">0</div>
-                <div class="stat-label">해결률 (%)</div>
+                <div class="stat-number" data-count="94">0%</div>
+                <div class="stat-label">해결률</div>
             </div>
         </div>
     </div>
@@ -198,5 +183,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/network-visual.js') }}"></script>
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}

@@ -4,7 +4,12 @@
 {% block title %}실종자 조회 - 실종자 찾기 플랫폼{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missing-search.css') }}">
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<!-- GSAP ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +26,7 @@
             <div class="search-bar">
                 <div class="search-input-group">
                     <input type="text" id="searchInput" placeholder="이름, 특징, 지역으로 검색하세요" class="search-input">
+                    <div class="search-status">검색 중...</div>
                     <button class="search-btn" onclick="performSearch()">
                         <i class="fas fa-search"></i>
                         검색
@@ -31,7 +37,7 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <label>정렬:</label>
-                    <select id="sortSelect" onchange="applySorting()">
+                    <select id="sortSelect">
                         <option value="danger">위험도순</option>
                         <option value="up">UP순</option>
                         <option value="recent">최신순</option>
@@ -41,7 +47,7 @@
                 
                 <div class="filter-group">
                     <label>지역:</label>
-                    <select id="regionSelect" onchange="applyFilters()">
+                    <select id="regionSelect">
                         <option value="">전체 지역</option>
                         <option value="seoul">서울특별시</option>
                         <option value="busan">부산광역시</option>
@@ -64,7 +70,7 @@
                 
                 <div class="filter-group">
                     <label>연령대:</label>
-                    <select id="ageSelect" onchange="applyFilters()">
+                    <select id="ageSelect">
                         <option value="">전체 연령</option>
                         <option value="child">어린이 (0-12세)</option>
                         <option value="teen">청소년 (13-19세)</option>
@@ -75,7 +81,7 @@
                 
                 <div class="filter-group">
                     <label>실종기간:</label>
-                    <select id="periodSelect" onchange="applyFilters()">
+                    <select id="periodSelect">
                         <option value="">전체 기간</option>
                         <option value="today">오늘</option>
                         <option value="week">최근 1주일</option>
@@ -85,7 +91,7 @@
                     </select>
                 </div>
                 
-                <button class="filter-reset-btn" onclick="resetFilters()">
+                <button class="filter-reset-btn">
                     <i class="fas fa-undo"></i>
                     초기화
                 </button>
@@ -98,10 +104,10 @@
                 총 <span id="totalCount">127</span>건의 실종자 정보가 있습니다
             </div>
             <div class="view-toggle">
-                <button class="view-btn active" data-view="grid" onclick="toggleView('grid')">
+                <button class="view-btn active" data-view="grid">
                     <i class="fas fa-th"></i>
                 </button>
-                <button class="view-btn" data-view="list" onclick="toggleView('list')">
+                <button class="view-btn" data-view="list">
                     <i class="fas fa-list"></i>
                 </button>
             </div>
@@ -114,184 +120,22 @@
     <div class="container">
         <!-- 그리드 뷰 -->
         <div class="missing-grid" id="missingGrid">
-            <!-- 실종자 카드들 -->
-            <div class="missing-card" data-id="1" data-danger="high" data-region="seoul" data-age="32" data-date="2024-05-20">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level high">긴급</div>
-                    <div class="missing-period">3일째</div>
-                </div>
-                <div class="card-content">
-                    <h3>김○○ (32세)</h3>
-                    <div class="missing-info">
-                        <p><i class="fas fa-calendar"></i> 2024.05.20 실종</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 서울시 강남구 역삼동</p>
-                        <p><i class="fas fa-user"></i> 남성, 175cm, 중간체형</p>
-                        <p><i class="fas fa-tshirt"></i> 검은색 정장, 갈색 구두</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 1)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>246</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=1) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="missing-card" data-id="2" data-danger="high" data-region="busan" data-age="8" data-date="2024-05-21">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/sample-missing-2.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level high">긴급</div>
-                    <div class="missing-period">2일째</div>
-                </div>
-                <div class="card-content">
-                    <h3>박○○ (8세)</h3>
-                    <div class="missing-info">
-                        <p><i class="fas fa-calendar"></i> 2024.05.21 실종</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 부산시 해운대구 중동</p>
-                        <p><i class="fas fa-user"></i> 남성, 120cm, 마른체형</p>
-                        <p><i class="fas fa-tshirt"></i> 파란색 티셔츠, 검은색 반바지</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 2)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>189</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=2) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="missing-card" data-id="3" data-danger="medium" data-region="daegu" data-age="67" data-date="2024-05-22">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/sample-missing-3.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level medium">주의</div>
-                    <div class="missing-period">1일째</div>
-                </div>
-                <div class="card-content">
-                    <h3>최○○ (67세)</h3>
-                    <div class="missing-info">
-                        <p><i class="fas fa-calendar"></i> 2024.05.22 실종</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 대구시 중구 삼덕동</p>
-                        <p><i class="fas fa-user"></i> 여성, 160cm, 중간체형</p>
-                        <p><i class="fas fa-tshirt"></i> 흰색 블라우스, 검은색 바지</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 3)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>134</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=3) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 더 많은 샘플 카드들 -->
-            <div class="missing-card" data-id="4" data-danger="low" data-region="incheon" data-age="45" data-date="2024-05-19">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진">
-                    <div class="danger-level low">관심</div>
-                    <div class="missing-period">4일째</div>
-                </div>
-                <div class="card-content">
-                    <h3>이○○ (45세)</h3>
-                    <div class="missing-info">
-                        <p><i class="fas fa-calendar"></i> 2024.05.19 실종</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 인천시 남동구 구월동</p>
-                        <p><i class="fas fa-user"></i> 남성, 168cm, 뚱뚱한체형</p>
-                        <p><i class="fas fa-tshirt"></i> 회색 후드티, 청바지</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 4)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>87</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=4) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="missing-card" data-id="5" data-danger="medium" data-region="gwangju" data-age="23" data-date="2024-05-18">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진">
-                    <div class="danger-level medium">주의</div>
-                    <div class="missing-period">5일째</div>
-                </div>
-                <div class="card-content">
-                    <h3>정○○ (23세)</h3>
-                    <div class="missing-info">
-                        <p><i class="fas fa-calendar"></i> 2024.05.18 실종</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 광주시 서구 상무동</p>
-                        <p><i class="fas fa-user"></i> 여성, 165cm, 마른체형</p>
-                        <p><i class="fas fa-tshirt"></i> 분홍색 원피스, 흰색 운동화</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 5)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>156</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=5) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="missing-card" data-id="6" data-danger="high" data-region="daejeon" data-age="14" data-date="2024-05-23">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진">
-                    <div class="danger-level high">긴급</div>
-                    <div class="missing-period">방금</div>
-                </div>
-                <div class="card-content">
-                    <h3>홍○○ (14세)</h3>
-                    <div class="missing-info">
-                        <p><i class="fas fa-calendar"></i> 2024.05.23 실종</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 대전시 유성구 봉명동</p>
-                        <p><i class="fas fa-user"></i> 남성, 160cm, 마른체형</p>
-                        <p><i class="fas fa-tshirt"></i> 교복, 검은색 가방</p>
-                    </div>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 6)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>23</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=6) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
         </div>
         
         <!-- 리스트 뷰 -->
-        <div class="missing-list-view" id="missingList" style="display: none;">
-            <!-- 리스트 뷰 컨텐츠는 JavaScript로 동적 생성 -->
+        <div class="missing-list-view" id="missingList">
+            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
         </div>
         
         <!-- 로딩 인디케이터 -->
-        <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+        <div class="loading-indicator" id="loadingIndicator">
             <i class="fas fa-spinner fa-spin"></i>
             <span>실종자 정보를 불러오는 중...</span>
         </div>
         
         <!-- 결과 없음 메시지 -->
-        <div class="no-results" id="noResults" style="display: none;">
+        <div class="no-results" id="noResults">
             <i class="fas fa-search"></i>
             <h3>검색 결과가 없습니다</h3>
             <p>다른 검색어나 필터 조건을 시도해보세요</p>
@@ -337,277 +181,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/user.js') }}"></script>
-<script>
-// 실종자 검색 페이지 전용 JavaScript
-let currentPage = 1;
-let currentView = 'grid';
-let allMissingData = [];
-
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMissingSearch();
-    loadMissingData();
-});
-
-// 검색 기능 초기화
-function initializeMissingSearch() {
-    // 검색 입력 시 실시간 검색
-    const searchInput = document.getElementById('searchInput');
-    let searchTimer;
-    
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => {
-            performSearch();
-        }, 500);
-    });
-    
-    // 엔터 키로 검색
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
-    
-    // 플로팅 버튼 애니메이션
-    initializeFloatingButtons();
-}
-
-// 검색 실행
-function performSearch() {
-    const searchTerm = document.getElementById('searchInput').value.trim();
-    console.log('검색어:', searchTerm);
-    
-    showLoadingIndicator(true);
-    
-    // 검색 API 호출 시뮬레이션
-    setTimeout(() => {
-        applyFilters();
-        showLoadingIndicator(false);
-    }, 1000);
-}
-
-// 정렬 적용
-function applySorting() {
-    const sortValue = document.getElementById('sortSelect').value;
-    const cards = Array.from(document.querySelectorAll('.missing-card'));
-    
-    cards.sort((a, b) => {
-        switch(sortValue) {
-            case 'danger':
-                return getDangerWeight(b) - getDangerWeight(a);
-            case 'up':
-                return parseInt(b.querySelector('.up-btn span').textContent) - 
-                       parseInt(a.querySelector('.up-btn span').textContent);
-            case 'recent':
-                return new Date(b.dataset.date) - new Date(a.dataset.date);
-            case 'old':
-                return new Date(a.dataset.date) - new Date(b.dataset.date);
-            default:
-                return 0;
-        }
-    });
-    
-    const grid = document.getElementById('missingGrid');
-    cards.forEach(card => grid.appendChild(card));
-    
-    // 애니메이션 효과
-    if (typeof gsap !== 'undefined') {
-        gsap.from('.missing-card', {
-            duration: 0.5,
-            y: 20,
-            opacity: 0,
-            stagger: 0.1,
-            ease: 'power2.out'
-        });
-    }
-}
-
-// 위험도 가중치 계산
-function getDangerWeight(card) {
-    const danger = card.dataset.danger;
-    switch(danger) {
-        case 'high': return 3;
-        case 'medium': return 2;
-        case 'low': return 1;
-        default: return 0;
-    }
-}
-
-// 필터 적용
-function applyFilters() {
-    const region = document.getElementById('regionSelect').value;
-    const age = document.getElementById('ageSelect').value;
-    const period = document.getElementById('periodSelect').value;
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    
-    const cards = document.querySelectorAll('.missing-card');
-    let visibleCount = 0;
-    
-    cards.forEach(card => {
-        let visible = true;
-        
-        // 지역 필터
-        if (region && card.dataset.region !== region) {
-            visible = false;
-        }
-        
-        // 연령 필터
-        if (age && !matchesAgeGroup(parseInt(card.dataset.age), age)) {
-            visible = false;
-        }
-        
-        // 기간 필터
-        if (period && !matchesPeriod(card.dataset.date, period)) {
-            visible = false;
-        }
-        
-        // 검색어 필터
-        if (searchTerm && !card.textContent.toLowerCase().includes(searchTerm)) {
-            visible = false;
-        }
-        
-        card.style.display = visible ? 'block' : 'none';
-        if (visible) visibleCount++;
-    });
-    
-    // 결과 카운트 업데이트
-    document.getElementById('totalCount').textContent = visibleCount;
-    
-    // 결과 없음 메시지 표시
-    document.getElementById('noResults').style.display = visibleCount === 0 ? 'block' : 'none';
-}
-
-// 연령 그룹 매칭
-function matchesAgeGroup(age, group) {
-    switch(group) {
-        case 'child': return age >= 0 && age <= 12;
-        case 'teen': return age >= 13 && age <= 19;
-        case 'adult': return age >= 20 && age <= 64;
-        case 'senior': return age >= 65;
-        default: return true;
-    }
-}
-
-// 기간 매칭
-function matchesPeriod(dateStr, period) {
-    const cardDate = new Date(dateStr);
-    const today = new Date();
-    const diffDays = Math.floor((today - cardDate) / (1000 * 60 * 60 * 24));
-    
-    switch(period) {
-        case 'today': return diffDays === 0;
-        case 'week': return diffDays <= 7;
-        case 'month': return diffDays <= 30;
-        case '3month': return diffDays <= 90;
-        case 'year': return diffDays <= 365;
-        default: return true;
-    }
-}
-
-// 필터 초기화
-function resetFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('sortSelect').value = 'danger';
-    document.getElementById('regionSelect').value = '';
-    document.getElementById('ageSelect').value = '';
-    document.getElementById('periodSelect').value = '';
-    
-    applyFilters();
-    applySorting();
-}
-
-// 뷰 전환
-function toggleView(view) {
-    currentView = view;
-    
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-view="${view}"]`).classList.add('active');
-    
-    const gridView = document.getElementById('missingGrid');
-    const listView = document.getElementById('missingList');
-    
-    if (view === 'grid') {
-        gridView.style.display = 'grid';
-        listView.style.display = 'none';
-    } else {
-        gridView.style.display = 'none';
-        listView.style.display = 'block';
-        generateListView();
-    }
-}
-
-// UP 버튼 클릭 처리
-function handleUpClick(button, missingId) {
-    const countSpan = button.querySelector('span');
-    const currentCount = parseInt(countSpan.textContent);
-    
-    // UP 애니메이션
-    if (typeof gsap !== 'undefined') {
-        gsap.to(button, {
-            duration: 0.2,
-            scale: 1.2,
-            ease: 'power2.out',
-            yoyo: true,
-            repeat: 1
-        });
-    }
-    
-    // 카운트 증가
-    countSpan.textContent = currentCount + 1;
-    
-    // 알림 표시
-    if (window.showNotification) {
-        window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
-    }
-    
-    // TODO: 서버에 UP 정보 전송
-}
-
-// 로딩 인디케이터 표시
-function showLoadingIndicator(show) {
-    document.getElementById('loadingIndicator').style.display = show ? 'flex' : 'none';
-}
-
-// 플로팅 버튼 초기화
-function initializeFloatingButtons() {
-    const mainBtn = document.querySelector('.floating-btn.main-btn');
-    const subBtns = document.querySelector('.floating-sub-btns');
-    
-    let isOpen = false;
-    
-    mainBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        isOpen = !isOpen;
-        
-        if (isOpen) {
-            subBtns.classList.add('open');
-            mainBtn.querySelector('i').style.transform = 'rotate(45deg)';
-        } else {
-            subBtns.classList.remove('open');
-            mainBtn.querySelector('i').style.transform = 'rotate(0deg)';
-        }
-    });
-}
-
-// 실종자 데이터 로드 (추후 API 연동)
-function loadMissingData() {
-    // TODO: 실제 API에서 데이터 로드
-    console.log('실종자 데이터 로드 완료');
-}
-
-// 페이지 변경
-function changePage(direction) {
-    // TODO: 페이지네이션 구현
-    console.log('페이지 변경:', direction);
-}
-
-function goToPage(page) {
-    // TODO: 특정 페이지로 이동
-    console.log('페이지 이동:', page);
-}
-</script>
+<script src="{{ url_for('static', filename='js/missing-search.js') }}"></script>
 {% endblock %}
