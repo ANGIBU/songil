@@ -1,7 +1,7 @@
 {# templates/public/index.html #}
 {% extends "base.html" %}
 
-{% block title %}함께 찾아요, 소중한 사람을 - 손길{% endblock %}
+{% block title %}손길 - 함께 찾아요, 소중한 사람을{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
@@ -23,7 +23,7 @@
                 <h1 class="hero-title">함께 찾아요,<br>소중한 사람을</h1>
                 <p class="hero-description">
                     실종자 신고부터 목격 정보 제보까지,<br>
-                    모두가 함께하는 실종자 찾기 플랫폼입니다.
+                    모두가 함께하는 실종자 찾기 플랫폼
                 </p>
                 <div class="hero-buttons">
                     <a href="{{ url_for('missing_report') }}" class="btn btn-primary btn-large">
