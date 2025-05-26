@@ -637,7 +637,7 @@ function getPrivacyContent() {
         </ul>
         
         <h4>5. 개인정보 보호책임자</h4>
-        <p>성명: 안기부부<br>
+        <p>성명: 안기부<br>
         연락처: facecom2000@gmail.com<br>
         전화번호: 010-7905-5370</p>
         
