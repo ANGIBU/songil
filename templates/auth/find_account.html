@@ -1,7 +1,11 @@
 {# templates/auth/find_account.html #}
 {% extends "base.html" %}
 
-{% block title %}아이디/비밀번호 찾기 - 실종자 찾기 플랫폼{% endblock %}
+{% block title %}아이디/비밀번호 찾기 - 손길{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
 
 {% block content %}
 <section class="auth-section">

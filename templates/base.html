@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}함께 찾아요, 소중한 사람을 - 손길길{% endblock %}</title>
+{# templates/base.html #}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}손길 - 실종자 찾기 플랫폼{% endblock %}</title>
     
     <!-- CSS -->
@@ -54,7 +61,6 @@
                     </div>
                     <div class="guest-actions">
                         <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
-                        <a href="{{ url_for('register') }}" class="register-btn">회원가입</a>
                     </div>
                 </div>
                 
@@ -76,7 +82,6 @@
                 <li class="auth-required"><a href="{{ url_for('mypage') }}"><i class="fas fa-user-circle"></i> 마이페이지</a></li>
                 <li class="guest-actions">
                     <a href="{{ url_for('login') }}">로그인</a>
-                    <a href="{{ url_for('register') }}">회원가입</a>
                 </li>
             </ul>
         </nav>
@@ -118,8 +123,8 @@
                 <div class="footer-section">
                     <h4>개발팀</h4>
                     <ul>
-                        <li><i class="fas fa-users-cog"></i> 손유빈 (PM)</li>
                         <li><i class="fas fa-code"></i> 안기부 (프론트엔드)</li>
+                        <li><i class="fas fa-users-cog"></i> 손유빈 (PM)</li>
                         <li><i class="fas fa-server"></i> 황수용 (백엔드)</li>
                     </ul>
                     <p style="margin-top: 10px; font-size: 0.9rem; color: #6b7280;">
