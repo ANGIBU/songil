@@ -343,8 +343,8 @@
     margin-bottom: 0;
 }
 
-/* PASS 인증 스타일 */
-.pass-auth-section {
+/* 이메일 인증 스타일 */
+.email-auth-section {
     text-align: center;
     padding: var(--spacing-8) var(--spacing-6);
     background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
@@ -353,26 +353,91 @@
     margin-bottom: var(--spacing-6);
 }
 
-.pass-auth-info {
+.email-auth-info {
     margin-bottom: var(--spacing-6);
 }
 
-.pass-auth-info i {
+.email-auth-info i {
     font-size: var(--font-size-4xl);
     color: var(--primary-orange);
     margin-bottom: var(--spacing-3);
 }
 
-.pass-auth-info h3 {
+.email-auth-info h3 {
     font-size: var(--font-size-xl);
     font-weight: 600;
     color: var(--gray-900);
     margin-bottom: var(--spacing-2);
 }
 
-.pass-auth-info p {
+.email-auth-info p {
     color: var(--gray-600);
     line-height: 1.6;
+}
+
+.verification-section {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-6);
+    margin-top: var(--spacing-4);
+}
+
+.code-input-group {
+    display: flex;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+    align-items: center;
+}
+
+.code-input-group input {
+    flex: 1;
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-lg);
+    text-align: center;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+.btn-verify {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    color: var(--white);
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-all);
+    white-space: nowrap;
+}
+
+.btn-verify:hover {
+    transform: translateY(-2px);
+}
+
+.resend-section {
+    text-align: center;
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+}
+
+.btn-resend {
+    background: none;
+    border: none;
+    color: var(--primary-orange);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-2);
+}
+
+.btn-resend:disabled {
+    color: var(--gray-400);
+    cursor: not-allowed;
+    text-decoration: none;
 }
 
 .auth-status {
@@ -523,8 +588,8 @@
 /* 폼 옵션 */
 .form-options {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--spacing-3);
     margin-bottom: var(--spacing-6);
     opacity: 0;
     transform: translateY(10px);
@@ -591,7 +656,19 @@
     text-decoration: underline;
 }
 
-/* 버튼 스타일 (기존 스타일 확장) */
+.link-blue {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-all);
+}
+
+.link-blue:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* 버튼 스타일 수정 */
 .btn-full {
     width: 100%;
     opacity: 0;
@@ -606,24 +683,25 @@
     transform: translateY(0);
 }
 
-.btn-full::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.btn-full:hover::before {
-    left: 100%;
-}
-
 .btn-sm {
     padding: var(--spacing-2) var(--spacing-3);
     font-size: var(--font-size-sm);
+}
+
+/* 로그인 버튼 전용 스타일 */
+.btn-login-submit {
+    background-color: var(--gray-300);
+    color: var(--gray-700);
+    border: 2px solid var(--gray-300);
+    font-weight: 600;
+}
+
+.btn-login-submit:hover {
+    background-color: var(--gray-200);
+    color: var(--gray-800);
+    border-color: var(--gray-200);
+    transform: none;
+    box-shadow: none;
 }
 
 /* 소셜 로그인 */
@@ -641,17 +719,18 @@
     transform: translateY(0);
 }
 
-.auth-divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
+.auth-divider hr {
+    border: none;
     height: 1px;
     background-color: var(--gray-200);
+    margin: 0;
 }
 
 .auth-divider span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: var(--white);
     color: var(--gray-500);
     padding: 0 var(--spacing-4);
@@ -660,9 +739,6 @@
 }
 
 .social-login {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
     margin-bottom: var(--spacing-6);
     opacity: 0;
     transform: translateY(15px);
@@ -674,78 +750,58 @@
     transform: translateY(0);
 }
 
-.btn-social {
+.social-buttons {
+    display: flex;
     justify-content: center;
-    width: 100%;
-    padding: var(--spacing-3) var(--spacing-4);
-    border: 2px solid var(--gray-300);
-    background-color: var(--white);
-    color: var(--gray-700);
+    gap: var(--spacing-4);
+}
+
+.btn-social {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-all);
     position: relative;
     overflow: hidden;
 }
 
-.btn-social::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s;
-}
-
-.btn-social:hover::before {
-    left: 100%;
-}
-
-/* 로그인 페이지 전용 버튼 스타일 */
-.login-form .btn-primary {
-    background-color: var(--gray-200);
-    color: var(--gray-700);
-    border: 2px solid var(--gray-300);
-}
-
-.login-form .btn-primary:hover {
-    background-color: var(--gray-100);
-    color: var(--gray-800);
-    border-color: var(--gray-200);
-    transform: none;
-    box-shadow: none;
+.btn-social:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-google {
-    background-color: #4285f4;
-    color: var(--white);
-    border: 2px solid #4285f4;
+    background-color: var(--white);
+    border: 2px solid var(--gray-200);
 }
 
 .btn-google:hover {
-    background-color: #5a95f5;
-    border-color: #5a95f5;
-    transform: none;
-    box-shadow: none;
+    border-color: var(--gray-300);
 }
 
-.btn-google i {
-    color: #ffffff;
-}
-
-/* 구글 로고 색상 */
-.btn-google i.fab.fa-google {
-    background: linear-gradient(45deg, #4285f4 0%, #34a853 25%, #fbbc05 50%, #ea4335 75%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: bold;
+.btn-kakao {
+    background-color: #fee500;
+    border: 2px solid #fee500;
 }
 
 .btn-kakao:hover {
     background-color: #fdd835;
     border-color: #fdd835;
-    transform: none;
-    box-shadow: none;
+}
+
+.btn-kakao .social-icon {
+    color: #371d1e;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 인증 푸터 */
@@ -785,6 +841,11 @@
     gap: var(--spacing-2);
     color: var(--gray-700);
     font-weight: 500;
+    margin-bottom: var(--spacing-2);
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
 }
 
 .info-item i {
@@ -1128,7 +1189,7 @@
         max-height: 90vh;
     }
     
-    .pass-auth-section {
+    .email-auth-section {
         padding: var(--spacing-6) var(--spacing-4);
     }
     
@@ -1186,11 +1247,11 @@
         padding: var(--spacing-2) var(--spacing-3);
     }
     
-    .pass-auth-section {
+    .email-auth-section {
         padding: var(--spacing-4);
     }
     
-    .pass-auth-info i {
+    .email-auth-info i {
         font-size: var(--font-size-3xl);
     }
     
@@ -1202,6 +1263,24 @@
         width: 32px;
         height: 32px;
         font-size: var(--font-size-sm);
+    }
+    
+    .code-input-group {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .code-input-group input {
+        font-size: var(--font-size-base);
+    }
+    
+    .social-buttons {
+        gap: var(--spacing-3);
+    }
+    
+    .btn-social {
+        width: 45px;
+        height: 45px;
     }
 }
 

@@ -28,7 +28,7 @@
                     </div>
                     <div class="step" data-step="2">
                         <div class="step-number">2</div>
-                        <div class="step-label">본인인증</div>
+                        <div class="step-label">이메일 인증</div>
                     </div>
                     <div class="step" data-step="3">
                         <div class="step-number">3</div>
@@ -184,17 +184,17 @@
                     </div>
                 </div>
                 
-                <button type="button" class="btn btn-primary btn-full" onclick="nextStep(2)">
-                    다음 단계
+                <button type="button" class="btn btn-primary btn-full" id="nextToEmailBtn" onclick="nextStep(2)" disabled>
+                    이메일 인증하기
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </form>
             
-            <!-- 2단계: 본인 인증 -->
+            <!-- 2단계: 이메일 인증 -->
             <form class="auth-form step-form" id="step2Form" data-step="2">
                 <div class="step-title">
-                    <h2>본인 인증을 진행해주세요</h2>
-                    <p>PASS 인증서를 통해 본인 확인을 완료해주세요</p>
+                    <h2>이메일 인증을 진행해주세요</h2>
+                    <p>입력하신 이메일로 6자리 인증코드를 발송합니다</p>
                 </div>
                 
                 <div class="verification-info">
@@ -203,31 +203,46 @@
                         <span id="nameDisplay"></span>
                     </div>
                     <div class="info-item">
-                        <i class="fas fa-mobile-alt"></i>
-                        <span id="phoneDisplay"></span>
+                        <i class="fas fa-envelope"></i>
+                        <span id="emailDisplay"></span>
                     </div>
                 </div>
                 
-                <div class="pass-auth-section">
-                    <div class="pass-auth-info">
-                        <i class="fas fa-shield-alt"></i>
-                        <h3>PASS 인증</h3>
-                        <p>휴대폰에 설치된 PASS 앱을 통해 본인인증을 진행합니다.</p>
+                <div class="email-auth-section">
+                    <div class="email-auth-info">
+                        <i class="fas fa-envelope"></i>
+                        <h3>이메일 인증</h3>
+                        <p>안전한 본인인증을 위해<br>이메일로 인증코드를 발송합니다.</p>
                     </div>
                     
-                    <button type="button" class="btn btn-primary btn-full" id="passAuthBtn">
-                        <i class="fas fa-mobile-alt"></i>
-                        PASS 인증하기
+                    <button type="button" class="btn btn-primary btn-full" id="sendCodeBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        인증코드 발송
                     </button>
                     
-                    <div class="auth-status" id="authStatus" style="display: none;">
+                    <div class="verification-section" id="verificationSection" style="display: none;">
+                        <div class="code-input-group">
+                            <input type="text" id="verificationCode" placeholder="6자리 인증코드" maxlength="6" required>
+                            <button class="btn btn-success btn-verify" id="verifyCodeBtn">
+                                <i class="fas fa-check-circle"></i>
+                                확인
+                            </button>
+                        </div>
+                        <div class="resend-section">
+                            <p>코드를 받지 못하셨나요?</p>
+                            <button type="button" class="btn-link btn-resend" id="resendBtn" disabled>
+                                재발송 (<span id="countdown">60</span>초)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-success" id="authSuccess" style="display: none;">
                         <div class="status-icon">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <p>본인 인증이 완료되었습니다.</p>
+                        <p>이메일 인증이 완료되었습니다</p>
                         <div class="auth-info">
-                            <span>인증된 이름: <strong id="verifiedName"></strong></span>
-                            <span>인증된 휴대폰: <strong id="verifiedPhone"></strong></span>
+                            <div>인증된 이메일: <span id="verifiedEmail"></span></div>
                         </div>
                     </div>
                 </div>

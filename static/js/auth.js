@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePasswordToggle();
     initializeTabSystem();
     initializeLoginAnimation();
+    initializeEmailSaveFeature();
 });
 
 // 인증 시스템 초기화
@@ -27,6 +28,40 @@ function initializeAuth() {
     
     if (kakaoLoginBtn) {
         kakaoLoginBtn.addEventListener('click', handleKakaoLogin);
+    }
+}
+
+// 이메일 저장 기능 초기화
+function initializeEmailSaveFeature() {
+    const saveEmailCheckbox = document.getElementById('saveEmail');
+    const rememberCheckbox = document.getElementById('remember');
+    const emailInput = document.getElementById('email');
+    
+    if (saveEmailCheckbox && rememberCheckbox) {
+        // 이메일 저장이 체크되면 로그인 상태 유지도 자동 체크
+        saveEmailCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                rememberCheckbox.checked = true;
+            }
+        });
+        
+        // 로그인 상태 유지가 해제되면 이메일 저장도 해제
+        rememberCheckbox.addEventListener('change', function() {
+            if (!this.checked) {
+                saveEmailCheckbox.checked = false;
+            }
+        });
+    }
+    
+    // 저장된 이메일 불러오기
+    if (emailInput) {
+        const savedEmail = localStorage.getItem('savedEmail');
+        if (savedEmail) {
+            emailInput.value = savedEmail;
+            if (saveEmailCheckbox) {
+                saveEmailCheckbox.checked = true;
+            }
+        }
     }
 }
 
@@ -74,6 +109,7 @@ async function handleLogin(e) {
     const email = formData.get('email');
     const password = formData.get('password');
     const remember = formData.get('remember');
+    const saveEmail = formData.get('saveEmail');
     
     // 클라이언트 사이드 유효성 검사
     if (!validateEmail(email)) {
@@ -102,6 +138,13 @@ async function handleLogin(e) {
         localStorage.setItem('userName', '테스트 사용자');
         localStorage.setItem('userPoints', '1250');
         
+        // 이메일 저장 옵션 처리
+        if (saveEmail) {
+            localStorage.setItem('savedEmail', email);
+        } else {
+            localStorage.removeItem('savedEmail');
+        }
+        
         if (remember) {
             localStorage.setItem('rememberLogin', 'true');
         }
@@ -126,7 +169,7 @@ async function handleGoogleLogin() {
     const btn = document.querySelector('.btn-google');
     const originalText = btn.innerHTML;
     
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Google 연결 중...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     btn.disabled = true;
     
     try {
@@ -158,7 +201,7 @@ async function handleKakaoLogin() {
     const btn = document.querySelector('.btn-kakao');
     const originalText = btn.innerHTML;
     
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 카카오 연결 중...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     btn.disabled = true;
     
     try {
@@ -183,6 +226,74 @@ async function handleKakaoLogin() {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
+}
+
+// 이메일 인증 코드 발송
+async function sendVerificationCode(email, purpose = 'register') {
+    try {
+        const response = await fetch('/api/auth/send-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                email: email,
+                purpose: purpose // 'register', 'find-id', 'find-password'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            return { success: true, message: '인증코드가 발송되었습니다.' };
+        } else {
+            return { success: false, message: result.message || '발송에 실패했습니다.' };
+        }
+    } catch (error) {
+        return { success: false, message: '네트워크 오류가 발생했습니다.' };
+    }
+}
+
+// 이메일 인증 코드 확인
+async function verifyEmailCode(email, code, purpose = 'register') {
+    try {
+        const response = await fetch('/api/auth/verify-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                email: email,
+                code: code,
+                purpose: purpose
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            return { success: true, message: '인증이 완료되었습니다.' };
+        } else {
+            return { success: false, message: result.message || '인증에 실패했습니다.' };
+        }
+    } catch (error) {
+        return { success: false, message: '네트워크 오류가 발생했습니다.' };
+    }
+}
+
+// 재발송 타이머 시작
+function startResendTimer(countdownElement, resendButton, seconds = 60) {
+    let countdown = seconds;
+    resendButton.disabled = true;
+    
+    const timer = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(timer);
+            resendButton.disabled = false;
+            resendButton.innerHTML = '재발송';
+        }
+    }, 1000);
+    
+    return timer;
 }
 
 // 폼 유효성 검사 초기화
