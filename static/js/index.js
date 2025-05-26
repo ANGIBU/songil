@@ -183,6 +183,7 @@ class NetworkVisualization {
         this.mouse = { x: 0, y: 0 };
         this.targetRotation = { x: 0, y: 0 };
         this.currentRotation = { x: 0, y: 0 };
+        this.isDestroyed = false;
         
         this.init();
     }
@@ -352,6 +353,8 @@ class NetworkVisualization {
     }
 
     animate() {
+        if (this.isDestroyed) return;
+        
         requestAnimationFrame(() => this.animate());
         
         const time = Date.now() * 0.001;
@@ -392,11 +395,13 @@ class NetworkVisualization {
         this.scene.rotation.x = this.currentRotation.x;
         this.scene.rotation.y = this.currentRotation.y + time * 0.1;
         
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderer && this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     onWindowResize() {
-        if (!this.renderer || !this.camera) return;
+        if (!this.renderer || !this.camera || this.isDestroyed) return;
         
         const width = this.container.offsetWidth;
         const height = this.container.offsetHeight;
@@ -414,12 +419,29 @@ class NetworkVisualization {
             </div>
         `;
     }
+
+    destroy() {
+        this.isDestroyed = true;
+        
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+        
+        // 메모리 정리
+        this.nodes = [];
+        this.connections = null;
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+    }
 }
 
-// GSAP 애니메이션 관리자
+// GSAP 애니메이션 관리자 (버그 수정 버전)
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
+        this.timeline = null;
+        this.scrollTriggers = [];
         this.init();
     }
 
@@ -434,87 +456,123 @@ class IndexAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
+        // 기존 애니메이션 정리
+        this.cleanup();
+        
         this.setupAnimations();
         this.isInitialized = true;
     }
 
-    setupAnimations() {
-        // 히어로 섹션 초기 애니메이션
-        const heroTimeline = gsap.timeline({ delay: 0.5 });
+    cleanup() {
+        // 기존 타임라인 정리
+        if (this.timeline) {
+            this.timeline.kill();
+            this.timeline = null;
+        }
         
-        heroTimeline
+        // ScrollTrigger 정리
+        this.scrollTriggers.forEach(trigger => {
+            if (trigger) trigger.kill();
+        });
+        this.scrollTriggers = [];
+        
+        // 모든 GSAP 애니메이션 초기화
+        gsap.set('*', {clearProps: 'all'});
+    }
+
+    setupAnimations() {
+        // 히어로 섹션 초기 애니메이션 (수정됨)
+        this.timeline = gsap.timeline({ delay: 0.5 });
+        
+        this.timeline
             .from('.hero-title', {
                 duration: 1.2,
                 y: 80,
                 opacity: 0,
-                ease: 'power3.out'
+                ease: 'power3.out',
+                clearProps: 'transform,opacity' // 애니메이션 완료 후 속성 정리
             })
             .from('.hero-description', {
                 duration: 1,
                 y: 40,
                 opacity: 0,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                clearProps: 'transform,opacity'
             }, '-=0.6')
             .from('.hero-buttons .btn', {
                 duration: 0.8,
                 y: 30,
                 opacity: 0,
                 stagger: 0.2,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                clearProps: 'transform,opacity'
             }, '-=0.4')
             .from('#network-canvas', {
                 duration: 1.5,
                 scale: 0.8,
                 opacity: 0,
-                ease: 'back.out(1.7)'
+                ease: 'back.out(1.7)',
+                clearProps: 'transform,opacity'
             }, '-=1');
 
-        // ScrollTrigger 애니메이션들
+        // ScrollTrigger 애니메이션들 (수정됨)
         if (typeof ScrollTrigger !== 'undefined') {
             // 긴급 실종자 섹션
-            gsap.from('.urgent-cards .missing-card', {
-                scrollTrigger: {
-                    trigger: '.urgent-section',
-                    start: 'top 70%',
-                    end: 'bottom 30%',
-                    toggleActions: 'play none none reverse'
+            const urgentTrigger = ScrollTrigger.create({
+                trigger: '.urgent-section',
+                start: 'top 70%',
+                end: 'bottom 30%',
+                onEnter: () => {
+                    gsap.from('.urgent-cards .missing-card', {
+                        duration: 0.8,
+                        y: 60,
+                        opacity: 0,
+                        stagger: 0.2,
+                        ease: 'power2.out',
+                        clearProps: 'transform,opacity'
+                    });
                 },
-                duration: 0.8,
-                y: 60,
-                opacity: 0,
-                stagger: 0.2,
-                ease: 'power2.out'
+                once: true // 한 번만 실행되도록 설정
             });
+            this.scrollTriggers.push(urgentTrigger);
 
             // 소개 섹션 스텝들
-            gsap.from('.intro-steps .step', {
-                scrollTrigger: {
-                    trigger: '.intro-section',
-                    start: 'top 80%',
-                    end: 'bottom 20%',
-                    toggleActions: 'play none none reverse'
+            const introTrigger = ScrollTrigger.create({
+                trigger: '.intro-section',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                onEnter: () => {
+                    gsap.from('.intro-steps .step', {
+                        duration: 0.6,
+                        y: 40,
+                        opacity: 0,
+                        stagger: 0.15,
+                        ease: 'power2.out',
+                        clearProps: 'transform,opacity'
+                    });
                 },
-                duration: 0.6,
-                y: 40,
-                opacity: 0,
-                stagger: 0.15,
-                ease: 'power2.out'
+                once: true
             });
+            this.scrollTriggers.push(introTrigger);
 
             // 통계 섹션
-            gsap.from('.stats-grid .stat-item', {
-                scrollTrigger: {
-                    trigger: '.stats-section',
-                    start: 'top 80%',
-                    end: 'bottom 20%',
-                    toggleActions: 'play none none reverse'
+            const statsTrigger = ScrollTrigger.create({
+                trigger: '.stats-section',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                onEnter: () => {
+                    gsap.from('.stats-grid .stat-item', {
+                        duration: 0.8,
+                        scale: 0.8,
+                        opacity: 0,
+                        stagger: 0.1,
+                        ease: 'back.out(1.7)',
+                        clearProps: 'transform,opacity'
+                    });
                 },
-                duration: 0.8,
-                scale: 0.8,
-                opacity: 0,
-                stagger: 0.1,
-                ease: 'back.out(1.7)'
+                once: true
             });
+            this.scrollTriggers.push(statsTrigger);
         }
 
         // 배경 애니메이션
@@ -524,14 +582,6 @@ class IndexAnimations {
     setupBackgroundAnimations() {
         // 히어로 섹션 배경 파티클
         this.createFloatingParticles('.hero-section', 8);
-        
-        // 통계 섹션 배경 애니메이션
-        gsap.to('.stats-section::before', {
-            rotation: 360,
-            duration: 60,
-            ease: 'none',
-            repeat: -1
-        });
     }
 
     createFloatingParticles(containerSelector, count) {
@@ -540,6 +590,7 @@ class IndexAnimations {
 
         for (let i = 0; i < count; i++) {
             const particle = document.createElement('div');
+            particle.className = 'floating-particle';
             particle.style.cssText = `
                 position: absolute;
                 width: ${3 + Math.random() * 8}px;
@@ -585,11 +636,13 @@ class IndexAnimations {
         }
     }
 
-    // UP 버튼 클릭 애니메이션
+    // UP 버튼 클릭 애니메이션 (수정됨)
     animateUpButton(button) {
         if (!this.isInitialized) return;
         
-        gsap.timeline()
+        const timeline = gsap.timeline();
+        
+        timeline
             .to(button, {
                 scale: 1.2,
                 duration: 0.1,
@@ -598,18 +651,29 @@ class IndexAnimations {
             .to(button, {
                 scale: 1,
                 duration: 0.2,
-                ease: 'elastic.out(2, 0.3)'
+                ease: 'elastic.out(2, 0.3)',
+                clearProps: 'transform' // 애니메이션 완료 후 transform 정리
             });
             
         // 숫자 증가 애니메이션
         const countElement = button.querySelector('span');
         if (countElement) {
-            gsap.from(countElement, {
-                scale: 1.5,
-                duration: 0.3,
-                ease: 'back.out(1.7)'
-            });
+            gsap.fromTo(countElement, 
+                { scale: 1.5 },
+                {
+                    scale: 1,
+                    duration: 0.3,
+                    ease: 'back.out(1.7)',
+                    clearProps: 'transform'
+                }
+            );
         }
+    }
+
+    // 소멸자 추가
+    destroy() {
+        this.cleanup();
+        this.isInitialized = false;
     }
 }
 
@@ -617,6 +681,7 @@ class IndexAnimations {
 class ScrollObserver {
     constructor() {
         this.counters = new Map();
+        this.observer = null;
         this.init();
     }
 
@@ -636,7 +701,8 @@ class ScrollObserver {
                         this.startStatCounter(entry.target);
                     }
                 } else {
-                    entry.target.classList.remove('in-view');
+                    // 스크롤 아웃 시에도 클래스 유지 (버그 수정)
+                    // entry.target.classList.remove('in-view');
                 }
             });
         }, {
@@ -658,14 +724,23 @@ class ScrollObserver {
             counter.start();
         }
     }
+
+    destroy() {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+        }
+        this.counters.clear();
+    }
 }
 
-// 메인 홈페이지 관리 클래스
+// 메인 홈페이지 관리 클래스 (수정됨)
 class IndexPage {
     constructor() {
         this.networkViz = null;
         this.animations = null;
         this.scrollObserver = null;
+        this.isDestroyed = false;
         this.init();
     }
 
@@ -678,17 +753,31 @@ class IndexPage {
     }
 
     setup() {
+        if (this.isDestroyed) return;
+        
         // React 컴포넌트 렌더링
         this.renderUrgentCards();
         
-        // 네트워크 시각화 초기화
-        this.initNetworkVisualization();
+        // 네트워크 시각화 초기화 (딜레이 추가)
+        setTimeout(() => {
+            if (!this.isDestroyed) {
+                this.initNetworkVisualization();
+            }
+        }, 100);
         
-        // 애니메이션 시스템 초기화
-        this.animations = new IndexAnimations();
+        // 애니메이션 시스템 초기화 (딜레이 추가)
+        setTimeout(() => {
+            if (!this.isDestroyed) {
+                this.animations = new IndexAnimations();
+            }
+        }, 200);
         
-        // 스크롤 관찰자 초기화
-        this.scrollObserver = new ScrollObserver();
+        // 스크롤 관찰자 초기화 (딜레이 추가)
+        setTimeout(() => {
+            if (!this.isDestroyed) {
+                this.scrollObserver = new ScrollObserver();
+            }
+        }, 300);
         
         // 이벤트 리스너 설정
         this.setupEventListeners();
@@ -718,23 +807,27 @@ class IndexPage {
             }
         };
 
-        const root = ReactDOM.createRoot(urgentContainer);
-        root.render(
-            React.createElement('div', { style: { display: 'contents' } },
-                urgentMissingData.map(data =>
-                    React.createElement(MissingCard, {
-                        key: data.id,
-                        data: data,
-                        onUpClick: handleUpClick
-                    })
+        try {
+            const root = ReactDOM.createRoot(urgentContainer);
+            root.render(
+                React.createElement('div', { style: { display: 'contents' } },
+                    urgentMissingData.map(data =>
+                        React.createElement(MissingCard, {
+                            key: data.id,
+                            data: data,
+                            onUpClick: handleUpClick
+                        })
+                    )
                 )
-            )
-        );
+            );
+        } catch (error) {
+            console.error('React rendering failed:', error);
+        }
     }
 
     initNetworkVisualization() {
         const networkContainer = document.getElementById('network-canvas');
-        if (networkContainer) {
+        if (networkContainer && !this.isDestroyed) {
             this.networkViz = new NetworkVisualization(networkContainer);
         }
     }
@@ -742,49 +835,97 @@ class IndexPage {
     setupEventListeners() {
         // 리사이즈 핸들러
         let resizeTimeout;
-        window.addEventListener('resize', () => {
+        const resizeHandler = () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (this.networkViz) {
+                if (this.networkViz && !this.isDestroyed) {
                     this.networkViz.onWindowResize();
                 }
             }, 250);
-        });
+        };
+        
+        window.addEventListener('resize', resizeHandler);
 
         // 버튼 클릭 이벤트 (React가 없는 경우의 폴백)
-        document.addEventListener('click', (e) => {
+        const clickHandler = (e) => {
             if (e.target.closest('.up-btn')) {
                 const button = e.target.closest('.up-btn');
                 const card = button.closest('.missing-card');
                 
-                if (card && this.animations) {
+                if (card && this.animations && !this.isDestroyed) {
                     this.animations.animateUpButton(button);
                 }
             }
-        });
+        };
+        
+        document.addEventListener('click', clickHandler);
 
         // 키보드 접근성
-        document.addEventListener('keydown', (e) => {
+        const keyHandler = (e) => {
             if (e.key === 'Escape') {
                 // ESC 키로 포커스 해제
                 document.activeElement?.blur();
             }
-        });
+        };
+        
+        document.addEventListener('keydown', keyHandler);
+        
+        // 정리용 이벤트 리스너 저장
+        this.eventCleanup = () => {
+            window.removeEventListener('resize', resizeHandler);
+            document.removeEventListener('click', clickHandler);
+            document.removeEventListener('keydown', keyHandler);
+        };
     }
 
     // 개발자 도구용 메서드
     refreshNetworkViz() {
         if (this.networkViz) {
-            const container = document.getElementById('network-canvas');
-            if (container) {
-                this.networkViz = new NetworkVisualization(container);
-            }
+            this.networkViz.destroy();
         }
+        
+        const container = document.getElementById('network-canvas');
+        if (container && !this.isDestroyed) {
+            this.networkViz = new NetworkVisualization(container);
+        }
+    }
+
+    // 소멸자 추가
+    destroy() {
+        this.isDestroyed = true;
+        
+        if (this.networkViz) {
+            this.networkViz.destroy();
+            this.networkViz = null;
+        }
+        
+        if (this.animations) {
+            this.animations.destroy();
+            this.animations = null;
+        }
+        
+        if (this.scrollObserver) {
+            this.scrollObserver.destroy();
+            this.scrollObserver = null;
+        }
+        
+        if (this.eventCleanup) {
+            this.eventCleanup();
+        }
+        
+        console.log('Index page destroyed');
     }
 }
 
 // 페이지 로드 시 자동 초기화
 const indexPage = new IndexPage();
+
+// 페이지 언로드 시 정리
+window.addEventListener('beforeunload', () => {
+    if (indexPage) {
+        indexPage.destroy();
+    }
+});
 
 // 전역 함수 (하위 호환성을 위해)
 window.handleUpClick = function(button, missingId) {
@@ -794,7 +935,7 @@ window.handleUpClick = function(button, missingId) {
         countSpan.textContent = currentCount + 1;
     }
     
-    if (indexPage.animations) {
+    if (indexPage && indexPage.animations) {
         indexPage.animations.animateUpButton(button);
     }
     
@@ -807,7 +948,7 @@ window.handleUpClick = function(button, missingId) {
 if (typeof window !== 'undefined') {
     window.indexPageDebug = {
         instance: indexPage,
-        refreshNetworkViz: () => indexPage.refreshNetworkViz(),
+        refreshNetworkViz: () => indexPage && indexPage.refreshNetworkViz(),
         testAnimations: () => {
             if (typeof gsap !== 'undefined') {
                 gsap.to('.missing-card', {
@@ -815,10 +956,16 @@ if (typeof window !== 'undefined') {
                     scale: 1.05,
                     stagger: 0.1,
                     yoyo: true,
-                    repeat: 1
+                    repeat: 1,
+                    clearProps: 'transform'
                 });
             }
         },
-        networkData: urgentMissingData
+        networkData: urgentMissingData,
+        destroyInstance: () => {
+            if (indexPage) {
+                indexPage.destroy();
+            }
+        }
     };
 }
