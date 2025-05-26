@@ -8,6 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTabSystem();
     initializeLoginAnimation();
     initializeEmailSaveFeature();
+    
+    // 모든 폼 요소를 즉시 표시
+    const allFormElements = document.querySelectorAll('.auth-form .form-group, .auth-form .btn-full, .auth-form .form-options, .auth-form .auth-divider, .auth-form .social-login, .auth-form .auth-footer');
+    allFormElements.forEach(element => {
+        if (element) {
+            element.classList.add('show');
+        }
+    });
 });
 
 // 인증 시스템 초기화
@@ -71,13 +79,11 @@ function initializeLoginAnimation() {
     const loginForm = document.getElementById('loginForm');
     if (!loginForm) return;
     
-    // 헤더 애니메이션 후 폼 요소들 순차 등장
-    setTimeout(() => {
-        showLoginForm();
-    }, 800);
+    // 모든 폼 요소를 즉시 표시
+    showLoginForm();
 }
 
-// 로그인 폼 요소들 순차적으로 표시
+// 로그인 폼 요소들 즉시 표시
 function showLoginForm() {
     const formElements = [
         document.getElementById('loginForm'),
@@ -89,14 +95,9 @@ function showLoginForm() {
         document.querySelector('.auth-footer')
     ];
     
-    let delay = 0;
-    
-    formElements.forEach((element, index) => {
+    formElements.forEach((element) => {
         if (element) {
-            setTimeout(() => {
-                element.classList.add('show');
-            }, delay);
-            delay += 150; // 150ms 간격으로 순차 등장
+            element.classList.add('show');
         }
     });
 }

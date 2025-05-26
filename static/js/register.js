@@ -18,6 +18,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeRegister() {
     showStep(1);
     
+    // 모든 폼 요소를 즉시 표시
+    const formElements = document.querySelectorAll('.form-group, .btn-full, .agreement-section');
+    formElements.forEach(element => {
+        if (element) {
+            element.classList.add('show');
+        }
+    });
+    
     const step1Form = document.getElementById('step1Form');
     if (step1Form) {
         step1Form.addEventListener('submit', function(e) {

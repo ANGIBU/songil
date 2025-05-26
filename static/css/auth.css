@@ -143,8 +143,8 @@
 
 /* 폼 스타일 */
 .auth-form {
-    opacity: 0;
-    transform: translateY(20px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.6s ease;
 }
 
@@ -191,8 +191,8 @@
 /* 폼 그룹 */
 .form-group {
     margin-bottom: var(--spacing-6);
-    opacity: 0;
-    transform: translateY(15px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.4s ease;
 }
 
@@ -234,18 +234,17 @@
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    border-color: var(--gray-400);
 }
 
 .form-group input.error {
     border-color: var(--danger-red);
-    background-color: var(--danger-red-soft);
+    background-color: var(--white);
 }
 
 .form-group input.success {
     border-color: var(--secondary-green);
-    background-color: var(--secondary-green-soft);
+    background-color: var(--white);
 }
 
 /* 비밀번호 입력 */
@@ -268,8 +267,8 @@
 }
 
 .password-toggle:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
+    color: var(--gray-400);
+    background-color: transparent;
 }
 
 /* 버튼과 함께 사용되는 입력 */
@@ -328,8 +327,7 @@
 
 .form-group select:focus {
     outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    border-color: var(--gray-400);
 }
 
 /* 주소 입력 */
@@ -523,8 +521,8 @@
 }
 
 .popup-close:hover {
-    color: var(--gray-600);
-    background-color: var(--gray-100);
+    color: var(--gray-400);
+    background-color: transparent;
 }
 
 .popup-body {
@@ -591,8 +589,8 @@
     flex-direction: column;
     gap: var(--spacing-3);
     margin-bottom: var(--spacing-6);
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.4s ease;
 }
 
@@ -612,7 +610,7 @@
 }
 
 .checkbox-label:hover {
-    color: var(--gray-800);
+    color: var(--gray-600);
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -671,8 +669,8 @@
 /* 버튼 스타일 수정 */
 .btn-full {
     width: 100%;
-    opacity: 0;
-    transform: translateY(15px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.5s ease;
     position: relative;
     overflow: hidden;
@@ -712,8 +710,8 @@
     text-align: center;
     margin: var(--spacing-8) 0;
     position: relative;
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.4s ease;
 }
 
@@ -744,8 +742,8 @@
 
 .social-login {
     margin-bottom: var(--spacing-6);
-    opacity: 0;
-    transform: translateY(15px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.5s ease;
 }
 
@@ -800,6 +798,7 @@
 
 .btn-kakao .social-icon {
     color: #371d1e;
+    font-size: var(--font-size-xl);
 }
 
 .social-icon {
@@ -814,8 +813,8 @@
     padding-top: var(--spacing-6);
     border-top: 1px solid var(--gray-200);
     margin-top: var(--spacing-6);
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.4s ease;
 }
 
@@ -903,8 +902,8 @@
 }
 
 .agreement-link:hover {
-    color: var(--primary-orange-dark);
-    background-color: var(--primary-orange-soft);
+    color: var(--primary-orange);
+    background-color: transparent;
 }
 
 /* 폼 버튼들 */
@@ -998,7 +997,7 @@
 }
 
 .welcome-benefits li:hover {
-    background-color: var(--primary-orange-soft);
+    background-color: transparent;
 }
 
 .welcome-benefits li i {
@@ -1034,8 +1033,8 @@
 }
 
 .tab-btn:hover {
-    color: var(--gray-600);
-    background: var(--gray-100);
+    color: var(--gray-500);
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
 }
 
 .tab-btn.active {
@@ -1310,11 +1309,10 @@
     animation: spin 1s linear infinite;
 }
 
-/* 포커스 효과 개선 */
+/* 포커스 효과 개선 - hover 효과 제거 */
 .form-group input:focus,
 .form-group select:focus {
-    transform: translateY(-1px);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--gray-400);
 }
 
 /* 체크박스 호버 효과 */
@@ -1323,11 +1321,10 @@
     background-color: var(--primary-orange-soft);
 }
 
-/* 링크 호버 효과 개선 */
+/* 링크 호버 효과 개선 - transform 제거 */
 .agreement-link:hover,
 .link:hover {
     text-decoration: underline;
-    transform: translateY(-1px);
 }
 
 /* 결과 섹션 애니메이션 */
@@ -1373,11 +1370,10 @@
     75% { transform: translateX(5px); }
 }
 
-/* 성공 상태 개선 */
+/* 성공 상태 개선 - 배경색 제거 */
 .form-group input.success {
     border-color: var(--secondary-green);
-    background-color: var(--secondary-green-soft);
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    background-color: var(--white);
 }
 
 /* 진행률 애니메이션 */
@@ -1402,23 +1398,13 @@
     100% { transform: translateX(100%); }
 }
 
-/* 카드 효과 개선 */
+/* 카드 효과 개선 - hover 효과 제거 */
 .auth-container::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, var(--primary-orange), var(--secondary-green), var(--primary-orange));
-    border-radius: var(--radius-2xl);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    display: none;
 }
 
 .auth-container:hover::before {
-    opacity: 0.1;
+    display: none;
 }
 
 /* 스크롤바 스타일 */
@@ -1440,15 +1426,15 @@
     background: var(--primary-orange);
 }
 
-/* 접근성 개선 */
+/* 접근성 개선 - 배경색 제거 */
 .form-group input[aria-invalid="true"] {
     border-color: var(--danger-red);
-    background-color: var(--danger-red-soft);
+    background-color: var(--white);
 }
 
 .form-group input[aria-invalid="false"] {
     border-color: var(--secondary-green);
-    background-color: var(--secondary-green-soft);
+    background-color: var(--white);
 }
 
 /* 고대비 모드 지원 */
@@ -1479,8 +1465,9 @@
     .btn-full,
     .auth-divider,
     .social-login,
-    .auth-footer {
-        opacity: 1;
-        transform: none;
+    .auth-footer,
+    .form-options {
+        opacity: 1 !important;
+        transform: none !important;
     }
 }
