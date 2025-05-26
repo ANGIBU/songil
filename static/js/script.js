@@ -64,13 +64,13 @@ function identifyCurrentPage() {
 // ===== 이벤트 리스너 설정 =====
 function setupEventListeners() {
     // 모바일 메뉴 토글
-    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileToggle = document.querySelector('.mobile-menu-btn');
     if (mobileToggle) {
         mobileToggle.addEventListener('click', toggleMobileMenu);
     }
     
     // 사용자 메뉴 토글
-    const userBtn = document.querySelector('.user-btn');
+    const userBtn = document.querySelector('.profile-btn');
     if (userBtn) {
         userBtn.addEventListener('click', toggleUserMenu);
     }
@@ -92,6 +92,9 @@ function setupEventListeners() {
     
     // 모든 링크에 부드러운 스크롤 적용
     setupSmoothScroll();
+    
+    // 네비게이션 초기화
+    initializeNavigation();
 }
 
 // ===== 네비게이션 초기화 =====
@@ -116,7 +119,8 @@ function initializeNavigation() {
                     duration: 0.1,
                     scale: 0.95,
                     yoyo: true,
-                    repeat: 1
+                    repeat: 1,
+                    clearProps: 'transform'
                 });
             }
         });
@@ -143,12 +147,12 @@ function checkAuthStatus() {
 // ===== 로그인 사용자 UI 업데이트 =====
 function updateUIForLoggedUser() {
     // 로그인 필요 요소 표시
-    const loginRequired = document.querySelectorAll('.login-required');
-    loginRequired.forEach(el => el.style.display = 'flex');
+    const authRequired = document.querySelectorAll('.auth-required');
+    authRequired.forEach(el => el.style.display = 'flex');
     
     // 게스트 전용 요소 숨김
-    const loggedOutOnly = document.querySelectorAll('.logged-out-only');
-    loggedOutOnly.forEach(el => el.style.display = 'none');
+    const guestActions = document.querySelectorAll('.guest-actions');
+    guestActions.forEach(el => el.style.display = 'none');
     
     // 사용자 정보 업데이트
     if (window.APP.user) {
@@ -158,41 +162,60 @@ function updateUIForLoggedUser() {
         if (userNameEl) userNameEl.textContent = window.APP.user.name || '사용자';
         if (userPointsEl) userPointsEl.textContent = `${(window.APP.user.points || 0).toLocaleString()}P`;
     }
+    
+    // body 클래스 업데이트
+    document.body.classList.add('user-authenticated');
+    document.body.classList.remove('user-guest');
 }
 
 // ===== 게스트 사용자 UI 업데이트 =====
 function updateUIForGuestUser() {
     // 로그인 필요 요소 숨김
-    const loginRequired = document.querySelectorAll('.login-required');
-    loginRequired.forEach(el => el.style.display = 'none');
+    const authRequired = document.querySelectorAll('.auth-required');
+    authRequired.forEach(el => el.style.display = 'none');
     
     // 게스트 전용 요소 표시
-    const loggedOutOnly = document.querySelectorAll('.logged-out-only');
-    loggedOutOnly.forEach(el => el.style.display = 'flex');
-}
-
-// ===== 인증 초기화 =====
-function initializeAuth() {
-    checkAuthStatus();
+    const guestActions = document.querySelectorAll('.guest-actions');
+    guestActions.forEach(el => el.style.display = 'flex');
+    
+    // body 클래스 업데이트
+    document.body.classList.add('user-guest');
+    document.body.classList.remove('user-authenticated');
 }
 
 // ===== 모바일 메뉴 토글 =====
 function toggleMobileMenu() {
-    const navMenu = document.getElementById('navMenu');
-    const toggle = document.querySelector('.mobile-menu-toggle');
+    const mobileNav = document.querySelector('.mobile-nav');
+    const toggle = document.querySelector('.mobile-menu-btn');
     
-    if (navMenu.classList.contains('show')) {
-        navMenu.classList.remove('show');
+    if (!mobileNav || !toggle) return;
+    
+    if (mobileNav.classList.contains('active')) {
+        mobileNav.classList.remove('active');
         toggle.classList.remove('active');
+        
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.to(mobileNav, {
+                duration: 0.3,
+                opacity: 0,
+                y: -20,
+                ease: "power2.out",
+                onComplete: () => {
+                    mobileNav.style.display = 'none';
+                }
+            });
+        } else {
+            mobileNav.style.display = 'none';
+        }
     } else {
-        navMenu.classList.add('show');
+        mobileNav.classList.add('active');
         toggle.classList.add('active');
-    }
-    
-    // GSAP 애니메이션
-    if (typeof gsap !== 'undefined') {
-        if (navMenu.classList.contains('show')) {
-            gsap.fromTo(navMenu, 
+        mobileNav.style.display = 'block';
+        
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(mobileNav, 
                 { opacity: 0, y: -20 },
                 { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
             );
@@ -203,6 +226,8 @@ function toggleMobileMenu() {
 // ===== 사용자 메뉴 토글 =====
 function toggleUserMenu() {
     const dropdown = document.getElementById('userMenuDropdown');
+    
+    if (!dropdown) return;
     
     if (dropdown.classList.contains('show')) {
         dropdown.classList.remove('show');
@@ -224,6 +249,8 @@ function toggleUserMenu() {
 // ===== 알림 토글 =====
 function toggleNotifications() {
     const dropdown = document.getElementById('notificationDropdown');
+    
+    if (!dropdown) return;
     
     if (dropdown.classList.contains('show')) {
         dropdown.classList.remove('show');
@@ -247,10 +274,7 @@ function toggleNotifications() {
 
 // ===== 모든 드롭다운 닫기 =====
 function closeAllDropdowns() {
-    const dropdowns = [
-        document.getElementById('userMenuDropdown'),
-        document.getElementById('notificationDropdown')
-    ];
+    const dropdowns = document.querySelectorAll('.dropdown-menu, .user-dropdown, .notification-dropdown');
     
     dropdowns.forEach(dropdown => {
         if (dropdown) {
@@ -263,18 +287,18 @@ function closeAllDropdowns() {
 function handleOutsideClick(event) {
     const userDropdown = document.getElementById('userMenuDropdown');
     const notificationDropdown = document.getElementById('notificationDropdown');
-    const userBtn = document.querySelector('.user-btn');
+    const userBtn = document.querySelector('.profile-btn');
     const notificationBtn = document.querySelector('.notification-btn');
     
     // 사용자 메뉴 외부 클릭
     if (userDropdown && userDropdown.classList.contains('show') && 
-        !userBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+        userBtn && !userBtn.contains(event.target) && !userDropdown.contains(event.target)) {
         userDropdown.classList.remove('show');
     }
     
     // 알림 드롭다운 외부 클릭
     if (notificationDropdown && notificationDropdown.classList.contains('show') && 
-        !notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+        notificationBtn && !notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
         notificationDropdown.classList.remove('show');
     }
 }
@@ -282,7 +306,7 @@ function handleOutsideClick(event) {
 // ===== 스크롤 처리 =====
 function handleScroll() {
     const scrollY = window.scrollY;
-    const header = document.querySelector('.main-header');
+    const header = document.querySelector('.header');
     
     // 헤더 스크롤 효과
     if (header) {
@@ -312,10 +336,13 @@ function handleResize() {
     
     // 모바일에서 메뉴 닫기
     if (width > 768) {
-        const navMenu = document.getElementById('navMenu');
-        const toggle = document.querySelector('.mobile-menu-toggle');
+        const mobileNav = document.querySelector('.mobile-nav');
+        const toggle = document.querySelector('.mobile-menu-btn');
         
-        if (navMenu) navMenu.classList.remove('show');
+        if (mobileNav) {
+            mobileNav.classList.remove('active');
+            mobileNav.style.display = 'none';
+        }
         if (toggle) toggle.classList.remove('active');
     }
 }
@@ -340,7 +367,7 @@ function initializeAnimations() {
     }
     
     // 페이지 로드 애니메이션
-    gsap.from('.main-header', {
+    gsap.from('.header', {
         duration: 0.6,
         y: -100,
         opacity: 0,
@@ -369,59 +396,43 @@ function initializePageAnimations() {
     }
 }
 
-// ===== 홈페이지 애니메이션 =====
+// ===== 홈페이지 기본 애니메이션 =====
 function initializeHomeAnimations() {
     if (typeof gsap === 'undefined') return;
     
-    // 히어로 섹션 애니메이션
-    const heroTitle = document.querySelector('.hero-title');
-    const heroDesc = document.querySelector('.hero-description');
-    const heroButtons = document.querySelector('.hero-buttons');
+    // 기본 요소들 애니메이션 (index.js에서 더 상세한 애니메이션 처리됨)
+    const fadeElements = document.querySelectorAll('.fade-in-up:not(.animated)');
     
-    if (heroTitle) {
-        gsap.from(heroTitle, {
-            duration: 0.8,
-            y: 50,
-            opacity: 0,
-            ease: "power2.out",
-            delay: 0.3
-        });
-    }
-    
-    if (heroDesc) {
-        gsap.from(heroDesc, {
-            duration: 0.8,
+    fadeElements.forEach((element, index) => {
+        gsap.from(element, {
+            duration: 0.6,
             y: 30,
             opacity: 0,
             ease: "power2.out",
-            delay: 0.5
+            delay: index * 0.1,
+            onComplete: () => {
+                element.classList.add('animated');
+            }
         });
-    }
-    
-    if (heroButtons) {
-        gsap.from(heroButtons, {
-            duration: 0.8,
-            y: 30,
-            opacity: 0,
-            ease: "power2.out",
-            delay: 0.7
-        });
-    }
+    });
 }
 
 // ===== 검색 페이지 애니메이션 =====
 function initializeSearchAnimations() {
     if (typeof gsap === 'undefined') return;
     
-    // 검색 카드 스타거 애니메이션
-    const cards = document.querySelectorAll('.missing-card');
+    // 검색 결과 애니메이션
+    const cards = document.querySelectorAll('.missing-card:not(.animated)');
     if (cards.length > 0) {
         gsap.from(cards, {
             duration: 0.6,
             y: 30,
             opacity: 0,
             stagger: 0.1,
-            ease: "power2.out"
+            ease: "power2.out",
+            onComplete: () => {
+                cards.forEach(card => card.classList.add('animated'));
+            }
         });
     }
 }
@@ -430,21 +441,24 @@ function initializeSearchAnimations() {
 function initializeAboutAnimations() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     
-    // FAQ 아이템 애니메이션
-    const faqItems = document.querySelectorAll('.faq-item');
-    if (faqItems.length > 0) {
-        gsap.from(faqItems, {
+    // 섹션별 애니메이션
+    const sections = document.querySelectorAll('.section:not(.animated)');
+    sections.forEach(section => {
+        gsap.from(section, {
             scrollTrigger: {
-                trigger: '.faq-section',
-                start: 'top 80%'
+                trigger: section,
+                start: 'top 80%',
+                once: true
             },
-            duration: 0.5,
-            x: -30,
+            duration: 0.8,
+            y: 50,
             opacity: 0,
-            stagger: 0.1,
-            ease: "power2.out"
+            ease: "power2.out",
+            onComplete: () => {
+                section.classList.add('animated');
+            }
         });
-    }
+    });
 }
 
 // ===== 랭킹 페이지 애니메이션 =====
@@ -452,7 +466,7 @@ function initializeRankingAnimations() {
     if (typeof gsap === 'undefined') return;
     
     // 랭킹 아이템 애니메이션
-    const rankingItems = document.querySelectorAll('.ranking-item');
+    const rankingItems = document.querySelectorAll('.ranking-item:not(.animated)');
     if (rankingItems.length > 0) {
         gsap.from(rankingItems, {
             duration: 0.6,
@@ -460,7 +474,10 @@ function initializeRankingAnimations() {
             opacity: 0,
             stagger: 0.1,
             ease: "power2.out",
-            delay: 0.3
+            delay: 0.3,
+            onComplete: () => {
+                rankingItems.forEach(item => item.classList.add('animated'));
+            }
         });
     }
 }
@@ -498,7 +515,7 @@ function setupSmoothScroll() {
             const targetElement = document.getElementById(targetId);
             
             if (targetElement) {
-                if (typeof gsap !== 'undefined') {
+                if (typeof gsap !== 'undefined' && typeof ScrollToPlugin !== 'undefined') {
                     gsap.to(window, {
                         duration: 0.8,
                         scrollTo: { y: targetElement.offsetTop - 100 },
@@ -580,30 +597,53 @@ function hideLoading(loader) {
     }
 }
 
-// ===== 토스트 알림 =====
-function showToast(message, type = 'info', duration = 3000) {
+// ===== 알림 시스템 (개선됨) =====
+function showNotification(message, type = 'info', duration = 3000) {
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    toast.className = `notification-toast toast-${type}`;
     toast.innerHTML = `
         <div class="toast-content">
             <i class="fas ${getToastIcon(type)}"></i>
-            <span>${message}</span>
+            <span class="toast-message">${message}</span>
+            <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
     `;
     
-    document.body.appendChild(toast);
+    // 토스트 컨테이너 확인/생성
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        toastContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(toastContainer);
+    }
+    
+    toast.style.pointerEvents = 'auto';
+    toastContainer.appendChild(toast);
     
     if (typeof gsap !== 'undefined') {
         gsap.fromTo(toast,
-            { opacity: 0, y: 50 },
-            { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+            { opacity: 0, x: 50, scale: 0.9 },
+            { opacity: 1, x: 0, scale: 1, duration: 0.3, ease: "back.out(1.7)" }
         );
         
         setTimeout(() => {
             gsap.to(toast, {
                 duration: 0.3,
                 opacity: 0,
-                y: -50,
+                x: 50,
+                scale: 0.9,
                 ease: "power2.out",
                 onComplete: () => {
                     if (toast.parentNode) {
@@ -662,9 +702,9 @@ window.toggleMobileMenu = toggleMobileMenu;
 window.toggleUserMenu = toggleUserMenu;
 window.toggleNotifications = toggleNotifications;
 window.initializeNavigation = initializeNavigation;
-window.initializeAuth = initializeAuth;
+window.checkAuthStatus = checkAuthStatus;
 window.showLoading = showLoading;
 window.hideLoading = hideLoading;
-window.showToast = showToast;
+window.showNotification = showNotification;
 
 console.log('Script.js loaded successfully');

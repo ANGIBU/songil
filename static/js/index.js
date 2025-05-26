@@ -157,6 +157,15 @@ const allMissingData = [
     }
 ];
 
+// 순위 데이터 (전체 기간 누적)
+const rankingData = [
+    { rank: 1, name: "김희망", points: 2847, region: "서울시" },
+    { rank: 2, name: "박도움", points: 2134, region: "부산시" },
+    { rank: 3, name: "이나눔", points: 1895, region: "대구시" },
+    { rank: 4, name: "최참여", points: 1672, region: "인천시" },
+    { rank: 5, name: "정협력", points: 1543, region: "광주시" }
+];
+
 // 위험도가 높은 실종자들을 필터링하고 랜덤으로 8명 선택
 function getUrgentMissingData() {
     const highDangerMissing = allMissingData.filter(person => person.dangerLevel === 'high');
@@ -179,6 +188,42 @@ function getUrgentMissingData() {
 
 // 긴급 실종자 데이터 (동적으로 생성)
 const urgentMissingData = getUrgentMissingData();
+
+// 순위 React 컴포넌트
+function RankingDisplay({ rankings }) {
+    return React.createElement('div', { style: { display: 'contents' } },
+        rankings.map((rank, index) =>
+            React.createElement('div', {
+                key: rank.rank,
+                className: 'ranking-item'
+            }, [
+                React.createElement('div', {
+                    className: 'ranking-position',
+                    key: 'position'
+                }, rank.rank),
+                React.createElement('div', {
+                    className: 'ranking-info',
+                    key: 'info'
+                }, [
+                    React.createElement('div', {
+                        className: 'ranking-name',
+                        key: 'name'
+                    }, rank.name),
+                    React.createElement('div', {
+                        className: 'ranking-points',
+                        key: 'points'
+                    }, [
+                        React.createElement('i', {
+                            className: 'fas fa-coins',
+                            key: 'icon'
+                        }),
+                        `${rank.points.toLocaleString()}P`
+                    ])
+                ])
+            ])
+        )
+    );
+}
 
 // 실종자 카드 React 컴포넌트
 function MissingCard({ data, onUpClick }) {
@@ -309,7 +354,167 @@ class StatCounter {
     }
 }
 
-// Three.js 네트워크 시각화 클래스
+// 개선된 파도 효과 Three.js 클래스
+class WaveEffect {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.waves = [];
+        this.time = 0;
+        this.isDestroyed = false;
+        
+        this.init();
+    }
+
+    init() {
+        if (typeof THREE === 'undefined' || !this.canvas) {
+            return;
+        }
+
+        this.setupScene();
+        this.createWaves();
+        this.animate();
+    }
+
+    setupScene() {
+        // Scene 설정
+        this.scene = new THREE.Scene();
+        
+        // Camera 설정 
+        this.camera = new THREE.OrthographicCamera(
+            -window.innerWidth / 2, window.innerWidth / 2,
+            window.innerHeight / 2, -window.innerHeight / 2,
+            1, 1000
+        );
+        this.camera.position.z = 100;
+        
+        // Renderer 설정
+        this.renderer = new THREE.WebGLRenderer({ 
+            canvas: this.canvas,
+            alpha: true, 
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+        
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x000000, 0);
+    }
+
+    createWaves() {
+        // 여러 개의 곡선 파도 생성
+        for (let i = 0; i < 5; i++) {
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            const waveWidth = window.innerWidth + 200;
+            const segments = 150;
+            
+            // 곡선 파도 정점 생성
+            for (let j = 0; j <= segments; j++) {
+                const x = (j / segments) * waveWidth - waveWidth / 2;
+                vertices.push(x, 0, 0);
+            }
+            
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            
+            // 파도별 고유 설정
+            const waveSettings = {
+                amplitude: 20 + Math.random() * 30,
+                frequency: 0.01 + Math.random() * 0.02,
+                speed: 0.5 + Math.random() * 1.5,
+                phase: Math.random() * Math.PI * 2,
+                opacity: 0.15 + Math.random() * 0.25,
+                yOffset: (Math.random() - 0.5) * window.innerHeight * 0.8
+            };
+            
+            // 재질 생성
+            const material = new THREE.LineBasicMaterial({
+                color: new THREE.Color().setHSL(0, 0, 0.9 + Math.random() * 0.1),
+                transparent: true,
+                opacity: waveSettings.opacity,
+                linewidth: 2
+            });
+            
+            const wave = new THREE.Line(geometry, material);
+            wave.position.y = waveSettings.yOffset;
+            wave.userData = waveSettings;
+            
+            this.scene.add(wave);
+            this.waves.push(wave);
+        }
+    }
+
+    updateWaves() {
+        this.time += 0.016; // ~60fps
+        
+        this.waves.forEach((wave, index) => {
+            const settings = wave.userData;
+            const positions = wave.geometry.attributes.position.array;
+            
+            // 각 정점의 Y 좌표를 곡선 파도로 업데이트
+            for (let i = 0; i < positions.length; i += 3) {
+                const x = positions[i];
+                const baseWave = Math.sin(x * settings.frequency + this.time * settings.speed + settings.phase);
+                const harmonicWave = Math.sin(x * settings.frequency * 2 + this.time * settings.speed * 1.3 + settings.phase) * 0.3;
+                const complexWave = Math.sin(x * settings.frequency * 0.5 + this.time * settings.speed * 0.7 + settings.phase) * 0.5;
+                
+                positions[i + 1] = (baseWave + harmonicWave + complexWave) * settings.amplitude;
+            }
+            
+            wave.geometry.attributes.position.needsUpdate = true;
+            
+            // 파도 이동 (선택적)
+            wave.position.x += Math.sin(this.time * 0.1 + index) * 0.5;
+            
+            // 투명도 변화
+            const opacityVariation = Math.sin(this.time * 0.8 + index * 0.5) * 0.1;
+            wave.material.opacity = settings.opacity + opacityVariation;
+        });
+    }
+
+    animate() {
+        if (this.isDestroyed) return;
+        
+        requestAnimationFrame(() => this.animate());
+        
+        this.updateWaves();
+        
+        if (this.renderer && this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera);
+        }
+    }
+
+    onWindowResize() {
+        if (!this.renderer || !this.camera || this.isDestroyed) return;
+        
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        
+        this.camera.left = -width / 2;
+        this.camera.right = width / 2;
+        this.camera.top = height / 2;
+        this.camera.bottom = -height / 2;
+        this.camera.updateProjectionMatrix();
+        
+        this.renderer.setSize(width, height);
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+        
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+        
+        this.waves = [];
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+    }
+}
+
+// Three.js 네트워크 시각화 클래스 (크기 조정됨)
 class NetworkVisualization {
     constructor(container) {
         this.container = container;
@@ -346,7 +551,7 @@ class NetworkVisualization {
         // Camera 설정
         const aspectRatio = this.container.offsetWidth / this.container.offsetHeight;
         this.camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
-        this.camera.position.set(0, 0, 15);
+        this.camera.position.set(0, 0, 12);
         
         // Renderer 설정
         this.renderer = new THREE.WebGLRenderer({ 
@@ -365,12 +570,12 @@ class NetworkVisualization {
     }
 
     createNodes() {
-        const nodeCount = 25;
-        const nodeGeometry = new THREE.SphereGeometry(0.15, 8, 6);
+        const nodeCount = 20; // 노드 수 줄임
+        const nodeGeometry = new THREE.SphereGeometry(0.12, 8, 6);
         
         for (let i = 0; i < nodeCount; i++) {
             // 노드 색상 (파란색 계열)
-            const hue = 0.6 + Math.random() * 0.1; // 파란색 계열
+            const hue = 0.6 + Math.random() * 0.1;
             const saturation = 0.7 + Math.random() * 0.3;
             const lightness = 0.5 + Math.random() * 0.3;
             
@@ -383,7 +588,7 @@ class NetworkVisualization {
             const node = new THREE.Mesh(nodeGeometry, material);
             
             // 구형 배치
-            const radius = 6 + Math.random() * 4;
+            const radius = 4 + Math.random() * 3;
             const phi = Math.acos(-1 + (2 * i) / nodeCount);
             const theta = Math.sqrt(nodeCount * Math.PI) * phi;
             
@@ -400,13 +605,13 @@ class NetworkVisualization {
         
         // 중앙 허브 노드
         const hubMaterial = new THREE.MeshBasicMaterial({
-            color: 0x3b82f6,
+            color: 0xf97316, // 주황색으로 변경
             transparent: true,
             opacity: 0.9
         });
         
         const hubNode = new THREE.Mesh(
-            new THREE.SphereGeometry(0.3, 12, 8),
+            new THREE.SphereGeometry(0.25, 12, 8),
             hubMaterial
         );
         
@@ -421,47 +626,19 @@ class NetworkVisualization {
         const lineGeometry = new THREE.BufferGeometry();
         const positions = [];
         const colors = [];
-        const opacities = [];
         
         // 모든 노드를 중앙 허브와 연결
-        const hubNode = this.nodes[this.nodes.length - 1]; // 마지막이 허브
+        const hubNode = this.nodes[this.nodes.length - 1];
         
         for (let i = 0; i < this.nodes.length - 1; i++) {
             const node = this.nodes[i];
             
-            // 허브와 연결
             positions.push(
                 node.position.x, node.position.y, node.position.z,
                 hubNode.position.x, hubNode.position.y, hubNode.position.z
             );
             
-            // 색상 (파란색 계열)
-            colors.push(0.2, 0.5, 0.9, 0.2, 0.5, 0.9);
-            
-            // 투명도
-            const opacity = 0.3 + Math.random() * 0.4;
-            opacities.push(opacity, opacity);
-        }
-        
-        // 일부 노드들 간의 추가 연결
-        for (let i = 0; i < this.nodes.length - 1; i++) {
-            if (Math.random() > 0.7) {
-                const j = Math.floor(Math.random() * (this.nodes.length - 1));
-                if (i !== j) {
-                    const nodeA = this.nodes[i];
-                    const nodeB = this.nodes[j];
-                    
-                    positions.push(
-                        nodeA.position.x, nodeA.position.y, nodeA.position.z,
-                        nodeB.position.x, nodeB.position.y, nodeB.position.z
-                    );
-                    
-                    colors.push(0.2, 0.4, 0.8, 0.2, 0.4, 0.8);
-                    
-                    const opacity = 0.1 + Math.random() * 0.2;
-                    opacities.push(opacity, opacity);
-                }
-            }
+            colors.push(0.2, 0.5, 0.9, 0.9, 0.4, 0.1); // 파란색에서 주황색으로
         }
         
         lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
@@ -479,14 +656,12 @@ class NetworkVisualization {
     }
 
     setupEventListeners() {
-        // 마우스 움직임 추적
         this.container.addEventListener('mousemove', (event) => {
             const rect = this.container.getBoundingClientRect();
             this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         });
         
-        // 리사이즈 핸들러
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
@@ -497,41 +672,34 @@ class NetworkVisualization {
         
         const time = Date.now() * 0.001;
         
-        // 노드 애니메이션
         this.nodes.forEach((node, index) => {
             if (node.userData.isHub) {
-                // 허브 노드 회전
                 node.rotation.x = Math.sin(time * 0.3) * 0.1;
                 node.rotation.y = time * 0.2;
                 
-                // 허브 노드 크기 변화
                 const scale = 1 + Math.sin(time * 2) * 0.1;
                 node.scale.setScalar(scale);
             } else {
-                // 일반 노드들의 궤도 운동
                 const phase = node.userData.phase + time * node.userData.speed;
-                const radius = node.userData.originalPosition.length();
                 
-                node.position.x = node.userData.originalPosition.x + Math.sin(phase) * 0.5;
-                node.position.y = node.userData.originalPosition.y + Math.cos(phase) * 0.5;
-                node.position.z = node.userData.originalPosition.z + Math.sin(phase * 0.7) * 0.3;
+                node.position.x = node.userData.originalPosition.x + Math.sin(phase) * 0.3;
+                node.position.y = node.userData.originalPosition.y + Math.cos(phase) * 0.3;
+                node.position.z = node.userData.originalPosition.z + Math.sin(phase * 0.7) * 0.2;
                 
-                // 마우스 인터랙션
-                const mouseInfluence = 0.5;
+                const mouseInfluence = 0.3;
                 node.position.x += this.mouse.x * mouseInfluence;
                 node.position.y += this.mouse.y * mouseInfluence;
             }
         });
         
-        // 전체 씬 회전
-        this.targetRotation.x = this.mouse.y * 0.2;
-        this.targetRotation.y = this.mouse.x * 0.2;
+        this.targetRotation.x = this.mouse.y * 0.1;
+        this.targetRotation.y = this.mouse.x * 0.1;
         
         this.currentRotation.x += (this.targetRotation.x - this.currentRotation.x) * 0.05;
         this.currentRotation.y += (this.targetRotation.y - this.currentRotation.y) * 0.05;
         
         this.scene.rotation.x = this.currentRotation.x;
-        this.scene.rotation.y = this.currentRotation.y + time * 0.1;
+        this.scene.rotation.y = this.currentRotation.y + time * 0.05;
         
         if (this.renderer && this.scene && this.camera) {
             this.renderer.render(this.scene, this.camera);
@@ -565,7 +733,6 @@ class NetworkVisualization {
             this.renderer.dispose();
         }
         
-        // 메모리 정리
         this.nodes = [];
         this.connections = null;
         this.scene = null;
@@ -574,7 +741,7 @@ class NetworkVisualization {
     }
 }
 
-// GSAP 애니메이션 관리자 (버그 수정 버전)
+// GSAP 애니메이션 관리자 (개선됨)
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
@@ -589,37 +756,31 @@ class IndexAnimations {
             return;
         }
 
-        // ScrollTrigger 등록
         if (typeof ScrollTrigger !== 'undefined') {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        // 기존 애니메이션 정리
         this.cleanup();
-        
         this.setupAnimations();
         this.isInitialized = true;
     }
 
     cleanup() {
-        // 기존 타임라인 정리
         if (this.timeline) {
             this.timeline.kill();
             this.timeline = null;
         }
         
-        // ScrollTrigger 정리
         this.scrollTriggers.forEach(trigger => {
             if (trigger) trigger.kill();
         });
         this.scrollTriggers = [];
         
-        // 모든 GSAP 애니메이션 초기화
         gsap.set('*', {clearProps: 'all'});
     }
 
     setupAnimations() {
-        // 히어로 섹션 초기 애니메이션 (수정됨)
+        // 히어로 섹션 애니메이션
         this.timeline = gsap.timeline({ delay: 0.5 });
         
         this.timeline
@@ -628,7 +789,7 @@ class IndexAnimations {
                 y: 80,
                 opacity: 0,
                 ease: 'power3.out',
-                clearProps: 'transform,opacity' // 애니메이션 완료 후 속성 정리
+                clearProps: 'transform,opacity'
             })
             .from('.hero-description', {
                 duration: 1,
@@ -645,15 +806,31 @@ class IndexAnimations {
                 ease: 'power2.out',
                 clearProps: 'transform,opacity'
             }, '-=0.4')
+            // 시각화 요소들 애니메이션
             .from('#network-canvas', {
                 duration: 1.5,
                 scale: 0.8,
                 opacity: 0,
                 ease: 'back.out(1.7)',
                 clearProps: 'transform,opacity'
-            }, '-=1');
+            }, '-=1')
+            .from('.ranking-display', {
+                duration: 1.2,
+                x: 50,
+                opacity: 0,
+                ease: 'power2.out',
+                clearProps: 'transform,opacity'
+            }, '-=0.8')
+            .from('.ranking-item', {
+                duration: 0.6,
+                y: 20,
+                opacity: 0,
+                stagger: 0.1,
+                ease: 'power2.out',
+                clearProps: 'transform,opacity'
+            }, '-=0.4');
 
-        // ScrollTrigger 애니메이션들 (수정됨)
+        // ScrollTrigger 애니메이션들
         if (typeof ScrollTrigger !== 'undefined') {
             // 긴급 실종자 섹션
             const urgentTrigger = ScrollTrigger.create({
@@ -665,16 +842,16 @@ class IndexAnimations {
                         duration: 0.8,
                         y: 60,
                         opacity: 0,
-                        stagger: 0.2,
+                        stagger: 0.15,
                         ease: 'power2.out',
                         clearProps: 'transform,opacity'
                     });
                 },
-                once: true // 한 번만 실행되도록 설정
+                once: true
             });
             this.scrollTriggers.push(urgentTrigger);
 
-            // 소개 섹션 스텝들
+            // 소개 섹션
             const introTrigger = ScrollTrigger.create({
                 trigger: '.intro-section',
                 start: 'top 80%',
@@ -713,13 +890,11 @@ class IndexAnimations {
             this.scrollTriggers.push(statsTrigger);
         }
 
-        // 배경 애니메이션
         this.setupBackgroundAnimations();
     }
 
     setupBackgroundAnimations() {
-        // 히어로 섹션 배경 파티클
-        this.createFloatingParticles('.hero-section', 8);
+        this.createFloatingParticles('.hero-section', 6);
     }
 
     createFloatingParticles(containerSelector, count) {
@@ -743,14 +918,12 @@ class IndexAnimations {
             
             container.appendChild(particle);
             
-            // 랜덤 초기 위치
             gsap.set(particle, {
                 x: Math.random() * container.offsetWidth,
                 y: Math.random() * container.offsetHeight,
                 scale: Math.random() * 0.5 + 0.5
             });
             
-            // 플로팅 애니메이션
             gsap.to(particle, {
                 y: '-=100',
                 x: `+=${Math.random() * 200 - 100}`,
@@ -762,7 +935,6 @@ class IndexAnimations {
                 delay: Math.random() * 5
             });
             
-            // 페이드 애니메이션
             gsap.to(particle, {
                 opacity: Math.random() * 0.5 + 0.3,
                 duration: 3 + Math.random() * 3,
@@ -774,7 +946,6 @@ class IndexAnimations {
         }
     }
 
-    // UP 버튼 클릭 애니메이션 (수정됨)
     animateUpButton(button) {
         if (!this.isInitialized) return;
         
@@ -790,10 +961,9 @@ class IndexAnimations {
                 scale: 1,
                 duration: 0.2,
                 ease: 'elastic.out(2, 0.3)',
-                clearProps: 'transform' // 애니메이션 완료 후 transform 정리
+                clearProps: 'transform'
             });
             
-        // 숫자 증가 애니메이션
         const countElement = button.querySelector('span');
         if (countElement) {
             gsap.fromTo(countElement, 
@@ -808,7 +978,6 @@ class IndexAnimations {
         }
     }
 
-    // 소멸자 추가
     destroy() {
         this.cleanup();
         this.isInitialized = false;
@@ -834,13 +1003,9 @@ class ScrollObserver {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
                     
-                    // 통계 카운터 시작
                     if (entry.target.classList.contains('stat-item')) {
                         this.startStatCounter(entry.target);
                     }
-                } else {
-                    // 스크rol� 아웃 시에도 클래스 유지 (버그 수정)
-                    // entry.target.classList.remove('in-view');
                 }
             });
         }, {
@@ -872,10 +1037,11 @@ class ScrollObserver {
     }
 }
 
-// 메인 홈페이지 관리 클래스 (수정됨)
+// 메인 홈페이지 관리 클래스
 class IndexPage {
     constructor() {
         this.networkViz = null;
+        this.waveEffect = null;
         this.animations = null;
         this.scrollObserver = null;
         this.isDestroyed = false;
@@ -894,40 +1060,47 @@ class IndexPage {
         if (this.isDestroyed) return;
         
         // React 컴포넌트 렌더링
+        this.renderRankings();
         this.renderUrgentCards();
         
-        // 네트워크 시각화 초기화 (딜레이 추가)
+        // 시각화 초기화
         setTimeout(() => {
             if (!this.isDestroyed) {
                 this.initNetworkVisualization();
+                this.initWaveEffect();
             }
         }, 100);
         
-        // 애니메이션 시스템 초기화 (딜레이 추가)
+        // 애니메이션 초기화
         setTimeout(() => {
             if (!this.isDestroyed) {
                 this.animations = new IndexAnimations();
-            }
-        }, 200);
-        
-        // 스크롤 관찰자 초기화 (딜레이 추가)
-        setTimeout(() => {
-            if (!this.isDestroyed) {
                 this.scrollObserver = new ScrollObserver();
             }
         }, 300);
         
-        // 희망의 빛 효과 초기화
-        setTimeout(() => {
-            if (!this.isDestroyed) {
-                this.initHopeLightEffect();
-            }
-        }, 500);
-        
-        // 이벤트 리스너 설정
         this.setupEventListeners();
         
         console.log('Index page initialized successfully');
+    }
+
+    // 순위 렌더링
+    renderRankings() {
+        const rankingContainer = document.getElementById('topRankings');
+        if (!rankingContainer || typeof React === 'undefined') {
+            return;
+        }
+
+        try {
+            const root = ReactDOM.createRoot(rankingContainer);
+            root.render(
+                React.createElement(RankingDisplay, {
+                    rankings: rankingData
+                })
+            );
+        } catch (error) {
+            console.error('Ranking rendering failed:', error);
+        }
     }
 
     // React 컴포넌트 렌더링
@@ -941,13 +1114,11 @@ class IndexPage {
         const handleUpClick = (cardId) => {
             console.log(`UP clicked for card ${cardId}`);
             
-            // 애니메이션 트리거
             const button = document.querySelector(`[data-id="${cardId}"] .up-btn`);
             if (button && this.animations) {
                 this.animations.animateUpButton(button);
             }
             
-            // 희망적인 알림 표시
             if (window.showNotification) {
                 window.showNotification('소중한 참여에 감사합니다! 함께라면 찾을 수 있어요.', 'success');
             }
@@ -971,25 +1142,6 @@ class IndexPage {
         }
     }
 
-    // 희망의 빛 효과 초기화
-    initHopeLightEffect() {
-        const statsSection = document.querySelector('.stats-section');
-        if (!statsSection) return;
-
-        // 빛 효과 요소 생성
-        const hopeLight = document.createElement('div');
-        hopeLight.className = 'hope-light';
-        statsSection.appendChild(hopeLight);
-
-        // 주기적으로 빛 효과 실행
-        setInterval(() => {
-            hopeLight.style.animation = 'none';
-            setTimeout(() => {
-                hopeLight.style.animation = 'hopeLightMove 15s ease-in-out';
-            }, 100);
-        }, 18000); // 18초마다 실행
-    }
-
     initNetworkVisualization() {
         const networkContainer = document.getElementById('network-canvas');
         if (networkContainer && !this.isDestroyed) {
@@ -997,8 +1149,14 @@ class IndexPage {
         }
     }
 
+    initWaveEffect() {
+        const waveCanvas = document.getElementById('waveCanvas');
+        if (waveCanvas && !this.isDestroyed) {
+            this.waveEffect = new WaveEffect(waveCanvas);
+        }
+    }
+
     setupEventListeners() {
-        // 리사이즈 핸들러
         let resizeTimeout;
         const resizeHandler = () => {
             clearTimeout(resizeTimeout);
@@ -1006,12 +1164,14 @@ class IndexPage {
                 if (this.networkViz && !this.isDestroyed) {
                     this.networkViz.onWindowResize();
                 }
+                if (this.waveEffect && !this.isDestroyed) {
+                    this.waveEffect.onWindowResize();
+                }
             }, 250);
         };
         
         window.addEventListener('resize', resizeHandler);
 
-        // 버튼 클릭 이벤트 (React가 없는 경우의 폴백)
         const clickHandler = (e) => {
             if (e.target.closest('.up-btn')) {
                 const button = e.target.closest('.up-btn');
@@ -1025,17 +1185,14 @@ class IndexPage {
         
         document.addEventListener('click', clickHandler);
 
-        // 키보드 접근성
         const keyHandler = (e) => {
             if (e.key === 'Escape') {
-                // ESC 키로 포커스 해제
                 document.activeElement?.blur();
             }
         };
         
         document.addEventListener('keydown', keyHandler);
         
-        // 정리용 이벤트 리스너 저장
         this.eventCleanup = () => {
             window.removeEventListener('resize', resizeHandler);
             document.removeEventListener('click', clickHandler);
@@ -1043,7 +1200,6 @@ class IndexPage {
         };
     }
 
-    // 개발자 도구용 메서드
     refreshNetworkViz() {
         if (this.networkViz) {
             this.networkViz.destroy();
@@ -1055,13 +1211,17 @@ class IndexPage {
         }
     }
 
-    // 소멸자 추가
     destroy() {
         this.isDestroyed = true;
         
         if (this.networkViz) {
             this.networkViz.destroy();
             this.networkViz = null;
+        }
+        
+        if (this.waveEffect) {
+            this.waveEffect.destroy();
+            this.waveEffect = null;
         }
         
         if (this.animations) {
@@ -1127,6 +1287,7 @@ if (typeof window !== 'undefined') {
             }
         },
         networkData: urgentMissingData,
+        rankingData: rankingData,
         destroyInstance: () => {
             if (indexPage) {
                 indexPage.destroy();

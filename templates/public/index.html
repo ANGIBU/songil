@@ -37,11 +37,23 @@
                 </div>
             </div>
             <div class="hero-visual">
-                <div id="network-canvas">
-                    <!-- Three.js 시각화가 여기에 렌더링됩니다 -->
-                    <div class="network-placeholder">
-                        <i class="fas fa-network-wired"></i>
-                        <div>연결된 시민들이<br>함께 찾아요</div>
+                <div class="visual-container">
+                    <div id="network-canvas">
+                        <!-- Three.js 시각화가 여기에 렌더링됩니다 -->
+                        <div class="network-placeholder">
+                            <i class="fas fa-network-wired"></i>
+                            <div>연결된 시민들이<br>함께 찾아요</div>
+                        </div>
+                    </div>
+                    <!-- 순위 시스템 추가 -->
+                    <div class="ranking-display">
+                        <h3 class="ranking-title">
+                            <i class="fas fa-trophy"></i>
+                            전체 기간 누적 순위
+                        </h3>
+                        <div class="top-rankings" id="topRankings">
+                            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,6 +174,8 @@
                 <div class="stat-label">포기하지 않는 마음</div>
             </div>
         </div>
+        <!-- 개선된 파도 효과 캔버스 -->
+        <canvas id="waveCanvas" class="wave-canvas"></canvas>
     </div>
 </section>
 
