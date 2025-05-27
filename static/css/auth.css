@@ -1155,19 +1155,26 @@
 /* 결과 섹션 - 트랜지션 개선 */
 .result-section {
     text-align: center;
-    padding: var(--spacing-8);
-    background: linear-gradient(135deg, var(--secondary-green-soft) 0%, var(--white) 100%);
+    padding: var(--spacing-8) var(--spacing-6);
+    background-color: var(--white); /* 흰색 배경으로 변경 */
     border-radius: var(--radius-xl);
     margin-top: var(--spacing-6);
-    border: 1px solid var(--secondary-green-light);
+    border: 2px solid var(--secondary-green); /* 성공 시 초록 테두리 */
     opacity: 1 !important; /* 투명도 문제 해결 */
     visibility: visible !important;
     position: relative;
     z-index: 1;
+    min-height: 380px; /* 아이디 찾기 폼과 동일한 높이 유지 */
+    min-width: 480px; /* 아이디 찾기 폼과 동일한 가로 크기 유지 */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .result-header {
-    margin-bottom: var(--spacing-6);
+    margin-bottom: var(--spacing-4); /* 간격 줄임 */
+    flex-shrink: 0; /* 크기 고정 */
 }
 
 .result-header i {
@@ -1189,7 +1196,11 @@
 }
 
 .result-content {
-    margin-bottom: var(--spacing-8);
+    margin-bottom: auto; /* 공간을 자동으로 채움 */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .found-id, .sent-email {
@@ -1203,16 +1214,18 @@
     margin: var(--spacing-4) 0;
     font-size: var(--font-size-lg);
     font-weight: 600;
-    border: 2px solid var(--primary-orange-light);
+    border: 2px solid var(--gray-300); /* 기본 회색 테두리 */
     box-shadow: var(--shadow-sm);
 }
 
 .found-id {
     color: var(--primary-orange);
+    border-color: var(--secondary-green); /* 성공 시 초록 테두리 */
 }
 
 .sent-email {
     color: var(--gray-700);
+    border-color: var(--primary-orange); /* 주황 테두리 */
 }
 
 .result-info {
@@ -1242,12 +1255,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
+    margin-top: auto; /* 하단에 버튼 고정 */
 }
 
 /* 실패 결과 섹션 */
 .result-section.error {
-    background: linear-gradient(135deg, var(--danger-red-soft) 0%, var(--white) 100%);
-    border-color: var(--danger-red-light);
+    background-color: var(--white); /* 흰색 배경으로 변경 */
+    border: 2px solid var(--danger-red); /* 빨간 테두리 */
 }
 
 .result-section.error .result-header i {
@@ -1260,8 +1274,8 @@
 }
 
 .result-section.error .found-id {
-    background-color: var(--danger-red-soft);
-    border-color: var(--danger-red-light);
+    background-color: var(--white); /* 흰색 배경으로 변경 */
+    border: 2px solid var(--danger-red); /* 빨간 테두리로 통일 */
     color: var(--danger-red-dark);
 }
 
@@ -1338,6 +1352,12 @@
         min-height: 360px; /* 모바일에서 약간 줄임 */
     }
     
+    .result-section {
+        min-width: auto; /* 모바일에서는 min-width 제거 */
+        padding: var(--spacing-6) var(--spacing-4);
+        min-height: 360px; /* 모바일에서 약간 줄임 */
+    }
+    
     .progress-steps {
         margin-bottom: var(--spacing-4);
     }
@@ -1398,6 +1418,12 @@
     }
     
     .email-auth-section {
+        min-width: auto; /* 소형 모바일에서도 min-width 제거 */
+        padding: var(--spacing-4);
+        min-height: 340px; /* 소형 모바일에서 더 줄임 */
+    }
+    
+    .result-section {
         min-width: auto; /* 소형 모바일에서도 min-width 제거 */
         padding: var(--spacing-4);
         min-height: 340px; /* 소형 모바일에서 더 줄임 */
