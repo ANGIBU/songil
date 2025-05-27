@@ -462,14 +462,21 @@ class FilterPopupManager {
         const regionLevel2 = document.getElementById('regionLevel2');
         
         if (typeof gsap === 'undefined') {
-            // GSAP 없을 때 기본 전환
+            // GSAP 없을 때 기본 전환 - 버그 수정
             regionLevel1.style.display = 'none';
+            regionLevel1.style.opacity = '0';
+            regionLevel1.style.visibility = 'hidden';
+            
             regionLevel2.style.display = 'block';
+            regionLevel2.style.opacity = '1';
+            regionLevel2.style.visibility = 'visible';
             regionLevel2.classList.add('active');
             return;
         }
         
+        // 먼저 2단계를 표시 가능한 상태로 설정
         regionLevel2.style.display = 'block';
+        regionLevel2.style.visibility = 'visible';
         regionLevel2.classList.add('active');
         
         const timeline = gsap.timeline();
@@ -479,7 +486,11 @@ class FilterPopupManager {
             duration: 0.3,
             x: -100,
             opacity: 0,
-            ease: 'power2.out'
+            ease: 'power2.out',
+            onComplete: () => {
+                regionLevel1.style.display = 'none';
+                regionLevel1.style.visibility = 'hidden';
+            }
         });
         
         // 2단계 슬라이드 인
@@ -512,10 +523,15 @@ class FilterPopupManager {
         const regionLevel2 = document.getElementById('regionLevel2');
         
         if (typeof gsap === 'undefined') {
-            // GSAP 없을 때 기본 전환
+            // GSAP 없을 때 기본 전환 - 버그 수정
             regionLevel2.style.display = 'none';
+            regionLevel2.style.opacity = '0';
+            regionLevel2.style.visibility = 'hidden';
             regionLevel2.classList.remove('active');
+            
             regionLevel1.style.display = 'block';
+            regionLevel1.style.opacity = '1';
+            regionLevel1.style.visibility = 'visible';
             return;
         }
         
@@ -528,6 +544,10 @@ class FilterPopupManager {
             opacity: 0,
             ease: 'power2.out'
         });
+        
+        // 먼저 1단계를 표시 가능한 상태로 설정
+        regionLevel1.style.display = 'block';
+        regionLevel1.style.visibility = 'visible';
         
         // 1단계 슬라이드 인
         timeline.fromTo(regionLevel1, 
@@ -542,6 +562,7 @@ class FilterPopupManager {
                 ease: 'power2.out',
                 onComplete: () => {
                     regionLevel2.style.display = 'none';
+                    regionLevel2.style.visibility = 'hidden';
                     regionLevel2.classList.remove('active');
                 }
             }, 
@@ -600,12 +621,14 @@ class FilterPopupManager {
         if (regionLevel1 && regionLevel2) {
             regionLevel1.style.display = 'block';
             regionLevel1.style.opacity = '1';
+            regionLevel1.style.visibility = 'visible';
             regionLevel1.style.transform = 'translateX(0)';
             
             regionLevel2.style.display = 'none';
+            regionLevel2.style.opacity = '0';
+            regionLevel2.style.visibility = 'hidden';
             regionLevel2.classList.remove('active');
             regionLevel2.style.transform = 'translateX(100%)';
-            regionLevel2.style.opacity = '0';
         }
     }
 
@@ -640,9 +663,12 @@ class FilterPopupManager {
         
         regionLevel1.style.display = 'block';
         regionLevel1.style.opacity = '1';
+        regionLevel1.style.visibility = 'visible';
         regionLevel1.style.transform = 'translateX(0)';
         
         regionLevel2.style.display = 'none';
+        regionLevel2.style.opacity = '0';
+        regionLevel2.style.visibility = 'hidden';
         regionLevel2.classList.remove('active');
         
         if (!regionValue) {
@@ -833,7 +859,7 @@ class FilterPopupManager {
     }
 }
 
-// 실종자 카드 React 컴포넌트
+// 실종자 카드 React 컴포넌트 - React key prop 경고 수정
 function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
     const [upCount, setUpCount] = useState(data.upCount);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -878,16 +904,16 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
             React.createElement('div', { className: 'list-content', key: 'content' }, [
                 React.createElement('h3', { key: 'title' }, `${data.name} (${data.age}세)`),
                 React.createElement('div', { className: 'missing-info', key: 'info' }, [
-                    React.createElement('p', { key: 'date' }, [
-                        React.createElement('i', { className: 'fas fa-calendar' }),
+                    React.createElement('p', { key: 'date-info' }, [
+                        React.createElement('i', { className: 'fas fa-calendar', key: 'date-icon' }),
                         ` ${formatDate(data.date)} 실종`
                     ]),
-                    React.createElement('p', { key: 'location' }, [
-                        React.createElement('i', { className: 'fas fa-map-marker-alt' }),
+                    React.createElement('p', { key: 'location-info' }, [
+                        React.createElement('i', { className: 'fas fa-map-marker-alt', key: 'location-icon' }),
                         ` ${data.location}`
                     ]),
-                    React.createElement('p', { key: 'physical' }, [
-                        React.createElement('i', { className: 'fas fa-user' }),
+                    React.createElement('p', { key: 'physical-info' }, [
+                        React.createElement('i', { className: 'fas fa-user', key: 'physical-icon' }),
                         ` ${data.physicalInfo}`
                     ])
                 ])
@@ -898,15 +924,15 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
                     onClick: handleUpClick,
                     key: 'up-btn'
                 }, [
-                    React.createElement('i', { className: 'fas fa-arrow-up' }),
-                    React.createElement('span', {}, upCount)
+                    React.createElement('i', { className: 'fas fa-arrow-up', key: 'up-icon' }),
+                    React.createElement('span', { key: 'up-count' }, upCount)
                 ]),
                 React.createElement('a', {
                     href: `/missing/${data.id}`,
                     className: 'detail-btn',
                     key: 'detail-btn'
                 }, [
-                    React.createElement('i', { className: 'fas fa-eye' }),
+                    React.createElement('i', { className: 'fas fa-eye', key: 'detail-icon' }),
                     '상세보기'
                 ])
             ])
@@ -943,20 +969,20 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
         React.createElement('div', { className: 'card-content', key: 'content' }, [
             React.createElement('h3', { key: 'title' }, `${data.name} (${data.age}세)`),
             React.createElement('div', { className: 'missing-info', key: 'info' }, [
-                React.createElement('p', { key: 'date' }, [
-                    React.createElement('i', { className: 'fas fa-calendar' }),
+                React.createElement('p', { key: 'date-info' }, [
+                    React.createElement('i', { className: 'fas fa-calendar', key: 'date-icon' }),
                     ` ${formatDate(data.date)} 실종`
                 ]),
-                React.createElement('p', { key: 'location' }, [
-                    React.createElement('i', { className: 'fas fa-map-marker-alt' }),
+                React.createElement('p', { key: 'location-info' }, [
+                    React.createElement('i', { className: 'fas fa-map-marker-alt', key: 'location-icon' }),
                     ` ${data.location}`
                 ]),
-                React.createElement('p', { key: 'physical' }, [
-                    React.createElement('i', { className: 'fas fa-user' }),
+                React.createElement('p', { key: 'physical-info' }, [
+                    React.createElement('i', { className: 'fas fa-user', key: 'physical-icon' }),
                     ` ${data.physicalInfo}`
                 ]),
-                React.createElement('p', { key: 'description' }, [
-                    React.createElement('i', { className: 'fas fa-tshirt' }),
+                React.createElement('p', { key: 'description-info' }, [
+                    React.createElement('i', { className: 'fas fa-tshirt', key: 'description-icon' }),
                     ` ${data.description}`
                 ])
             ]),
@@ -966,15 +992,15 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
                     onClick: handleUpClick,
                     key: 'up-btn'
                 }, [
-                    React.createElement('i', { className: 'fas fa-arrow-up' }),
-                    React.createElement('span', {}, upCount)
+                    React.createElement('i', { className: 'fas fa-arrow-up', key: 'up-icon' }),
+                    React.createElement('span', { key: 'up-count' }, upCount)
                 ]),
                 React.createElement('a', {
                     href: `/missing/${data.id}`,
                     className: 'detail-btn',
                     key: 'detail-btn'
                 }, [
-                    React.createElement('i', { className: 'fas fa-eye' }),
+                    React.createElement('i', { className: 'fas fa-eye', key: 'detail-icon' }),
                     '상세보기'
                 ])
             ])
@@ -1620,7 +1646,7 @@ class MissingSearchPage {
                 React.createElement('div', { style: { display: 'contents' } },
                     data.map(item =>
                         React.createElement(MissingCard, {
-                            key: item.id,
+                            key: `grid-${item.id}`,
                             data: item,
                             onUpClick: handleUpClick,
                             viewMode: 'grid'
@@ -1640,7 +1666,7 @@ class MissingSearchPage {
                 React.createElement('div', { style: { display: 'contents' } },
                     data.map(item =>
                         React.createElement(MissingCard, {
-                            key: item.id,
+                            key: `list-${item.id}`,
                             data: item,
                             onUpClick: handleUpClick,
                             viewMode: 'list'
