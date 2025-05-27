@@ -73,7 +73,7 @@
 .hero-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 80px;
+    gap: 60px; /* 80px에서 60px로 줄여서 순위표를 더 오른쪽으로 */
     align-items: center;
     position: relative;
     z-index: 1;
@@ -130,14 +130,15 @@
 
 .hero-visual {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end; /* center에서 flex-end로 변경하여 더 오른쪽으로 */
     align-items: center;
     position: relative;
     opacity: 1;
     transform: translateX(0);
+    padding-left: 20px; /* 왼쪽 여백 추가 */
 }
 
-/* 순위 디스플레이 - 크기 증가 */
+/* 순위 디스플레이 - 크기 증가 및 위치 조정 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
@@ -151,6 +152,7 @@
     opacity: 1;
     transform: translateX(0);
     will-change: transform, opacity;
+    margin-left: auto; /* 자동 여백으로 더 오른쪽 정렬 */
 }
 
 .ranking-display::before {

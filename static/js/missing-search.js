@@ -429,10 +429,10 @@ class FilterPopupManager {
                 jeju: '제주특별자치도'
             },
             age: {
-                child: '어린이',
-                teen: '청소년',
-                adult: '성인',
-                senior: '고령자'
+                child: '어린이 (0-12세)',
+                teen: '청소년 (13-19세)',
+                adult: '성인 (20-64세)',
+                senior: '고령자 (65세 이상)'
             },
             period: {
                 today: '오늘',
@@ -451,19 +451,27 @@ class FilterPopupManager {
                 this.createFilterTag(key, value, label, container);
             }
         });
+
+        // 활성 필터가 있을 때만 컨테이너 표시
+        if (container.children.length > 0) {
+            container.style.display = 'flex';
+        } else {
+            container.style.display = 'none';
+        }
     }
 
     createFilterTag(filterKey, filterValue, label, container) {
         const tag = document.createElement('span');
         tag.className = 'filter-tag';
         tag.innerHTML = `
-            ${label}
-            <i class="fas fa-times" data-filter="${filterKey}"></i>
+            <span>${label}</span>
+            <i class="fas fa-times" data-filter="${filterKey}" title="필터 제거"></i>
         `;
         
         // 태그 제거 이벤트
         const removeIcon = tag.querySelector('i');
-        removeIcon.addEventListener('click', () => {
+        removeIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
             this.removeFilter(filterKey);
         });
         
@@ -474,6 +482,11 @@ class FilterPopupManager {
         const defaultValue = filterKey === 'sort' ? 'danger' : '';
         this.searchManager.updateFilter(filterKey, defaultValue);
         this.updateActiveFilters();
+        
+        // 성공 알림
+        if (window.showNotification) {
+            window.showNotification('필터가 제거되었습니다.', 'info');
+        }
     }
 }
 
@@ -1024,14 +1037,14 @@ class MissingSearchPage {
     }
 
     setup() {
+        // 필터 팝업 초기화 (먼저 해야 함)
+        this.filterPopupManager = new FilterPopupManager(this.searchManager);
+        
         // 검색 관리자 콜백 등록
         this.searchManager.addCallback((data) => this.handleDataChange(data));
         
         // 페이지네이션 콜백 등록
         this.paginationManager.addCallback((paginationInfo) => this.handlePaginationChange(paginationInfo));
-        
-        // 필터 팝업 초기화
-        this.filterPopupManager = new FilterPopupManager(this.searchManager);
         
         // 검색 디바운서 설정
         this.searchDebouncer = new SearchDebouncer((value) => {
@@ -1046,6 +1059,9 @@ class MissingSearchPage {
         
         // 초기 렌더링
         this.handleDataChange(this.searchManager.filteredData);
+        
+        // 초기 활성 필터 업데이트
+        this.filterPopupManager.updateActiveFilters();
         
         console.log('Missing search page initialized successfully');
     }

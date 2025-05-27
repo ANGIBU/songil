@@ -371,6 +371,440 @@ class StatCounter {
     }
 }
 
+// 범죄 예방을 나타내는 보안 시각화 클래스 - 새로 추가
+class SecurityVisualization {
+    constructor(canvas, container) {
+        this.canvas = canvas;
+        this.container = container;
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.securityElements = [];
+        this.particles = [];
+        this.protectionFields = [];
+        this.time = 0;
+        this.isDestroyed = false;
+        this.animationId = null;
+        
+        this.init();
+    }
+
+    init() {
+        if (typeof THREE === 'undefined' || !this.canvas || this.isDestroyed) {
+            return;
+        }
+
+        try {
+            this.setupScene();
+            this.createSecurityElements();
+            this.animate();
+        } catch (error) {
+            console.warn('Security Visualization initialization failed:', error);
+            this.destroy();
+        }
+    }
+
+    setupScene() {
+        // Scene 설정
+        this.scene = new THREE.Scene();
+        
+        // Camera 설정
+        const aspect = this.container.offsetWidth / this.container.offsetHeight;
+        this.camera = new THREE.PerspectiveCamera(70, aspect, 0.1, 1000);
+        this.camera.position.set(0, 10, 40);
+        this.camera.lookAt(0, 0, 0);
+        
+        // Renderer 설정
+        this.renderer = new THREE.WebGLRenderer({ 
+            canvas: this.canvas,
+            alpha: true, 
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+        
+        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+        this.renderer.setClearColor(0x000000, 0);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // 조명 설정
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        this.scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        directionalLight.position.set(20, 40, 20);
+        directionalLight.castShadow = true;
+        this.scene.add(directionalLight);
+
+        // 보안을 상징하는 색상의 포인트 라이트들
+        this.blueLight = new THREE.PointLight(0x3b82f6, 0.8, 60);
+        this.blueLight.position.set(-25, 20, 15);
+        this.scene.add(this.blueLight);
+
+        this.greenLight = new THREE.PointLight(0x22c55e, 0.8, 60);
+        this.greenLight.position.set(25, 20, 15);
+        this.scene.add(this.greenLight);
+
+        this.redLight = new THREE.PointLight(0xef4444, 0.6, 50);
+        this.redLight.position.set(0, 30, -10);
+        this.scene.add(this.redLight);
+    }
+
+    createSecurityElements() {
+        this.createProtectionShields();
+        this.createSecurityCameras();
+        this.createSafetyNetwork();
+        this.createPatrollingElements();
+        this.createSecurityParticles();
+    }
+
+    createProtectionShields() {
+        // 보호막을 나타내는 방패 형태들
+        for (let i = 0; i < 6; i++) {
+            const shieldGeometry = new THREE.ConeGeometry(2, 4, 6);
+            const shieldMaterial = new THREE.MeshPhongMaterial({
+                color: new THREE.Color().setHSL(0.6, 0.7, 0.6), // 파란색 계열
+                transparent: true,
+                opacity: 0.7,
+                shininess: 100
+            });
+
+            const shield = new THREE.Mesh(shieldGeometry, shieldMaterial);
+            
+            // 원형 배치
+            const angle = (i / 6) * Math.PI * 2;
+            shield.position.set(
+                Math.cos(angle) * 20,
+                Math.sin(angle) * 5,
+                Math.sin(angle) * 10
+            );
+            
+            shield.rotation.set(
+                Math.random() * Math.PI,
+                angle,
+                0
+            );
+
+            shield.userData = {
+                originalPosition: shield.position.clone(),
+                rotationSpeed: 0.005 + Math.random() * 0.01,
+                floatSpeed: 0.003 + Math.random() * 0.007,
+                floatRange: 3 + Math.random() * 4
+            };
+
+            shield.castShadow = true;
+            shield.receiveShadow = true;
+            
+            this.scene.add(shield);
+            this.securityElements.push(shield);
+        }
+    }
+
+    createSecurityCameras() {
+        // 보안 카메라를 나타내는 객체들
+        for (let i = 0; i < 4; i++) {
+            const cameraGroup = new THREE.Group();
+            
+            // 카메라 본체
+            const bodyGeometry = new THREE.BoxGeometry(1.5, 1, 2);
+            const bodyMaterial = new THREE.MeshPhongMaterial({
+                color: 0x2d3748,
+                shininess: 80
+            });
+            const cameraBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            
+            // 카메라 렌즈
+            const lensGeometry = new THREE.CylinderGeometry(0.3, 0.5, 1, 8);
+            const lensMaterial = new THREE.MeshPhongMaterial({
+                color: 0x1a202c,
+                shininess: 200
+            });
+            const lens = new THREE.Mesh(lensGeometry, lensMaterial);
+            lens.position.set(0, 0, 1);
+            lens.rotation.x = Math.PI / 2;
+            
+            cameraGroup.add(cameraBody);
+            cameraGroup.add(lens);
+            
+            // 위치 설정
+            cameraGroup.position.set(
+                (Math.random() - 0.5) * 50,
+                10 + Math.random() * 15,
+                (Math.random() - 0.5) * 30
+            );
+            
+            cameraGroup.userData = {
+                scanSpeed: 0.01 + Math.random() * 0.02,
+                scanRange: Math.PI / 3,
+                originalRotation: cameraGroup.rotation.y
+            };
+            
+            this.scene.add(cameraGroup);
+            this.securityElements.push(cameraGroup);
+        }
+    }
+
+    createSafetyNetwork() {
+        // 안전망을 나타내는 연결된 선들
+        const networkPoints = [];
+        for (let i = 0; i < 12; i++) {
+            networkPoints.push(new THREE.Vector3(
+                (Math.random() - 0.5) * 60,
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 40
+            ));
+        }
+
+        // 점들을 연결하는 선들 생성
+        for (let i = 0; i < networkPoints.length; i++) {
+            for (let j = i + 1; j < networkPoints.length; j++) {
+                const distance = networkPoints[i].distanceTo(networkPoints[j]);
+                if (distance < 25) { // 가까운 점들만 연결
+                    const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+                        networkPoints[i], networkPoints[j]
+                    ]);
+                    
+                    const lineMaterial = new THREE.LineBasicMaterial({
+                        color: 0x3b82f6,
+                        transparent: true,
+                        opacity: 0.4
+                    });
+                    
+                    const line = new THREE.Line(lineGeometry, lineMaterial);
+                    line.userData = {
+                        pulseSpeed: 0.05 + Math.random() * 0.1,
+                        originalOpacity: 0.4
+                    };
+                    
+                    this.scene.add(line);
+                    this.protectionFields.push(line);
+                }
+            }
+        }
+    }
+
+    createPatrollingElements() {
+        // 순찰을 나타내는 움직이는 객체들
+        for (let i = 0; i < 3; i++) {
+            const patrolGeometry = new THREE.SphereGeometry(0.8, 8, 8);
+            const patrolMaterial = new THREE.MeshPhongMaterial({
+                color: new THREE.Color().setHSL(0.1, 0.8, 0.6), // 주황색 계열
+                transparent: true,
+                opacity: 0.8,
+                emissive: new THREE.Color().setHSL(0.1, 0.3, 0.1)
+            });
+
+            const patrol = new THREE.Mesh(patrolGeometry, patrolMaterial);
+            
+            patrol.position.set(
+                (Math.random() - 0.5) * 40,
+                Math.random() * 10,
+                (Math.random() - 0.5) * 30
+            );
+
+            patrol.userData = {
+                patrolPath: [
+                    new THREE.Vector3((Math.random() - 0.5) * 40, Math.random() * 10, (Math.random() - 0.5) * 30),
+                    new THREE.Vector3((Math.random() - 0.5) * 40, Math.random() * 10, (Math.random() - 0.5) * 30),
+                    new THREE.Vector3((Math.random() - 0.5) * 40, Math.random() * 10, (Math.random() - 0.5) * 30)
+                ],
+                patrolSpeed: 0.01 + Math.random() * 0.02,
+                currentTarget: 0
+            };
+
+            this.scene.add(patrol);
+            this.securityElements.push(patrol);
+        }
+    }
+
+    createSecurityParticles() {
+        // 보안을 나타내는 파티클 시스템
+        const particleCount = 150;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+
+            // 보안 색상 (파란색, 초록색, 주황색)
+            const colorType = Math.random();
+            if (colorType < 0.4) {
+                colors[i * 3] = 0.23; colors[i * 3 + 1] = 0.51; colors[i * 3 + 2] = 0.96; // 파란색
+            } else if (colorType < 0.8) {
+                colors[i * 3] = 0.13; colors[i * 3 + 1] = 0.77; colors[i * 3 + 2] = 0.37; // 초록색
+            } else {
+                colors[i * 3] = 1; colors[i * 3 + 1] = 0.45; colors[i * 3 + 2] = 0.1; // 주황색
+            }
+
+            sizes[i] = Math.random() * 2 + 0.5;
+        }
+
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 1.2,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        this.scene.add(particles);
+        this.particles.push(particles);
+    }
+
+    updateSecurityElements() {
+        this.time += 0.01;
+
+        // 보호막 애니메이션
+        this.securityElements.forEach((element, index) => {
+            const userData = element.userData;
+            
+            if (userData.floatSpeed) {
+                // 방패 유형 객체들 - 부유 애니메이션
+                element.position.y = userData.originalPosition.y + 
+                    Math.sin(this.time * userData.floatSpeed + index) * userData.floatRange;
+                element.rotation.y += userData.rotationSpeed;
+                element.rotation.z = Math.sin(this.time * 0.5 + index) * 0.1;
+            } else if (userData.scanSpeed) {
+                // 보안 카메라 - 스캔 움직임
+                const scanAngle = Math.sin(this.time * userData.scanSpeed) * userData.scanRange;
+                element.rotation.y = userData.originalRotation + scanAngle;
+            } else if (userData.patrolPath) {
+                // 순찰 객체 - 경로 따라 움직임
+                const target = userData.patrolPath[userData.currentTarget];
+                const distance = element.position.distanceTo(target);
+                
+                if (distance < 2) {
+                    userData.currentTarget = (userData.currentTarget + 1) % userData.patrolPath.length;
+                }
+                
+                element.position.lerp(target, userData.patrolSpeed);
+                element.rotation.x += 0.02;
+                element.rotation.y += 0.01;
+            }
+        });
+
+        // 안전망 펄스 효과
+        this.protectionFields.forEach((line, index) => {
+            const userData = line.userData;
+            const pulse = Math.sin(this.time * userData.pulseSpeed + index) * 0.3 + 0.7;
+            line.material.opacity = userData.originalOpacity * pulse;
+        });
+
+        // 파티클 움직임
+        this.particles.forEach(particle => {
+            const positions = particle.geometry.attributes.position.array;
+            
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i + 1] += Math.sin(this.time + positions[i] * 0.01) * 0.05;
+                positions[i] += Math.cos(this.time * 0.7 + positions[i + 2] * 0.01) * 0.03;
+            }
+            
+            particle.geometry.attributes.position.needsUpdate = true;
+            particle.rotation.y += 0.001;
+        });
+
+        // 조명 효과
+        if (this.blueLight) {
+            this.blueLight.intensity = 0.6 + Math.sin(this.time * 0.8) * 0.3;
+            this.blueLight.position.x = -25 + Math.sin(this.time * 0.3) * 8;
+        }
+
+        if (this.greenLight) {
+            this.greenLight.intensity = 0.6 + Math.cos(this.time * 0.6) * 0.3;
+            this.greenLight.position.x = 25 + Math.cos(this.time * 0.4) * 8;
+        }
+
+        if (this.redLight) {
+            this.redLight.intensity = 0.4 + Math.sin(this.time * 1.2) * 0.2;
+            this.redLight.position.y = 30 + Math.sin(this.time * 0.5) * 5;
+        }
+
+        // 카메라 부드러운 움직임
+        this.camera.position.x = Math.sin(this.time * 0.1) * 3;
+        this.camera.position.y = 10 + Math.cos(this.time * 0.08) * 2;
+        this.camera.lookAt(0, 0, 0);
+    }
+
+    animate() {
+        if (this.isDestroyed) return;
+        
+        this.animationId = requestAnimationFrame(() => this.animate());
+        
+        try {
+            this.updateSecurityElements();
+            
+            if (this.renderer && this.scene && this.camera) {
+                this.renderer.render(this.scene, this.camera);
+            }
+        } catch (error) {
+            console.warn('Security Visualization animation error:', error);
+            this.destroy();
+        }
+    }
+
+    onWindowResize() {
+        if (!this.renderer || !this.camera || this.isDestroyed) return;
+        
+        try {
+            const width = this.container.offsetWidth;
+            const height = this.container.offsetHeight;
+            
+            this.camera.aspect = width / height;
+            this.camera.updateProjectionMatrix();
+            
+            this.renderer.setSize(width, height);
+        } catch (error) {
+            console.warn('Security Visualization resize error:', error);
+        }
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+        
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        
+        // 객체들 정리
+        this.securityElements.forEach(element => {
+            if (element.geometry) element.geometry.dispose();
+            if (element.material) element.material.dispose();
+        });
+        this.securityElements = [];
+        
+        this.protectionFields.forEach(field => {
+            if (field.geometry) field.geometry.dispose();
+            if (field.material) field.material.dispose();
+        });
+        this.protectionFields = [];
+        
+        this.particles.forEach(particle => {
+            if (particle.geometry) particle.geometry.dispose();
+            if (particle.material) particle.material.dispose();
+        });
+        this.particles = [];
+        
+        // 렌더러 정리
+        if (this.renderer) {
+            this.renderer.dispose();
+            this.renderer = null;
+        }
+        
+        this.scene = null;
+        this.camera = null;
+    }
+}
 // 개선된 파도 효과 Three.js 클래스 - 메모리 누수 방지
 class WaveEffect {
     constructor(canvas) {
@@ -426,14 +860,14 @@ class WaveEffect {
     }
 
     createWaves() {
-        // 여러 개의 곡선 파도 생성
-        for (let i = 0; i < 5; i++) {
+        // 여러 개의 곡선 파도 생성 - 화면 전체를 완전히 덮도록 수정
+        for (let i = 0; i < 8; i++) { // 5개에서 8개로 증가
             const geometry = new THREE.BufferGeometry();
             const vertices = [];
-            const waveWidth = window.innerWidth + 200;
-            const segments = 150;
+            const waveWidth = window.innerWidth + 400; // 200에서 400으로 증가하여 여유 확보
+            const segments = 200; // 150에서 200으로 증가하여 더 부드럽게
             
-            // 곡선 파도 정점 생성
+            // 곡선 파도 정점 생성 - 완전히 화면을 덮도록
             for (let j = 0; j <= segments; j++) {
                 const x = (j / segments) * waveWidth - waveWidth / 2;
                 vertices.push(x, 0, 0);
@@ -443,20 +877,20 @@ class WaveEffect {
             
             // 파도별 고유 설정
             const waveSettings = {
-                amplitude: 20 + Math.random() * 30,
-                frequency: 0.01 + Math.random() * 0.02,
-                speed: 0.5 + Math.random() * 1.5,
+                amplitude: 25 + Math.random() * 40, // 진폭 증가
+                frequency: 0.008 + Math.random() * 0.015, // 주파수 조정
+                speed: 0.3 + Math.random() * 1.2,
                 phase: Math.random() * Math.PI * 2,
-                opacity: 0.15 + Math.random() * 0.25,
-                yOffset: (Math.random() - 0.5) * window.innerHeight * 0.8
+                opacity: 0.1 + Math.random() * 0.3, // 더 다양한 투명도
+                yOffset: (Math.random() - 0.5) * window.innerHeight * 1.2 // 수직 범위 확장
             };
             
-            // 재질 생성
+            // 재질 생성 - 더 밝은 색상으로
             const material = new THREE.LineBasicMaterial({
-                color: new THREE.Color().setHSL(0, 0, 0.9 + Math.random() * 0.1),
+                color: new THREE.Color().setHSL(0, 0, 0.85 + Math.random() * 0.15), // 더 밝게
                 transparent: true,
                 opacity: waveSettings.opacity,
-                linewidth: 2
+                linewidth: 3 // 선 굵기 증가
             });
             
             const wave = new THREE.Line(geometry, material);
@@ -1382,6 +1816,7 @@ class IndexPage {
     constructor() {
         this.waveEffect = null;
         this.background3D = null;
+        this.securityViz = null; // 보안 시각화 추가
         this.animations = null;
         this.scrollObserver = null;
         this.isDestroyed = false;
@@ -1412,6 +1847,9 @@ class IndexPage {
                 this.renderRankings();
                 this.renderUrgentCards();
                 
+                // 보안 시각화 캔버스 추가
+                this.addSecurityCanvas();
+                
                 // 3D 배경 캔버스 추가
                 this.add3DBackgroundCanvas();
                 
@@ -1420,6 +1858,7 @@ class IndexPage {
                     if (!this.isDestroyed) {
                         this.initWaveEffect();
                         this.init3DBackground();
+                        this.initSecurityVisualization(); // 보안 시각화 초기화 추가
                     }
                 }, 100);
                 
@@ -1464,6 +1903,47 @@ class IndexPage {
             
             checkReady();
         });
+    }
+
+    // 보안 시각화 캔버스 추가
+    addSecurityCanvas() {
+        const heroVisual = document.querySelector('.hero-visual');
+        if (!heroVisual) return;
+
+        // 기존 network-canvas를 보안 캔버스로 교체
+        const existingCanvas = document.getElementById('network-canvas');
+        if (existingCanvas) {
+            existingCanvas.remove();
+        }
+
+        // 보안 시각화 캔버스 생성
+        const securityCanvas = document.createElement('canvas');
+        securityCanvas.className = 'security-canvas';
+        securityCanvas.id = 'securityCanvas';
+        securityCanvas.style.cssText = `
+            width: 400px;
+            height: 400px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.1) 50%, rgba(249, 115, 22, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        `;
+        
+        // 히어로 비주얼에 추가
+        heroVisual.appendChild(securityCanvas);
+    }
+
+    // 보안 시각화 초기화
+    initSecurityVisualization() {
+        if (this.isDestroyed) return;
+        
+        const securityCanvas = document.getElementById('securityCanvas');
+        const container = document.querySelector('.hero-visual');
+        
+        if (securityCanvas && container && !this.isDestroyed) {
+            this.securityViz = new SecurityVisualization(securityCanvas, container);
+        }
     }
 
     // 3D 배경 캔버스 추가
@@ -1616,6 +2096,10 @@ class IndexPage {
                     this.background3D.onWindowResize();
                 }
                 
+                if (this.securityViz) {
+                    this.securityViz.onWindowResize();
+                }
+                
                 // 리사이즈 시 그리드 레이아웃 재적용
                 const urgentContainer = document.querySelector('.urgent-cards');
                 if (urgentContainer) {
@@ -1679,6 +2163,11 @@ class IndexPage {
             this.background3D = null;
         }
         
+        if (this.securityViz) {
+            this.securityViz.destroy();
+            this.securityViz = null;
+        }
+        
         if (this.animations) {
             this.animations.destroy();
             this.animations = null;
@@ -1732,6 +2221,9 @@ document.addEventListener('visibilitychange', () => {
         if (indexPage && indexPage.background3D) {
             indexPage.background3D.isDestroyed = true;
         }
+        if (indexPage && indexPage.securityViz) {
+            indexPage.securityViz.isDestroyed = true;
+        }
     } else {
         // 페이지가 다시 보일 때 애니메이션 재개
         if (indexPage && indexPage.waveEffect) {
@@ -1739,6 +2231,9 @@ document.addEventListener('visibilitychange', () => {
         }
         if (indexPage && indexPage.background3D) {
             indexPage.background3D.isDestroyed = false;
+        }
+        if (indexPage && indexPage.securityViz) {
+            indexPage.securityViz.isDestroyed = false;
         }
     }
 });
@@ -1785,6 +2280,17 @@ if (typeof window !== 'undefined') {
                     geometriesCount: indexPage.background3D.geometries.length,
                     particlesCount: indexPage.background3D.particles.length,
                     currentTime: indexPage.background3D.time
+                });
+            }
+        },
+        testSecurityVisualization: () => {
+            if (indexPage && indexPage.securityViz && !indexPage.isDestroyed) {
+                console.log('Security Visualization status:', {
+                    isDestroyed: indexPage.securityViz.isDestroyed,
+                    securityElementsCount: indexPage.securityViz.securityElements.length,
+                    protectionFieldsCount: indexPage.securityViz.protectionFields.length,
+                    particlesCount: indexPage.securityViz.particles.length,
+                    currentTime: indexPage.securityViz.time
                 });
             }
         },
