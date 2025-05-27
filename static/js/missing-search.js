@@ -265,7 +265,7 @@ class PaginationManager {
     }
 }
 
-// 필터 팝업 관리자 클래스
+// 필터 팝업 관리자 클래스 - 스크롤 버그 해결
 class FilterPopupManager {
     constructor(searchManager) {
         this.searchManager = searchManager;
@@ -517,13 +517,26 @@ class FilterPopupManager {
         }
     }
 
+    // 팝업 열기 - 스크롤 위치 무관하게 중앙 정렬 보장
     openPopup() {
         this.loadCurrentFilters();
-        this.overlay.classList.add('active');
+        
+        // body 스크롤 막기
         document.body.style.overflow = 'hidden';
+        
+        // 팝업 표시
+        this.overlay.classList.add('active');
         
         // 지역 탭 초기 상태 보장
         this.showRegionLevel1();
+        
+        // 스크롤 위치와 무관하게 중앙 정렬 강제 적용
+        setTimeout(() => {
+            if (this.modal) {
+                this.modal.style.position = 'relative';
+                this.modal.style.margin = 'auto';
+            }
+        }, 10);
     }
 
     closePopup() {
@@ -1295,7 +1308,7 @@ class SearchDebouncer {
     }
 }
 
-// 메인 검색 페이지 클래스
+// 메인 검색 페이지 클래스 - 리스트 뷰 버그 완전 해결
 class MissingSearchPage {
     constructor() {
         this.searchManager = new SearchManager();
@@ -1359,8 +1372,9 @@ class MissingSearchPage {
         if (gridView && listView) {
             // 강제로 뷰 상태 초기화
             gridView.style.display = 'grid';
+            gridView.classList.remove('hidden');
             
-            // 리스트 뷰 완전히 숨김 - CSS 클래스 제거
+            // 리스트 뷰 완전히 숨김 - CSS 클래스와 스타일 모두 제거
             listView.style.display = 'none';
             listView.classList.remove('active');
             
@@ -1395,7 +1409,7 @@ class MissingSearchPage {
             });
         }
 
-        // 뷰 토글 - 개선된 로직
+        // 뷰 토글 - 완전히 새로 작성된 안정적인 로직
         document.addEventListener('click', (e) => {
             if (e.target.closest('.view-btn')) {
                 const btn = e.target.closest('.view-btn');
@@ -1529,7 +1543,7 @@ class MissingSearchPage {
             this.reactRoots.get('list').unmount();
         }
 
-        // 그리드 뷰 렌더링
+        // 그리드 뷰 렌더링 (항상 렌더링하되 CSS로 제어)
         if (gridContainer) {
             gridContainer.innerHTML = '';
             const gridRoot = ReactDOM.createRoot(gridContainer);
@@ -1549,7 +1563,7 @@ class MissingSearchPage {
             );
         }
 
-        // 리스트 뷰 렌더링
+        // 리스트 뷰 렌더링 (항상 렌더링하되 CSS로 제어)
         if (listContainer) {
             listContainer.innerHTML = '';
             const listRoot = ReactDOM.createRoot(listContainer);
@@ -1575,10 +1589,11 @@ class MissingSearchPage {
         console.log('Rendering with vanilla JS:', data.length, 'items');
     }
 
-    // 뷰 전환 로직 개선 - 리스트 뷰 버그 완전 해결
+    // 뷰 전환 로직 - 완전히 재작성하여 리스트 뷰 버그 해결
     toggleView(viewMode) {
         console.log(`Toggling view from ${this.viewMode} to ${viewMode}`);
         
+        // 뷰 모드 변경
         this.viewMode = viewMode;
         
         // 버튼 상태 업데이트
@@ -1591,7 +1606,7 @@ class MissingSearchPage {
             activeBtn.classList.add('active');
         }
         
-        // 뷰 전환
+        // DOM 요소 가져오기
         const gridView = document.getElementById('missingGrid');
         const listView = document.getElementById('missingList');
         
@@ -1600,33 +1615,56 @@ class MissingSearchPage {
             return;
         }
         
+        // 뷰 전환 로직 - 명확하고 안정적으로 수정
         if (viewMode === 'grid') {
+            // 그리드 뷰로 전환
+            console.log('Switching to grid view');
+            
             // 그리드 뷰 활성화
             gridView.style.display = 'grid';
+            gridView.classList.remove('hidden');
             
-            // 리스트 뷰 완전히 비활성화 - CSS 클래스 제거
+            // 리스트 뷰 완전히 비활성화
             listView.style.display = 'none';
             listView.classList.remove('active');
             
-            console.log('Switched to grid view');
-        } else {
-            // 리스트 뷰 활성화 - CSS 클래스 추가
-            listView.style.display = 'block';
+        } else if (viewMode === 'list') {
+            // 리스트 뷰로 전환
+            console.log('Switching to list view');
+            
+            // 리스트 뷰 활성화 - 중요: display를 먼저 설정한 후 클래스 추가
+            listView.style.display = 'flex';
             listView.classList.add('active');
             
             // 그리드 뷰 비활성화
             gridView.style.display = 'none';
-            
-            console.log('Switched to list view');
+            gridView.classList.add('hidden');
         }
+        
+        // 상태 확인 로그
+        setTimeout(() => {
+            console.log('View toggle completed:');
+            console.log('Grid view:', {
+                display: gridView.style.display,
+                visible: gridView.offsetHeight > 0
+            });
+            console.log('List view:', {
+                display: listView.style.display,
+                classes: listView.classList.toString(),
+                visible: listView.offsetHeight > 0
+            });
+        }, 50);
         
         // 애니메이션
         this.animations.animateViewToggle(viewMode);
         
-        // React 리렌더링 (약간의 지연 후)
+        // React 리렌더링 강제 실행 (약간의 지연 후)
         setTimeout(() => {
-            this.renderResults(this.currentPageData);
-        }, 50);
+            if (this.currentPageData && this.currentPageData.length > 0) {
+                console.log('Re-rendering React components for view:', viewMode);
+                this.renderResults(this.currentPageData);
+            }
+        }, 100);
     }
 
     resetFilters() {
@@ -1728,7 +1766,7 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// 개발자 도구
+// 개발자 도구 - 추가 디버깅 함수
 if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         instance: missingSearchPage,
@@ -1752,87 +1790,83 @@ if (typeof window !== 'undefined') {
                 });
             }
         },
+        // 강화된 뷰 테스트 함수들
         testViewToggle: (viewMode) => {
+            console.log(`=== Testing view toggle to ${viewMode} ===`);
             missingSearchPage.toggleView(viewMode);
-        },
-        testRegionFilter: () => {
-            console.log('Testing region filter...');
-            // 필터 팝업 열기
-            missingSearchPage.filterPopupManager.openPopup();
-            // 지역 탭으로 전환
-            missingSearchPage.filterPopupManager.switchTab('region');
             
-            // 3초 후 서울 선택
             setTimeout(() => {
-                const seoulRadio = document.querySelector('input[name="region-level1"][value="seoul"]');
-                if (seoulRadio) {
-                    seoulRadio.click();
-                    console.log('Seoul selected, checking level 2...');
-                    
-                    // 2초 후 강남구 선택
-                    setTimeout(() => {
-                        const gangnamRadio = document.querySelector('input[name="region-level2"][value="seoul-강남구"]');
-                        if (gangnamRadio) {
-                            gangnamRadio.click();
-                            console.log('Gangnam district selected');
-                        } else {
-                            console.error('Gangnam radio not found');
-                            console.log('Available level 2 options:', 
-                                Array.from(document.querySelectorAll('input[name="region-level2"]'))
-                                .map(r => r.value));
-                        }
-                    }, 1000); // 시간 단축
-                } else {
-                    console.error('Seoul radio not found');
-                }
-            }, 1000); // 시간 단축
-        },
-        resetRegionTest: () => {
-            if (missingSearchPage.filterPopupManager) {
-                missingSearchPage.filterPopupManager.showRegionLevel1();
-                console.log('Region tab state reset');
-            }
-        },
-        checkRegionState: () => {
-            const level1 = document.getElementById('regionLevel1');
-            const level2 = document.getElementById('regionLevel2');
-            console.log('Region Level 1:', {
-                display: level1?.style.display || 'default',
-                classList: level1?.classList.toString(),
-                visible: level1?.offsetHeight > 0
-            });
-            console.log('Region Level 2:', {
-                display: level2?.style.display || 'default', 
-                classList: level2?.classList.toString(),
-                visible: level2?.offsetHeight > 0
-            });
+                window.missingSearchDebug.checkViewState();
+            }, 200);
         },
         checkViewState: () => {
             const gridView = document.getElementById('missingGrid');
             const listView = document.getElementById('missingList');
+            
+            console.log('=== Current View State ===');
+            console.log('Current viewMode:', missingSearchPage.viewMode);
             console.log('Grid View:', {
+                element: !!gridView,
                 display: gridView?.style.display || 'default',
-                classList: gridView?.classList.toString(),
-                visible: gridView?.offsetHeight > 0
+                classList: gridView?.classList.toString() || 'none',
+                visible: gridView?.offsetHeight > 0,
+                hasContent: gridView?.children.length > 0
             });
             console.log('List View:', {
+                element: !!listView,
                 display: listView?.style.display || 'default',
-                classList: listView?.classList.toString(),
-                visible: listView?.offsetHeight > 0
+                classList: listView?.classList.toString() || 'none',
+                visible: listView?.offsetHeight > 0,
+                hasContent: listView?.children.length > 0
             });
-            console.log('Current view mode:', missingSearchPage.viewMode);
+            
+            // 활성 버튼 확인
+            const activeBtn = document.querySelector('.view-btn.active');
+            console.log('Active button:', activeBtn?.dataset?.view || 'none');
         },
         forceListView: () => {
+            console.log('=== Force List View Test ===');
             missingSearchPage.toggleView('list');
             setTimeout(() => {
                 window.missingSearchDebug.checkViewState();
-            }, 100);
+                
+                // 강제로 리스트 뷰 표시 확인
+                const listView = document.getElementById('missingList');
+                if (listView && listView.offsetHeight === 0) {
+                    console.warn('List view still not visible, forcing display...');
+                    listView.style.display = 'flex';
+                    listView.classList.add('active');
+                    
+                    const gridView = document.getElementById('missingGrid');
+                    if (gridView) {
+                        gridView.style.display = 'none';
+                    }
+                    
+                    setTimeout(() => {
+                        console.log('Force applied, checking again...');
+                        window.missingSearchDebug.checkViewState();
+                    }, 100);
+                }
+            }, 200);
         },
         forceGridView: () => {
+            console.log('=== Force Grid View Test ===');
             missingSearchPage.toggleView('grid');
             setTimeout(() => {
                 window.missingSearchDebug.checkViewState();
-            }, 100);
+            }, 200);
+        },
+        // 리스트 뷰 컨텐츠 확인
+        checkListContent: () => {
+            const listView = document.getElementById('missingList');
+            console.log('List view content check:');
+            console.log('- Container exists:', !!listView);
+            console.log('- Children count:', listView?.children.length || 0);
+            console.log('- React root exists:', missingSearchPage.reactRoots.has('list'));
+            
+            if (listView && listView.children.length > 0) {
+                console.log('- First child:', listView.children[0]);
+            }
         }
     };
 }

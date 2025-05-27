@@ -255,7 +255,7 @@
     color: var(--danger-red);
 }
 
-/* 필터 팝업 모달 - 크기 축소 및 위치 정확히 중앙 */
+/* 필터 팝업 모달 - 스크롤 버그 완전 해결 */
 .filter-popup-overlay {
     position: fixed;
     top: 0;
@@ -266,12 +266,15 @@
     display: none;
     z-index: 2000;
     backdrop-filter: blur(5px);
+    /* 중앙 정렬을 위한 수정 */
+    align-items: center;
+    justify-content: center;
+    /* 스크롤 방지 */
+    overflow: hidden;
 }
 
 .filter-popup-overlay.active {
     display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .filter-popup-modal {
@@ -285,6 +288,11 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    /* 스크롤에 관계없이 고정 위치 보장 */
+    margin: auto;
+    /* 추가적인 중앙 정렬 보장 */
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .filter-popup-header {
@@ -649,15 +657,23 @@
     margin-bottom: 40px;
 }
 
-/* 리스트 뷰 - JavaScript 제어 가능하도록 수정 */
+/* 리스트 뷰 - 완전히 수정된 스타일 */
 .missing-list-view {
     display: none;
     margin-bottom: 40px;
+    /* 리스트 뷰 전용 스타일 추가 */
+    flex-direction: column;
+    gap: 15px;
 }
 
-/* 리스트 뷰 활성화 시에만 표시 */  
+/* 리스트 뷰 활성화 시에만 표시 - !important 제거하고 명확한 스타일 적용 */  
 .missing-list-view.active {
-    display: block !important;
+    display: flex;
+}
+
+/* 그리드 뷰 숨김 처리 개선 */
+.missing-grid.hidden {
+    display: none;
 }
 
 .missing-card {
@@ -833,7 +849,7 @@
     transform: translateY(-2px);
 }
 
-/* 리스트 뷰 스타일 */
+/* 리스트 뷰 스타일 - 개선된 버전 */
 .list-item {
     display: grid;
     grid-template-columns: 120px 1fr auto;
@@ -846,6 +862,9 @@
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     align-items: center;
+    /* 리스트 아이템 안정성 향상 */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .list-item:hover {
@@ -859,12 +878,18 @@
     border-radius: 10px;
     overflow: hidden;
     position: relative;
+    flex-shrink: 0;
 }
 
 .list-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.list-content {
+    flex: 1;
+    min-width: 0; /* 텍스트 오버플로우 방지 */
 }
 
 .list-content h3 {
@@ -883,6 +908,7 @@
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-shrink: 0;
 }
 
 /* 로딩 인디케이터 */
