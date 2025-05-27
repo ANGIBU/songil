@@ -140,47 +140,69 @@
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
 
-    <!-- 새로고침 시 최상단으로 스크롤 기능 -->
+    <!-- 새로고침 시 최상단으로 스크롤 기능 - GSAP 충돌 수정 -->
     <script>
+        // 스크롤 위치 초기화 함수
+        function scrollToTop() {
+            try {
+                // 모든 방법으로 스크롤 초기화
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+                
+                // 추가 보장
+                if (window.pageYOffset !== 0) {
+                    window.scrollTo({ top: 0, behavior: 'auto' });
+                }
+            } catch (error) {
+                // 에러 발생 시 기본 스크롤만 실행
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // 스크롤 복원 방지
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         // 페이지 로드 완료 시 최상단으로 스크롤
         window.addEventListener('load', function() {
-            // 페이지 로드 후 즉시 최상단으로 스크롤
-            window.scrollTo(0, 0);
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-            
-            // 부드러운 스크롤을 위한 추가 처리
-            if (typeof gsap !== 'undefined') {
-                gsap.set(window, { scrollTo: 0 });
-            }
-        });
-
-        // beforeunload 이벤트에서 스크롤 위치 초기화
-        window.addEventListener('beforeunload', function() {
-            window.scrollTo(0, 0);
-        });
-
-        // pagehide 이벤트에서도 스크롤 위치 초기화 (모바일 대응)
-        window.addEventListener('pagehide', function() {
-            window.scrollTo(0, 0);
+            setTimeout(scrollToTop, 0);
         });
 
         // DOMContentLoaded에서도 스크롤 초기화
         document.addEventListener('DOMContentLoaded', function() {
-            window.scrollTo(0, 0);
-            
-            // 추가적인 스크롤 방지
-            if ('scrollRestoration' in history) {
-                history.scrollRestoration = 'manual';
-            }
+            setTimeout(scrollToTop, 0);
+        });
+
+        // beforeunload 이벤트에서 스크롤 위치 초기화
+        window.addEventListener('beforeunload', function() {
+            scrollToTop();
+        });
+
+        // pagehide 이벤트에서도 스크롤 위치 초기화 (모바일 대응)
+        window.addEventListener('pagehide', function() {
+            scrollToTop();
         });
 
         // 브라우저 뒤로가기/앞으로가기 시에도 최상단으로
         window.addEventListener('popstate', function() {
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 0);
+            setTimeout(scrollToTop, 0);
         });
+
+        // 페이지 숨김/표시 시 스크롤 초기화
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                setTimeout(scrollToTop, 100);
+            }
+        });
+
+        // 추가 안전장치 - 일정 시간 후 스크롤 확인
+        setTimeout(function() {
+            if (window.pageYOffset > 0) {
+                scrollToTop();
+            }
+        }, 300);
     </script>
 </body>
 
