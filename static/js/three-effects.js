@@ -418,7 +418,7 @@ class SecurityVisualization {
     }
 }
 
-// 완전히 개선된 파도 효과 Three.js 클래스 - 화면 끝까지 완벽 커버
+// 완전히 개선된 파도 효과 Three.js 클래스 - 모든 방향 잘림 완전 해결
 class WaveEffect {
     constructor(canvas) {
         this.canvas = canvas;
@@ -451,9 +451,13 @@ class WaveEffect {
     setupScene() {
         this.scene = new THREE.Scene();
         
-        // 화면 전체를 완전히 커버하도록 카메라 설정 - 더 넓은 범위로 확장
-        const width = window.innerWidth * 1.5; // 1.5배 확장
-        const height = window.innerHeight * 1.5; // 1.5배 확장
+        // 화면을 완전히 커버하도록 더 넓은 범위로 카메라 설정 - 모든 방향 확장
+        const baseWidth = window.innerWidth;
+        const baseHeight = window.innerHeight;
+        
+        // 상하좌우 모든 방향으로 2배 확장
+        const width = baseWidth * 2;
+        const height = baseHeight * 2;
         
         this.camera = new THREE.OrthographicCamera(
             -width / 2, width / 2,
@@ -469,31 +473,22 @@ class WaveEffect {
             powerPreference: "high-performance"
         });
         
-        // 캔버스 크기를 화면보다 더 크게 설정하여 완전 커버
-        const canvasWidth = window.innerWidth;
-        const canvasHeight = window.innerHeight;
-        
-        this.renderer.setSize(canvasWidth, canvasHeight);
+        // 캔버스 크기를 실제 컨테이너 크기에 맞게 설정
+        this.renderer.setSize(baseWidth, baseHeight);
         this.renderer.setClearColor(0x000000, 0);
-        
-        // 캔버스 위치 조정으로 가장자리 완전 커버
-        this.canvas.style.width = '100vw';
-        this.canvas.style.height = '100%';
-        this.canvas.style.transform = 'scale(1.2)'; // 20% 확대로 가장자리 완전 커버
-        this.canvas.style.transformOrigin = 'center center';
     }
 
     createWaves() {
-        // 화면을 완전히 덮도록 파도 생성 범위 대폭 확장
-        for (let i = 0; i < 15; i++) { // 10개에서 15개로 증가
+        // 화면을 완전히 덮도록 파도 생성 범위 대대적 확장
+        for (let i = 0; i < 20; i++) { // 15개에서 20개로 증가
             const geometry = new THREE.BufferGeometry();
             const vertices = [];
             
-            // 화면 너비보다 훨씬 큰 범위로 설정 - 더욱 확장
-            const waveWidth = window.innerWidth * 2.5; // 2배에서 2.5배로 증가
-            const segments = 400; // 250에서 400으로 증가
+            // 화면 너비보다 훨씬 큰 범위로 설정 - 모든 방향 확장
+            const waveWidth = window.innerWidth * 3.5; // 2.5배에서 3.5배로 증가
+            const segments = 500; // 400에서 500으로 증가
             
-            // 파도 정점 생성 - 완전한 좌우 커버를 위해 더 넓은 범위
+            // 파도 정점 생성 - 완전한 좌우 상하 커버
             for (let j = 0; j <= segments; j++) {
                 const x = (j / segments) * waveWidth - waveWidth / 2;
                 vertices.push(x, 0, 0);
@@ -502,20 +497,21 @@ class WaveEffect {
             geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
             
             const waveSettings = {
-                amplitude: 40 + Math.random() * 70, // 진폭 더욱 증가
-                frequency: 0.004 + Math.random() * 0.016, // 주파수 범위 확장
-                speed: 0.15 + Math.random() * 2.0, // 속도 범위 더 확장
+                amplitude: 50 + Math.random() * 80, // 진폭 더욱 증가
+                frequency: 0.003 + Math.random() * 0.020, // 주파수 범위 더 확장
+                speed: 0.1 + Math.random() * 2.5, // 속도 범위 더욱 확장
                 phase: Math.random() * Math.PI * 2,
-                opacity: 0.1 + Math.random() * 0.4, // 더 다양한 투명도
-                yOffset: (Math.random() - 0.5) * window.innerHeight * 2, // 수직 범위 더욱 확장
-                horizontalFlow: (Math.random() - 0.5) * 3 // 수평 흐름 추가
+                opacity: 0.08 + Math.random() * 0.45, // 더 다양한 투명도
+                yOffset: (Math.random() - 0.5) * window.innerHeight * 2.5, // 수직 범위 대폭 확장
+                horizontalFlow: (Math.random() - 0.5) * 5, // 수평 흐름 더 강화
+                verticalFlow: (Math.random() - 0.5) * 3 // 수직 흐름 추가
             };
             
             const material = new THREE.LineBasicMaterial({
-                color: new THREE.Color().setHSL(0, 0, 0.85 + Math.random() * 0.15), // 더 밝게
+                color: new THREE.Color().setHSL(0, 0, 0.8 + Math.random() * 0.2), // 더 밝게
                 transparent: true,
                 opacity: waveSettings.opacity,
-                linewidth: 6 // 선 굵기 더 증가
+                linewidth: 8 // 선 굵기 더 증가
             });
             
             const wave = new THREE.Line(geometry, material);
@@ -536,39 +532,46 @@ class WaveEffect {
             const settings = wave.userData;
             const positions = wave.geometry.attributes.position.array;
             
-            // 각 정점의 Y 좌표를 복잡한 곡선 파도로 업데이트
+            // 각 정점의 Y 좌표를 매우 복잡한 곡선 파도로 업데이트
             for (let i = 0; i < positions.length; i += 3) {
                 const x = positions[i];
                 
-                // 여러 겹의 사인파를 결합하여 더 자연스러운 파도 생성
+                // 다중 사인파 조합으로 더욱 자연스러운 파도 생성
                 const baseWave = Math.sin(x * settings.frequency + this.time * settings.speed + settings.phase);
-                const harmonicWave1 = Math.sin(x * settings.frequency * 2.1 + this.time * settings.speed * 1.4 + settings.phase) * 0.35;
-                const harmonicWave2 = Math.sin(x * settings.frequency * 0.7 + this.time * settings.speed * 0.8 + settings.phase) * 0.6;
-                const complexWave = Math.sin(x * settings.frequency * 1.5 + this.time * settings.speed * 1.1 + settings.phase) * 0.25;
+                const harmonicWave1 = Math.sin(x * settings.frequency * 2.3 + this.time * settings.speed * 1.5 + settings.phase) * 0.4;
+                const harmonicWave2 = Math.sin(x * settings.frequency * 0.6 + this.time * settings.speed * 0.9 + settings.phase) * 0.7;
+                const complexWave = Math.sin(x * settings.frequency * 1.7 + this.time * settings.speed * 1.2 + settings.phase) * 0.3;
+                const noiseWave1 = Math.sin(x * settings.frequency * 3.5 + this.time * settings.speed * 0.7) * 0.2;
+                const noiseWave2 = Math.cos(x * settings.frequency * 2.8 + this.time * settings.speed * 0.5) * 0.15;
                 
-                // 추가 노이즈 웨이브로 더 자연스러운 효과
-                const noiseWave = Math.sin(x * settings.frequency * 3.2 + this.time * settings.speed * 0.6) * 0.15;
+                // 더 복잡한 파동 패턴
+                const turbulence = Math.sin(x * settings.frequency * 4.2 + this.time * settings.speed * 0.8) * 0.1;
                 
-                positions[i + 1] = (baseWave + harmonicWave1 + harmonicWave2 + complexWave + noiseWave) * settings.amplitude;
+                positions[i + 1] = (baseWave + harmonicWave1 + harmonicWave2 + complexWave + noiseWave1 + noiseWave2 + turbulence) * settings.amplitude;
             }
             
             wave.geometry.attributes.position.needsUpdate = true;
             
-            // 파도의 수평 이동 - 완전한 흐름을 위한 개선
-            const horizontalMovement = Math.sin(this.time * 0.06 + index * 0.4) * 4 + settings.horizontalFlow;
-            const verticalMovement = Math.cos(this.time * 0.04 + index * 0.3) * 2;
+            // 파도의 다방향 이동 - 완전한 흐름을 위한 대폭 개선
+            const horizontalMovement = Math.sin(this.time * 0.05 + index * 0.5) * 6 + settings.horizontalFlow;
+            const verticalMovement = Math.cos(this.time * 0.03 + index * 0.4) * 4 + settings.verticalFlow;
+            const diagonalMovement = Math.sin(this.time * 0.04 + index * 0.6) * 3;
             
-            wave.position.x = horizontalMovement;
+            wave.position.x = horizontalMovement + diagonalMovement;
             wave.position.y = settings.yOffset + verticalMovement;
             
-            // 투명도 변화 - 더 다이나믹하게
-            const opacityVariation = Math.sin(this.time * 0.5 + index * 0.5) * 0.2;
-            const baseOpacity = Math.max(0.05, settings.opacity + opacityVariation);
+            // 투명도 변화 - 더욱 다이나믹하게
+            const opacityVariation = Math.sin(this.time * 0.4 + index * 0.6) * 0.25;
+            const baseOpacity = Math.max(0.03, settings.opacity + opacityVariation);
             wave.material.opacity = baseOpacity;
             
-            // 색상 변화 추가
-            const hueShift = Math.sin(this.time * 0.1 + index * 0.2) * 0.1;
-            wave.material.color.setHSL(0, 0, 0.85 + hueShift);
+            // 색상 변화 더 강화
+            const hueShift = Math.sin(this.time * 0.08 + index * 0.25) * 0.15;
+            const lightnessShift = Math.cos(this.time * 0.06 + index * 0.3) * 0.1;
+            wave.material.color.setHSL(0, 0, 0.8 + hueShift + lightnessShift);
+            
+            // 파도 회전 효과 추가
+            wave.rotation.z = Math.sin(this.time * 0.02 + index * 0.1) * 0.05;
         });
     }
 
@@ -593,9 +596,13 @@ class WaveEffect {
         if (!this.renderer || !this.camera || this.isDestroyed) return;
         
         try {
-            // 새로운 화면 크기에 맞게 더 넓은 범위로 설정
-            const width = window.innerWidth * 1.5;
-            const height = window.innerHeight * 1.5;
+            // 새로운 화면 크기에 맞게 더 넓은 범위로 설정 - 모든 방향 확장
+            const baseWidth = window.innerWidth;
+            const baseHeight = window.innerHeight;
+            
+            // 상하좌우 모든 방향으로 2배 확장
+            const width = baseWidth * 2;
+            const height = baseHeight * 2;
             
             // 카메라 범위를 새로운 화면 크기에 맞게 조정
             this.camera.left = -width / 2;
@@ -605,15 +612,7 @@ class WaveEffect {
             this.camera.updateProjectionMatrix();
             
             // 렌더러 크기 조정
-            const canvasWidth = window.innerWidth;
-            const canvasHeight = window.innerHeight;
-            this.renderer.setSize(canvasWidth, canvasHeight);
-            
-            // 캔버스 스타일 업데이트 - 완전 커버 보장
-            this.canvas.style.width = '100vw';
-            this.canvas.style.height = '100%';
-            this.canvas.style.transform = 'scale(1.2)';
-            this.canvas.style.transformOrigin = 'center center';
+            this.renderer.setSize(baseWidth, baseHeight);
             
             // 파도 범위도 새로운 화면 크기에 맞게 재생성
             this.recreateWaves();

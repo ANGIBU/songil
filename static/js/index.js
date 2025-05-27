@@ -127,13 +127,13 @@ const allMissingData = [
     }
 ];
 
-// 순위 데이터 (제보와 해결로 변경)
+// 순위 데이터 (제보와 해결 건수 바꿈)
 const rankingData = [
-    { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 23, witnesses: 45 },
-    { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 18, witnesses: 38 },
-    { rank: 3, name: "이나눔", points: 1895, region: "대구시", reports: 15, witnesses: 42 },
-    { rank: 4, name: "최참여", points: 1672, region: "인천시", reports: 12, witnesses: 36 },
-    { rank: 5, name: "정협력", points: 1543, region: "광주시", reports: 14, witnesses: 29 }
+    { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 45, witnesses: 23 },
+    { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 38, witnesses: 18 },
+    { rank: 3, name: "이나눔", points: 1895, region: "대구시", reports: 42, witnesses: 15 },
+    { rank: 4, name: "최참여", points: 1672, region: "인천시", reports: 36, witnesses: 12 },
+    { rank: 5, name: "정협력", points: 1543, region: "광주시", reports: 29, witnesses: 14 }
 ];
 
 // 정확히 8개의 긴급 실종자 데이터 선택
@@ -278,17 +278,15 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
         React.createElement('div', { className: 'card-content', key: 'content' }, [
             React.createElement('h3', { key: 'title' }, `${data.name} (${data.age}세)`),
             React.createElement('div', { className: 'missing-info', key: 'info' }, [
-                React.createElement('span', { key: 'date' }, [
+                React.createElement('p', { key: 'date' }, [
                     React.createElement('i', { className: 'fas fa-calendar', key: 'date-icon' }),
                     ` ${formatDate(data.date)} 실종`
                 ]),
-                React.createElement('br', { key: 'br1' }),
-                React.createElement('span', { key: 'location' }, [
+                React.createElement('p', { key: 'location' }, [
                     React.createElement('i', { className: 'fas fa-map-marker-alt', key: 'location-icon' }),
                     ` ${data.location}`
                 ]),
-                React.createElement('br', { key: 'br2' }),
-                React.createElement('span', { key: 'description' }, [
+                React.createElement('p', { key: 'description' }, [
                     React.createElement('i', { className: 'fas fa-tshirt', key: 'desc-icon' }),
                     ` ${data.description}`
                 ])
@@ -509,7 +507,7 @@ class IndexAnimations {
                         duration: 0.6,
                         y: 0,
                         opacity: 1,
-                        stagger: 0.08, // 5개에 맞게 조정
+                        stagger: 0.08,
                         ease: 'power2.out'
                     });
                 },
@@ -767,7 +765,7 @@ class IndexPage {
                 const waveCanvas = document.getElementById('waveCanvas');
                 if (waveCanvas && WaveEffect) {
                     this.waveEffect = new WaveEffect(waveCanvas);
-                    console.log('Wave effect initialized with full screen coverage');
+                    console.log('Wave effect initialized with enhanced coverage');
                 }
                 
                 // 3D 배경 초기화
@@ -854,7 +852,7 @@ class IndexPage {
             this.hideLoadingOverlay();
         }, 500);
         
-        console.log('Index page ready with enhanced wave coverage');
+        console.log('Index page ready with improved ranking and wave effects');
     }
 
     renderRankings() {

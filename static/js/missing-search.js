@@ -1,26 +1,4 @@
-closePopup() {
-        this.overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    loadCurrentFilters() {
-        const filters = this.searchManager.filters;
-        
-        // 정렬 라디오 버튼
-        const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
-        if (sortRadio) sortRadio.checked = true;
-
-        // 지역 필터 로딩
-        this.loadRegionFilter(filters.region);
-
-        // 연령대 라디오 버튼
-        const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
-        if (ageRadio) ageRadio.checked = true;
-
-        // 실종기간 라디오 버튼
-        const periodRadio = document.querySelector(`input[name="period"][value="${filters.period}"]`);
-        if (periodRadio) periodRadio.checked = true;
-    }// static/js/missing-search.js
+// static/js/missing-search.js
 
 // React 컴포넌트 활용
 const { useState, useEffect, useCallback, useMemo } = React;
@@ -512,99 +490,6 @@ class FilterPopupManager {
         }
     }
 
-    animateToRegionLevel2() {
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        
-        if (typeof gsap === 'undefined') {
-            // GSAP 없을 때 기본 전환 - CSS 클래스 기반으로 완전 수정
-            regionLevel2.classList.add('active');
-            return;
-        }
-        
-        // CSS 클래스로 기본 상태 설정
-        regionLevel2.classList.add('active');
-        
-        // GSAP 애니메이션으로 부드러운 전환 효과 추가
-        const timeline = gsap.timeline();
-        
-        // 2단계를 처음에 우측에서 시작
-        gsap.set(regionLevel2, { x: 100, opacity: 0 });
-        
-        // 1단계 슬라이드 아웃
-        timeline.to(regionLevel1, {
-            duration: 0.3,
-            x: -100,
-            opacity: 0,
-            ease: 'power2.out'
-        });
-        
-        // 2단계 슬라이드 인
-        timeline.to(regionLevel2, {
-            duration: 0.4,
-            x: 0,
-            opacity: 1,
-            ease: 'power2.out'
-        }, '-=0.1');
-        
-        // 2단계 옵션들 순차 등장
-        timeline.from('#regionLevel2Options .filter-option', {
-            duration: 0.3,
-            y: 20,
-            opacity: 0,
-            stagger: 0.03,
-            ease: 'power2.out'
-        }, '-=0.2');
-    }
-
-    goBackToRegionLevel1() {
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        
-        if (typeof gsap === 'undefined') {
-            // GSAP 없을 때 기본 전환 - CSS 클래스 기반으로 완전 수정
-            regionLevel2.classList.remove('active');
-            return;
-        }
-        
-        // GSAP 애니메이션으로 부드러운 전환 효과
-        const timeline = gsap.timeline();
-        
-        // 2단계 슬라이드 아웃
-        timeline.to(regionLevel2, {
-            duration: 0.3,
-            x: 100,
-            opacity: 0,
-            ease: 'power2.out'
-        });
-        
-        // 1단계를 처음에 좌측에서 시작
-        gsap.set(regionLevel1, { x: -100, opacity: 0 });
-        
-        // 1단계 슬라이드 인
-        timeline.to(regionLevel1, {
-            duration: 0.4,
-            x: 0,
-            opacity: 1,
-            ease: 'power2.out',
-            onComplete: () => {
-                // 애니메이션 완료 후 CSS 클래스로 상태 변경
-                regionLevel2.classList.remove('active');
-                // GSAP 스타일 리셋
-                gsap.set([regionLevel1, regionLevel2], { clearProps: "all" });
-            }
-        }, '-=0.1');
-        
-        // 1단계 옵션들 순차 등장
-        timeline.from('#regionLevel1 .filter-options .filter-option', {
-            duration: 0.3,
-            y: 20,
-            opacity: 0,
-            stagger: 0.03,
-            ease: 'power2.out'
-        }, '-=0.2');
-    }
-
     switchTab(tabName) {
         // 모든 탭 비활성화
         document.querySelectorAll('.filter-tab').forEach(tab => {
@@ -638,11 +523,6 @@ class FilterPopupManager {
         document.body.style.overflow = 'hidden';
         
         // 지역 탭 초기 상태 보장
-        this.showRegionLevel1();
-    }
-
-    resetRegionTabState() {
-        console.log('Resetting region tab state');
         this.showRegionLevel1();
     }
 
@@ -749,6 +629,8 @@ class FilterPopupManager {
         
         // 실종기간
         const periodValue = document.querySelector('input[name="period"]:checked')?.value || '';
+
+        console.log('Applying filters:', { sort: sortValue, region: regionValue, age: ageValue, period: periodValue });
 
         // 필터 적용
         this.searchManager.updateFilter('sort', sortValue);

@@ -140,23 +140,23 @@
     justify-content: flex-end;
     align-items: center;
     position: relative;
-    padding-left: 40px; /* 20px에서 40px로 증가 */
+    padding-left: 40px;
 }
 
-/* 순위 디스플레이 - 크기 대폭 증가 및 위치 조정 */
+/* 순위 디스플레이 - 크기 조정 (700px → 650px) */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 45px 40px; /* 35px 30px에서 45px 40px로 증가 */
+    padding: 45px 40px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 700px; /* 580px에서 700px로 증가 */
+    width: 650px; /* 700px에서 650px로 조정 */
     max-width: 100%;
     position: relative;
     overflow: hidden;
     will-change: transform, opacity;
     margin-left: auto;
-    transform: translateX(30px); /* 오른쪽으로 30px 이동 */
+    transform: translateX(30px);
 }
 
 .ranking-display::before {
@@ -170,41 +170,41 @@
 }
 
 .ranking-title {
-    font-size: 1.4rem; /* 1.2rem에서 1.4rem로 증가 */
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 25px; /* 20px에서 25px로 증가 */
+    margin-bottom: 25px;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px; /* 8px에서 10px로 증가 */
+    gap: 10px;
 }
 
 .ranking-title i {
     color: var(--primary-orange);
-    font-size: 1.3rem; /* 1.1rem에서 1.3rem로 증가 */
+    font-size: 1.3rem;
 }
 
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 12px; /* 8px에서 12px로 증가 */
+    gap: 12px;
 }
 
 /* 순위 아이템 - 크기 대폭 증가 */
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 16px; /* 12px에서 16px로 증가 */
-    padding: 16px 20px; /* 12px 16px에서 16px 20px로 증가 */
+    gap: 16px;
+    padding: 16px 20px;
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 50px; /* 42px에서 50px로 증가 */
+    min-height: 50px;
     height: 50px;
     will-change: transform;
 }
@@ -215,14 +215,14 @@
 }
 
 .ranking-position {
-    width: 32px; /* 26px에서 32px로 증가 */
+    width: 32px;
     height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1rem; /* 0.85rem에서 1rem로 증가 */
+    font-size: 1rem;
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -263,7 +263,7 @@
 .ranking-left {
     display: flex;
     align-items: center;
-    gap: 12px; /* 10px에서 12px로 증가 */
+    gap: 12px;
     flex: 1;
     min-width: 0;
 }
@@ -271,7 +271,7 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 1rem; /* 0.85rem에서 1rem로 증가 */
+    font-size: 1rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -279,22 +279,22 @@
 }
 
 .ranking-points {
-    font-size: 0.875rem; /* 0.75rem에서 0.875rem로 증가 */
+    font-size: 0.875rem;
     color: var(--gray-600);
     display: flex;
     align-items: center;
-    gap: 4px; /* 3px에서 4px로 증가 */
+    gap: 4px;
     line-height: 1;
     white-space: nowrap;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.75rem; /* 0.65rem에서 0.75rem로 증가 */
+    font-size: 0.75rem;
 }
 
 .ranking-stats {
-    font-size: 0.8rem; /* 0.7rem에서 0.8rem로 증가 */
+    font-size: 0.8rem;
     color: var(--gray-500);
     flex-shrink: 0;
     white-space: nowrap;
@@ -404,9 +404,10 @@
     display: none !important;
 }
 
+/* 실종자 카드 - missing-search.css와 일치하도록 개선 */
 .missing-card {
     background: white;
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
@@ -420,19 +421,29 @@
 }
 
 .missing-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 }
 
-.missing-card.urgent::before {
+.missing-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.missing-card:hover::before {
+    transform: scaleX(1);
+}
+
+.missing-card.urgent::before {
     background: linear-gradient(90deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-    z-index: 1;
+    transform: scaleX(1);
 }
 
 .card-image {
@@ -455,11 +466,11 @@
 
 .danger-level {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
     font-weight: 600;
     color: white;
     backdrop-filter: blur(10px);
@@ -481,25 +492,23 @@
 
 @keyframes dangerPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
 }
 
 .missing-period {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.7);
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.8);
     color: white;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    backdrop-filter: blur(10px);
-    z-index: 2;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
 .card-content {
-    padding: 15px;
+    padding: 25px;
     height: calc(100% - 150px);
     display: flex;
     flex-direction: column;
@@ -507,18 +516,25 @@
 }
 
 .card-content h3 {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--gray-900);
-    margin-bottom: 8px;
+    margin-bottom: 15px;
 }
 
 .missing-info {
     color: var(--gray-600);
-    margin-bottom: 12px;
-    line-height: 1.4;
-    font-size: 0.85rem;
+    margin-bottom: 20px;
+    line-height: 1.8;
     flex: 1;
+}
+
+.missing-info p {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
 }
 
 .missing-info span {
@@ -528,8 +544,8 @@
 
 .missing-info i {
     color: var(--primary-orange);
-    margin-right: 5px;
-    width: 12px;
+    width: 16px;
+    text-align: center;
     font-size: 0.8rem;
 }
 
@@ -537,48 +553,52 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
     margin-top: auto;
 }
 
 .up-btn {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     background: var(--secondary-green-soft);
     color: var(--secondary-green-dark);
     border: 1px solid var(--secondary-green-light);
-    padding: 6px 10px;
-    border-radius: 8px;
+    padding: 12px 18px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
 }
 
 .up-btn:hover {
     background: var(--secondary-green);
     color: white;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
 .detail-btn {
     background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
     text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: 0.9rem;
+    font-weight: 600;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
 }
 
 .detail-btn:hover {
     background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
 .section-footer {
@@ -624,10 +644,10 @@
 /* 수정된 intro-steps 레이아웃 - 모든 스텝 균등 크기 */
 .intro-steps {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5개 균등 배치 */
+    grid-template-columns: repeat(5, 1fr);
     gap: 30px;
     justify-items: center;
-    max-width: 1400px; /* 전체 너비 증가 */
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -642,8 +662,8 @@
     overflow: hidden;
     will-change: transform, box-shadow;
     width: 100%;
-    max-width: 260px; /* 모든 스텝 동일한 최대 너비 */
-    min-height: 320px; /* 모든 스텝 동일한 최소 높이 */
+    max-width: 260px;
+    min-height: 320px;
 }
 
 .step::before {
@@ -739,18 +759,25 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-    /* 완전 화면 커버를 위한 추가 설정 */
+    /* 완전 화면 커버를 위한 추가 설정 - 좌우 확장 */
     width: 100vw;
     margin-left: calc(-50vw + 50%);
+    /* 상하좌우 모든 방향 확장으로 잘림 방지 */
+    padding-left: 50px;
+    padding-right: 50px;
+    margin-top: -20px;
+    margin-bottom: -20px;
+    padding-top: 120px;
+    padding-bottom: 120px;
 }
 
 .stats-section::before {
     content: '';
     position: absolute;
     top: -50px;
-    left: 0;
-    right: 0;
-    height: 50px;
+    left: -50px;
+    right: -50px;
+    height: 70px;
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(34, 197, 94, 0.1) 100%);
     pointer-events: none;
 }
@@ -759,9 +786,9 @@
     content: '';
     position: absolute;
     bottom: -50px;
-    left: 0;
-    right: 0;
-    height: 50px;
+    left: -50px;
+    right: -50px;
+    height: 70px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(249, 115, 22, 0.1) 100%);
     pointer-events: none;
 }
@@ -850,13 +877,13 @@
     font-weight: 500;
 }
 
-/* Wave 캔버스 최적화 - 완전 화면 커버 및 파장 버그 수정 */
+/* Wave 캔버스 최적화 - 모든 방향 잘림 완전 해결 */
 .wave-canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: -100px; /* 상단 확장 */
+    left: -100px; /* 좌측 확장 */
+    width: calc(100% + 200px); /* 좌우 200px 추가 */
+    height: calc(100% + 200px); /* 상하 200px 추가 */
     pointer-events: none;
     z-index: 0;
     opacity: 0.4;
@@ -865,12 +892,9 @@
     -moz-user-select: none;
     -ms-user-select: none;
     mix-blend-mode: soft-light;
-    /* 캔버스 완전 커버를 위한 추가 스타일 - 잘림 방지 */
-    width: 100vw !important;
-    height: 100% !important;
-    min-width: 100vw;
-    min-height: 100%;
-    /* 화면 가장자리 완전 커버 */
+    /* 추가 스케일로 완전 커버 보장 */
+    transform: scale(1.3);
+    transform-origin: center center;
     margin: 0;
     padding: 0;
     border: none;
@@ -923,9 +947,9 @@
     }
     
     .ranking-display {
-        width: 600px;
+        width: 580px; /* 모바일에서는 좀 더 작게 */
         margin: 0 auto;
-        transform: translateX(0); /* 모바일에서는 중앙 정렬 */
+        transform: translateX(0);
     }
     
     .urgent-cards {
@@ -1032,7 +1056,7 @@
     }
     
     .card-content {
-        padding: 12px;
+        padding: 20px;
     }
     
     .step {
