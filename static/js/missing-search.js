@@ -1,4 +1,26 @@
-// static/js/missing-search.js
+closePopup() {
+        this.overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    loadCurrentFilters() {
+        const filters = this.searchManager.filters;
+        
+        // 정렬 라디오 버튼
+        const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
+        if (sortRadio) sortRadio.checked = true;
+
+        // 지역 필터 로딩
+        this.loadRegionFilter(filters.region);
+
+        // 연령대 라디오 버튼
+        const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
+        if (ageRadio) ageRadio.checked = true;
+
+        // 실종기간 라디오 버튼
+        const periodRadio = document.querySelector(`input[name="period"][value="${filters.period}"]`);
+        if (periodRadio) periodRadio.checked = true;
+    }// static/js/missing-search.js
 
 // React 컴포넌트 활용
 const { useState, useEffect, useCallback, useMemo } = React;
@@ -396,7 +418,8 @@ class FilterPopupManager {
         // 지역 뒤로가기 버튼
         document.addEventListener('click', (e) => {
             if (e.target.closest('#regionBackBtn')) {
-                this.goBackToRegionLevel1();
+                console.log('Region back button clicked');
+                this.showRegionLevel1();
             }
         });
 
@@ -416,14 +439,15 @@ class FilterPopupManager {
         
         if (!regionCode) {
             // 전체 지역 선택시 2단계 숨김
-            if (regionLevel2.classList.contains('active')) {
-                this.goBackToRegionLevel1();
-            }
+            this.showRegionLevel1();
             return;
         }
         
         const regionInfo = this.regionData[regionCode];
-        if (!regionInfo) return;
+        if (!regionInfo) {
+            console.error('Region data not found for:', regionCode);
+            return;
+        }
         
         // 2단계 제목 업데이트
         regionLevel2Title.textContent = `${regionInfo.name} 세부 지역`;
@@ -453,8 +477,39 @@ class FilterPopupManager {
             regionLevel2Options.appendChild(option);
         });
         
-        // GSAP 애니메이션: 1단계 → 2단계 전환
-        this.animateToRegionLevel2();
+        // 2단계로 전환 (단순한 show/hide)
+        this.showRegionLevel2();
+    }
+
+    // 단순한 표시/숨김 함수들
+    showRegionLevel2() {
+        const regionLevel1 = document.getElementById('regionLevel1');
+        const regionLevel2 = document.getElementById('regionLevel2');
+        
+        console.log('Showing region level 2');
+        
+        if (regionLevel1) {
+            regionLevel1.classList.add('hide');
+        }
+        
+        if (regionLevel2) {
+            regionLevel2.classList.add('show');
+        }
+    }
+
+    showRegionLevel1() {
+        const regionLevel1 = document.getElementById('regionLevel1');
+        const regionLevel2 = document.getElementById('regionLevel2');
+        
+        console.log('Showing region level 1');
+        
+        if (regionLevel2) {
+            regionLevel2.classList.remove('show');
+        }
+        
+        if (regionLevel1) {
+            regionLevel1.classList.remove('hide');
+        }
     }
 
     animateToRegionLevel2() {
@@ -569,8 +624,9 @@ class FilterPopupManager {
             
             // 지역 탭 선택 시 초기 상태로 리셋
             if (tabName === 'region') {
+                console.log('Region tab selected, resetting state');
                 setTimeout(() => {
-                    this.resetRegionTabState();
+                    this.showRegionLevel1();
                 }, 50);
             }
         }
@@ -582,22 +638,12 @@ class FilterPopupManager {
         document.body.style.overflow = 'hidden';
         
         // 지역 탭 초기 상태 보장
-        this.resetRegionTabState();
+        this.showRegionLevel1();
     }
 
     resetRegionTabState() {
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        
-        if (regionLevel1 && regionLevel2) {
-            // CSS 클래스 기반으로 상태 초기화
-            regionLevel2.classList.remove('active');
-            
-            // GSAP 스타일이 있다면 제거
-            if (typeof gsap !== 'undefined') {
-                gsap.set([regionLevel1, regionLevel2], { clearProps: "all" });
-            }
-        }
+        console.log('Resetting region tab state');
+        this.showRegionLevel1();
     }
 
     closePopup() {
@@ -625,17 +671,10 @@ class FilterPopupManager {
     }
 
     loadRegionFilter(regionValue) {
+        console.log('Loading region filter:', regionValue);
+        
         // 먼저 초기 상태로 리셋
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        
-        // CSS 클래스 기반으로 초기화
-        regionLevel2.classList.remove('active');
-        
-        // GSAP 스타일 제거
-        if (typeof gsap !== 'undefined') {
-            gsap.set([regionLevel1, regionLevel2], { clearProps: "all" });
-        }
+        this.showRegionLevel1();
         
         if (!regionValue) {
             // 전체 지역 선택
@@ -656,11 +695,16 @@ class FilterPopupManager {
                 // 2단계 지역 데이터 생성
                 this.handleRegionLevel1Change(regionCode);
                 
-                // 2단계 지역 선택 (애니메이션 완료 후)
+                // 2단계 지역 선택 (약간의 지연 후)
                 setTimeout(() => {
                     const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
-                    if (level2Radio) level2Radio.checked = true;
-                }, 500);
+                    if (level2Radio) {
+                        level2Radio.checked = true;
+                        console.log('Selected detail region:', regionValue);
+                    } else {
+                        console.error('Detail region radio not found:', regionValue);
+                    }
+                }, 100);
             }
         } else {
             // 도/시 전체인 경우
@@ -673,8 +717,13 @@ class FilterPopupManager {
                 
                 setTimeout(() => {
                     const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
-                    if (level2Radio) level2Radio.checked = true;
-                }, 500);
+                    if (level2Radio) {
+                        level2Radio.checked = true;
+                        console.log('Selected region:', regionValue);
+                    } else {
+                        console.error('Region radio not found:', regionValue);
+                    }
+                }, 100);
             }
         }
     }
@@ -1858,18 +1907,35 @@ if (typeof window !== 'undefined') {
                             console.log('Gangnam district selected');
                         } else {
                             console.error('Gangnam radio not found');
+                            console.log('Available level 2 options:', 
+                                Array.from(document.querySelectorAll('input[name="region-level2"]'))
+                                .map(r => r.value));
                         }
-                    }, 2000);
+                    }, 1000); // 시간 단축
                 } else {
                     console.error('Seoul radio not found');
                 }
-            }, 3000);
+            }, 1000); // 시간 단축
         },
         resetRegionTest: () => {
             if (missingSearchPage.filterPopupManager) {
-                missingSearchPage.filterPopupManager.resetRegionTabState();
+                missingSearchPage.filterPopupManager.showRegionLevel1();
                 console.log('Region tab state reset');
             }
+        },
+        checkRegionState: () => {
+            const level1 = document.getElementById('regionLevel1');
+            const level2 = document.getElementById('regionLevel2');
+            console.log('Region Level 1:', {
+                display: level1?.style.display || 'default',
+                classList: level1?.classList.toString(),
+                visible: level1?.offsetHeight > 0
+            });
+            console.log('Region Level 2:', {
+                display: level2?.style.display || 'default', 
+                classList: level2?.classList.toString(),
+                visible: level2?.offsetHeight > 0
+            });
         }
     };
 }

@@ -386,57 +386,32 @@
     flex: 1;
 }
 
-/* 지역 선택 관련 스타일 - 버그 수정 */
+/* 지역 선택 관련 스타일 - 완전 재작성으로 버그 해결 */
 .region-selector {
     position: relative;
-    overflow: hidden;
-    min-height: 350px; /* 최소 높이 증가 */
+    min-height: 300px;
     background: transparent;
 }
 
-.region-level-1,
+/* 단순한 표시/숨김 방식으로 변경 */
+.region-level-1 {
+    width: 100%;
+    display: block; /* 기본적으로 표시 */
+}
+
 .region-level-2 {
     width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    transition: all 0.3s ease;
-}
-
-/* 초기 상태: 1단계만 보이도록 */
-.region-level-1 {
-    opacity: 1;
-    visibility: visible;
-    display: block;
-    transform: translateX(0);
-    z-index: 2;
-}
-
-.region-level-2 {
-    opacity: 0;
-    visibility: hidden;
-    display: none;
-    transform: translateX(100%);
-    z-index: 1;
+    display: none; /* 기본적으로 숨김 */
 }
 
 /* 2단계 활성화 시 */
-.region-level-2.active {
-    opacity: 1;
-    visibility: visible;
+.region-level-2.show {
     display: block;
-    transform: translateX(0);
-    z-index: 2;
 }
 
 /* 2단계 활성화 시 1단계 숨김 */
-.region-level-2.active ~ .region-level-1 {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(-100%);
-    z-index: 1;
+.region-level-1.hide {
+    display: none;
 }
 
 .region-header {
