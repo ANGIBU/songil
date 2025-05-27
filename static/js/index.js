@@ -537,7 +537,8 @@ class IndexAnimations {
         });
         this.scrollTriggers = [];
         
-        gsap.set('*', {clearProps: 'all'});
+        // clearProps를 특정 요소에만 적용하여 레이아웃 유지
+        gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {clearProps: 'transform,opacity'});
     }
 
     setupAnimations() {
@@ -549,39 +550,34 @@ class IndexAnimations {
                 duration: 1.2,
                 y: 80,
                 opacity: 0,
-                ease: 'power3.out',
-                clearProps: 'transform,opacity'
+                ease: 'power3.out'
             })
             .from('.hero-description', {
                 duration: 1,
                 y: 40,
                 opacity: 0,
-                ease: 'power2.out',
-                clearProps: 'transform,opacity'
+                ease: 'power2.out'
             }, '-=0.6')
             .from('.hero-buttons .btn', {
                 duration: 0.8,
                 y: 30,
                 opacity: 0,
                 stagger: 0.2,
-                ease: 'power2.out',
-                clearProps: 'transform,opacity'
+                ease: 'power2.out'
             }, '-=0.4')
             // 순위 디스플레이 애니메이션
             .from('.ranking-display', {
                 duration: 1.2,
                 x: 50,
                 opacity: 0,
-                ease: 'power2.out',
-                clearProps: 'transform,opacity'
+                ease: 'power2.out'
             }, '-=0.8')
             .from('.ranking-item', {
                 duration: 0.6,
                 y: 20,
                 opacity: 0,
                 stagger: 0.1,
-                ease: 'power2.out',
-                clearProps: 'transform,opacity'
+                ease: 'power2.out'
             }, '-=0.4');
 
         // ScrollTrigger 애니메이션들
@@ -597,8 +593,7 @@ class IndexAnimations {
                         y: 60,
                         opacity: 0,
                         stagger: 0.15,
-                        ease: 'power2.out',
-                        clearProps: 'transform,opacity'
+                        ease: 'power2.out'
                     });
                 },
                 once: true

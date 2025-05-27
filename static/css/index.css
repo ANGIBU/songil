@@ -75,14 +75,14 @@
     position: relative;
 }
 
-/* 순위 디스플레이 - 높이 최소화 */
+/* 순위 디스플레이 - 전체 크기 증가 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 20px 18px;
+    padding: 28px 25px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 480px;
+    width: 520px;
     position: relative;
     overflow: hidden;
 }
@@ -120,19 +120,19 @@
     gap: 5px;
 }
 
-/* 순위 아이템 - 최소 높이로 압축 */
+/* 순위 아이템 - 적당한 높이로 조정 */
 .ranking-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-radius: 10px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 28px;
+    min-height: 35px;
 }
 
 .ranking-item:hover {
