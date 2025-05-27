@@ -1,7 +1,7 @@
 // static/js/index.js
 
 // React 컴포넌트 활용
-const { useState, useEffect } = React;
+const { useState, useEffect, useCallback, useMemo } = React;
 
 // 실종자 검색 페이지의 데이터를 가져와서 긴급 실종자용으로 활용
 const allMissingData = [
@@ -138,19 +138,18 @@ const rankingData = [
 
 // 정확히 8개의 긴급 실종자 데이터 선택
 function getUrgentMissingData() {
-    // 이미 8개가 준비되어 있으므로 그대로 반환
     return allMissingData.slice(0, 8);
 }
 
 // 긴급 실종자 데이터 (정확히 8개)
 const urgentMissingData = getUrgentMissingData();
 
-// 순위 React 컴포넌트 - 한 줄 텍스트로 모든 정보 표시
-function RankingDisplay({ rankings }) {
+// 순위 React 컴포넌트 - 메모화로 성능 최적화
+const RankingDisplay = React.memo(function RankingDisplay({ rankings }) {
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) =>
             React.createElement('div', {
-                key: rank.rank,
+                key: `ranking-${rank.rank}`,
                 className: 'ranking-item'
             }, [
                 React.createElement('div', {
@@ -206,14 +205,15 @@ function RankingDisplay({ rankings }) {
             ])
         )
     );
-}
+});
 
-// 실종자 카드 React 컴포넌트
-function MissingCard({ data, onUpClick }) {
+// 실종자 카드 React 컴포넌트 - 최적화 및 버그 수정
+const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
     const [upCount, setUpCount] = useState(data.upCount);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
 
-    const handleUpClick = () => {
+    const handleUpClick = useCallback(() => {
         if (isAnimating) return;
         
         setIsAnimating(true);
@@ -221,20 +221,29 @@ function MissingCard({ data, onUpClick }) {
         onUpClick(data.id);
         
         setTimeout(() => setIsAnimating(false), 300);
-    };
+    }, [isAnimating, onUpClick, data.id]);
 
-    const getDangerLevelText = (level) => {
+    const getDangerLevelText = useCallback((level) => {
         switch (level) {
             case 'high': return '긴급';
             case 'medium': return '주의';
             case 'low': return '관심';
             default: return '일반';
         }
-    };
+    }, []);
 
-    const formatDate = (dateStr) => {
+    const formatDate = useCallback((dateStr) => {
         return dateStr.replace(/-/g, '.');
-    };
+    }, []);
+
+    const handleImageLoad = useCallback(() => {
+        setImageLoaded(true);
+    }, []);
+
+    const handleImageError = useCallback((e) => {
+        e.target.src = '/static/images/placeholder.jpg';
+        setImageLoaded(true);
+    }, []);
 
     return React.createElement('div', {
         className: `missing-card urgent ${isAnimating ? 'animating' : ''}`,
@@ -242,15 +251,20 @@ function MissingCard({ data, onUpClick }) {
         style: {
             display: 'block',
             width: '100%',
-            height: '300px'
+            height: '300px',
+            opacity: 1,
+            transform: 'translateY(0)'
         }
     }, [
         React.createElement('div', { className: 'card-image', key: 'image' }, [
             React.createElement('img', {
                 src: data.image,
                 alt: '실종자 사진',
-                onError: (e) => {
-                    e.target.src = '/static/images/placeholder.jpg';
+                onLoad: handleImageLoad,
+                onError: handleImageError,
+                style: { 
+                    opacity: imageLoaded ? 1 : 0,
+                    transition: 'opacity 0.3s ease'
                 },
                 key: 'img'
             }),
@@ -265,7 +279,7 @@ function MissingCard({ data, onUpClick }) {
         ]),
         React.createElement('div', { className: 'card-content', key: 'content' }, [
             React.createElement('h3', { key: 'title' }, `${data.name} (${data.age}세)`),
-            React.createElement('p', { className: 'missing-info', key: 'info' }, [
+            React.createElement('div', { className: 'missing-info', key: 'info' }, [
                 React.createElement('span', { key: 'date' }, [
                     React.createElement('i', { className: 'fas fa-calendar', key: 'date-icon' }),
                     ` ${formatDate(data.date)} 실종`
@@ -285,7 +299,8 @@ function MissingCard({ data, onUpClick }) {
                 React.createElement('button', {
                     className: 'up-btn',
                     onClick: handleUpClick,
-                    key: 'up-btn'
+                    key: 'up-btn',
+                    disabled: isAnimating
                 }, [
                     React.createElement('i', { className: 'fas fa-arrow-up', key: 'up-icon' }),
                     React.createElement('span', { key: 'count' }, upCount)
@@ -301,9 +316,9 @@ function MissingCard({ data, onUpClick }) {
             ])
         ])
     ]);
-}
+});
 
-// 통계 카운터 애니메이션 클래스
+// 통계 카운터 애니메이션 클래스 - 개선된 버전
 class StatCounter {
     constructor(element, target, duration = 2000) {
         this.element = element;
@@ -312,15 +327,18 @@ class StatCounter {
         this.hasPercent = target.toString().includes('%');
         this.current = 0;
         this.isAnimating = false;
+        this.animationId = null;
     }
 
     start() {
-        if (this.isAnimating) return;
+        if (this.isAnimating || !this.element) return;
         this.isAnimating = true;
         
         const startTime = performance.now();
         
         const animate = (currentTime) => {
+            if (!this.isAnimating) return;
+            
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / this.duration, 1);
             
@@ -328,21 +346,32 @@ class StatCounter {
             const easeOut = 1 - Math.pow(1 - progress, 3);
             this.current = Math.floor(this.target * easeOut);
             
-            this.element.textContent = this.current.toLocaleString() + 
-                (this.hasPercent ? '%' : '');
+            if (this.element) {
+                this.element.textContent = this.current.toLocaleString() + 
+                    (this.hasPercent ? '%' : '');
+            }
             
             if (progress < 1) {
-                requestAnimationFrame(animate);
+                this.animationId = requestAnimationFrame(animate);
             } else {
                 this.isAnimating = false;
+                this.animationId = null;
             }
         };
         
-        requestAnimationFrame(animate);
+        this.animationId = requestAnimationFrame(animate);
+    }
+
+    stop() {
+        this.isAnimating = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
     }
 }
 
-// 개선된 파도 효과 Three.js 클래스
+// 개선된 파도 효과 Three.js 클래스 - 메모리 누수 방지
 class WaveEffect {
     constructor(canvas) {
         this.canvas = canvas;
@@ -352,18 +381,24 @@ class WaveEffect {
         this.waves = [];
         this.time = 0;
         this.isDestroyed = false;
+        this.animationId = null;
         
         this.init();
     }
 
     init() {
-        if (typeof THREE === 'undefined' || !this.canvas) {
+        if (typeof THREE === 'undefined' || !this.canvas || this.isDestroyed) {
             return;
         }
 
-        this.setupScene();
-        this.createWaves();
-        this.animate();
+        try {
+            this.setupScene();
+            this.createWaves();
+            this.animate();
+        } catch (error) {
+            console.warn('Three.js initialization failed:', error);
+            this.destroy();
+        }
     }
 
     setupScene() {
@@ -437,6 +472,8 @@ class WaveEffect {
         this.time += 0.016; // ~60fps
         
         this.waves.forEach((wave, index) => {
+            if (!wave || !wave.userData) return;
+            
             const settings = wave.userData;
             const positions = wave.geometry.attributes.position.array;
             
@@ -464,55 +501,81 @@ class WaveEffect {
     animate() {
         if (this.isDestroyed) return;
         
-        requestAnimationFrame(() => this.animate());
+        this.animationId = requestAnimationFrame(() => this.animate());
         
-        this.updateWaves();
-        
-        if (this.renderer && this.scene && this.camera) {
-            this.renderer.render(this.scene, this.camera);
+        try {
+            this.updateWaves();
+            
+            if (this.renderer && this.scene && this.camera) {
+                this.renderer.render(this.scene, this.camera);
+            }
+        } catch (error) {
+            console.warn('Wave animation error:', error);
+            this.destroy();
         }
     }
 
     onWindowResize() {
         if (!this.renderer || !this.camera || this.isDestroyed) return;
         
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        
-        this.camera.left = -width / 2;
-        this.camera.right = width / 2;
-        this.camera.top = height / 2;
-        this.camera.bottom = -height / 2;
-        this.camera.updateProjectionMatrix();
-        
-        this.renderer.setSize(width, height);
+        try {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            this.camera.left = -width / 2;
+            this.camera.right = width / 2;
+            this.camera.top = height / 2;
+            this.camera.bottom = -height / 2;
+            this.camera.updateProjectionMatrix();
+            
+            this.renderer.setSize(width, height);
+        } catch (error) {
+            console.warn('Wave resize error:', error);
+        }
     }
 
     destroy() {
         this.isDestroyed = true;
         
-        if (this.renderer) {
-            this.renderer.dispose();
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
         }
         
+        // 웨이브 정리
+        this.waves.forEach(wave => {
+            if (wave && wave.geometry) {
+                wave.geometry.dispose();
+            }
+            if (wave && wave.material) {
+                wave.material.dispose();
+            }
+        });
         this.waves = [];
+        
+        // 렌더러 정리
+        if (this.renderer) {
+            this.renderer.dispose();
+            this.renderer = null;
+        }
+        
         this.scene = null;
         this.camera = null;
-        this.renderer = null;
     }
 }
 
-// GSAP 애니메이션 관리자 (개선됨)
+// GSAP 애니메이션 관리자 (버그 수정 및 개선)
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
         this.timeline = null;
         this.scrollTriggers = [];
+        this.isDestroyed = false;
         this.init();
     }
 
     init() {
-        if (typeof gsap === 'undefined') {
+        if (typeof gsap === 'undefined' || this.isDestroyed) {
             console.warn('GSAP not loaded, skipping animations');
             return;
         }
@@ -537,101 +600,161 @@ class IndexAnimations {
         });
         this.scrollTriggers = [];
         
-        // clearProps를 특정 요소에만 적용하여 레이아웃 유지
-        gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {clearProps: 'transform,opacity'});
+        // clearProps를 신중하게 적용 - 레이아웃 유지
+        gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
+            clearProps: 'transform,opacity',
+            opacity: 1,
+            transform: 'translateY(0)'
+        });
     }
 
     setupAnimations() {
-        // 히어로 섹션 애니메이션
-        this.timeline = gsap.timeline({ delay: 0.5 });
+        // 히어로 섹션 애니메이션 - 요소가 사라지지 않도록 수정
+        this.timeline = gsap.timeline({ 
+            delay: 0.5,
+            onComplete: () => {
+                // 애니메이션 완료 후 모든 요소의 스타일 고정
+                gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
+                    clearProps: 'all',
+                    opacity: 1,
+                    transform: 'none'
+                });
+            }
+        });
         
         this.timeline
-            .from('.hero-title', {
-                duration: 1.2,
+            .fromTo('.hero-title', {
                 y: 80,
-                opacity: 0,
+                opacity: 0
+            }, {
+                duration: 1.2,
+                y: 0,
+                opacity: 1,
                 ease: 'power3.out'
             })
-            .from('.hero-description', {
-                duration: 1,
+            .fromTo('.hero-description', {
                 y: 40,
-                opacity: 0,
+                opacity: 0
+            }, {
+                duration: 1,
+                y: 0,
+                opacity: 1,
                 ease: 'power2.out'
             }, '-=0.6')
-            .from('.hero-buttons .btn', {
-                duration: 0.8,
+            .fromTo('.hero-buttons .btn', {
                 y: 30,
-                opacity: 0,
+                opacity: 0
+            }, {
+                duration: 0.8,
+                y: 0,
+                opacity: 1,
                 stagger: 0.2,
                 ease: 'power2.out'
             }, '-=0.4')
-            // 순위 디스플레이 애니메이션
-            .from('.ranking-display', {
-                duration: 1.2,
+            .fromTo('.ranking-display', {
                 x: 50,
-                opacity: 0,
+                opacity: 0
+            }, {
+                duration: 1.2,
+                x: 0,
+                opacity: 1,
                 ease: 'power2.out'
             }, '-=0.8')
-            .from('.ranking-item', {
-                duration: 0.6,
+            .fromTo('.ranking-item', {
                 y: 20,
-                opacity: 0,
+                opacity: 0
+            }, {
+                duration: 0.6,
+                y: 0,
+                opacity: 1,
                 stagger: 0.1,
                 ease: 'power2.out'
             }, '-=0.4');
 
-        // ScrollTrigger 애니메이션들
+        // ScrollTrigger 애니메이션들 - 타이밍 개선
         if (typeof ScrollTrigger !== 'undefined') {
-            // 긴급 실종자 섹션
+            // 긴급 실종자 섹션 - 즉각 반응하도록 개선
             const urgentTrigger = ScrollTrigger.create({
                 trigger: '.urgent-section',
-                start: 'top 70%',
-                end: 'bottom 30%',
+                start: 'top 80%', // 더 일찍 트리거
+                end: 'bottom 20%',
                 onEnter: () => {
-                    gsap.from('.urgent-cards .missing-card', {
-                        duration: 0.8,
+                    const cards = document.querySelectorAll('.urgent-cards .missing-card');
+                    gsap.fromTo(cards, {
                         y: 60,
-                        opacity: 0,
+                        opacity: 0
+                    }, {
+                        duration: 0.8,
+                        y: 0,
+                        opacity: 1,
                         stagger: 0.15,
-                        ease: 'power2.out'
+                        ease: 'power2.out',
+                        onComplete: () => {
+                            // 애니메이션 완료 후 스타일 고정
+                            gsap.set(cards, {
+                                clearProps: 'transform,opacity',
+                                opacity: 1,
+                                transform: 'translateY(0)'
+                            });
+                        }
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(urgentTrigger);
 
-            // 소개 섹션
+            // 소개 섹션 - 반응성 개선
             const introTrigger = ScrollTrigger.create({
                 trigger: '.intro-section',
-                start: 'top 80%',
-                end: 'bottom 20%',
+                start: 'top 85%', // 더 일찍 트리거
+                end: 'bottom 15%',
                 onEnter: () => {
-                    gsap.from('.intro-steps .step', {
-                        duration: 0.6,
+                    const steps = document.querySelectorAll('.intro-steps .step');
+                    gsap.fromTo(steps, {
                         y: 40,
-                        opacity: 0,
+                        opacity: 0
+                    }, {
+                        duration: 0.6,
+                        y: 0,
+                        opacity: 1,
                         stagger: 0.15,
                         ease: 'power2.out',
-                        clearProps: 'transform,opacity'
+                        onComplete: () => {
+                            gsap.set(steps, {
+                                clearProps: 'transform,opacity',
+                                opacity: 1,
+                                transform: 'translateY(0)'
+                            });
+                        }
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(introTrigger);
 
-            // 통계 섹션
+            // 통계 섹션 - 안정적인 애니메이션
             const statsTrigger = ScrollTrigger.create({
                 trigger: '.stats-section',
-                start: 'top 80%',
-                end: 'bottom 20%',
+                start: 'top 85%',
+                end: 'bottom 15%',
                 onEnter: () => {
-                    gsap.from('.stats-grid .stat-item', {
-                        duration: 0.8,
+                    const statItems = document.querySelectorAll('.stats-grid .stat-item');
+                    gsap.fromTo(statItems, {
                         scale: 0.8,
-                        opacity: 0,
+                        opacity: 0
+                    }, {
+                        duration: 0.8,
+                        scale: 1,
+                        opacity: 1,
                         stagger: 0.1,
                         ease: 'back.out(1.7)',
-                        clearProps: 'transform,opacity'
+                        onComplete: () => {
+                            gsap.set(statItems, {
+                                clearProps: 'transform,opacity',
+                                opacity: 1,
+                                transform: 'scale(1)'
+                            });
+                        }
                     });
                 },
                 once: true
@@ -648,7 +771,7 @@ class IndexAnimations {
 
     createFloatingParticles(containerSelector, count) {
         const container = document.querySelector(containerSelector);
-        if (!container) return;
+        if (!container || this.isDestroyed) return;
 
         for (let i = 0; i < count; i++) {
             const particle = document.createElement('div');
@@ -663,6 +786,7 @@ class IndexAnimations {
                 border-radius: 50%;
                 pointer-events: none;
                 z-index: 0;
+                will-change: transform, opacity;
             `;
             
             container.appendChild(particle);
@@ -696,7 +820,7 @@ class IndexAnimations {
     }
 
     animateUpButton(button) {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized || this.isDestroyed) return;
         
         const timeline = gsap.timeline();
         
@@ -710,7 +834,9 @@ class IndexAnimations {
                 scale: 1,
                 duration: 0.2,
                 ease: 'elastic.out(2, 0.3)',
-                clearProps: 'transform'
+                onComplete: () => {
+                    gsap.set(button, { clearProps: 'transform' });
+                }
             });
             
         const countElement = button.querySelector('span');
@@ -721,27 +847,32 @@ class IndexAnimations {
                     scale: 1,
                     duration: 0.3,
                     ease: 'back.out(1.7)',
-                    clearProps: 'transform'
+                    onComplete: () => {
+                        gsap.set(countElement, { clearProps: 'transform' });
+                    }
                 }
             );
         }
     }
 
     destroy() {
+        this.isDestroyed = true;
         this.cleanup();
         this.isInitialized = false;
     }
 }
 
-// Intersection Observer를 활용한 스크롤 트리거
+// Intersection Observer를 활용한 스크롤 트리거 - 개선된 버전
 class ScrollObserver {
     constructor() {
         this.counters = new Map();
         this.observer = null;
+        this.isDestroyed = false;
         this.init();
     }
 
     init() {
+        if (this.isDestroyed) return;
         this.setupIntersectionObserver();
         this.observeElements();
     }
@@ -749,7 +880,7 @@ class ScrollObserver {
     setupIntersectionObserver() {
         this.observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && !this.isDestroyed) {
                     entry.target.classList.add('in-view');
                     
                     if (entry.target.classList.contains('stat-item')) {
@@ -759,16 +890,23 @@ class ScrollObserver {
             });
         }, {
             threshold: 0.3,
-            rootMargin: '0px 0px -100px 0px'
+            rootMargin: '0px 0px -50px 0px'
         });
     }
 
     observeElements() {
+        if (this.isDestroyed) return;
         const elements = document.querySelectorAll('.stat-item, .missing-card, .step');
-        elements.forEach(el => this.observer.observe(el));
+        elements.forEach(el => {
+            if (this.observer) {
+                this.observer.observe(el);
+            }
+        });
     }
 
     startStatCounter(statItem) {
+        if (this.isDestroyed) return;
+        
         const numberElement = statItem.querySelector('.stat-number');
         if (numberElement && !this.counters.has(numberElement)) {
             const counter = new StatCounter(numberElement, numberElement.textContent);
@@ -778,25 +916,35 @@ class ScrollObserver {
     }
 
     destroy() {
+        this.isDestroyed = true;
+        
         if (this.observer) {
             this.observer.disconnect();
             this.observer = null;
         }
+        
+        this.counters.forEach(counter => {
+            counter.stop();
+        });
         this.counters.clear();
     }
 }
 
-// 메인 홈페이지 관리 클래스
+// 메인 홈페이지 관리 클래스 - 완전히 개선된 버전
 class IndexPage {
     constructor() {
         this.waveEffect = null;
         this.animations = null;
         this.scrollObserver = null;
         this.isDestroyed = false;
+        this.eventCleanup = null;
+        this.resizeTimeout = null;
         this.init();
     }
 
     init() {
+        if (this.isDestroyed) return;
+        
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.setup());
         } else {
@@ -807,34 +955,38 @@ class IndexPage {
     setup() {
         if (this.isDestroyed) return;
         
-        // React 컴포넌트 렌더링
-        this.renderRankings();
-        this.renderUrgentCards();
-        
-        // 시각화 초기화
-        setTimeout(() => {
-            if (!this.isDestroyed) {
-                this.initWaveEffect();
-            }
-        }, 100);
-        
-        // 애니메이션 초기화
-        setTimeout(() => {
-            if (!this.isDestroyed) {
-                this.animations = new IndexAnimations();
-                this.scrollObserver = new ScrollObserver();
-            }
-        }, 300);
-        
-        this.setupEventListeners();
-        
-        console.log('Index page initialized successfully');
+        try {
+            // React 컴포넌트 렌더링
+            this.renderRankings();
+            this.renderUrgentCards();
+            
+            // 시각화 초기화 - 안전한 지연
+            setTimeout(() => {
+                if (!this.isDestroyed) {
+                    this.initWaveEffect();
+                }
+            }, 100);
+            
+            // 애니메이션 초기화 - 안전한 지연
+            setTimeout(() => {
+                if (!this.isDestroyed) {
+                    this.animations = new IndexAnimations();
+                    this.scrollObserver = new ScrollObserver();
+                }
+            }, 300);
+            
+            this.setupEventListeners();
+            
+            console.log('Index page initialized successfully');
+        } catch (error) {
+            console.error('Index page setup error:', error);
+        }
     }
 
-    // 순위 렌더링
+    // 순위 렌더링 - 에러 핸들링 강화
     renderRankings() {
         const rankingContainer = document.getElementById('topRankings');
-        if (!rankingContainer || typeof React === 'undefined') {
+        if (!rankingContainer || typeof React === 'undefined' || this.isDestroyed) {
             return;
         }
 
@@ -850,19 +1002,21 @@ class IndexPage {
         }
     }
 
-    // React 컴포넌트 렌더링 - 4x2 그리드 강화
+    // React 컴포넌트 렌더링 - 안정성 대폭 강화
     renderUrgentCards() {
         const urgentContainer = document.querySelector('.urgent-cards');
-        if (!urgentContainer || typeof React === 'undefined') {
+        if (!urgentContainer || typeof React === 'undefined' || this.isDestroyed) {
             console.warn('React not available or container not found');
             return;
         }
 
         const handleUpClick = (cardId) => {
+            if (this.isDestroyed) return;
+            
             console.log(`UP clicked for card ${cardId}`);
             
             const button = document.querySelector(`[data-id="${cardId}"] .up-btn`);
-            if (button && this.animations) {
+            if (button && this.animations && !this.isDestroyed) {
                 this.animations.animateUpButton(button);
             }
             
@@ -871,23 +1025,24 @@ class IndexPage {
             }
         };
 
-        // 컨테이너 직접 스타일 설정
+        // 컨테이너 강제 스타일 설정 - 버그 수정
         urgentContainer.style.display = 'grid';
         urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
-        urgentContainer.style.gridTemplateRows = 'repeat(2, auto)';
+        urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
         urgentContainer.style.gap = '25px';
         urgentContainer.style.width = '100%';
         urgentContainer.style.maxWidth = '1200px';
         urgentContainer.style.margin = '0 auto';
+        urgentContainer.style.opacity = '1';
+        urgentContainer.style.transform = 'translateY(0)';
 
         try {
-            // 일반적인 React Fragment로 렌더링
             const root = ReactDOM.createRoot(urgentContainer);
             root.render(
                 React.createElement(React.Fragment, null,
                     urgentMissingData.map(data =>
                         React.createElement(MissingCard, {
-                            key: data.id,
+                            key: `missing-card-${data.id}`,
                             data: data,
                             onUpClick: handleUpClick
                         })
@@ -895,19 +1050,25 @@ class IndexPage {
                 )
             );
             
-            // 렌더링 후 추가 스타일 강제 적용
+            // 렌더링 후 안정성 확보
             setTimeout(() => {
+                if (this.isDestroyed) return;
+                
                 urgentContainer.style.display = 'grid';
                 urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                urgentContainer.style.gridTemplateRows = 'repeat(2, auto)';
+                urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
                 urgentContainer.style.gap = '25px';
+                urgentContainer.style.opacity = '1';
+                urgentContainer.style.transform = 'translateY(0)';
                 
-                // 각 카드도 강제 스타일 적용
+                // 각 카드 안정성 확보
                 const cards = urgentContainer.querySelectorAll('.missing-card');
                 cards.forEach((card, index) => {
                     if (index < 8) {
                         card.style.display = 'block';
                         card.style.width = '100%';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
                     } else {
                         card.style.display = 'none';
                     }
@@ -920,6 +1081,8 @@ class IndexPage {
     }
 
     initWaveEffect() {
+        if (this.isDestroyed) return;
+        
         const waveCanvas = document.getElementById('waveCanvas');
         if (waveCanvas && !this.isDestroyed) {
             this.waveEffect = new WaveEffect(waveCanvas);
@@ -927,11 +1090,16 @@ class IndexPage {
     }
 
     setupEventListeners() {
-        let resizeTimeout;
+        if (this.isDestroyed) return;
+        
         const resizeHandler = () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                if (this.waveEffect && !this.isDestroyed) {
+            if (this.resizeTimeout) {
+                clearTimeout(this.resizeTimeout);
+            }
+            this.resizeTimeout = setTimeout(() => {
+                if (this.isDestroyed) return;
+                
+                if (this.waveEffect) {
                     this.waveEffect.onWindowResize();
                 }
                 
@@ -940,8 +1108,10 @@ class IndexPage {
                 if (urgentContainer) {
                     urgentContainer.style.display = 'grid';
                     urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                    urgentContainer.style.gridTemplateRows = 'repeat(2, auto)';
+                    urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
                     urgentContainer.style.gap = '25px';
+                    urgentContainer.style.opacity = '1';
+                    urgentContainer.style.transform = 'translateY(0)';
                 }
             }, 250);
         };
@@ -949,6 +1119,8 @@ class IndexPage {
         window.addEventListener('resize', resizeHandler);
 
         const clickHandler = (e) => {
+            if (this.isDestroyed) return;
+            
             if (e.target.closest('.up-btn')) {
                 const button = e.target.closest('.up-btn');
                 const card = button.closest('.missing-card');
@@ -973,6 +1145,11 @@ class IndexPage {
             window.removeEventListener('resize', resizeHandler);
             document.removeEventListener('click', clickHandler);
             document.removeEventListener('keydown', keyHandler);
+            
+            if (this.resizeTimeout) {
+                clearTimeout(this.resizeTimeout);
+                this.resizeTimeout = null;
+            }
         };
     }
 
@@ -996,6 +1173,12 @@ class IndexPage {
         
         if (this.eventCleanup) {
             this.eventCleanup();
+            this.eventCleanup = null;
+        }
+        
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = null;
         }
         
         console.log('Index page destroyed');
@@ -1003,12 +1186,36 @@ class IndexPage {
 }
 
 // 페이지 로드 시 자동 초기화
-const indexPage = new IndexPage();
+let indexPage = null;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        indexPage = new IndexPage();
+    });
+} else {
+    indexPage = new IndexPage();
+}
 
 // 페이지 언로드 시 정리
 window.addEventListener('beforeunload', () => {
     if (indexPage) {
         indexPage.destroy();
+        indexPage = null;
+    }
+});
+
+// Visibility API를 사용한 탭 전환 시 최적화
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // 페이지가 숨겨질 때 애니메이션 일시 정지
+        if (indexPage && indexPage.waveEffect) {
+            indexPage.waveEffect.isDestroyed = true;
+        }
+    } else {
+        // 페이지가 다시 보일 때 애니메이션 재개
+        if (indexPage && indexPage.waveEffect) {
+            indexPage.waveEffect.isDestroyed = false;
+        }
     }
 });
 
@@ -1020,7 +1227,7 @@ window.handleUpClick = function(button, missingId) {
         countSpan.textContent = currentCount + 1;
     }
     
-    if (indexPage && indexPage.animations) {
+    if (indexPage && indexPage.animations && !indexPage.isDestroyed) {
         indexPage.animations.animateUpButton(button);
     }
     
@@ -1029,28 +1236,37 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// 개발자 도구
+// 개발자 도구 - 메모리 누수 방지
 if (typeof window !== 'undefined') {
     window.indexPageDebug = {
-        instance: indexPage,
+        get instance() { return indexPage; },
         testAnimations: () => {
-            if (typeof gsap !== 'undefined') {
+            if (typeof gsap !== 'undefined' && indexPage && !indexPage.isDestroyed) {
                 gsap.to('.missing-card', {
                     duration: 0.5,
                     scale: 1.05,
                     stagger: 0.1,
                     yoyo: true,
                     repeat: 1,
-                    clearProps: 'transform'
+                    onComplete: () => {
+                        gsap.set('.missing-card', { clearProps: 'transform' });
+                    }
                 });
             }
         },
-        networkData: urgentMissingData,
-        rankingData: rankingData,
+        get networkData() { return urgentMissingData; },
+        get rankingData() { return rankingData; },
         destroyInstance: () => {
             if (indexPage) {
                 indexPage.destroy();
+                indexPage = null;
             }
+        },
+        reinitialize: () => {
+            if (indexPage) {
+                indexPage.destroy();
+            }
+            indexPage = new IndexPage();
         }
     };
 }

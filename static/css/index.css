@@ -8,6 +8,9 @@
     padding: 120px 0 100px;
     position: relative;
     overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
 }
 
 .hero-section::before {
@@ -28,10 +31,15 @@
     align-items: center;
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
 }
 
 .hero-text {
     padding-right: 20px;
+    will-change: transform, opacity;
 }
 
 .hero-title {
@@ -41,6 +49,8 @@
     line-height: 1.1;
     margin-bottom: 30px;
     position: relative;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .hero-title::after {
@@ -59,6 +69,8 @@
     color: var(--gray-600);
     line-height: 1.6;
     margin-bottom: 40px;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .hero-buttons {
@@ -66,6 +78,8 @@
     gap: 20px;
     align-items: center;
     flex-wrap: wrap;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .hero-visual {
@@ -73,9 +87,11 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    opacity: 1;
+    transform: translateX(0);
 }
 
-/* 순위 디스플레이 - 전체 크기 증가 */
+/* 순위 디스플레이 - 안정적인 크기와 위치 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
@@ -83,8 +99,12 @@
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
     width: 520px;
+    max-width: 100%;
     position: relative;
     overflow: hidden;
+    opacity: 1;
+    transform: translateX(0);
+    will-change: transform, opacity;
 }
 
 .ranking-display::before {
@@ -120,7 +140,7 @@
     gap: 5px;
 }
 
-/* 순위 아이템 - 적당한 높이로 조정 */
+/* 순위 아이템 - 고정된 높이와 안정적인 레이아웃 */
 .ranking-item {
     display: flex;
     align-items: center;
@@ -133,6 +153,10 @@
     position: relative;
     overflow: hidden;
     min-height: 35px;
+    height: 35px;
+    opacity: 1;
+    transform: translateY(0);
+    will-change: transform;
 }
 
 .ranking-item:hover {
@@ -154,7 +178,7 @@
     position: relative;
 }
 
-/* 순위별 색상 - 4등 5등 더 어둡게 */
+/* 순위별 색상 */
 .ranking-item:nth-child(1) .ranking-position {
     background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
@@ -176,13 +200,14 @@
     box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
 }
 
-/* 랭킹 정보 - 한 줄로 모든 정보 배치 */
+/* 랭킹 정보 - 안정적인 한 줄 레이아웃 */
 .ranking-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex: 1;
     min-width: 0;
+    height: 100%;
 }
 
 .ranking-left {
@@ -218,7 +243,6 @@
     font-size: 0.6rem;
 }
 
-/* 통계 정보를 한 줄 텍스트로 변경 - 컨테이너 제거 */
 .ranking-stats {
     font-size: 0.65rem;
     color: var(--gray-500);
@@ -227,7 +251,6 @@
     line-height: 1;
 }
 
-/* 제보와 해결을 하나의 텍스트로 연결 */
 .stats-text {
     display: inline;
 }
@@ -250,6 +273,7 @@
     padding: 100px 0;
     background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
     position: relative;
+    overflow: hidden;
 }
 
 .urgent-section::before {
@@ -268,6 +292,8 @@
     margin-bottom: 60px;
     position: relative;
     z-index: 1;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .section-header h2 {
@@ -298,34 +324,41 @@
     margin: 0 auto;
 }
 
-/* 긴급 실종자 카드 컨테이너 */
+/* 긴급 실종자 카드 컨테이너 - 완전히 고정된 그리드 */
 .urgent-cards-container {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto 50px;
     position: relative;
     z-index: 1;
+    padding: 0 16px;
 }
 
-/* 4x2 그리드 레이아웃 최대 강화 */
+/* 4x2 그리드 레이아웃 강화 및 버그 수정 */
 .urgent-cards {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
-    grid-template-rows: repeat(2, auto) !important;
+    grid-template-rows: repeat(2, minmax(300px, auto)) !important;
     gap: 25px !important;
     width: 100% !important;
     max-width: 1200px !important;
     margin: 0 auto !important;
     grid-auto-flow: row !important;
+    grid-auto-rows: minmax(300px, auto) !important;
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* 카드 요소 강제 그리드 배치 */
+/* 카드 요소 강제 그리드 배치 및 안정성 확보 */
 .urgent-cards > * {
     display: block !important;
     position: relative !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: all 0.3s ease !important;
 }
 
-/* 카드가 정확히 8개만 표시되도록 제한 */
+/* 정확히 8개 카드만 표시 */
 .urgent-cards .missing-card:nth-child(n+9) {
     display: none !important;
 }
@@ -342,6 +375,9 @@
     display: block !important;
     width: 100%;
     box-sizing: border-box;
+    opacity: 1;
+    transform: translateY(0);
+    will-change: transform, box-shadow;
 }
 
 .missing-card:hover {
@@ -516,11 +552,13 @@
 .intro-section {
     padding: 100px 0;
     background: white;
+    position: relative;
 }
 
 .intro-content {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 16px;
 }
 
 .intro-text h2 {
@@ -530,6 +568,8 @@
     color: var(--gray-900);
     margin-bottom: 60px;
     position: relative;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .intro-text h2::after {
@@ -559,6 +599,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    opacity: 1;
+    transform: translateY(0);
+    will-change: transform, box-shadow;
 }
 
 .step::before {
@@ -646,7 +689,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 (기존 통계 섹션) */
+/* 희망 메시지 섹션 */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -684,6 +727,8 @@
     margin-bottom: 30px;
     position: relative;
     z-index: 1;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .hope-message {
@@ -702,6 +747,9 @@
     gap: 30px;
     position: relative;
     z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
 }
 
 .stat-item {
@@ -713,6 +761,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    will-change: transform, box-shadow;
 }
 
 .stat-item::before {
@@ -732,7 +783,7 @@
 }
 
 .stat-item:hover {
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(1.02);
     background: rgba(255, 255, 255, 0.15);
 }
 
@@ -750,7 +801,7 @@
     font-weight: 500;
 }
 
-/* 개선된 파도 효과 캔버스 */
+/* Wave 캔버스 최적화 */
 .wave-canvas {
     position: absolute;
     top: 0;
@@ -767,6 +818,7 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    will-change: transform, box-shadow;
 }
 
 .btn::before {
@@ -789,15 +841,16 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* 플로팅 파티클 */
+/* 플로팅 파티클 - 성능 최적화 */
 .floating-particle {
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
     z-index: 0;
+    will-change: transform, opacity;
 }
 
-/* 반응형 디자인 */
+/* 반응형 디자인 강화 */
 @media (max-width: 1024px) {
     .hero-content {
         grid-template-columns: 1fr;
@@ -816,7 +869,7 @@
     
     .urgent-cards {
         grid-template-columns: repeat(3, 1fr) !important;
-        grid-template-rows: repeat(3, auto) !important;
+        grid-template-rows: repeat(3, minmax(280px, auto)) !important;
         gap: 20px !important;
     }
     
@@ -829,6 +882,7 @@
 @media (max-width: 768px) {
     .hero-section {
         padding: 80px 0 60px;
+        min-height: auto;
     }
     
     .hero-title {
@@ -862,7 +916,7 @@
     
     .urgent-cards {
         grid-template-columns: repeat(2, 1fr) !important;
-        grid-template-rows: repeat(4, auto) !important;
+        grid-template-rows: repeat(4, minmax(270px, auto)) !important;
         gap: 15px !important;
     }
     
@@ -912,7 +966,7 @@
     
     .urgent-cards {
         grid-template-columns: 1fr !important;
-        grid-template-rows: repeat(8, auto) !important;
+        grid-template-rows: repeat(8, minmax(250px, auto)) !important;
         gap: 12px !important;
     }
     
@@ -924,4 +978,25 @@
         width: 350px;
         padding: 18px 15px;
     }
+}
+
+/* 애니메이션 최적화 및 안정성 향상 */
+.animated {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.animate-on-scroll {
+    will-change: transform, opacity;
+}
+
+/* GPU 가속화를 위한 최적화 */
+.hero-section,
+.urgent-cards,
+.ranking-display,
+.missing-card,
+.stat-item,
+.step {
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
