@@ -737,7 +737,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 - 자연스러운 흐르는 3D 배경 */
+/* 희망 메시지 섹션 - 3D 배경 제거하고 물결 효과만 유지 */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -745,8 +745,6 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-    /* 3D 배경을 위한 컨테이너 설정 */
-    isolation: isolate;
 }
 
 .stats-section::before {
@@ -769,25 +767,6 @@
     height: 50px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(249, 115, 22, 0.1) 100%);
     pointer-events: none;
-}
-
-/* 3D 배경 캔버스 - 물결 흐름 효과 */
-.stats-3d-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-    /* 마우스 인터랙션 완전 비활성화 */
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    /* 부드러운 혼합 모드 */
-    mix-blend-mode: soft-light;
 }
 
 .stats-section .container {
@@ -875,7 +854,7 @@
     font-weight: 500;
 }
 
-/* Wave 캔버스 최적화 */
+/* Wave 캔버스 최적화 - 전체 화면 커버 */
 .wave-canvas {
     position: absolute;
     top: 0;
@@ -884,7 +863,14 @@
     height: 100%;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.3;
+    opacity: 0.4; /* 0.3에서 0.4로 약간 증가 */
+    /* 마우스 인터랙션 완전 비활성화 */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* 부드러운 혼합 모드 */
+    mix-blend-mode: soft-light;
 }
 
 /* 버튼 호버 효과 개선 */

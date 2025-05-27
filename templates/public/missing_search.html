@@ -33,19 +33,20 @@
                             검색
                         </button>
                     </div>
-                    <button class="filter-reset-btn" id="filterResetBtn">
-                        <i class="fas fa-undo"></i>
-                        초기화
-                    </button>
+                    <div class="filter-controls">
+                        <button class="filter-popup-btn" id="filterPopupBtn">
+                            <i class="fas fa-filter"></i>
+                            상세 조회
+                        </button>
+                        <button class="filter-reset-btn" id="filterResetBtn">
+                            <i class="fas fa-undo"></i>
+                            초기화
+                        </button>
+                    </div>
                 </div>
             </div>
             
-            <div class="filter-controls">
-                <button class="filter-popup-btn" id="filterPopupBtn">
-                    <i class="fas fa-filter"></i>
-                    상세 필터링
-                </button>
-                
+            <div class="active-filters-container">
                 <div class="active-filters" id="activeFilters">
                     <!-- 활성화된 필터들이 여기에 표시됩니다 -->
                 </div>

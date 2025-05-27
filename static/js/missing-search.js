@@ -328,16 +328,6 @@ class FilterPopupManager {
         this.loadCurrentFilters();
         this.overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
-        
-        // GSAP 애니메이션
-        if (typeof gsap !== 'undefined') {
-            gsap.from(this.modal, {
-                scale: 0.9,
-                opacity: 0,
-                duration: 0.3,
-                ease: 'power2.out'
-            });
-        }
     }
 
     closePopup() {
@@ -446,7 +436,7 @@ class FilterPopupManager {
         // 기본값이 아닌 필터들만 표시
         Object.keys(filters).forEach(key => {
             const value = filters[key];
-            if (value && value !== 'danger') { // 정렬의 기본값 제외
+            if (value && value !== 'danger' && key !== 'searchTerm') { // 정렬의 기본값과 검색어 제외
                 const label = filterLabels[key]?.[value] || value;
                 this.createFilterTag(key, value, label, container);
             }
@@ -1051,6 +1041,9 @@ class MissingSearchPage {
             this.searchManager.updateFilter('searchTerm', value);
         });
         
+        // 뷰 초기화 (리스트 뷰 숨김 보장)
+        this.initializeViews();
+        
         // 이벤트 리스너 설정
         this.setupEventListeners();
         
@@ -1064,6 +1057,21 @@ class MissingSearchPage {
         this.filterPopupManager.updateActiveFilters();
         
         console.log('Missing search page initialized successfully');
+    }
+
+    initializeViews() {
+        // 뷰 컨테이너 초기화
+        const gridView = document.getElementById('missingGrid');
+        const listView = document.getElementById('missingList');
+        
+        if (gridView && listView) {
+            // 초기 상태: 그리드 뷰만 표시
+            gridView.style.display = 'grid';
+            listView.style.display = 'none';
+            
+            // 리스트 뷰 클래스 제거
+            listView.classList.remove('active');
+        }
     }
 
     setupEventListeners() {
@@ -1205,19 +1213,21 @@ class MissingSearchPage {
         };
 
         // 그리드 뷰 렌더링
-        const gridRoot = ReactDOM.createRoot(gridContainer);
-        gridRoot.render(
-            React.createElement('div', { style: { display: 'contents' } },
-                data.map(item =>
-                    React.createElement(MissingCard, {
-                        key: item.id,
-                        data: item,
-                        onUpClick: handleUpClick,
-                        viewMode: 'grid'
-                    })
+        if (gridContainer) {
+            const gridRoot = ReactDOM.createRoot(gridContainer);
+            gridRoot.render(
+                React.createElement('div', { style: { display: 'contents' } },
+                    data.map(item =>
+                        React.createElement(MissingCard, {
+                            key: item.id,
+                            data: item,
+                            onUpClick: handleUpClick,
+                            viewMode: 'grid'
+                        })
+                    )
                 )
-            )
-        );
+            );
+        }
 
         // 리스트 뷰 렌더링
         if (listContainer) {
@@ -1258,9 +1268,11 @@ class MissingSearchPage {
         if (viewMode === 'grid') {
             gridView.style.display = 'grid';
             listView.style.display = 'none';
+            listView.classList.remove('active');
         } else {
             gridView.style.display = 'none';
             listView.style.display = 'block';
+            listView.classList.add('active');
         }
         
         // 애니메이션
