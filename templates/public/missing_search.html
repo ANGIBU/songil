@@ -123,9 +123,29 @@
             </button>
         </div>
         
+        <!-- 필터 카테고리 탭 -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-tab="sort">
+                <i class="fas fa-sort"></i>
+                정렬
+            </button>
+            <button class="filter-tab" data-tab="region">
+                <i class="fas fa-map-marker-alt"></i>
+                지역
+            </button>
+            <button class="filter-tab" data-tab="age">
+                <i class="fas fa-user"></i>
+                연령대
+            </button>
+            <button class="filter-tab" data-tab="period">
+                <i class="fas fa-calendar"></i>
+                기간
+            </button>
+        </div>
+        
         <div class="filter-popup-body">
-            <div class="filter-section">
-                <h4>정렬 기준</h4>
+            <!-- 정렬 기준 탭 -->
+            <div class="filter-tab-content active" id="tab-sort">
                 <div class="filter-options">
                     <label class="filter-option">
                         <input type="radio" name="sort" value="danger" checked>
@@ -150,33 +170,99 @@
                 </div>
             </div>
             
-            <div class="filter-section">
-                <h4>지역</h4>
-                <div class="filter-select-wrapper">
-                    <select id="popupRegionSelect">
-                        <option value="">전체 지역</option>
-                        <option value="seoul">서울특별시</option>
-                        <option value="busan">부산광역시</option>
-                        <option value="daegu">대구광역시</option>
-                        <option value="incheon">인천광역시</option>
-                        <option value="gwangju">광주광역시</option>
-                        <option value="daejeon">대전광역시</option>
-                        <option value="ulsan">울산광역시</option>
-                        <option value="gyeonggi">경기도</option>
-                        <option value="gangwon">강원도</option>
-                        <option value="chungbuk">충청북도</option>
-                        <option value="chungnam">충청남도</option>
-                        <option value="jeonbuk">전라북도</option>
-                        <option value="jeonnam">전라남도</option>
-                        <option value="gyeongbuk">경상북도</option>
-                        <option value="gyeongnam">경상남도</option>
-                        <option value="jeju">제주특별자치도</option>
-                    </select>
+            <!-- 지역 탭 -->
+            <div class="filter-tab-content" id="tab-region">
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="" checked>
+                        <span class="checkmark"></span>
+                        전체 지역
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="seoul">
+                        <span class="checkmark"></span>
+                        서울특별시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="busan">
+                        <span class="checkmark"></span>
+                        부산광역시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="daegu">
+                        <span class="checkmark"></span>
+                        대구광역시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="incheon">
+                        <span class="checkmark"></span>
+                        인천광역시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="gwangju">
+                        <span class="checkmark"></span>
+                        광주광역시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="daejeon">
+                        <span class="checkmark"></span>
+                        대전광역시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="ulsan">
+                        <span class="checkmark"></span>
+                        울산광역시
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="gyeonggi">
+                        <span class="checkmark"></span>
+                        경기도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="gangwon">
+                        <span class="checkmark"></span>
+                        강원도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="chungbuk">
+                        <span class="checkmark"></span>
+                        충청북도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="chungnam">
+                        <span class="checkmark"></span>
+                        충청남도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="jeonbuk">
+                        <span class="checkmark"></span>
+                        전라북도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="jeonnam">
+                        <span class="checkmark"></span>
+                        전라남도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="gyeongbuk">
+                        <span class="checkmark"></span>
+                        경상북도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="gyeongnam">
+                        <span class="checkmark"></span>
+                        경상남도
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="region" value="jeju">
+                        <span class="checkmark"></span>
+                        제주특별자치도
+                    </label>
                 </div>
             </div>
             
-            <div class="filter-section">
-                <h4>연령대</h4>
+            <!-- 연령대 탭 -->
+            <div class="filter-tab-content" id="tab-age">
                 <div class="filter-options">
                     <label class="filter-option">
                         <input type="radio" name="age" value="" checked>
@@ -206,8 +292,8 @@
                 </div>
             </div>
             
-            <div class="filter-section">
-                <h4>실종기간</h4>
+            <!-- 실종기간 탭 -->
+            <div class="filter-tab-content" id="tab-period">
                 <div class="filter-options">
                     <label class="filter-option">
                         <input type="radio" name="period" value="" checked>

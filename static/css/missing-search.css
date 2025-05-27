@@ -255,13 +255,13 @@
     color: var(--danger-red);
 }
 
-/* 필터 팝업 모달 - viewport 정중앙 고정 */
+/* 필터 팝업 모달 - 크기 축소 및 위치 정확히 중앙 */
 .filter-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     display: none;
     z-index: 2000;
@@ -269,34 +269,35 @@
 }
 
 .filter-popup-overlay.active {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .filter-popup-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background: white;
     border-radius: 20px;
     width: 90%;
-    max-width: 600px;
-    max-height: 85vh;
-    overflow-y: auto;
+    max-width: 450px;
+    max-height: 70vh;
+    overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    z-index: 2001;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .filter-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 25px 30px;
+    padding: 20px 25px;
     border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
 }
 
 .filter-popup-header h3 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
     color: var(--gray-900);
     display: flex;
@@ -309,8 +310,8 @@
 }
 
 .filter-popup-close {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border: none;
     background: var(--gray-100);
     border-radius: 50%;
@@ -326,41 +327,86 @@
     background: var(--gray-200);
 }
 
-.filter-popup-body {
-    padding: 30px;
-}
-
-.filter-section {
-    margin-bottom: 30px;
-}
-
-.filter-section:last-child {
-    margin-bottom: 0;
-}
-
-.filter-section h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--gray-800);
-    margin-bottom: 15px;
+/* 필터 탭 버튼들 */
+.filter-tabs {
     display: flex;
+    background: var(--gray-50);
+    padding: 0;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+}
+
+.filter-tab {
+    flex: 1;
+    padding: 12px 8px;
+    background: none;
+    border: none;
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    position: relative;
+}
+
+.filter-tab i {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.filter-tab:hover {
+    background: var(--primary-orange-soft);
+    color: var(--primary-orange-dark);
+}
+
+.filter-tab.active {
+    background: white;
+    color: var(--primary-orange);
+    border-bottom: 2px solid var(--primary-orange);
+}
+
+.filter-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-orange);
+}
+
+.filter-popup-body {
+    padding: 20px 25px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* 탭 콘텐츠 */
+.filter-tab-content {
+    display: none;
+}
+
+.filter-tab-content.active {
+    display: block;
 }
 
 .filter-options {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 8px;
 }
 
 .filter-option {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 2px solid var(--gray-200);
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -376,8 +422,8 @@
 }
 
 .checkmark {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border: 2px solid var(--gray-300);
     border-radius: 50%;
     position: relative;
@@ -396,8 +442,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: white;
     border-radius: 50%;
 }
@@ -407,53 +453,27 @@
     font-weight: 600;
 }
 
-.filter-select-wrapper {
-    position: relative;
-}
-
-.filter-select-wrapper select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid var(--gray-300);
-    border-radius: 10px;
-    font-size: 14px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
-}
-
-.filter-select-wrapper select:focus {
-    outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-}
-
 .filter-popup-footer {
-    padding: 25px 30px;
+    padding: 20px 25px;
     border-top: 1px solid var(--gray-200);
+    flex-shrink: 0;
 }
 
 .filter-apply-btn {
     width: 100%;
-    padding: 16px 24px;
+    padding: 14px 20px;
     background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .filter-apply-btn:hover {
@@ -1123,25 +1143,45 @@
         margin: 0 8px;
     }
     
+    /* 모바일 필터 팝업 조정 */
     .filter-popup-modal {
         width: 95%;
-        max-height: 90vh;
+        max-width: 400px;
+        max-height: 80vh;
     }
     
     .filter-popup-header {
-        padding: 20px;
+        padding: 18px 20px;
+    }
+    
+    .filter-popup-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .filter-tabs {
+        padding: 0;
+    }
+    
+    .filter-tab {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+    
+    .filter-tab i {
+        font-size: 0.9rem;
     }
     
     .filter-popup-body {
-        padding: 20px;
+        padding: 18px 20px;
     }
     
     .filter-popup-footer {
-        padding: 20px;
+        padding: 18px 20px;
     }
     
-    .filter-options {
-        grid-template-columns: 1fr;
+    .filter-apply-btn {
+        padding: 12px 18px;
+        font-size: 14px;
     }
 }
 
@@ -1229,6 +1269,68 @@
     .filter-popup-btn,
     .filter-reset-btn {
         width: 100%;
+    }
+    
+    /* 소형 모바일 필터 팝업 */
+    .filter-popup-modal {
+        width: 98%;
+        max-width: 350px;
+        max-height: 85vh;
+    }
+    
+    .filter-popup-header {
+        padding: 15px 18px;
+    }
+    
+    .filter-popup-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .filter-popup-close {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .filter-tabs {
+        padding: 0;
+    }
+    
+    .filter-tab {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        gap: 2px;
+    }
+    
+    .filter-tab i {
+        font-size: 0.85rem;
+    }
+    
+    .filter-popup-body {
+        padding: 15px 18px;
+    }
+    
+    .filter-option {
+        padding: 8px 12px;
+        gap: 10px;
+    }
+    
+    .checkmark {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .filter-option input[type="radio"]:checked ~ .checkmark::after {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .filter-popup-footer {
+        padding: 15px 18px;
+    }
+    
+    .filter-apply-btn {
+        padding: 12px 16px;
+        font-size: 14px;
     }
 }
 

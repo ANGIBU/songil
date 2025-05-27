@@ -316,12 +316,39 @@ class FilterPopupManager {
             applyBtn.addEventListener('click', () => this.applyFilters());
         }
 
+        // 탭 전환 이벤트
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.currentTarget.dataset.tab;
+                this.switchTab(tabName);
+            });
+        });
+
         // ESC 키로 닫기
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
                 this.closePopup();
             }
         });
+    }
+
+    switchTab(tabName) {
+        // 모든 탭 비활성화
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.filter-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // 선택된 탭 활성화
+        const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
+        const selectedContent = document.getElementById(`tab-${tabName}`);
+        
+        if (selectedTab && selectedContent) {
+            selectedTab.classList.add('active');
+            selectedContent.classList.add('active');
+        }
     }
 
     openPopup() {
@@ -342,9 +369,9 @@ class FilterPopupManager {
         const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
         if (sortRadio) sortRadio.checked = true;
 
-        // 지역 선택
-        const regionSelect = document.getElementById('popupRegionSelect');
-        if (regionSelect) regionSelect.value = filters.region;
+        // 지역 라디오 버튼
+        const regionRadio = document.querySelector(`input[name="region"][value="${filters.region}"]`);
+        if (regionRadio) regionRadio.checked = true;
 
         // 연령대 라디오 버튼
         const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
@@ -360,7 +387,7 @@ class FilterPopupManager {
         const sortValue = document.querySelector('input[name="sort"]:checked')?.value || 'danger';
         
         // 지역
-        const regionValue = document.getElementById('popupRegionSelect')?.value || '';
+        const regionValue = document.querySelector('input[name="region"]:checked')?.value || '';
         
         // 연령대
         const ageValue = document.querySelector('input[name="age"]:checked')?.value || '';
