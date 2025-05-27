@@ -75,11 +75,11 @@
     position: relative;
 }
 
-/* 순위 디스플레이 - 높이 감소, 정보를 오른쪽 배치 */
+/* 순위 디스플레이 - 높이 최소화 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 25px 20px;
+    padding: 20px 18px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
     width: 480px;
@@ -101,7 +101,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -117,22 +117,22 @@
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
 }
 
-/* 순위 아이템 - 높이 최소化, 적당한 크기로 조정 */
+/* 순위 아이템 - 최소 높이로 압축 */
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 10px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 32px;
+    min-height: 28px;
 }
 
 .ranking-item:hover {
@@ -141,14 +141,14 @@
 }
 
 .ranking-position {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -176,7 +176,7 @@
     box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
 }
 
-/* 랭킹 정보 레이아웃 - 이름과 포인트는 왼쪽, 통계는 오른쪽 */
+/* 랭킹 정보 - 한 줄로 모든 정보 배치 */
 .ranking-info {
     display: flex;
     align-items: center;
@@ -187,8 +187,8 @@
 
 .ranking-left {
     display: flex;
-    flex-direction: column;
-    gap: 1px;
+    align-items: center;
+    gap: 8px;
     flex: 1;
     min-width: 0;
 }
@@ -196,53 +196,53 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.2;
+    line-height: 1;
 }
 
 .ranking-points {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--gray-600);
     display: flex;
     align-items: center;
-    gap: 3px;
-    line-height: 1.1;
+    gap: 2px;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
 }
 
-/* 통계 정보를 오른쪽에 한 줄로 배치 */
+/* 통계 정보를 한 줄 텍스트로 변경 - 컨테이너 제거 */
 .ranking-stats {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--gray-500);
-    display: flex;
-    gap: 10px;
-    align-items: center;
     flex-shrink: 0;
-}
-
-.ranking-stats .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 2px;
     white-space: nowrap;
+    line-height: 1;
 }
 
-/* 제보 아이콘 빨간색, 해결 아이콘 초록색 */
-.ranking-stats .stat-item:first-child i {
+/* 제보와 해결을 하나의 텍스트로 연결 */
+.stats-text {
+    display: inline;
+}
+
+.stats-separator {
+    margin: 0 4px;
+    color: var(--gray-400);
+}
+
+.stat-reports {
     color: var(--danger-red);
-    font-size: 0.65rem;
 }
 
-.ranking-stats .stat-item:last-child i {
+.stat-witnesses {
     color: var(--secondary-green);
-    font-size: 0.65rem;
 }
 
 /* 긴급 실종자 섹션 */
@@ -922,6 +922,6 @@
     
     .ranking-display {
         width: 350px;
-        padding: 20px 15px;
+        padding: 18px 15px;
     }
 }

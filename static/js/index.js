@@ -145,7 +145,7 @@ function getUrgentMissingData() {
 // 긴급 실종자 데이터 (정확히 8개)
 const urgentMissingData = getUrgentMissingData();
 
-// 순위 React 컴포넌트 - 레이아웃 변경 (이름/포인트 왼쪽, 통계 오른쪽)
+// 순위 React 컴포넌트 - 한 줄 텍스트로 모든 정보 표시
 function RankingDisplay({ rankings }) {
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) =>
@@ -184,25 +184,22 @@ function RankingDisplay({ rankings }) {
                         className: 'ranking-stats',
                         key: 'stats'
                     }, [
-                        React.createElement('div', {
-                            className: 'stat-item',
-                            key: 'reports'
+                        React.createElement('span', {
+                            className: 'stats-text',
+                            key: 'stats-text'
                         }, [
-                            React.createElement('i', {
-                                className: 'fas fa-user-plus',
-                                key: 'reports-icon'
-                            }),
-                            `제보 : ${rank.reports}건`
-                        ]),
-                        React.createElement('div', {
-                            className: 'stat-item',
-                            key: 'witnesses'
-                        }, [
-                            React.createElement('i', {
-                                className: 'fas fa-check-circle',
-                                key: 'witnesses-icon'
-                            }),
-                            `해결 : ${rank.witnesses}건`
+                            React.createElement('span', {
+                                className: 'stat-reports',
+                                key: 'reports-text'
+                            }, `제보 ${rank.reports}건`),
+                            React.createElement('span', {
+                                className: 'stats-separator',
+                                key: 'separator'
+                            }, ' / '),
+                            React.createElement('span', {
+                                className: 'stat-witnesses',
+                                key: 'witnesses-text'
+                            }, `해결 ${rank.witnesses}건`)
                         ])
                     ])
                 ])

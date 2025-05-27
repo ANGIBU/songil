@@ -425,7 +425,8 @@
     border: 2px solid var(--gray-200);
     margin-bottom: var(--spacing-6);
     min-height: 380px; /* 고정 높이 설정 */
-    min-width: 520px; /* 가로 너비도 강제 확보 */
+    min-width: 520px; /* 넓은 가로 너비 유지 */
+    width: 100%; /* 전체 너비 활용 */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1312,15 +1313,14 @@
     }
     
     .btn-find-wide {
-        min-width: auto;
         width: 100%;
         padding: var(--spacing-3) var(--spacing-4);
     }
     
     .email-auth-section {
+        min-width: auto; /* 모바일에서는 min-width 제거 */
         padding: var(--spacing-6) var(--spacing-4);
         min-height: 360px; /* 모바일에서 약간 줄임 */
-        min-width: auto; /* 모바일에서는 min-width 제거 */
     }
     
     .find-info-section {
@@ -1383,18 +1383,14 @@
     }
     
     .find-form-wide {
+        min-width: auto; /* 소형 모바일에서도 min-width 제거 */
         padding: var(--spacing-4);
-    }
-    
-    .find-info-header i,
-    .find-info-content i {
-        font-size: var(--font-size-3xl);
     }
     
     .email-auth-section {
+        min-width: auto; /* 소형 모바일에서도 min-width 제거 */
         padding: var(--spacing-4);
         min-height: 340px; /* 소형 모바일에서 더 줄임 */
-        min-width: auto; /* 소형 모바일에서도 min-width 제거 */
     }
     
     .find-info-section {
