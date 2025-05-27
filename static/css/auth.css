@@ -25,7 +25,8 @@
 }
 
 .auth-container {
-    max-width: 500px;
+    max-width: 580px; /* 인증코드 입력을 위해 증가 */
+    width: 100%;
     margin: 0 auto;
     background-color: var(--white);
     border-radius: var(--radius-2xl);
@@ -1348,6 +1349,12 @@
     
     .code-input-group input {
         font-size: var(--font-size-base);
+        width: 100%;
+    }
+    
+    .btn-verify {
+        width: 100%;
+        justify-content: center;
     }
     
     .social-buttons {
