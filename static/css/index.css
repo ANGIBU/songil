@@ -75,77 +75,14 @@
     position: relative;
 }
 
-.visual-container {
-    display: flex;
-    gap: 30px;
-    align-items: flex-start;
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-#network-canvas {
-    width: 300px;
-    height: 300px;
-    border-radius: 25px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--gray-200);
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-#network-canvas::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 0%, rgba(249, 115, 22, 0.05) 50%, transparent 100%);
-    pointer-events: none;
-}
-
-#network-canvas canvas {
-    border-radius: 25px;
-}
-
-/* 네트워크 시각화 플레이스홀더 */
-.network-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: var(--gray-500);
-    font-size: 1.1rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-}
-
-.network-placeholder i {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    color: var(--primary-orange);
-    animation: networkPulse 3s infinite;
-}
-
-@keyframes networkPulse {
-    0%, 100% { transform: scale(1); opacity: 0.7; }
-    50% { transform: scale(1.1); opacity: 1; }
-}
-
-/* 순위 디스플레이 - 크기 증가 및 레이아웃 개선 */
+/* 순위 디스플레이 - 가로 넓이 증가, 세로 높이 원래대로 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 30px 25px;
+    padding: 25px 20px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 380px;
+    width: 450px;
     position: relative;
     overflow: hidden;
 }
@@ -164,7 +101,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -180,21 +117,21 @@
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
 }
 
 .ranking-item {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 15px 15px;
+    padding: 12px 15px;
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 65px;
+    min-height: 50px;
 }
 
 .ranking-item:hover {
@@ -203,14 +140,14 @@
 }
 
 .ranking-position {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -246,41 +183,50 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.95rem;
-    margin-bottom: 4px;
+    font-size: 0.9rem;
+    margin-bottom: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .ranking-points {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--gray-600);
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
 }
 
+/* 통계 정보를 한 줄로 배치 */
 .ranking-stats {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--gray-500);
     display: flex;
-    gap: 12px;
+    gap: 15px;
+    align-items: center;
 }
 
 .ranking-stats .stat-item {
     display: flex;
     align-items: center;
     gap: 3px;
+    white-space: nowrap;
 }
 
-.ranking-stats .stat-item i {
+/* 신고 아이콘 빨간색, 목격 아이콘 초록색 */
+.ranking-stats .stat-item:first-child i {
+    color: var(--danger-red);
+    font-size: 0.7rem;
+}
+
+.ranking-stats .stat-item:last-child i {
     color: var(--secondary-green);
     font-size: 0.7rem;
 }
@@ -338,19 +284,29 @@
     margin: 0 auto;
 }
 
-/* 4x2 그리드 레이아웃 */
-.urgent-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 25px;
-    margin-bottom: 50px;
+/* 긴급 실종자 카드 컨테이너 */
+.urgent-cards-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 50px;
     position: relative;
     z-index: 1;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 50px;
+}
+
+/* 4x2 그리드 레이아웃 강화 */
+.urgent-cards {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 25px !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+}
+
+/* 카드가 정확히 8개만 표시되도록 제한 */
+.urgent-cards .missing-card:nth-child(n+9) {
+    display: none !important;
 }
 
 .missing-card {
@@ -362,8 +318,9 @@
     transition: all 0.3s ease;
     position: relative;
     height: 300px;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
+    width: 100%;
 }
 
 .missing-card:hover {
@@ -827,25 +784,15 @@
         font-size: 3.25rem;
     }
     
-    .visual-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 25px;
-    }
-    
-    #network-canvas {
-        width: 280px;
-        height: 280px;
-    }
-    
     .ranking-display {
-        width: 350px;
+        width: 400px;
+        margin: 0 auto;
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-        gap: 20px;
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(3, 1fr) !important;
+        gap: 20px !important;
     }
     
     .intro-steps {
@@ -879,19 +826,8 @@
         margin: 0 auto;
     }
     
-    .visual-container {
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    #network-canvas {
-        width: 250px;
-        height: 250px;
-        margin: 0 auto;
-    }
-    
     .ranking-display {
-        width: 320px;
+        width: 350px;
         margin: 0 auto;
     }
     
@@ -900,9 +836,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(4, 1fr) !important;
+        gap: 15px !important;
     }
     
     .missing-card {
@@ -950,22 +886,17 @@
     }
     
     .urgent-cards {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(8, 1fr);
-        gap: 12px;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(8, 1fr) !important;
+        gap: 12px !important;
     }
     
     .missing-card {
         height: 250px;
     }
     
-    #network-canvas {
-        width: 220px;
-        height: 220px;
-    }
-    
     .ranking-display {
-        width: 280px;
-        padding: 25px 20px;
+        width: 320px;
+        padding: 20px 15px;
     }
 }

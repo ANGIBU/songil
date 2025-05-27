@@ -249,23 +249,32 @@ async function handleFindId(e) {
     submitBtn.disabled = true;
     
     try {
-        // API 호출 시뮬레이션
+        // API 호출 시뮬레이션 - 70% 확률로 성공
         await simulateAPICall(1500);
         
-        // 결과 표시
         const name = document.getElementById('findIdName').value;
         const phone = document.getElementById('findIdPhone').value;
-        const maskedEmail = generateMaskedEmailFromPhone(name, phone);
         
-        showFindIdResult({
-            email: maskedEmail,
-            joinDate: '2024.05.01'
-        });
-        
-        showNotification('아이디를 찾았습니다!', 'success');
+        // 70% 확률로 성공 시뮬레이션
+        if (Math.random() > 0.3) {
+            // 성공 - 결과 표시
+            const maskedEmail = generateMaskedEmailFromPhone(name, phone);
+            
+            showFindIdResult({
+                email: maskedEmail,
+                joinDate: '2024.05.01'
+            });
+            
+            showNotification('아이디를 찾았습니다!', 'success');
+        } else {
+            // 실패 - 등록된 정보 없음
+            showFindIdError();
+            showNotification('입력하신 정보와 일치하는 계정을 찾을 수 없습니다.', 'error');
+        }
         
     } catch (error) {
-        showNotification('일치하는 정보가 없습니다.', 'error');
+        showFindIdError();
+        showNotification('아이디 찾기 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
     } finally {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
@@ -326,7 +335,7 @@ window.changePassword = async function() {
     }
 };
 
-// 아이디 찾기 결과 표시
+// 아이디 찾기 결과 표시 - 트랜지션 문제 해결
 function showFindIdResult(data) {
     const form = document.getElementById('findIdForm');
     const result = document.getElementById('idResult');
@@ -344,20 +353,150 @@ function showFindIdResult(data) {
             onComplete: () => {
                 form.style.display = 'none';
                 result.style.display = 'block';
+                result.style.opacity = '1'; // 명시적으로 투명도 설정
+                result.style.visibility = 'visible'; // 가시성 설정
                 
-                gsap.from(result, {
-                    duration: 0.5,
-                    opacity: 0,
-                    y: 20,
-                    ease: 'power2.out'
-                });
+                gsap.fromTo(result, 
+                    { opacity: 0, y: 20 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.5, 
+                        ease: 'power2.out',
+                        onComplete: () => {
+                            // 애니메이션 완료 후 CSS 속성 고정
+                            result.style.opacity = '1';
+                            result.style.transform = 'translateY(0)';
+                        }
+                    }
+                );
             }
         });
     } else {
         form.style.display = 'none';
         result.style.display = 'block';
+        result.style.opacity = '1';
+        result.style.visibility = 'visible';
     }
 }
+
+// 아이디 찾기 실패 표시
+function showFindIdError() {
+    const form = document.getElementById('findIdForm');
+    const result = document.getElementById('idResult');
+    
+    // 에러 상태로 결과 설정
+    result.classList.add('error');
+    
+    // 에러 아이콘과 메시지로 변경
+    const resultHeader = result.querySelector('.result-header');
+    const resultContent = result.querySelector('.result-content');
+    const resultActions = result.querySelector('.result-actions');
+    
+    resultHeader.innerHTML = `
+        <i class="fas fa-times-circle"></i>
+        <h3>아이디 찾기 실패</h3>
+    `;
+    
+    resultContent.innerHTML = `
+        <p>입력하신 정보와 일치하는 계정을 찾을 수 없습니다.</p>
+        <div class="found-id">
+            <span>등록된 회원 정보가 없습니다</span>
+        </div>
+        <div class="result-info">
+            <p><strong>다음 사항을 확인해주세요:</strong></p>
+            <ul style="text-align: left; margin-top: 10px; padding-left: 20px;">
+                <li>성함과 전화번호가 정확한지 확인해주세요</li>
+                <li>가입 시 사용한 전화번호인지 확인해주세요</li>
+                <li>다른 전화번호로 가입했을 가능성을 확인해주세요</li>
+                <li>아직 회원가입을 하지 않으셨다면 회원가입을 진행해주세요</li>
+            </ul>
+        </div>
+    `;
+    
+    resultActions.innerHTML = `
+        <a href="/register" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i>
+            회원가입하기
+        </a>
+        <button class="btn btn-secondary" onclick="resetFindIdForm()">
+            <i class="fas fa-redo"></i>
+            다시 시도
+        </button>
+    `;
+    
+    // 폼 숨기기, 결과 표시
+    if (typeof gsap !== 'undefined') {
+        gsap.to(form, {
+            duration: 0.3,
+            opacity: 0,
+            y: -20,
+            onComplete: () => {
+                form.style.display = 'none';
+                result.style.display = 'block';
+                result.style.opacity = '1';
+                result.style.visibility = 'visible';
+                
+                gsap.fromTo(result, 
+                    { opacity: 0, y: 20 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.5, 
+                        ease: 'power2.out',
+                        onComplete: () => {
+                            result.style.opacity = '1';
+                            result.style.transform = 'translateY(0)';
+                        }
+                    }
+                );
+            }
+        });
+    } else {
+        form.style.display = 'none';
+        result.style.display = 'block';
+        result.style.opacity = '1';
+        result.style.visibility = 'visible';
+    }
+}
+
+// 아이디 찾기 폼 리셋
+window.resetFindIdForm = function() {
+    const form = document.getElementById('findIdForm');
+    const result = document.getElementById('idResult');
+    
+    // 에러 클래스 제거
+    result.classList.remove('error');
+    
+    // 입력 필드 초기화
+    document.getElementById('findIdName').value = '';
+    document.getElementById('findIdPhone').value = '';
+    
+    // 에러 메시지 제거
+    clearFieldError('findIdNameError');
+    clearFieldError('findIdPhoneError');
+    
+    // 폼 다시 표시
+    if (typeof gsap !== 'undefined') {
+        gsap.to(result, {
+            duration: 0.3,
+            opacity: 0,
+            y: -20,
+            onComplete: () => {
+                result.style.display = 'none';
+                form.style.display = 'block';
+                
+                gsap.fromTo(form, 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+                );
+            }
+        });
+    } else {
+        result.style.display = 'none';
+        form.style.display = 'block';
+    }
+};
 
 // 비밀번호 변경 폼 표시
 function showPasswordChangeForm() {

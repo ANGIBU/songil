@@ -8,8 +8,6 @@
 <!-- React -->
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<!-- Three.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r144/three.min.js"></script>
 <!-- GSAP ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 {% endblock %}
@@ -33,23 +31,14 @@
                 </div>
             </div>
             <div class="hero-visual">
-                <div class="visual-container">
-                    <div id="network-canvas">
-                        <!-- Three.js 시각화가 여기에 렌더링됩니다 -->
-                        <div class="network-placeholder">
-                            <i class="fas fa-network-wired"></i>
-                            <div>네트워크 시각화</div>
-                        </div>
-                    </div>
-                    <!-- 순위 시스템 -->
-                    <div class="ranking-display">
-                        <h3 class="ranking-title">
-                            <i class="fas fa-trophy"></i>
-                            전체 기간 누적 순위
-                        </h3>
-                        <div class="top-rankings" id="topRankings">
-                            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
-                        </div>
+                <!-- 순위 시스템만 표시 -->
+                <div class="ranking-display">
+                    <h3 class="ranking-title">
+                        <i class="fas fa-trophy"></i>
+                        전체 기간 누적 순위
+                    </h3>
+                    <div class="top-rankings" id="topRankings">
+                        <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
                     </div>
                 </div>
             </div>
@@ -64,32 +53,34 @@
             <h2><i class="fas fa-exclamation-triangle"></i> 긴급 실종자</h2>
             <p>위험도가 높은 최신 실종자 정보입니다</p>
         </div>
-        <div class="urgent-cards">
-            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
-            
-            <!-- 폴백용 샘플 카드 (React 로드 실패시) -->
-            <div class="missing-card urgent" data-id="1" style="display: none;">
-                <div class="card-image">
-                    <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                    <div class="danger-level high">긴급</div>
-                    <div class="missing-period">3일째</div>
-                </div>
-                <div class="card-content">
-                    <h3>김○○ (32세)</h3>
-                    <p class="missing-info">
-                        <i class="fas fa-calendar"></i> 2024.05.20 실종<br>
-                        <i class="fas fa-map-marker-alt"></i> 서울시 강남구<br>
-                        <i class="fas fa-tshirt"></i> 검은색 정장, 갈색 구두
-                    </p>
-                    <div class="card-actions">
-                        <button class="up-btn" onclick="handleUpClick(this, 1)">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>246</span>
-                        </button>
-                        <a href="{{ url_for('missing_detail', missing_id=1) }}" class="detail-btn">
-                            <i class="fas fa-eye"></i>
-                            상세보기
-                        </a>
+        <div class="urgent-cards-container">
+            <div class="urgent-cards" id="urgentCardsGrid">
+                <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                
+                <!-- 폴백용 샘플 카드 (React 로드 실패시) -->
+                <div class="missing-card urgent" data-id="1" style="display: none;">
+                    <div class="card-image">
+                        <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                        <div class="danger-level high">긴급</div>
+                        <div class="missing-period">3일째</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>김○○ (32세)</h3>
+                        <p class="missing-info">
+                            <i class="fas fa-calendar"></i> 2024.05.20 실종<br>
+                            <i class="fas fa-map-marker-alt"></i> 서울시 강남구<br>
+                            <i class="fas fa-tshirt"></i> 검은색 정장, 갈색 구두
+                        </p>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 1)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>246</span>
+                            </button>
+                            <a href="{{ url_for('missing_detail', missing_id=1) }}" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

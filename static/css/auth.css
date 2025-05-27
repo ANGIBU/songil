@@ -1,37 +1,4 @@
-/* 성별 버튼 스타일 */
-.gender-buttons {
-    display: flex;
-    gap: var(--spacing-3);
-}
-
-.gender-btn {
-    flex: 1;
-    padding: var(--spacing-3) var(--spacing-4);
-    border: 2px solid var(--gray-300);
-    border-radius: var(--radius-lg);
-    background-color: var(--white);
-    color: var(--gray-600);
-    font-size: var(--font-size-base);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition-all);
-    text-align: center;
-}
-
-.gender-btn:hover {
-    border-color: var(--primary-orange-light);
-    color: var(--primary-orange);
-}
-
-.gender-btn.active {
-    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    color: var(--white);
-    border-color: var(--primary-orange);
-}
-
-.gender-btn input[type="radio"] {
-    display: none;
-}/* static/css/auth.css */
+/* static/css/auth.css */
 
 /* 인증 페이지 전용 스타일 - 기존 디자인 시스템과 일관성 유지 */
 
@@ -283,6 +250,41 @@
     background-color: var(--white);
 }
 
+/* 성별 버튼 스타일 */
+.gender-buttons {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.gender-btn {
+    flex: 1;
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    background-color: var(--white);
+    color: var(--gray-600);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-all);
+    text-align: center;
+}
+
+.gender-btn:hover {
+    border-color: var(--primary-orange-light);
+    color: var(--primary-orange);
+}
+
+.gender-btn.active {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: var(--white);
+    border-color: var(--primary-orange);
+}
+
+.gender-btn input[type="radio"] {
+    display: none;
+}
+
 /* 비밀번호 입력 */
 .password-input {
     position: relative;
@@ -377,7 +379,7 @@
     margin-bottom: 0;
 }
 
-/* 이메일 인증 스타일 */
+/* 이메일 인증 스타일 - 고정 크기로 수정 */
 .email-auth-section {
     text-align: center;
     padding: var(--spacing-8) var(--spacing-6);
@@ -385,7 +387,7 @@
     border-radius: var(--radius-xl);
     border: 2px solid var(--gray-200);
     margin-bottom: var(--spacing-6);
-    min-height: 300px;
+    min-height: 380px; /* 고정 높이 설정 */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1050,7 +1052,7 @@
     font-size: var(--font-size-lg);
 }
 
-/* 탭 메뉴 */
+/* 탭 메뉴 - 호버 효과 수정 */
 .tab-menu {
     display: flex;
     margin-bottom: var(--spacing-8);
@@ -1077,8 +1079,8 @@
 }
 
 .tab-btn:hover {
-    color: var(--gray-500);
-    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+    background-color: #f3f4f6; /* 단색 밝은 회색 */
+    color: var(--gray-600);
 }
 
 .tab-btn.active {
@@ -1096,7 +1098,7 @@
     display: block;
 }
 
-/* 결과 섹션 */
+/* 결과 섹션 - 트랜지션 개선 */
 .result-section {
     text-align: center;
     padding: var(--spacing-8);
@@ -1104,6 +1106,10 @@
     border-radius: var(--radius-xl);
     margin-top: var(--spacing-6);
     border: 1px solid var(--secondary-green-light);
+    opacity: 1 !important; /* 투명도 문제 해결 */
+    visibility: visible !important;
+    position: relative;
+    z-index: 1;
 }
 
 .result-header {
@@ -1184,6 +1190,27 @@
     gap: var(--spacing-3);
 }
 
+/* 실패 결과 섹션 */
+.result-section.error {
+    background: linear-gradient(135deg, var(--danger-red-soft) 0%, var(--white) 100%);
+    border-color: var(--danger-red-light);
+}
+
+.result-section.error .result-header i {
+    color: var(--danger-red);
+    animation: none;
+}
+
+.result-section.error .result-header h3 {
+    color: var(--danger-red-dark);
+}
+
+.result-section.error .found-id {
+    background-color: var(--danger-red-soft);
+    border-color: var(--danger-red-light);
+    color: var(--danger-red-dark);
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .auth-section {
@@ -1238,6 +1265,7 @@
     
     .email-auth-section {
         padding: var(--spacing-6) var(--spacing-4);
+        min-height: 360px; /* 모바일에서 약간 줄임 */
     }
     
     .progress-steps {
@@ -1296,6 +1324,7 @@
     
     .email-auth-section {
         padding: var(--spacing-4);
+        min-height: 340px; /* 소형 모바일에서 더 줄임 */
     }
     
     .email-auth-info i {

@@ -75,7 +75,7 @@ const allMissingData = [
         region: "gwangju",
         description: "분홍색 원피스, 흰색 운동화",
         physicalInfo: "165cm, 마른체형",
-        dangerLevel: "medium",
+        dangerLevel: "high",
         upCount: 156,
         period: "5일째",
         image: "/static/images/placeholder.jpg"
@@ -124,73 +124,28 @@ const allMissingData = [
         upCount: 143,
         period: "7일째",
         image: "/static/images/placeholder.jpg"
-    },
-    {
-        id: 9,
-        name: "서○○",
-        age: 19,
-        gender: "여성",
-        date: "2024-05-20",
-        location: "강원도 춘천시 후평동",
-        region: "gangwon",
-        description: "흰색 맨투맨, 청바지",
-        physicalInfo: "158cm, 마른체형",
-        dangerLevel: "medium",
-        upCount: 76,
-        period: "3일째",
-        image: "/static/images/placeholder.jpg"
-    },
-    {
-        id: 10,
-        name: "조○○",
-        age: 75,
-        gender: "남성",
-        date: "2024-05-15",
-        location: "제주시 일도2동",
-        region: "jeju",
-        description: "갈색 자켓, 검은색 바지",
-        physicalInfo: "165cm, 마른체형",
-        dangerLevel: "high",
-        upCount: 234,
-        period: "8일째",
-        image: "/static/images/placeholder.jpg"
     }
 ];
 
 // 순위 데이터 (전체 기간 누적) - 제보 건수와 기여도 추가
 const rankingData = [
-    { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 23, witnesses: 45, contribution: 8.2 },
-    { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 18, witnesses: 38, contribution: 6.7 },
-    { rank: 3, name: "이나눔", points: 1895, region: "대구시", reports: 15, witnesses: 42, contribution: 5.9 },
-    { rank: 4, name: "최참여", points: 1672, region: "인천시", reports: 12, witnesses: 36, contribution: 5.1 },
-    { rank: 5, name: "정협력", points: 1543, region: "광주시", reports: 14, witnesses: 29, contribution: 4.8 }
+    { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 23, witnesses: 45 },
+    { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 18, witnesses: 38 },
+    { rank: 3, name: "이나눔", points: 1895, region: "대구시", reports: 15, witnesses: 42 },
+    { rank: 4, name: "최참여", points: 1672, region: "인천시", reports: 12, witnesses: 36 },
+    { rank: 5, name: "정협력", points: 1543, region: "광주시", reports: 14, witnesses: 29 }
 ];
 
-// 위험도가 높은 실종자들을 필터링하고 정확히 8명 선택
+// 정확히 8개의 긴급 실종자 데이터 선택
 function getUrgentMissingData() {
-    const highDangerMissing = allMissingData.filter(person => person.dangerLevel === 'high');
-    const mediumDangerMissing = allMissingData.filter(person => person.dangerLevel === 'medium');
-    
-    // 높은 위험도 우선, 부족하면 중간 위험도로 채움
-    let urgentList = [...highDangerMissing];
-    if (urgentList.length < 8) {
-        urgentList = urgentList.concat(mediumDangerMissing.slice(0, 8 - urgentList.length));
-    }
-    
-    // 배열을 섞어서 랜덤하게 배치
-    for (let i = urgentList.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [urgentList[i], urgentList[j]] = [urgentList[j], urgentList[i]];
-    }
-    
-    // 정확히 8개만 반환
-    return urgentList.slice(0, 8);
+    // 이미 8개가 준비되어 있으므로 그대로 반환
+    return allMissingData.slice(0, 8);
 }
 
-// 긴급 실종자 데이터 (동적으로 생성)
+// 긴급 실종자 데이터 (정확히 8개)
 const urgentMissingData = getUrgentMissingData();
 
-// 순위 React 컴포넌트 - 제보 건수와 기여도 추가
+// 순위 React 컴포넌트 - 한 줄 레이아웃으로 수정
 function RankingDisplay({ rankings }) {
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) =>
@@ -232,7 +187,7 @@ function RankingDisplay({ rankings }) {
                                 className: 'fas fa-user-plus',
                                 key: 'reports-icon'
                             }),
-                            `신고 ${rank.reports}건`
+                            `신고 : ${rank.reports}건`
                         ]),
                         React.createElement('div', {
                             className: 'stat-item',
@@ -242,7 +197,7 @@ function RankingDisplay({ rankings }) {
                                 className: 'fas fa-eye',
                                 key: 'witnesses-icon'
                             }),
-                            `목격 ${rank.witnesses}건`
+                            `목격 : ${rank.witnesses}건`
                         ])
                     ])
                 ])
@@ -540,233 +495,6 @@ class WaveEffect {
     }
 }
 
-// Three.js 네트워크 시각화 클래스 (크기 조정됨)
-class NetworkVisualization {
-    constructor(container) {
-        this.container = container;
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.nodes = [];
-        this.connections = [];
-        this.mouse = { x: 0, y: 0 };
-        this.targetRotation = { x: 0, y: 0 };
-        this.currentRotation = { x: 0, y: 0 };
-        this.isDestroyed = false;
-        
-        this.init();
-    }
-
-    init() {
-        if (typeof THREE === 'undefined') {
-            this.createFallback();
-            return;
-        }
-
-        this.setupScene();
-        this.createNodes();
-        this.createConnections();
-        this.setupEventListeners();
-        this.animate();
-    }
-
-    setupScene() {
-        // Scene 설정
-        this.scene = new THREE.Scene();
-        
-        // Camera 설정
-        const aspectRatio = this.container.offsetWidth / this.container.offsetHeight;
-        this.camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
-        this.camera.position.set(0, 0, 12);
-        
-        // Renderer 설정
-        this.renderer = new THREE.WebGLRenderer({ 
-            alpha: true, 
-            antialias: true,
-            powerPreference: "high-performance"
-        });
-        
-        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
-        this.renderer.setClearColor(0x000000, 0);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
-        // 기존 내용 제거 후 렌더러 추가
-        this.container.innerHTML = '';
-        this.container.appendChild(this.renderer.domElement);
-    }
-
-    createNodes() {
-        const nodeCount = 15; // 노드 수 줄임
-        const nodeGeometry = new THREE.SphereGeometry(0.12, 8, 6);
-        
-        for (let i = 0; i < nodeCount; i++) {
-            // 노드 색상 (파란색 계열)
-            const hue = 0.6 + Math.random() * 0.1;
-            const saturation = 0.7 + Math.random() * 0.3;
-            const lightness = 0.5 + Math.random() * 0.3;
-            
-            const material = new THREE.MeshBasicMaterial({
-                color: new THREE.Color().setHSL(hue, saturation, lightness),
-                transparent: true,
-                opacity: 0.8
-            });
-            
-            const node = new THREE.Mesh(nodeGeometry, material);
-            
-            // 구형 배치
-            const radius = 3 + Math.random() * 2;
-            const phi = Math.acos(-1 + (2 * i) / nodeCount);
-            const theta = Math.sqrt(nodeCount * Math.PI) * phi;
-            
-            node.position.setFromSphericalCoords(radius, phi, theta);
-            node.userData = {
-                originalPosition: node.position.clone(),
-                phase: Math.random() * Math.PI * 2,
-                speed: 0.5 + Math.random() * 0.5
-            };
-            
-            this.scene.add(node);
-            this.nodes.push(node);
-        }
-        
-        // 중앙 허브 노드
-        const hubMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf97316, // 주황색으로 변경
-            transparent: true,
-            opacity: 0.9
-        });
-        
-        const hubNode = new THREE.Mesh(
-            new THREE.SphereGeometry(0.2, 12, 8),
-            hubMaterial
-        );
-        
-        hubNode.position.set(0, 0, 0);
-        hubNode.userData = { isHub: true, phase: 0, speed: 0.2 };
-        
-        this.scene.add(hubNode);
-        this.nodes.push(hubNode);
-    }
-
-    createConnections() {
-        const lineGeometry = new THREE.BufferGeometry();
-        const positions = [];
-        const colors = [];
-        
-        // 모든 노드를 중앙 허브와 연결
-        const hubNode = this.nodes[this.nodes.length - 1];
-        
-        for (let i = 0; i < this.nodes.length - 1; i++) {
-            const node = this.nodes[i];
-            
-            positions.push(
-                node.position.x, node.position.y, node.position.z,
-                hubNode.position.x, hubNode.position.y, hubNode.position.z
-            );
-            
-            colors.push(0.2, 0.5, 0.9, 0.9, 0.4, 0.1); // 파란색에서 주황색으로
-        }
-        
-        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        
-        const lineMaterial = new THREE.LineBasicMaterial({
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.6
-        });
-        
-        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-        this.scene.add(lines);
-        this.connections = lines;
-    }
-
-    setupEventListeners() {
-        this.container.addEventListener('mousemove', (event) => {
-            const rect = this.container.getBoundingClientRect();
-            this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        });
-        
-        window.addEventListener('resize', () => this.onWindowResize());
-    }
-
-    animate() {
-        if (this.isDestroyed) return;
-        
-        requestAnimationFrame(() => this.animate());
-        
-        const time = Date.now() * 0.001;
-        
-        this.nodes.forEach((node, index) => {
-            if (node.userData.isHub) {
-                node.rotation.x = Math.sin(time * 0.3) * 0.1;
-                node.rotation.y = time * 0.2;
-                
-                const scale = 1 + Math.sin(time * 2) * 0.1;
-                node.scale.setScalar(scale);
-            } else {
-                const phase = node.userData.phase + time * node.userData.speed;
-                
-                node.position.x = node.userData.originalPosition.x + Math.sin(phase) * 0.3;
-                node.position.y = node.userData.originalPosition.y + Math.cos(phase) * 0.3;
-                node.position.z = node.userData.originalPosition.z + Math.sin(phase * 0.7) * 0.2;
-                
-                const mouseInfluence = 0.3;
-                node.position.x += this.mouse.x * mouseInfluence;
-                node.position.y += this.mouse.y * mouseInfluence;
-            }
-        });
-        
-        this.targetRotation.x = this.mouse.y * 0.1;
-        this.targetRotation.y = this.mouse.x * 0.1;
-        
-        this.currentRotation.x += (this.targetRotation.x - this.currentRotation.x) * 0.05;
-        this.currentRotation.y += (this.targetRotation.y - this.currentRotation.y) * 0.05;
-        
-        this.scene.rotation.x = this.currentRotation.x;
-        this.scene.rotation.y = this.currentRotation.y + time * 0.05;
-        
-        if (this.renderer && this.scene && this.camera) {
-            this.renderer.render(this.scene, this.camera);
-        }
-    }
-
-    onWindowResize() {
-        if (!this.renderer || !this.camera || this.isDestroyed) return;
-        
-        const width = this.container.offsetWidth;
-        const height = this.container.offsetHeight;
-        
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(width, height);
-    }
-
-    createFallback() {
-        this.container.innerHTML = `
-            <div class="network-placeholder">
-                <i class="fas fa-network-wired"></i>
-                <div>네트워크 시각화</div>
-            </div>
-        `;
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-        
-        if (this.renderer) {
-            this.renderer.dispose();
-        }
-        
-        this.nodes = [];
-        this.connections = null;
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-    }
-}
-
 // GSAP 애니메이션 관리자 (개선됨)
 class IndexAnimations {
     constructor() {
@@ -832,14 +560,7 @@ class IndexAnimations {
                 ease: 'power2.out',
                 clearProps: 'transform,opacity'
             }, '-=0.4')
-            // 시각화 요소들 애니메이션
-            .from('#network-canvas', {
-                duration: 1.5,
-                scale: 0.8,
-                opacity: 0,
-                ease: 'back.out(1.7)',
-                clearProps: 'transform,opacity'
-            }, '-=1')
+            // 순위 디스플레이 애니메이션
             .from('.ranking-display', {
                 duration: 1.2,
                 x: 50,
@@ -1066,7 +787,6 @@ class ScrollObserver {
 // 메인 홈페이지 관리 클래스
 class IndexPage {
     constructor() {
-        this.networkViz = null;
         this.waveEffect = null;
         this.animations = null;
         this.scrollObserver = null;
@@ -1092,7 +812,6 @@ class IndexPage {
         // 시각화 초기화
         setTimeout(() => {
             if (!this.isDestroyed) {
-                this.initNetworkVisualization();
                 this.initWaveEffect();
             }
         }, 100);
@@ -1153,7 +872,15 @@ class IndexPage {
         try {
             const root = ReactDOM.createRoot(urgentContainer);
             root.render(
-                React.createElement('div', { style: { display: 'contents' } },
+                React.createElement('div', { 
+                    style: { 
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
+                        gridTemplateRows: 'repeat(2, 1fr)',
+                        gap: '25px',
+                        width: '100%'
+                    } 
+                },
                     urgentMissingData.map(data =>
                         React.createElement(MissingCard, {
                             key: data.id,
@@ -1165,13 +892,6 @@ class IndexPage {
             );
         } catch (error) {
             console.error('React rendering failed:', error);
-        }
-    }
-
-    initNetworkVisualization() {
-        const networkContainer = document.getElementById('network-canvas');
-        if (networkContainer && !this.isDestroyed) {
-            this.networkViz = new NetworkVisualization(networkContainer);
         }
     }
 
@@ -1187,9 +907,6 @@ class IndexPage {
         const resizeHandler = () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (this.networkViz && !this.isDestroyed) {
-                    this.networkViz.onWindowResize();
-                }
                 if (this.waveEffect && !this.isDestroyed) {
                     this.waveEffect.onWindowResize();
                 }
@@ -1226,24 +943,8 @@ class IndexPage {
         };
     }
 
-    refreshNetworkViz() {
-        if (this.networkViz) {
-            this.networkViz.destroy();
-        }
-        
-        const container = document.getElementById('network-canvas');
-        if (container && !this.isDestroyed) {
-            this.networkViz = new NetworkVisualization(container);
-        }
-    }
-
     destroy() {
         this.isDestroyed = true;
-        
-        if (this.networkViz) {
-            this.networkViz.destroy();
-            this.networkViz = null;
-        }
         
         if (this.waveEffect) {
             this.waveEffect.destroy();
@@ -1299,7 +1000,6 @@ window.handleUpClick = function(button, missingId) {
 if (typeof window !== 'undefined') {
     window.indexPageDebug = {
         instance: indexPage,
-        refreshNetworkViz: () => indexPage && indexPage.refreshNetworkViz(),
         testAnimations: () => {
             if (typeof gsap !== 'undefined') {
                 gsap.to('.missing-card', {
