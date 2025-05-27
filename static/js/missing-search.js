@@ -393,6 +393,13 @@ class FilterPopupManager {
             }
         });
 
+        // 지역 뒤로가기 버튼
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#regionBackBtn')) {
+                this.goBackToRegionLevel1();
+            }
+        });
+
         // ESC 키로 닫기
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
@@ -402,17 +409,24 @@ class FilterPopupManager {
     }
 
     handleRegionLevel1Change(regionCode) {
+        const regionLevel1 = document.getElementById('regionLevel1');
         const regionLevel2 = document.getElementById('regionLevel2');
         const regionLevel2Options = document.getElementById('regionLevel2Options');
+        const regionLevel2Title = document.getElementById('regionLevel2Title');
         
         if (!regionCode) {
             // 전체 지역 선택시 2단계 숨김
-            regionLevel2.style.display = 'none';
+            if (regionLevel2.classList.contains('active')) {
+                this.goBackToRegionLevel1();
+            }
             return;
         }
         
         const regionInfo = this.regionData[regionCode];
         if (!regionInfo) return;
+        
+        // 2단계 제목 업데이트
+        regionLevel2Title.textContent = `${regionInfo.name} 세부 지역`;
         
         // 2단계 지역 옵션 생성
         regionLevel2Options.innerHTML = '';
@@ -439,8 +453,109 @@ class FilterPopupManager {
             regionLevel2Options.appendChild(option);
         });
         
-        // 2단계 표시
+        // GSAP 애니메이션: 1단계 → 2단계 전환
+        this.animateToRegionLevel2();
+    }
+
+    animateToRegionLevel2() {
+        const regionLevel1 = document.getElementById('regionLevel1');
+        const regionLevel2 = document.getElementById('regionLevel2');
+        
+        if (typeof gsap === 'undefined') {
+            // GSAP 없을 때 기본 전환
+            regionLevel1.style.display = 'none';
+            regionLevel2.style.display = 'block';
+            regionLevel2.classList.add('active');
+            return;
+        }
+        
         regionLevel2.style.display = 'block';
+        regionLevel2.classList.add('active');
+        
+        const timeline = gsap.timeline();
+        
+        // 1단계 슬라이드 아웃
+        timeline.to(regionLevel1, {
+            duration: 0.3,
+            x: -100,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+        
+        // 2단계 슬라이드 인
+        timeline.fromTo(regionLevel2, 
+            {
+                x: 100,
+                opacity: 0
+            },
+            {
+                duration: 0.4,
+                x: 0,
+                opacity: 1,
+                ease: 'power2.out'
+            }, 
+            '-=0.1'
+        );
+        
+        // 2단계 옵션들 순차 등장
+        timeline.from('#regionLevel2Options .filter-option', {
+            duration: 0.3,
+            y: 20,
+            opacity: 0,
+            stagger: 0.03,
+            ease: 'power2.out'
+        }, '-=0.2');
+    }
+
+    goBackToRegionLevel1() {
+        const regionLevel1 = document.getElementById('regionLevel1');
+        const regionLevel2 = document.getElementById('regionLevel2');
+        
+        if (typeof gsap === 'undefined') {
+            // GSAP 없을 때 기본 전환
+            regionLevel2.style.display = 'none';
+            regionLevel2.classList.remove('active');
+            regionLevel1.style.display = 'block';
+            return;
+        }
+        
+        const timeline = gsap.timeline();
+        
+        // 2단계 슬라이드 아웃
+        timeline.to(regionLevel2, {
+            duration: 0.3,
+            x: 100,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+        
+        // 1단계 슬라이드 인
+        timeline.fromTo(regionLevel1, 
+            {
+                x: -100,
+                opacity: 0
+            },
+            {
+                duration: 0.4,
+                x: 0,
+                opacity: 1,
+                ease: 'power2.out',
+                onComplete: () => {
+                    regionLevel2.style.display = 'none';
+                    regionLevel2.classList.remove('active');
+                }
+            }, 
+            '-=0.1'
+        );
+        
+        // 1단계 옵션들 순차 등장
+        timeline.from('#regionLevel1 .filter-options .filter-option', {
+            duration: 0.3,
+            y: 20,
+            opacity: 0,
+            stagger: 0.03,
+            ease: 'power2.out'
+        }, '-=0.2');
     }
 
     switchTab(tabName) {
@@ -459,6 +574,13 @@ class FilterPopupManager {
         if (selectedTab && selectedContent) {
             selectedTab.classList.add('active');
             selectedContent.classList.add('active');
+            
+            // 지역 탭 선택 시 초기 상태로 리셋
+            if (tabName === 'region') {
+                setTimeout(() => {
+                    this.resetRegionTabState();
+                }, 50);
+            }
         }
     }
 
@@ -466,6 +588,25 @@ class FilterPopupManager {
         this.loadCurrentFilters();
         this.overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // 지역 탭 초기 상태 보장
+        this.resetRegionTabState();
+    }
+
+    resetRegionTabState() {
+        const regionLevel1 = document.getElementById('regionLevel1');
+        const regionLevel2 = document.getElementById('regionLevel2');
+        
+        if (regionLevel1 && regionLevel2) {
+            regionLevel1.style.display = 'block';
+            regionLevel1.style.opacity = '1';
+            regionLevel1.style.transform = 'translateX(0)';
+            
+            regionLevel2.style.display = 'none';
+            regionLevel2.classList.remove('active');
+            regionLevel2.style.transform = 'translateX(100%)';
+            regionLevel2.style.opacity = '0';
+        }
     }
 
     closePopup() {
@@ -493,6 +634,17 @@ class FilterPopupManager {
     }
 
     loadRegionFilter(regionValue) {
+        // 먼저 초기 상태로 리셋
+        const regionLevel1 = document.getElementById('regionLevel1');
+        const regionLevel2 = document.getElementById('regionLevel2');
+        
+        regionLevel1.style.display = 'block';
+        regionLevel1.style.opacity = '1';
+        regionLevel1.style.transform = 'translateX(0)';
+        
+        regionLevel2.style.display = 'none';
+        regionLevel2.classList.remove('active');
+        
         if (!regionValue) {
             // 전체 지역 선택
             const allRegionRadio = document.querySelector('input[name="region-level1"][value=""]');
@@ -508,26 +660,29 @@ class FilterPopupManager {
             const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionCode}"]`);
             if (level1Radio) {
                 level1Radio.checked = true;
+                
+                // 2단계 지역 데이터 생성
                 this.handleRegionLevel1Change(regionCode);
                 
-                // 2단계 지역 선택 (약간의 지연 후)
+                // 2단계 지역 선택 (애니메이션 완료 후)
                 setTimeout(() => {
                     const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
                     if (level2Radio) level2Radio.checked = true;
-                }, 100);
+                }, 500);
             }
         } else {
             // 도/시 전체인 경우
             const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionValue}"]`);
             if (level1Radio) {
                 level1Radio.checked = true;
+                
+                // 2단계 데이터 생성 후 전체 옵션 선택
                 this.handleRegionLevel1Change(regionValue);
                 
-                // 전체 옵션 선택
                 setTimeout(() => {
                     const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
                     if (level2Radio) level2Radio.checked = true;
-                }, 100);
+                }, 500);
             }
         }
     }

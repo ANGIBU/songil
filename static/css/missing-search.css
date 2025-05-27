@@ -272,6 +272,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-top: 80px; /* 위치를 올리기 위해 상단 패딩 추가 */
 }
 
 .filter-popup-modal {
@@ -387,14 +388,41 @@
 
 /* 지역 선택 관련 스타일 */
 .region-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px;
 }
 
 .region-level-1,
 .region-level-2 {
     width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.region-level-1 {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.region-level-2 {
+    opacity: 0;
+    transform: translateX(100%);
+    display: none;
+}
+
+.region-level-2.active {
+    display: block;
+}
+
+.region-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .region-level-1 h5,
@@ -402,15 +430,64 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--gray-700);
-    margin: 0 0 12px 0;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--gray-200);
+    margin: 0;
 }
 
-.region-level-2 {
-    padding-top: 15px;
-    border-top: 1px solid var(--gray-200);
-    margin-top: 5px;
+.region-back-btn {
+    background: none;
+    border: none;
+    color: var(--primary-orange);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.region-back-btn:hover {
+    background: var(--primary-orange-soft);
+    opacity: 0.8;
+}
+
+.region-back-btn i {
+    font-size: 0.8rem;
+}
+
+/* 지역 옵션 그리드: 3줄 배치 */
+.region-level-1 .filter-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.region-level-2 .filter-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+}
+
+/* 지역 선택 옵션 스타일 조정 */
+.region-selector .filter-option {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    text-align: center;
+    justify-content: center;
+}
+
+.region-selector .checkmark {
+    width: 16px;
+    height: 16px;
+}
+
+.region-selector .filter-option input[type="radio"]:checked ~ .checkmark::after {
+    width: 5px;
+    height: 5px;
 }
 
 /* 탭 콘텐츠 */

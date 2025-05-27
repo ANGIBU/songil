@@ -174,8 +174,10 @@
             <div class="filter-tab-content" id="tab-region">
                 <div class="region-selector">
                     <!-- 도/시 선택 -->
-                    <div class="region-level-1">
-                        <h5>시/도 선택</h5>
+                    <div class="region-level-1" id="regionLevel1">
+                        <div class="region-header">
+                            <h5>시/도 선택</h5>
+                        </div>
                         <div class="filter-options">
                             <label class="filter-option">
                                 <input type="radio" name="region-level1" value="" checked>
@@ -185,7 +187,7 @@
                             <label class="filter-option">
                                 <input type="radio" name="region-level1" value="seoul">
                                 <span class="checkmark"></span>
-                                서울특별시
+                                서울시
                             </label>
                             <label class="filter-option">
                                 <input type="radio" name="region-level1" value="gyeonggi">
@@ -195,7 +197,7 @@
                             <label class="filter-option">
                                 <input type="radio" name="region-level1" value="gangwon">
                                 <span class="checkmark"></span>
-                                강원특별자치도
+                                강원도
                             </label>
                             <label class="filter-option">
                                 <input type="radio" name="region-level1" value="chungbuk">
@@ -230,14 +232,20 @@
                             <label class="filter-option">
                                 <input type="radio" name="region-level1" value="jeju">
                                 <span class="checkmark"></span>
-                                제주특별자치도
+                                제주도
                             </label>
                         </div>
                     </div>
                     
                     <!-- 세부 지역 선택 -->
-                    <div class="region-level-2" id="regionLevel2" style="display: none;">
-                        <h5>세부 지역 선택</h5>
+                    <div class="region-level-2" id="regionLevel2">
+                        <div class="region-header">
+                            <h5 id="regionLevel2Title">세부 지역 선택</h5>
+                            <button type="button" class="region-back-btn" id="regionBackBtn">
+                                <i class="fas fa-arrow-left"></i>
+                                뒤로가기
+                            </button>
+                        </div>
                         <div class="filter-options" id="regionLevel2Options">
                             <!-- 동적으로 생성됩니다 -->
                         </div>
