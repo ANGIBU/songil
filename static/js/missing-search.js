@@ -196,7 +196,7 @@ class PaginationManager {
 
     scrollToTop() {
         window.scrollTo({
-            top: document.querySelector('.missing-list').offsetTop - 100,
+            top: 0,
             behavior: 'smooth'
         });
     }
@@ -277,7 +277,69 @@ class FilterPopupManager {
             age: '',
             period: ''
         };
+        this.regionData = this.initRegionData();
         this.init();
+    }
+
+    initRegionData() {
+        return {
+            seoul: {
+                name: '서울특별시',
+                districts: ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', 
+                          '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', 
+                          '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구']
+            },
+            gyeonggi: {
+                name: '경기도',
+                districts: ['고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', 
+                          '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', 
+                          '양주시', '여주시', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', 
+                          '평택시', '포천시', '하남시', '화성시']
+            },
+            gangwon: {
+                name: '강원특별자치도',
+                districts: ['춘천시', '원주시', '강릉시', '동해시', '태백시', '속초시', '삼척시', '홍천군', 
+                          '횡성군', '영월군', '평창군', '정선군', '철원군', '화천군', '양구군', '인제군', 
+                          '고성군', '양양군']
+            },
+            chungbuk: {
+                name: '충청북도',
+                districts: ['청주시', '충주시', '제천시', '보은군', '옥천군', '영동군', '진천군', '괴산군', 
+                          '음성군', '단양군', '증평군']
+            },
+            chungnam: {
+                name: '충청남도',
+                districts: ['천안시', '공주시', '보령시', '아산시', '서산시', '논산시', '계룡시', '당진시', 
+                          '금산군', '부여군', '서천군', '청양군', '홍성군', '예산군', '태안군']
+            },
+            jeonbuk: {
+                name: '전라북도',
+                districts: ['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', '완주군', '진안군', 
+                          '무주군', '장수군', '임실군', '순창군', '고창군', '부안군']
+            },
+            jeonnam: {
+                name: '전라남도',
+                districts: ['목포시', '여수시', '순천시', '나주시', '광양시', '담양군', '곡성군', '구례군', 
+                          '고흥군', '보성군', '화순군', '장흥군', '강진군', '해남군', '영암군', '무안군', 
+                          '함평군', '영광군', '장성군', '완도군', '진도군', '신안군']
+            },
+            gyeongbuk: {
+                name: '경상북도',
+                districts: ['포항시', '경주시', '김천시', '안동시', '구미시', '영주시', '영천시', '상주시', 
+                          '문경시', '경산시', '군위군', '의성군', '청송군', '영양군', '영덕군', '청도군', 
+                          '고령군', '성주군', '칠곡군', '예천군', '봉화군', '울진군', '울릉군']
+            },
+            gyeongnam: {
+                name: '경상남도',
+                districts: ['창원시', '진주시', '통영시', '사천시', '김해시', '밀양시', '거제시', '양산시', 
+                          '의령군', '함안군', '창녕군', '고성군', '남해군', '하동군', '산청군', '함양군', 
+                          '거창군', '합천군']
+            },
+            jeju: {
+                name: '제주특별자치도',
+                districts: ['제주시', '서귀포시']
+            }
+        };
     }
 
     init() {
@@ -324,12 +386,61 @@ class FilterPopupManager {
             });
         });
 
+        // 지역 1단계 선택 이벤트
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'region-level1') {
+                this.handleRegionLevel1Change(e.target.value);
+            }
+        });
+
         // ESC 키로 닫기
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
                 this.closePopup();
             }
         });
+    }
+
+    handleRegionLevel1Change(regionCode) {
+        const regionLevel2 = document.getElementById('regionLevel2');
+        const regionLevel2Options = document.getElementById('regionLevel2Options');
+        
+        if (!regionCode) {
+            // 전체 지역 선택시 2단계 숨김
+            regionLevel2.style.display = 'none';
+            return;
+        }
+        
+        const regionInfo = this.regionData[regionCode];
+        if (!regionInfo) return;
+        
+        // 2단계 지역 옵션 생성
+        regionLevel2Options.innerHTML = '';
+        
+        // 전체 옵션 추가
+        const allOption = document.createElement('label');
+        allOption.className = 'filter-option';
+        allOption.innerHTML = `
+            <input type="radio" name="region-level2" value="${regionCode}" checked>
+            <span class="checkmark"></span>
+            전체 ${regionInfo.name}
+        `;
+        regionLevel2Options.appendChild(allOption);
+        
+        // 세부 지역 옵션들 추가
+        regionInfo.districts.forEach(district => {
+            const option = document.createElement('label');
+            option.className = 'filter-option';
+            option.innerHTML = `
+                <input type="radio" name="region-level2" value="${regionCode}-${district}">
+                <span class="checkmark"></span>
+                ${district}
+            `;
+            regionLevel2Options.appendChild(option);
+        });
+        
+        // 2단계 표시
+        regionLevel2.style.display = 'block';
     }
 
     switchTab(tabName) {
@@ -369,9 +480,8 @@ class FilterPopupManager {
         const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
         if (sortRadio) sortRadio.checked = true;
 
-        // 지역 라디오 버튼
-        const regionRadio = document.querySelector(`input[name="region"][value="${filters.region}"]`);
-        if (regionRadio) regionRadio.checked = true;
+        // 지역 필터 로딩
+        this.loadRegionFilter(filters.region);
 
         // 연령대 라디오 버튼
         const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
@@ -382,12 +492,61 @@ class FilterPopupManager {
         if (periodRadio) periodRadio.checked = true;
     }
 
+    loadRegionFilter(regionValue) {
+        if (!regionValue) {
+            // 전체 지역 선택
+            const allRegionRadio = document.querySelector('input[name="region-level1"][value=""]');
+            if (allRegionRadio) allRegionRadio.checked = true;
+            return;
+        }
+        
+        // 세부 지역인 경우
+        if (regionValue.includes('-')) {
+            const [regionCode, district] = regionValue.split('-');
+            
+            // 1단계 지역 선택
+            const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionCode}"]`);
+            if (level1Radio) {
+                level1Radio.checked = true;
+                this.handleRegionLevel1Change(regionCode);
+                
+                // 2단계 지역 선택 (약간의 지연 후)
+                setTimeout(() => {
+                    const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
+                    if (level2Radio) level2Radio.checked = true;
+                }, 100);
+            }
+        } else {
+            // 도/시 전체인 경우
+            const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionValue}"]`);
+            if (level1Radio) {
+                level1Radio.checked = true;
+                this.handleRegionLevel1Change(regionValue);
+                
+                // 전체 옵션 선택
+                setTimeout(() => {
+                    const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
+                    if (level2Radio) level2Radio.checked = true;
+                }, 100);
+            }
+        }
+    }
+
     applyFilters() {
         // 정렬
         const sortValue = document.querySelector('input[name="sort"]:checked')?.value || 'danger';
         
-        // 지역
-        const regionValue = document.querySelector('input[name="region"]:checked')?.value || '';
+        // 지역 - 2단계 지역 선택 확인
+        let regionValue = '';
+        const regionLevel2Input = document.querySelector('input[name="region-level2"]:checked');
+        if (regionLevel2Input) {
+            regionValue = regionLevel2Input.value;
+        } else {
+            const regionLevel1Input = document.querySelector('input[name="region-level1"]:checked');
+            if (regionLevel1Input && regionLevel1Input.value) {
+                regionValue = regionLevel1Input.value;
+            }
+        }
         
         // 연령대
         const ageValue = document.querySelector('input[name="age"]:checked')?.value || '';
@@ -427,24 +586,6 @@ class FilterPopupManager {
                 recent: '최신순',
                 old: '오래된순'
             },
-            region: {
-                seoul: '서울특별시',
-                busan: '부산광역시',
-                daegu: '대구광역시',
-                incheon: '인천광역시',
-                gwangju: '광주광역시',
-                daejeon: '대전광역시',
-                ulsan: '울산광역시',
-                gyeonggi: '경기도',
-                gangwon: '강원도',
-                chungbuk: '충청북도',
-                chungnam: '충청남도',
-                jeonbuk: '전라북도',
-                jeonnam: '전라남도',
-                gyeongbuk: '경상북도',
-                gyeongnam: '경상남도',
-                jeju: '제주특별자치도'
-            },
             age: {
                 child: '어린이 (0-12세)',
                 teen: '청소년 (13-19세)',
@@ -463,9 +604,18 @@ class FilterPopupManager {
         // 기본값이 아닌 필터들만 표시
         Object.keys(filters).forEach(key => {
             const value = filters[key];
-            if (value && value !== 'danger' && key !== 'searchTerm') { // 정렬의 기본값과 검색어 제외
-                const label = filterLabels[key]?.[value] || value;
-                this.createFilterTag(key, value, label, container);
+            if (value && value !== 'danger' && key !== 'searchTerm') {
+                let label = '';
+                
+                if (key === 'region') {
+                    label = this.getRegionLabel(value);
+                } else {
+                    label = filterLabels[key]?.[value] || value;
+                }
+                
+                if (label) {
+                    this.createFilterTag(key, value, label, container);
+                }
             }
         });
 
@@ -475,6 +625,27 @@ class FilterPopupManager {
         } else {
             container.style.display = 'none';
         }
+    }
+
+    getRegionLabel(regionValue) {
+        if (!regionValue) return '';
+        
+        // 세부 지역인 경우 (예: seoul-강남구)
+        if (regionValue.includes('-')) {
+            const [regionCode, district] = regionValue.split('-');
+            const regionInfo = this.regionData[regionCode];
+            if (regionInfo) {
+                return `${regionInfo.name} ${district}`;
+            }
+        } else {
+            // 도/시 전체인 경우
+            const regionInfo = this.regionData[regionValue];
+            if (regionInfo) {
+                return regionInfo.name;
+            }
+        }
+        
+        return regionValue;
     }
 
     createFilterTag(filterKey, filterValue, label, container) {
@@ -699,7 +870,7 @@ class SearchManager {
 
         // 지역 필터
         if (this.filters.region) {
-            filtered = filtered.filter(item => item.region === this.filters.region);
+            filtered = filtered.filter(item => this.matchesRegion(item.region, this.filters.region));
         }
 
         // 연령 필터
@@ -717,6 +888,21 @@ class SearchManager {
 
         this.filteredData = filtered;
         this.notify();
+    }
+
+    matchesRegion(itemRegion, filterRegion) {
+        if (!filterRegion) return true;
+        
+        // 세부 지역 필터인 경우 (예: seoul-강남구)
+        if (filterRegion.includes('-')) {
+            const [regionCode, district] = filterRegion.split('-');
+            // 아이템의 지역이 해당 지역 코드와 매치되는지 확인
+            // 실제로는 더 정교한 매칭 로직이 필요할 수 있음
+            return itemRegion === regionCode;
+        } else {
+            // 도/시 전체 필터인 경우
+            return itemRegion === filterRegion;
+        }
     }
 
     matchesAgeGroup(age, group) {

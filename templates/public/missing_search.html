@@ -172,92 +172,76 @@
             
             <!-- 지역 탭 -->
             <div class="filter-tab-content" id="tab-region">
-                <div class="filter-options">
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="" checked>
-                        <span class="checkmark"></span>
-                        전체 지역
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="seoul">
-                        <span class="checkmark"></span>
-                        서울특별시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="busan">
-                        <span class="checkmark"></span>
-                        부산광역시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="daegu">
-                        <span class="checkmark"></span>
-                        대구광역시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="incheon">
-                        <span class="checkmark"></span>
-                        인천광역시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="gwangju">
-                        <span class="checkmark"></span>
-                        광주광역시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="daejeon">
-                        <span class="checkmark"></span>
-                        대전광역시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="ulsan">
-                        <span class="checkmark"></span>
-                        울산광역시
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="gyeonggi">
-                        <span class="checkmark"></span>
-                        경기도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="gangwon">
-                        <span class="checkmark"></span>
-                        강원도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="chungbuk">
-                        <span class="checkmark"></span>
-                        충청북도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="chungnam">
-                        <span class="checkmark"></span>
-                        충청남도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="jeonbuk">
-                        <span class="checkmark"></span>
-                        전라북도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="jeonnam">
-                        <span class="checkmark"></span>
-                        전라남도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="gyeongbuk">
-                        <span class="checkmark"></span>
-                        경상북도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="gyeongnam">
-                        <span class="checkmark"></span>
-                        경상남도
-                    </label>
-                    <label class="filter-option">
-                        <input type="radio" name="region" value="jeju">
-                        <span class="checkmark"></span>
-                        제주특별자치도
-                    </label>
+                <div class="region-selector">
+                    <!-- 도/시 선택 -->
+                    <div class="region-level-1">
+                        <h5>시/도 선택</h5>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="" checked>
+                                <span class="checkmark"></span>
+                                전체 지역
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="seoul">
+                                <span class="checkmark"></span>
+                                서울특별시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gyeonggi">
+                                <span class="checkmark"></span>
+                                경기도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gangwon">
+                                <span class="checkmark"></span>
+                                강원특별자치도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="chungbuk">
+                                <span class="checkmark"></span>
+                                충청북도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="chungnam">
+                                <span class="checkmark"></span>
+                                충청남도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="jeonbuk">
+                                <span class="checkmark"></span>
+                                전라북도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="jeonnam">
+                                <span class="checkmark"></span>
+                                전라남도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gyeongbuk">
+                                <span class="checkmark"></span>
+                                경상북도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gyeongnam">
+                                <span class="checkmark"></span>
+                                경상남도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="jeju">
+                                <span class="checkmark"></span>
+                                제주특별자치도
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 세부 지역 선택 -->
+                    <div class="region-level-2" id="regionLevel2" style="display: none;">
+                        <h5>세부 지역 선택</h5>
+                        <div class="filter-options" id="regionLevel2Options">
+                            <!-- 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
                 </div>
             </div>
             

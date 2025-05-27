@@ -385,6 +385,34 @@
     flex: 1;
 }
 
+/* 지역 선택 관련 스타일 */
+.region-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.region-level-1,
+.region-level-2 {
+    width: 100%;
+}
+
+.region-level-1 h5,
+.region-level-2 h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.region-level-2 {
+    padding-top: 15px;
+    border-top: 1px solid var(--gray-200);
+    margin-top: 5px;
+}
+
 /* 탭 콘텐츠 */
 .filter-tab-content {
     display: none;
