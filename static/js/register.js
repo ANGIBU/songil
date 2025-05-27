@@ -1,49 +1,4 @@
-// 생년월일 유효성 검사
-function validateBirthDate() {
-    const birthDate = document.getElementById('birthDate').value.trim();
-    
-    if (!birthDate) {
-        showFieldError('birthDateError', '생년월일을 입력해주세요.');
-        return false;
-    }
-    
-    if (birthDate.length !== 8) {
-        showFieldError('birthDateError', '생년월일을 8자리로 입력해주세요. (예: 20020101)');
-        return false;
-    }
-    
-    // 날짜 형식 검증
-    const year = parseInt(birthDate.substring(0, 4));
-    const month = parseInt(birthDate.substring(4, 6));
-    const day = parseInt(birthDate.substring(6, 8));
-    
-    const currentYear = new Date().getFullYear();
-    
-    if (year < 1900 || year > currentYear) {
-        showFieldError('birthDateError', '올바른 연도를 입력해주세요.');
-        return false;
-    }
-    
-    if (month < 1 || month > 12) {
-        showFieldError('birthDateError', '올바른 월을 입력해주세요.');
-        return false;
-    }
-    
-    if (day < 1 || day > 31) {
-        showFieldError('birthDateError', '올바른 일을 입력해주세요.');
-        return false;
-    }
-    
-    // 실제 날짜 유효성 검사
-    const testDate = new Date(year, month - 1, day);
-    if (testDate.getFullYear() !== year || testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
-        showFieldError('birthDateError', '유효하지 않은 날짜입니다.');
-        return false;
-    }
-    
-    clearFieldError('birthDateError');
-    return true;
-}// static/js/register.js
+// static/js/register.js
 
 let currentStep = 1;
 let isEmailVerified = false;
@@ -52,6 +7,7 @@ let isEmailVerified = false;
 document.addEventListener('DOMContentLoaded', function() {
     initializeRegister();
     initializeEmailCheck();
+    initializeNicknameCheck();
     initializePasswordValidation();
     initializeEmailAuth();
     initializeAgreements();
@@ -147,7 +103,7 @@ function checkFormValidity() {
     
     // 필수 입력 필드 검사
     const requiredFields = [
-        'fullName', 'email', 'password', 'passwordConfirm', 
+        'fullName', 'email', 'nickname', 'password', 'passwordConfirm', 
         'birthDate', 'phone', 'address'
     ];
     
@@ -172,6 +128,10 @@ function checkFormValidity() {
     const emailCheckBtn = document.getElementById('emailCheckBtn');
     const emailChecked = emailCheckBtn && emailCheckBtn.classList.contains('btn-success');
     
+    // 닉네임 중복확인 검사
+    const nicknameCheckBtn = document.getElementById('nicknameCheckBtn');
+    const nicknameChecked = nicknameCheckBtn && nicknameCheckBtn.classList.contains('btn-success');
+    
     // 비밀번호 유효성 검사
     const password = document.getElementById('password').value;
     const passwordValid = validatePassword(password);
@@ -187,8 +147,8 @@ function checkFormValidity() {
     const agreePrivacy = document.querySelector('input[name="agreePrivacy"]').checked;
     
     // 모든 조건 확인
-    const isValid = allFieldsValid && genderSelected && emailChecked && passwordValid && 
-                   passwordConfirmValid && birthDateValid && agreeTerms && agreePrivacy;
+    const isValid = allFieldsValid && genderSelected && emailChecked && nicknameChecked && 
+                   passwordValid && passwordConfirmValid && birthDateValid && agreeTerms && agreePrivacy;
     
     // 버튼 활성화/비활성화
     nextBtn.disabled = !isValid;
@@ -370,6 +330,97 @@ function clearEmailValidation() {
     }
 }
 
+// 닉네임 중복 확인
+function initializeNicknameCheck() {
+    const nicknameCheckBtn = document.getElementById('nicknameCheckBtn');
+    const nicknameInput = document.getElementById('nickname');
+    
+    if (nicknameCheckBtn && nicknameInput) {
+        nicknameCheckBtn.addEventListener('click', checkNicknameDuplicate);
+        nicknameInput.addEventListener('input', function() {
+            clearNicknameValidation();
+            checkFormValidity();
+        });
+    }
+}
+
+async function checkNicknameDuplicate() {
+    const nickname = document.getElementById('nickname').value.trim();
+    const nicknameCheckBtn = document.getElementById('nicknameCheckBtn');
+    
+    if (!validateNickname(nickname)) {
+        return;
+    }
+    
+    const originalText = nicknameCheckBtn.textContent;
+    nicknameCheckBtn.textContent = '확인 중...';
+    nicknameCheckBtn.disabled = true;
+    
+    try {
+        await simulateAPICall(1000);
+        
+        // 90% 확률로 사용 가능
+        if (Math.random() > 0.1) {
+            showValidationMessage('nicknameValidation', '사용 가능한 닉네임입니다.', 'valid');
+            nicknameCheckBtn.textContent = '확인완료';
+            nicknameCheckBtn.classList.add('btn-success');
+            checkFormValidity();
+        } else {
+            showValidationMessage('nicknameValidation', '이미 사용중인 닉네임입니다.', 'invalid');
+            nicknameCheckBtn.textContent = originalText;
+            nicknameCheckBtn.disabled = false;
+        }
+    } catch (error) {
+        showValidationMessage('nicknameValidation', '닉네임 확인 중 오류가 발생했습니다.', 'invalid');
+        nicknameCheckBtn.textContent = originalText;
+        nicknameCheckBtn.disabled = false;
+    }
+}
+
+function clearNicknameValidation() {
+    const nicknameCheckBtn = document.getElementById('nicknameCheckBtn');
+    const nicknameValidation = document.getElementById('nicknameValidation');
+    
+    if (nicknameValidation) {
+        nicknameValidation.textContent = '';
+        nicknameValidation.className = 'validation-message';
+    }
+    
+    if (nicknameCheckBtn) {
+        nicknameCheckBtn.textContent = '중복확인';
+        nicknameCheckBtn.disabled = false;
+        nicknameCheckBtn.classList.remove('btn-success');
+    }
+}
+
+function validateNickname(nickname) {
+    if (!nickname) {
+        showValidationMessage('nicknameValidation', '닉네임을 입력해주세요.', 'invalid');
+        return false;
+    }
+    
+    if (nickname.length < 2 || nickname.length > 12) {
+        showValidationMessage('nicknameValidation', '닉네임은 2~12자여야 합니다.', 'invalid');
+        return false;
+    }
+    
+    // 한글, 영문, 숫자만 허용
+    const nicknameRegex = /^[가-힣a-zA-Z0-9]+$/;
+    if (!nicknameRegex.test(nickname)) {
+        showValidationMessage('nicknameValidation', '한글, 영문, 숫자만 사용 가능합니다.', 'invalid');
+        return false;
+    }
+    
+    // 특수문자나 공백 체크
+    if (/[\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(nickname)) {
+        showValidationMessage('nicknameValidation', '특수문자와 공백은 사용할 수 없습니다.', 'invalid');
+        return false;
+    }
+    
+    clearFieldError('nicknameError');
+    return true;
+}
+
 // 비밀번호 유효성 검사
 function initializePasswordValidation() {
     const passwordInput = document.getElementById('password');
@@ -433,6 +484,53 @@ function validatePasswordConfirm() {
     }
     
     clearFieldError('passwordConfirmError');
+    return true;
+}
+
+// 생년월일 유효성 검사
+function validateBirthDate() {
+    const birthDate = document.getElementById('birthDate').value.trim();
+    
+    if (!birthDate) {
+        showFieldError('birthDateError', '생년월일을 입력해주세요.');
+        return false;
+    }
+    
+    if (birthDate.length !== 8) {
+        showFieldError('birthDateError', '생년월일을 8자리로 입력해주세요. (예: 20020101)');
+        return false;
+    }
+    
+    // 날짜 형식 검증
+    const year = parseInt(birthDate.substring(0, 4));
+    const month = parseInt(birthDate.substring(4, 6));
+    const day = parseInt(birthDate.substring(6, 8));
+    
+    const currentYear = new Date().getFullYear();
+    
+    if (year < 1900 || year > currentYear) {
+        showFieldError('birthDateError', '올바른 연도를 입력해주세요.');
+        return false;
+    }
+    
+    if (month < 1 || month > 12) {
+        showFieldError('birthDateError', '올바른 월을 입력해주세요.');
+        return false;
+    }
+    
+    if (day < 1 || day > 31) {
+        showFieldError('birthDateError', '올바른 일을 입력해주세요.');
+        return false;
+    }
+    
+    // 실제 날짜 유효성 검사
+    const testDate = new Date(year, month - 1, day);
+    if (testDate.getFullYear() !== year || testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
+        showFieldError('birthDateError', '유효하지 않은 날짜입니다.');
+        return false;
+    }
+    
+    clearFieldError('birthDateError');
     return true;
 }
 
@@ -695,6 +793,16 @@ function validateStep1() {
         isValid = false;
     }
     
+    // 닉네임 검사
+    const nickname = document.getElementById('nickname').value.trim();
+    const nicknameCheckBtn = document.getElementById('nicknameCheckBtn');
+    if (!validateNickname(nickname)) {
+        isValid = false;
+    } else if (!nicknameCheckBtn.classList.contains('btn-success')) {
+        showValidationMessage('nicknameValidation', '닉네임 중복확인을 해주세요.', 'invalid');
+        isValid = false;
+    }
+    
     // 비밀번호 검사
     const password = document.getElementById('password').value;
     if (!validatePassword(password)) {
@@ -929,7 +1037,7 @@ function getPrivacyContent() {
         <h4>2. 수집하는 개인정보의 항목</h4>
         <p>회사는 다음과 같은 개인정보를 수집합니다:</p>
         <ul>
-            <li>필수항목: 성명, 이메일, 비밀번호, 생년월일, 휴대폰번호, 성별, 주소</li>
+            <li>필수항목: 성명, 이메일, 비밀번호, 닉네임, 생년월일, 휴대폰번호, 성별, 주소</li>
             <li>선택항목: 마케팅 수신 동의 여부</li>
             <li>자동 수집 항목: IP주소, 접속 로그, 서비스 이용 기록</li>
         </ul>

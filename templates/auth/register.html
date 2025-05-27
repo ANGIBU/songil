@@ -71,6 +71,20 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="nickname">
+                        <i class="fas fa-tag"></i>
+                        닉네임
+                    </label>
+                    <div class="input-with-button">
+                        <input type="text" id="nickname" name="nickname" required placeholder="2~12자 한글, 영문, 숫자">
+                        <button type="button" class="btn btn-outline btn-sm" id="nicknameCheckBtn">중복확인</button>
+                    </div>
+                    <div class="validation-message" id="nicknameValidation"></div>
+                    <div class="error-message" id="nicknameError"></div>
+                    <div class="success-message" id="nicknameSuccess"></div>
+                </div>
+                
+                <div class="form-group">
                     <label for="password">
                         <i class="fas fa-lock"></i>
                         비밀번호

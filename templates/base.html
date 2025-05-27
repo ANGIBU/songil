@@ -19,6 +19,9 @@
     <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     {% block extra_head %}{% endblock %}
 </head>
 
@@ -136,6 +139,49 @@
     <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
+
+    <!-- 새로고침 시 최상단으로 스크롤 기능 -->
+    <script>
+        // 페이지 로드 완료 시 최상단으로 스크롤
+        window.addEventListener('load', function() {
+            // 페이지 로드 후 즉시 최상단으로 스크롤
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // 부드러운 스크롤을 위한 추가 처리
+            if (typeof gsap !== 'undefined') {
+                gsap.set(window, { scrollTo: 0 });
+            }
+        });
+
+        // beforeunload 이벤트에서 스크롤 위치 초기화
+        window.addEventListener('beforeunload', function() {
+            window.scrollTo(0, 0);
+        });
+
+        // pagehide 이벤트에서도 스크롤 위치 초기화 (모바일 대응)
+        window.addEventListener('pagehide', function() {
+            window.scrollTo(0, 0);
+        });
+
+        // DOMContentLoaded에서도 스크롤 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            window.scrollTo(0, 0);
+            
+            // 추가적인 스크롤 방지
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+        });
+
+        // 브라우저 뒤로가기/앞으로가기 시에도 최상단으로
+        window.addEventListener('popstate', function() {
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 0);
+        });
+    </script>
 </body>
 
 </html>

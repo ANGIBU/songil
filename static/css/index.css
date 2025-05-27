@@ -2,15 +2,16 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 히어로 섹션 */
+/* 히어로 섹션 - 위치 조정 */
 .hero-section {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-    padding: 120px 0 100px;
+    padding: 60px 0 80px; /* 상단 패딩을 120px에서 60px로 줄임 */
     position: relative;
     overflow: hidden;
-    min-height: 100vh;
+    min-height: 90vh; /* 100vh에서 90vh로 줄임 */
     display: flex;
     align-items: center;
+    margin-top: -20px; /* 헤더와의 거리 줄이기 */
 }
 
 .hero-section::before {
@@ -91,14 +92,14 @@
     transform: translateX(0);
 }
 
-/* 순위 디스플레이 - 안정적인 크기와 위치 */
+/* 순위 디스플레이 - 크기 증가 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 28px 25px;
+    padding: 35px 30px; /* 28px 25px에서 35px 30px로 증가 */
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 520px;
+    width: 580px; /* 520px에서 580px로 증가 */
     max-width: 100%;
     position: relative;
     overflow: hidden;
@@ -118,10 +119,10 @@
 }
 
 .ranking-title {
-    font-size: 1.1rem;
+    font-size: 1.2rem; /* 1.1rem에서 1.2rem로 증가 */
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* 15px에서 20px로 증가 */
     text-align: center;
     display: flex;
     align-items: center;
@@ -131,29 +132,29 @@
 
 .ranking-title i {
     color: var(--primary-orange);
-    font-size: 1rem;
+    font-size: 1.1rem; /* 1rem에서 1.1rem로 증가 */
 }
 
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px; /* 5px에서 8px로 증가 */
 }
 
-/* 순위 아이템 - 고정된 높이와 안정적인 레이아웃 */
+/* 순위 아이템 - 크기 증가 */
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 10px;
+    gap: 12px; /* 10px에서 12px로 증가 */
+    padding: 12px 16px; /* 8px 12px에서 12px 16px로 증가 */
+    border-radius: 12px; /* 10px에서 12px로 증가 */
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 35px;
-    height: 35px;
+    min-height: 42px; /* 35px에서 42px로 증가 */
+    height: 42px;
     opacity: 1;
     transform: translateY(0);
     will-change: transform;
@@ -165,14 +166,14 @@
 }
 
 .ranking-position {
-    width: 22px;
-    height: 22px;
+    width: 26px; /* 22px에서 26px로 증가 */
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.85rem; /* 0.8rem에서 0.85rem로 증가 */
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -200,7 +201,7 @@
     box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
 }
 
-/* 랭킹 정보 - 안정적인 한 줄 레이아웃 */
+/* 랭킹 정보 - 크기 조정 */
 .ranking-info {
     display: flex;
     align-items: center;
@@ -213,7 +214,7 @@
 .ranking-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px; /* 8px에서 10px로 증가 */
     flex: 1;
     min-width: 0;
 }
@@ -221,7 +222,7 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.8rem;
+    font-size: 0.85rem; /* 0.8rem에서 0.85rem로 증가 */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -229,22 +230,22 @@
 }
 
 .ranking-points {
-    font-size: 0.7rem;
+    font-size: 0.75rem; /* 0.7rem에서 0.75rem로 증가 */
     color: var(--gray-600);
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 3px; /* 2px에서 3px로 증가 */
     line-height: 1;
     white-space: nowrap;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.6rem;
+    font-size: 0.65rem; /* 0.6rem에서 0.65rem로 증가 */
 }
 
 .ranking-stats {
-    font-size: 0.65rem;
+    font-size: 0.7rem; /* 0.65rem에서 0.7rem로 증가 */
     color: var(--gray-500);
     flex-shrink: 0;
     white-space: nowrap;
@@ -689,7 +690,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 */
+/* 희망 메시지 섹션 - 3D 배경 추가 */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -719,6 +720,23 @@
     height: 50px;
     background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(249, 115, 22, 0.1) 100%);
     pointer-events: none;
+}
+
+/* 3D 배경 캔버스 */
+.stats-3d-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+}
+
+.stats-section .container {
+    position: relative;
+    z-index: 2;
 }
 
 .stats-section h2 {
@@ -863,7 +881,7 @@
     }
     
     .ranking-display {
-        width: 450px;
+        width: 500px; /* 450px에서 500px로 증가 */
         margin: 0 auto;
     }
     
@@ -881,8 +899,9 @@
 
 @media (max-width: 768px) {
     .hero-section {
-        padding: 80px 0 60px;
+        padding: 40px 0 50px; /* 모바일에서도 위치 조정 */
         min-height: auto;
+        margin-top: -10px;
     }
     
     .hero-title {
@@ -906,8 +925,20 @@
     }
     
     .ranking-display {
-        width: 400px;
+        width: 420px; /* 400px에서 420px로 증가 */
         margin: 0 auto;
+        padding: 30px 25px; /* 패딩도 조정 */
+    }
+    
+    .ranking-item {
+        min-height: 40px;
+        height: 40px;
+        padding: 10px 14px;
+    }
+    
+    .ranking-position {
+        width: 24px;
+        height: 24px;
     }
     
     .section-header h2 {
@@ -975,8 +1006,19 @@
     }
     
     .ranking-display {
-        width: 350px;
-        padding: 18px 15px;
+        width: 360px; /* 350px에서 360px로 증가 */
+        padding: 20px 18px; /* 18px 15px에서 20px 18px로 증가 */
+    }
+    
+    .ranking-item {
+        min-height: 38px;
+        height: 38px;
+        padding: 8px 12px;
+    }
+    
+    .ranking-position {
+        width: 22px;
+        height: 22px;
     }
 }
 

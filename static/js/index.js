@@ -564,6 +564,390 @@ class WaveEffect {
     }
 }
 
+// 고품질 3D 배경 효과 클래스 - 새로 추가
+class Interactive3DBackground {
+    constructor(canvas, container) {
+        this.canvas = canvas;
+        this.container = container;
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.particles = [];
+        this.geometries = [];
+        this.time = 0;
+        this.isDestroyed = false;
+        this.animationId = null;
+        this.mouse = { x: 0, y: 0 };
+        this.targetMouse = { x: 0, y: 0 };
+        
+        this.init();
+    }
+
+    init() {
+        if (typeof THREE === 'undefined' || !this.canvas || this.isDestroyed) {
+            return;
+        }
+
+        try {
+            this.setupScene();
+            this.createObjects();
+            this.setupEventListeners();
+            this.animate();
+        } catch (error) {
+            console.warn('3D Background initialization failed:', error);
+            this.destroy();
+        }
+    }
+
+    setupScene() {
+        // Scene 설정
+        this.scene = new THREE.Scene();
+        
+        // Camera 설정
+        const aspect = this.container.offsetWidth / this.container.offsetHeight;
+        this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+        this.camera.position.z = 50;
+        
+        // Renderer 설정
+        this.renderer = new THREE.WebGLRenderer({ 
+            canvas: this.canvas,
+            alpha: true, 
+            antialias: true,
+            powerPreference: "high-performance"
+        });
+        
+        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
+        this.renderer.setClearColor(0x000000, 0);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // 조명 설정
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        this.scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(50, 50, 25);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
+        this.scene.add(directionalLight);
+
+        // 포인트 라이트 추가
+        const pointLight1 = new THREE.PointLight(0x22c55e, 0.5, 100);
+        pointLight1.position.set(-30, 20, 10);
+        this.scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xf97316, 0.5, 100);
+        pointLight2.position.set(30, -20, 10);
+        this.scene.add(pointLight2);
+    }
+
+    createObjects() {
+        // 복잡한 3D 객체들 생성
+        this.createFloatingGeometries();
+        this.createParticleSystem();
+        this.createConnectedNetwork();
+    }
+
+    createFloatingGeometries() {
+        // 다양한 기하학적 형태 생성
+        const geometryTypes = [
+            new THREE.SphereGeometry(2, 16, 16),
+            new THREE.BoxGeometry(3, 3, 3),
+            new THREE.ConeGeometry(2, 4, 8),
+            new THREE.TetrahedronGeometry(2.5),
+            new THREE.OctahedronGeometry(2),
+            new THREE.IcosahedronGeometry(2)
+        ];
+
+        for (let i = 0; i < 15; i++) {
+            const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
+            
+            // 그라데이션 재질 생성
+            const material = new THREE.MeshPhongMaterial({
+                color: new THREE.Color().setHSL(
+                    Math.random() * 0.3 + (i % 2 === 0 ? 0.1 : 0.55), // 주황색 또는 초록색 계열
+                    0.7,
+                    0.6
+                ),
+                shininess: 100,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // 랜덤 위치 배치
+            mesh.position.set(
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 60,
+                (Math.random() - 0.5) * 40
+            );
+            
+            // 랜덤 회전
+            mesh.rotation.set(
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2
+            );
+            
+            // 사용자 정의 속성
+            mesh.userData = {
+                initialPosition: mesh.position.clone(),
+                rotationSpeed: {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.02
+                },
+                floatSpeed: Math.random() * 0.02 + 0.01,
+                floatRange: Math.random() * 10 + 5
+            };
+            
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            
+            this.scene.add(mesh);
+            this.geometries.push(mesh);
+        }
+    }
+
+    createParticleSystem() {
+        // 파티클 시스템 생성
+        const particleCount = 200;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            // 위치 설정
+            positions[i * 3] = (Math.random() - 0.5) * 150;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
+
+            // 색상 설정 (주황색과 초록색 계열)
+            const colorType = Math.random();
+            if (colorType < 0.5) {
+                colors[i * 3] = 1; // R
+                colors[i * 3 + 1] = 0.45; // G
+                colors[i * 3 + 2] = 0.1; // B
+            } else {
+                colors[i * 3] = 0.13; // R
+                colors[i * 3 + 1] = 0.77; // G
+                colors[i * 3 + 2] = 0.37; // B
+            }
+
+            // 크기 설정
+            sizes[i] = Math.random() * 3 + 1;
+        }
+
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 2,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            sizeAttenuation: true
+        });
+
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        this.scene.add(particles);
+        this.particles.push(particles);
+    }
+
+    createConnectedNetwork() {
+        // 네트워크 연결선 생성
+        const lineGeometry = new THREE.BufferGeometry();
+        const linePositions = [];
+        const lineColors = [];
+
+        // 일부 기하학적 객체들을 선으로 연결
+        for (let i = 0; i < this.geometries.length - 1; i += 2) {
+            if (i + 1 < this.geometries.length) {
+                const obj1 = this.geometries[i];
+                const obj2 = this.geometries[i + 1];
+
+                linePositions.push(
+                    obj1.position.x, obj1.position.y, obj1.position.z,
+                    obj2.position.x, obj2.position.y, obj2.position.z
+                );
+
+                // 연결선 색상
+                lineColors.push(
+                    0.5, 0.5, 0.5,
+                    0.5, 0.5, 0.5
+                );
+            }
+        }
+
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+        lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
+
+        const lineMaterial = new THREE.LineBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.3
+        });
+
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        this.scene.add(lines);
+    }
+
+    setupEventListeners() {
+        this.mouseMoveHandler = (event) => {
+            if (this.isDestroyed) return;
+            
+            const rect = this.container.getBoundingClientRect();
+            this.targetMouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            this.targetMouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        };
+
+        this.container.addEventListener('mousemove', this.mouseMoveHandler);
+    }
+
+    updateObjects() {
+        this.time += 0.01;
+        
+        // 마우스 따라 움직이는 효과 (부드럽게)
+        this.mouse.x += (this.targetMouse.x - this.mouse.x) * 0.05;
+        this.mouse.y += (this.targetMouse.y - this.mouse.y) * 0.05;
+
+        // 기하학적 객체들 애니메이션
+        this.geometries.forEach((mesh, index) => {
+            const userData = mesh.userData;
+            
+            // 회전
+            mesh.rotation.x += userData.rotationSpeed.x;
+            mesh.rotation.y += userData.rotationSpeed.y;
+            mesh.rotation.z += userData.rotationSpeed.z;
+            
+            // 부유 효과
+            mesh.position.y = userData.initialPosition.y + 
+                Math.sin(this.time * userData.floatSpeed + index) * userData.floatRange;
+            
+            // 마우스 반응
+            const distance = new THREE.Vector2(this.mouse.x * 20, this.mouse.y * 20);
+            mesh.position.x = userData.initialPosition.x + distance.x * 0.1;
+            mesh.position.z = userData.initialPosition.z + distance.y * 0.1;
+            
+            // 호버 효과
+            const mouseDistance = Math.sqrt(
+                Math.pow(this.mouse.x * 50 - mesh.position.x, 2) +
+                Math.pow(this.mouse.y * 30 - mesh.position.y, 2)
+            );
+            
+            if (mouseDistance < 20) {
+                mesh.scale.setScalar(1.2 + Math.sin(this.time * 5) * 0.1);
+                mesh.material.opacity = 0.9;
+            } else {
+                mesh.scale.setScalar(1);
+                mesh.material.opacity = 0.8;
+            }
+        });
+
+        // 파티클 애니메이션
+        this.particles.forEach(particle => {
+            const positions = particle.geometry.attributes.position.array;
+            
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i + 1] += Math.sin(this.time + positions[i] * 0.01) * 0.1;
+                
+                // 마우스 반응
+                const particleX = positions[i];
+                const particleY = positions[i + 1];
+                const mouseDistance = Math.sqrt(
+                    Math.pow(this.mouse.x * 50 - particleX, 2) +
+                    Math.pow(this.mouse.y * 30 - particleY, 2)
+                );
+                
+                if (mouseDistance < 30) {
+                    positions[i] += (this.mouse.x * 50 - particleX) * 0.01;
+                    positions[i + 1] += (this.mouse.y * 30 - particleY) * 0.01;
+                }
+            }
+            
+            particle.geometry.attributes.position.needsUpdate = true;
+        });
+
+        // 카메라 움직임
+        this.camera.position.x += (this.mouse.x * 5 - this.camera.position.x) * 0.05;
+        this.camera.position.y += (this.mouse.y * 5 - this.camera.position.y) * 0.05;
+        this.camera.lookAt(0, 0, 0);
+    }
+
+    animate() {
+        if (this.isDestroyed) return;
+        
+        this.animationId = requestAnimationFrame(() => this.animate());
+        
+        try {
+            this.updateObjects();
+            
+            if (this.renderer && this.scene && this.camera) {
+                this.renderer.render(this.scene, this.camera);
+            }
+        } catch (error) {
+            console.warn('3D Background animation error:', error);
+            this.destroy();
+        }
+    }
+
+    onWindowResize() {
+        if (!this.renderer || !this.camera || this.isDestroyed) return;
+        
+        try {
+            const width = this.container.offsetWidth;
+            const height = this.container.offsetHeight;
+            
+            this.camera.aspect = width / height;
+            this.camera.updateProjectionMatrix();
+            
+            this.renderer.setSize(width, height);
+        } catch (error) {
+            console.warn('3D Background resize error:', error);
+        }
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+        
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        
+        // 이벤트 리스너 제거
+        if (this.mouseMoveHandler && this.container) {
+            this.container.removeEventListener('mousemove', this.mouseMoveHandler);
+        }
+        
+        // 객체들 정리
+        this.geometries.forEach(mesh => {
+            if (mesh.geometry) mesh.geometry.dispose();
+            if (mesh.material) mesh.material.dispose();
+        });
+        this.geometries = [];
+        
+        this.particles.forEach(particle => {
+            if (particle.geometry) particle.geometry.dispose();
+            if (particle.material) particle.material.dispose();
+        });
+        this.particles = [];
+        
+        // 렌더러 정리
+        if (this.renderer) {
+            this.renderer.dispose();
+            this.renderer = null;
+        }
+        
+        this.scene = null;
+        this.camera = null;
+    }
+}
+
 // GSAP 애니메이션 관리자 (버그 수정 및 개선)
 class IndexAnimations {
     constructor() {
@@ -934,6 +1318,7 @@ class ScrollObserver {
 class IndexPage {
     constructor() {
         this.waveEffect = null;
+        this.background3D = null;
         this.animations = null;
         this.scrollObserver = null;
         this.isDestroyed = false;
@@ -960,10 +1345,14 @@ class IndexPage {
             this.renderRankings();
             this.renderUrgentCards();
             
+            // 3D 배경 캔버스 추가
+            this.add3DBackgroundCanvas();
+            
             // 시각화 초기화 - 안전한 지연
             setTimeout(() => {
                 if (!this.isDestroyed) {
                     this.initWaveEffect();
+                    this.init3DBackground();
                 }
             }, 100);
             
@@ -980,6 +1369,32 @@ class IndexPage {
             console.log('Index page initialized successfully');
         } catch (error) {
             console.error('Index page setup error:', error);
+        }
+    }
+
+    // 3D 배경 캔버스 추가
+    add3DBackgroundCanvas() {
+        const statsSection = document.querySelector('.stats-section');
+        if (!statsSection) return;
+
+        // 3D 배경 캔버스 생성
+        const canvas3D = document.createElement('canvas');
+        canvas3D.className = 'stats-3d-background';
+        canvas3D.id = 'stats3DCanvas';
+        
+        // 캔버스를 stats-section에 추가
+        statsSection.insertBefore(canvas3D, statsSection.firstChild);
+    }
+
+    // 3D 배경 초기화
+    init3DBackground() {
+        if (this.isDestroyed) return;
+        
+        const canvas3D = document.getElementById('stats3DCanvas');
+        const container = document.querySelector('.stats-section');
+        
+        if (canvas3D && container && !this.isDestroyed) {
+            this.background3D = new Interactive3DBackground(canvas3D, container);
         }
     }
 
@@ -1103,6 +1518,10 @@ class IndexPage {
                     this.waveEffect.onWindowResize();
                 }
                 
+                if (this.background3D) {
+                    this.background3D.onWindowResize();
+                }
+                
                 // 리사이즈 시 그리드 레이아웃 재적용
                 const urgentContainer = document.querySelector('.urgent-cards');
                 if (urgentContainer) {
@@ -1161,6 +1580,11 @@ class IndexPage {
             this.waveEffect = null;
         }
         
+        if (this.background3D) {
+            this.background3D.destroy();
+            this.background3D = null;
+        }
+        
         if (this.animations) {
             this.animations.destroy();
             this.animations = null;
@@ -1211,10 +1635,16 @@ document.addEventListener('visibilitychange', () => {
         if (indexPage && indexPage.waveEffect) {
             indexPage.waveEffect.isDestroyed = true;
         }
+        if (indexPage && indexPage.background3D) {
+            indexPage.background3D.isDestroyed = true;
+        }
     } else {
         // 페이지가 다시 보일 때 애니메이션 재개
         if (indexPage && indexPage.waveEffect) {
             indexPage.waveEffect.isDestroyed = false;
+        }
+        if (indexPage && indexPage.background3D) {
+            indexPage.background3D.isDestroyed = false;
         }
     }
 });
