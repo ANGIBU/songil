@@ -25,7 +25,7 @@
 }
 
 .auth-container {
-    max-width: 580px; /* 인증코드 입력을 위해 증가 */
+    max-width: 620px; /* 가로 너비 대폭 증가 */
     width: 100%;
     margin: 0 auto;
     background-color: var(--white);
@@ -380,6 +380,42 @@
     margin-bottom: 0;
 }
 
+/* 아이디 찾기 정보 섹션 - 비밀번호 찾기와 동일한 크기 */
+.find-info-section {
+    text-align: center;
+    padding: var(--spacing-8) var(--spacing-6);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--gray-200);
+    margin-bottom: var(--spacing-6);
+    min-height: 380px; /* 비밀번호 찾기와 동일한 높이 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.find-info-content {
+    margin-bottom: var(--spacing-6);
+}
+
+.find-info-content i {
+    font-size: var(--font-size-4xl);
+    color: var(--secondary-green);
+    margin-bottom: var(--spacing-3);
+}
+
+.find-info-content h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-2);
+}
+
+.find-info-content p {
+    color: var(--gray-600);
+    line-height: 1.6;
+}
+
 /* 이메일 인증 스타일 - 고정 크기로 수정 */
 .email-auth-section {
     text-align: center;
@@ -389,6 +425,7 @@
     border: 2px solid var(--gray-200);
     margin-bottom: var(--spacing-6);
     min-height: 380px; /* 고정 높이 설정 */
+    min-width: 520px; /* 가로 너비도 강제 확보 */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1264,7 +1301,29 @@
         max-height: 90vh;
     }
     
+    .find-form-wide {
+        min-width: auto; /* 모바일에서는 min-width 제거 */
+        padding: var(--spacing-6) var(--spacing-4);
+    }
+    
+    .form-row-wide {
+        grid-template-columns: 1fr; /* 세로 배치 */
+        gap: var(--spacing-4);
+    }
+    
+    .btn-find-wide {
+        min-width: auto;
+        width: 100%;
+        padding: var(--spacing-3) var(--spacing-4);
+    }
+    
     .email-auth-section {
+        padding: var(--spacing-6) var(--spacing-4);
+        min-height: 360px; /* 모바일에서 약간 줄임 */
+        min-width: auto; /* 모바일에서는 min-width 제거 */
+    }
+    
+    .find-info-section {
         padding: var(--spacing-6) var(--spacing-4);
         min-height: 360px; /* 모바일에서 약간 줄임 */
     }
@@ -1323,9 +1382,28 @@
         padding: var(--spacing-2) var(--spacing-3);
     }
     
+    .find-form-wide {
+        padding: var(--spacing-4);
+    }
+    
+    .find-info-header i,
+    .find-info-content i {
+        font-size: var(--font-size-3xl);
+    }
+    
     .email-auth-section {
         padding: var(--spacing-4);
         min-height: 340px; /* 소형 모바일에서 더 줄임 */
+        min-width: auto; /* 소형 모바일에서도 min-width 제거 */
+    }
+    
+    .find-info-section {
+        padding: var(--spacing-4);
+        min-height: 340px; /* 소형 모바일에서 더 줄임 */
+    }
+    
+    .find-info-content i {
+        font-size: var(--font-size-3xl);
     }
     
     .email-auth-info i {

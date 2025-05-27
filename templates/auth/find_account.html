@@ -36,31 +36,43 @@
                 <form class="auth-form" id="findIdForm">
                     <div class="step-title">
                         <h2>아이디 찾기</h2>
-                        <p>가입 시 등록한 성함과 전화번호를 입력해주세요</p>
                     </div>
 
-                    <div class="form-group">
-                        <label for="findIdName">
-                            <i class="fas fa-user"></i>
-                            성함
-                        </label>
-                        <input type="text" id="findIdName" name="name" required placeholder="실명을 입력해주세요">
-                        <div class="error-message" id="findIdNameError"></div>
-                    </div>
+                    <!-- 아이디 찾기 넓은 레이아웃 -->
+                    <div class="find-form-wide">
+                        <div class="find-info-header">
+                            <i class="fas fa-user-search"></i>
+                            <h3>본인확인</h3>
+                            <p>가입 시 등록한 정보를 입력해주세요</p>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="findIdPhone">
-                            <i class="fas fa-phone"></i>
-                            전화번호
-                        </label>
-                        <input type="tel" id="findIdPhone" name="phone" placeholder="010-0000-0000" required>
-                        <div class="error-message" id="findIdPhoneError"></div>
-                    </div>
+                        <div class="form-row-wide">
+                            <div class="form-group">
+                                <label for="findIdName">
+                                    <i class="fas fa-user"></i>
+                                    성함
+                                </label>
+                                <input type="text" id="findIdName" name="name" required placeholder="실명을 입력해주세요">
+                                <div class="error-message" id="findIdNameError"></div>
+                            </div>
 
-                    <button type="submit" class="btn btn-primary btn-full" id="findIdSubmitBtn">
-                        <i class="fas fa-search"></i>
-                        아이디 찾기
-                    </button>
+                            <div class="form-group">
+                                <label for="findIdPhone">
+                                    <i class="fas fa-phone"></i>
+                                    전화번호
+                                </label>
+                                <input type="tel" id="findIdPhone" name="phone" placeholder="010-0000-0000" required>
+                                <div class="error-message" id="findIdPhoneError"></div>
+                            </div>
+                        </div>
+
+                        <div class="find-action-wide">
+                            <button type="submit" class="btn btn-primary btn-find-wide" id="findIdSubmitBtn">
+                                <i class="fas fa-search"></i>
+                                계정 정보로 아이디 찾기
+                            </button>
+                        </div>
+                    </div>
                 </form>
 
                 <!-- 아이디 찾기 결과 -->
@@ -100,7 +112,6 @@
                 <form class="auth-form" id="findPasswordForm">
                     <div class="step-title">
                         <h2>비밀번호 찾기</h2>
-                        <p>가입 시 등록한 성함과 이메일을 입력해주세요</p>
                     </div>
 
                     <div class="form-group">

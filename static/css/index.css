@@ -117,22 +117,22 @@
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
 }
 
-/* 순위 아이템 - 높이 감소, 정보를 오른쪽 배치 */
+/* 순위 아이템 - 높이 최소化, 적당한 크기로 조정 */
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 10px 15px;
+    gap: 12px;
+    padding: 8px 12px;
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 40px;
+    min-height: 32px;
 }
 
 .ranking-item:hover {
@@ -141,14 +141,14 @@
 }
 
 .ranking-position {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -188,7 +188,7 @@
 .ranking-left {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
     min-width: 0;
 }
@@ -196,31 +196,33 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.2;
 }
 
 .ranking-points {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--gray-600);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
+    line-height: 1.1;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
 }
 
 /* 통계 정보를 오른쪽에 한 줄로 배치 */
 .ranking-stats {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--gray-500);
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     flex-shrink: 0;
 }
@@ -228,19 +230,19 @@
 .ranking-stats .stat-item {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
     white-space: nowrap;
 }
 
 /* 제보 아이콘 빨간색, 해결 아이콘 초록색 */
 .ranking-stats .stat-item:first-child i {
     color: var(--danger-red);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
 }
 
 .ranking-stats .stat-item:last-child i {
     color: var(--secondary-green);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
 }
 
 /* 긴급 실종자 섹션 */
@@ -517,7 +519,7 @@
 }
 
 .intro-content {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -544,8 +546,8 @@
 
 .intro-steps {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 35px;
 }
 
 .step {
@@ -603,11 +605,15 @@
 }
 
 .step:nth-child(3) .step-icon {
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-coral-light) 100%);
 }
 
 .step:nth-child(4) .step-icon {
-    background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-coral-light) 100%);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+}
+
+.step:nth-child(5) .step-icon {
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
 .step-icon::after {
@@ -628,7 +634,7 @@
 }
 
 .step h3 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 600;
     color: var(--gray-900);
     margin-bottom: 15px;
@@ -637,7 +643,7 @@
 .step p {
     color: var(--gray-600);
     line-height: 1.6;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 /* 희망 메시지 섹션 (기존 통계 섹션) */
@@ -815,7 +821,7 @@
     }
     
     .intro-steps {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 30px;
     }
 }
