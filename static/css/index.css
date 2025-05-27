@@ -2,6 +2,64 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
+/* FOUC 방지 - 홈페이지 전용 요소들 */
+.urgent-cards,
+.stats-grid,
+.intro-steps,
+.hero-visual,
+.hope-message {
+    /* 기본적으로 숨김 (JavaScript 로드 전까지) */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(30px) !important;
+}
+
+.loading .urgent-cards,
+.loading .stats-grid,
+.loading .intro-steps,
+.loading .hero-visual,
+.loading .hope-message {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(30px) !important;
+}
+
+.js-loaded .urgent-cards,
+.js-loaded .stats-grid,
+.js-loaded .intro-steps,
+.js-loaded .hero-visual,
+.js-loaded .hope-message {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+}
+
+.no-js .urgent-cards,
+.no-js .stats-grid,
+.no-js .intro-steps,
+.no-js .hero-visual,
+.no-js .hope-message {
+    opacity: 1 !important;
+    visibility: visible !important; 
+    transform: translateY(0) !important;
+    animation: fallbackShowIndex 0.6s ease forwards;
+    animation-delay: 2.5s;
+}
+
+@keyframes fallbackShowIndex {
+    from {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+}
+
 /* 히어로 섹션 - 위치 조정 */
 .hero-section {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
@@ -690,7 +748,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 - 3D 배경 추가 */
+/* 희망 메시지 섹션 - 자연스러운 흐르는 3D 배경 */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -698,6 +756,8 @@
     text-align: center;
     position: relative;
     overflow: hidden;
+    /* 3D 배경을 위한 컨테이너 설정 */
+    isolation: isolate;
 }
 
 .stats-section::before {
@@ -722,7 +782,7 @@
     pointer-events: none;
 }
 
-/* 3D 배경 캔버스 */
+/* 3D 배경 캔버스 - 물결 흐름 효과 */
 .stats-3d-background {
     position: absolute;
     top: 0;
@@ -732,6 +792,13 @@
     pointer-events: none;
     z-index: 0;
     opacity: 0.4;
+    /* 마우스 인터랙션 완전 비활성화 */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* 부드러운 혼합 모드 */
+    mix-blend-mode: soft-light;
 }
 
 .stats-section .container {

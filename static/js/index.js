@@ -984,18 +984,34 @@ class IndexAnimations {
         });
         this.scrollTriggers = [];
         
-        // clearProps를 신중하게 적용 - 레이아웃 유지
-        gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
-            clearProps: 'transform,opacity',
-            opacity: 1,
-            transform: 'translateY(0)'
-        });
+        // FOUC 방지를 위한 기본 상태 보장
+        if (document.body.classList.contains('js-loaded')) {
+            gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
+                clearProps: 'transform,opacity',
+                opacity: 1,
+                visibility: 'visible',
+                transform: 'translateY(0)'
+            });
+        }
     }
 
     setupAnimations() {
+        // 페이지가 준비되지 않았다면 잠시 대기
+        if (document.body.classList.contains('loading')) {
+            setTimeout(() => this.setupAnimations(), 100);
+            return;
+        }
+
         // 히어로 섹션 애니메이션 - 요소가 사라지지 않도록 수정
         this.timeline = gsap.timeline({ 
-            delay: 0.5,
+            delay: 0.8, // 약간 더 긴 지연으로 자연스럽게
+            onStart: () => {
+                // 애니메이션 시작 전 요소들이 표시되도록 보장
+                gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
+                    opacity: 1,
+                    visibility: 'visible'
+                });
+            },
             onComplete: () => {
                 // 애니메이션 완료 후 모든 요소의 스타일 고정
                 gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
@@ -1341,9 +1357,16 @@ class IndexPage {
         if (this.isDestroyed) return;
         
         try {
-            // React 컴포넌트 렌더링
-            this.renderRankings();
-            this.renderUrgentCards();
+            // FOUC 방지 - 페이지 준비 완료 표시
+            this.markPageReady();
+            
+            // React 컴포넌트 렌더링 (약간의 지연으로 자연스럽게)
+            setTimeout(() => {
+                if (!this.isDestroyed) {
+                    this.renderRankings();
+                    this.renderUrgentCards();
+                }
+            }, 50);
             
             // 3D 배경 캔버스 추가
             this.add3DBackgroundCanvas();
@@ -1354,7 +1377,7 @@ class IndexPage {
                     this.initWaveEffect();
                     this.init3DBackground();
                 }
-            }, 100);
+            }, 150);
             
             // 애니메이션 초기화 - 안전한 지연
             setTimeout(() => {
@@ -1370,6 +1393,28 @@ class IndexPage {
         } catch (error) {
             console.error('Index page setup error:', error);
         }
+    }
+
+    // 페이지 준비 완료 표시
+    markPageReady() {
+        // 추가적인 페이지 준비 완료 표시
+        document.body.classList.add('page-ready');
+        
+        // 약간의 지연 후 요소들을 자연스럽게 표시
+        setTimeout(() => {
+            if (!this.isDestroyed) {
+                // 모든 숨겨진 요소들을 자연스럽게 표시
+                const hiddenElements = document.querySelectorAll('.loading .hero-title, .loading .hero-description, .loading .hero-buttons, .loading .ranking-display, .loading .urgent-cards, .loading .stats-grid, .loading .intro-steps');
+                hiddenElements.forEach((el, index) => {
+                    setTimeout(() => {
+                        el.style.transition = 'opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease';
+                        el.style.opacity = '1';
+                        el.style.visibility = 'visible';
+                        el.style.transform = 'translateY(0)';
+                    }, index * 50);
+                });
+            }
+        }, 100);
     }
 
     // 3D 배경 캔버스 추가

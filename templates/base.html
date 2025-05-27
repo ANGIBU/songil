@@ -1,8 +1,17 @@
 {# templates/base.html #}
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="no-js">
 
 <head>
+    <!-- FOUC 방지를 위한 즉시 실행 스크립트 -->
+    <script>
+        // HTML 클래스에서 no-js 제거하고 js-ready 추가
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js-ready');
+        
+        // 페이지 로드 시작 시간 기록
+        window.pageLoadStart = Date.now();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}손길 - 함께 찾아요, 소중한 사람을{% endblock %}</title>
@@ -25,7 +34,8 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %}">
+<body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %} page-loading">
+    <!-- 초기 로딩 상태 -->
     <!-- 헤더 -->
     <header class="header">
         <div class="container">
@@ -140,22 +150,36 @@
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
 
-    <!-- 새로고침 시 최상단으로 스크롤 기능 - GSAP 충돌 수정 -->
+    <!-- 개선된 FOUC 방지 및 새로고침 시 최상단 스크롤 -->
     <script>
+        // 페이지 준비 완료 처리 함수
+        function markPageReady() {
+            const loadTime = Date.now() - (window.pageLoadStart || Date.now());
+            
+            // 최소 로딩 시간 보장 (100ms) - 너무 빠른 깜빡임 방지
+            const minLoadTime = Math.max(0, 100 - loadTime);
+            
+            setTimeout(() => {
+                document.body.classList.remove('page-loading');
+                document.body.classList.add('page-ready');
+                document.documentElement.classList.add('page-ready');
+                
+                // 콘솔 로그로 디버깅
+                console.log('Page ready after', Date.now() - window.pageLoadStart, 'ms');
+            }, minLoadTime);
+        }
+
         // 스크롤 위치 초기화 함수
         function scrollToTop() {
             try {
-                // 모든 방법으로 스크롤 초기화
                 window.scrollTo(0, 0);
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
                 
-                // 추가 보장
                 if (window.pageYOffset !== 0) {
                     window.scrollTo({ top: 0, behavior: 'auto' });
                 }
             } catch (error) {
-                // 에러 발생 시 기본 스크롤만 실행
                 window.scrollTo(0, 0);
             }
         }
@@ -165,44 +189,50 @@
             history.scrollRestoration = 'manual';
         }
 
-        // 페이지 로드 완료 시 최상단으로 스크롤
+        // DOM 준비 완료 시
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                markPageReady();
+                scrollToTop();
+            });
+        } else {
+            // 이미 로드 완료된 경우
+            markPageReady();
+            scrollToTop();
+        }
+
+        // 페이지 로드 완료 시 (추가 보장)
         window.addEventListener('load', function() {
-            setTimeout(scrollToTop, 0);
-        });
-
-        // DOMContentLoaded에서도 스크롤 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(scrollToTop, 0);
-        });
-
-        // beforeunload 이벤트에서 스크롤 위치 초기화
-        window.addEventListener('beforeunload', function() {
+            markPageReady();
             scrollToTop();
         });
 
-        // pagehide 이벤트에서도 스크롤 위치 초기화 (모바일 대응)
-        window.addEventListener('pagehide', function() {
-            scrollToTop();
-        });
-
-        // 브라우저 뒤로가기/앞으로가기 시에도 최상단으로
-        window.addEventListener('popstate', function() {
-            setTimeout(scrollToTop, 0);
-        });
-
-        // 페이지 숨김/표시 시 스크롤 초기화
+        // 기타 스크롤 이벤트들
+        window.addEventListener('beforeunload', scrollToTop);
+        window.addEventListener('pagehide', scrollToTop);
+        window.addEventListener('popstate', () => setTimeout(scrollToTop, 0));
+        
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                setTimeout(scrollToTop, 100);
+                setTimeout(scrollToTop, 50);
             }
         });
 
-        // 추가 안전장치 - 일정 시간 후 스크롤 확인
+        // 안전장치 - 1초 후에도 로딩이 끝나지 않았다면 강제로 표시
         setTimeout(function() {
+            if (document.body.classList.contains('page-loading')) {
+                console.warn('Force showing page content after 1 second');
+                markPageReady();
+            }
             if (window.pageYOffset > 0) {
                 scrollToTop();
             }
-        }, 300);
+        }, 1000);
+
+        // 즉시 실행 - 매우 빠른 페이지에서 깜빡임 방지
+        if (document.readyState === 'complete') {
+            setTimeout(markPageReady, 50);
+        }
     </script>
 </body>
 
