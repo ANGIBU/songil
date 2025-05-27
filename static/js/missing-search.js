@@ -462,51 +462,35 @@ class FilterPopupManager {
         const regionLevel2 = document.getElementById('regionLevel2');
         
         if (typeof gsap === 'undefined') {
-            // GSAP 없을 때 기본 전환 - 버그 수정
-            regionLevel1.style.display = 'none';
-            regionLevel1.style.opacity = '0';
-            regionLevel1.style.visibility = 'hidden';
-            
-            regionLevel2.style.display = 'block';
-            regionLevel2.style.opacity = '1';
-            regionLevel2.style.visibility = 'visible';
+            // GSAP 없을 때 기본 전환 - CSS 클래스 기반으로 완전 수정
             regionLevel2.classList.add('active');
             return;
         }
         
-        // 먼저 2단계를 표시 가능한 상태로 설정
-        regionLevel2.style.display = 'block';
-        regionLevel2.style.visibility = 'visible';
+        // CSS 클래스로 기본 상태 설정
         regionLevel2.classList.add('active');
         
+        // GSAP 애니메이션으로 부드러운 전환 효과 추가
         const timeline = gsap.timeline();
+        
+        // 2단계를 처음에 우측에서 시작
+        gsap.set(regionLevel2, { x: 100, opacity: 0 });
         
         // 1단계 슬라이드 아웃
         timeline.to(regionLevel1, {
             duration: 0.3,
             x: -100,
             opacity: 0,
-            ease: 'power2.out',
-            onComplete: () => {
-                regionLevel1.style.display = 'none';
-                regionLevel1.style.visibility = 'hidden';
-            }
+            ease: 'power2.out'
         });
         
         // 2단계 슬라이드 인
-        timeline.fromTo(regionLevel2, 
-            {
-                x: 100,
-                opacity: 0
-            },
-            {
-                duration: 0.4,
-                x: 0,
-                opacity: 1,
-                ease: 'power2.out'
-            }, 
-            '-=0.1'
-        );
+        timeline.to(regionLevel2, {
+            duration: 0.4,
+            x: 0,
+            opacity: 1,
+            ease: 'power2.out'
+        }, '-=0.1');
         
         // 2단계 옵션들 순차 등장
         timeline.from('#regionLevel2Options .filter-option', {
@@ -523,18 +507,12 @@ class FilterPopupManager {
         const regionLevel2 = document.getElementById('regionLevel2');
         
         if (typeof gsap === 'undefined') {
-            // GSAP 없을 때 기본 전환 - 버그 수정
-            regionLevel2.style.display = 'none';
-            regionLevel2.style.opacity = '0';
-            regionLevel2.style.visibility = 'hidden';
+            // GSAP 없을 때 기본 전환 - CSS 클래스 기반으로 완전 수정
             regionLevel2.classList.remove('active');
-            
-            regionLevel1.style.display = 'block';
-            regionLevel1.style.opacity = '1';
-            regionLevel1.style.visibility = 'visible';
             return;
         }
         
+        // GSAP 애니메이션으로 부드러운 전환 효과
         const timeline = gsap.timeline();
         
         // 2단계 슬라이드 아웃
@@ -545,29 +523,22 @@ class FilterPopupManager {
             ease: 'power2.out'
         });
         
-        // 먼저 1단계를 표시 가능한 상태로 설정
-        regionLevel1.style.display = 'block';
-        regionLevel1.style.visibility = 'visible';
+        // 1단계를 처음에 좌측에서 시작
+        gsap.set(regionLevel1, { x: -100, opacity: 0 });
         
         // 1단계 슬라이드 인
-        timeline.fromTo(regionLevel1, 
-            {
-                x: -100,
-                opacity: 0
-            },
-            {
-                duration: 0.4,
-                x: 0,
-                opacity: 1,
-                ease: 'power2.out',
-                onComplete: () => {
-                    regionLevel2.style.display = 'none';
-                    regionLevel2.style.visibility = 'hidden';
-                    regionLevel2.classList.remove('active');
-                }
-            }, 
-            '-=0.1'
-        );
+        timeline.to(regionLevel1, {
+            duration: 0.4,
+            x: 0,
+            opacity: 1,
+            ease: 'power2.out',
+            onComplete: () => {
+                // 애니메이션 완료 후 CSS 클래스로 상태 변경
+                regionLevel2.classList.remove('active');
+                // GSAP 스타일 리셋
+                gsap.set([regionLevel1, regionLevel2], { clearProps: "all" });
+            }
+        }, '-=0.1');
         
         // 1단계 옵션들 순차 등장
         timeline.from('#regionLevel1 .filter-options .filter-option', {
@@ -619,16 +590,13 @@ class FilterPopupManager {
         const regionLevel2 = document.getElementById('regionLevel2');
         
         if (regionLevel1 && regionLevel2) {
-            regionLevel1.style.display = 'block';
-            regionLevel1.style.opacity = '1';
-            regionLevel1.style.visibility = 'visible';
-            regionLevel1.style.transform = 'translateX(0)';
-            
-            regionLevel2.style.display = 'none';
-            regionLevel2.style.opacity = '0';
-            regionLevel2.style.visibility = 'hidden';
+            // CSS 클래스 기반으로 상태 초기화
             regionLevel2.classList.remove('active');
-            regionLevel2.style.transform = 'translateX(100%)';
+            
+            // GSAP 스타일이 있다면 제거
+            if (typeof gsap !== 'undefined') {
+                gsap.set([regionLevel1, regionLevel2], { clearProps: "all" });
+            }
         }
     }
 
@@ -661,15 +629,13 @@ class FilterPopupManager {
         const regionLevel1 = document.getElementById('regionLevel1');
         const regionLevel2 = document.getElementById('regionLevel2');
         
-        regionLevel1.style.display = 'block';
-        regionLevel1.style.opacity = '1';
-        regionLevel1.style.visibility = 'visible';
-        regionLevel1.style.transform = 'translateX(0)';
-        
-        regionLevel2.style.display = 'none';
-        regionLevel2.style.opacity = '0';
-        regionLevel2.style.visibility = 'hidden';
+        // CSS 클래스 기반으로 초기화
         regionLevel2.classList.remove('active');
+        
+        // GSAP 스타일 제거
+        if (typeof gsap !== 'undefined') {
+            gsap.set([regionLevel1, regionLevel2], { clearProps: "all" });
+        }
         
         if (!regionValue) {
             // 전체 지역 선택
@@ -1869,6 +1835,41 @@ if (typeof window !== 'undefined') {
         },
         testViewToggle: (viewMode) => {
             missingSearchPage.toggleView(viewMode);
+        },
+        testRegionFilter: () => {
+            console.log('Testing region filter...');
+            // 필터 팝업 열기
+            missingSearchPage.filterPopupManager.openPopup();
+            // 지역 탭으로 전환
+            missingSearchPage.filterPopupManager.switchTab('region');
+            
+            // 3초 후 서울 선택
+            setTimeout(() => {
+                const seoulRadio = document.querySelector('input[name="region-level1"][value="seoul"]');
+                if (seoulRadio) {
+                    seoulRadio.click();
+                    console.log('Seoul selected, checking level 2...');
+                    
+                    // 2초 후 강남구 선택
+                    setTimeout(() => {
+                        const gangnamRadio = document.querySelector('input[name="region-level2"][value="seoul-강남구"]');
+                        if (gangnamRadio) {
+                            gangnamRadio.click();
+                            console.log('Gangnam district selected');
+                        } else {
+                            console.error('Gangnam radio not found');
+                        }
+                    }, 2000);
+                } else {
+                    console.error('Seoul radio not found');
+                }
+            }, 3000);
+        },
+        resetRegionTest: () => {
+            if (missingSearchPage.filterPopupManager) {
+                missingSearchPage.filterPopupManager.resetRegionTabState();
+                console.log('Region tab state reset');
+            }
         }
     };
 }

@@ -140,22 +140,23 @@
     justify-content: flex-end;
     align-items: center;
     position: relative;
-    padding-left: 20px;
+    padding-left: 40px; /* 20px에서 40px로 증가 */
 }
 
-/* 순위 디스플레이 - 크기 증가 및 위치 조정 */
+/* 순위 디스플레이 - 크기 대폭 증가 및 위치 조정 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 35px 30px;
+    padding: 45px 40px; /* 35px 30px에서 45px 40px로 증가 */
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 580px;
+    width: 700px; /* 580px에서 700px로 증가 */
     max-width: 100%;
     position: relative;
     overflow: hidden;
     will-change: transform, opacity;
     margin-left: auto;
+    transform: translateX(30px); /* 오른쪽으로 30px 이동 */
 }
 
 .ranking-display::before {
@@ -169,42 +170,42 @@
 }
 
 .ranking-title {
-    font-size: 1.2rem;
+    font-size: 1.4rem; /* 1.2rem에서 1.4rem로 증가 */
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 20px;
+    margin-bottom: 25px; /* 20px에서 25px로 증가 */
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px; /* 8px에서 10px로 증가 */
 }
 
 .ranking-title i {
     color: var(--primary-orange);
-    font-size: 1.1rem;
+    font-size: 1.3rem; /* 1.1rem에서 1.3rem로 증가 */
 }
 
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px; /* 8px에서 12px로 증가 */
 }
 
-/* 순위 아이템 - 크기 증가 */
+/* 순위 아이템 - 크기 대폭 증가 */
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 16px; /* 12px에서 16px로 증가 */
+    padding: 16px 20px; /* 12px 16px에서 16px 20px로 증가 */
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 42px;
-    height: 42px;
+    min-height: 50px; /* 42px에서 50px로 증가 */
+    height: 50px;
     will-change: transform;
 }
 
@@ -214,14 +215,14 @@
 }
 
 .ranking-position {
-    width: 26px;
-    height: 26px;
+    width: 32px; /* 26px에서 32px로 증가 */
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 1rem; /* 0.85rem에서 1rem로 증가 */
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -262,7 +263,7 @@
 .ranking-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px; /* 10px에서 12px로 증가 */
     flex: 1;
     min-width: 0;
 }
@@ -270,7 +271,7 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.85rem;
+    font-size: 1rem; /* 0.85rem에서 1rem로 증가 */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -278,22 +279,22 @@
 }
 
 .ranking-points {
-    font-size: 0.75rem;
+    font-size: 0.875rem; /* 0.75rem에서 0.875rem로 증가 */
     color: var(--gray-600);
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 4px; /* 3px에서 4px로 증가 */
     line-height: 1;
     white-space: nowrap;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.65rem;
+    font-size: 0.75rem; /* 0.65rem에서 0.75rem로 증가 */
 }
 
 .ranking-stats {
-    font-size: 0.7rem;
+    font-size: 0.8rem; /* 0.7rem에서 0.8rem로 증가 */
     color: var(--gray-500);
     flex-shrink: 0;
     white-space: nowrap;
@@ -586,7 +587,7 @@
     z-index: 1;
 }
 
-/* 소개 섹션 - 2줄 레이아웃으로 수정 */
+/* 소개 섹션 - 모든 스텝 크기 균등화 */
 .intro-section {
     padding: 100px 0;
     background: white;
@@ -620,23 +621,13 @@
     border-radius: 2px;
 }
 
-/* 수정된 intro-steps 레이아웃 */
+/* 수정된 intro-steps 레이아웃 - 모든 스텝 균등 크기 */
 .intro-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-}
-
-.steps-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 35px;
+    grid-template-columns: repeat(5, 1fr); /* 5개 균등 배치 */
+    gap: 30px;
     justify-items: center;
-}
-
-.steps-row:last-child {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 600px;
+    max-width: 1400px; /* 전체 너비 증가 */
     margin: 0 auto;
 }
 
@@ -651,7 +642,8 @@
     overflow: hidden;
     will-change: transform, box-shadow;
     width: 100%;
-    max-width: 280px;
+    max-width: 260px; /* 모든 스텝 동일한 최대 너비 */
+    min-height: 320px; /* 모든 스텝 동일한 최소 높이 */
 }
 
 .step::before {
@@ -701,11 +693,11 @@
     background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-coral-light) 100%);
 }
 
-.steps-row:last-child .step:nth-child(1) .step-icon {
+.step:nth-child(4) .step-icon {
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
-.steps-row:last-child .step:nth-child(2) .step-icon {
+.step:nth-child(5) .step-icon {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
@@ -739,7 +731,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 */
+/* 희망 메시지 섹션 - 물결 잘림 문제 완전 해결 */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -747,6 +739,9 @@
     text-align: center;
     position: relative;
     overflow: hidden;
+    /* 완전 화면 커버를 위한 추가 설정 */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
 }
 
 .stats-section::before {
@@ -774,6 +769,9 @@
 .stats-section .container {
     position: relative;
     z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
 }
 
 .stats-section h2 {
@@ -867,9 +865,16 @@
     -moz-user-select: none;
     -ms-user-select: none;
     mix-blend-mode: soft-light;
-    /* 캔버스 완전 커버를 위한 추가 스타일 */
+    /* 캔버스 완전 커버를 위한 추가 스타일 - 잘림 방지 */
+    width: 100vw !important;
+    height: 100% !important;
     min-width: 100vw;
     min-height: 100%;
+    /* 화면 가장자리 완전 커버 */
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
 }
 
 /* 버튼 호버 효과 개선 */
@@ -912,9 +917,15 @@
         font-size: 3.25rem;
     }
     
+    .hero-visual {
+        padding-left: 0;
+        justify-content: center;
+    }
+    
     .ranking-display {
-        width: 500px;
+        width: 600px;
         margin: 0 auto;
+        transform: translateX(0); /* 모바일에서는 중앙 정렬 */
     }
     
     .urgent-cards {
@@ -923,14 +934,9 @@
         gap: 20px !important;
     }
     
-    .steps-row {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
-    }
-    
-    .steps-row:last-child {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: none;
+    .intro-steps {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
     }
 }
 
@@ -965,6 +971,7 @@
         width: 420px;
         margin: 0 auto;
         padding: 30px 25px;
+        transform: translateX(0);
     }
     
     .ranking-item {
@@ -996,9 +1003,9 @@
         font-size: 2.25rem;
     }
     
-    .steps-row {
-        grid-template-columns: 1fr;
-        gap: 25px;
+    .intro-steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
     
     .stats-grid {
@@ -1030,6 +1037,7 @@
     
     .step {
         padding: 25px 15px;
+        min-height: 280px;
     }
     
     .urgent-cards {
@@ -1056,6 +1064,11 @@
     .ranking-position {
         width: 22px;
         height: 22px;
+    }
+    
+    .intro-steps {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 }
 

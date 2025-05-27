@@ -913,7 +913,7 @@ body {
     opacity: 0.9;
 }
 
-/* 물결 캔버스 최적화 - 전체 화면 완전 커버 */
+/* 물결 캔버스 최적화 - 전체 화면 완전 커버 및 잘림 방지 */
 .wave-canvas {
     position: absolute;
     top: 0;
@@ -930,6 +930,19 @@ body {
     -ms-user-select: none;
     /* 부드러운 혼합 모드 */
     mix-blend-mode: soft-light;
+    /* 캔버스 완전 커버를 위한 추가 스타일 - 잘림 방지 완전 해결 */
+    width: 100vw !important;
+    height: 100% !important;
+    min-width: 100vw;
+    min-height: 100%;
+    /* 화면 가장자리 완전 커버 - 스케일 확대 적용 */
+    transform: scale(1.2);
+    transform-origin: center center;
+    /* 가장자리 완전 차단 */
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
 }
 
 /* CTA 섹션 */

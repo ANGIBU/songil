@@ -369,7 +369,7 @@ class StatCounter {
     }
 }
 
-// GSAP 애니메이션 관리자 - 강화된 FOUC 방지
+// GSAP 애니메이션 관리자 - 5개 스텝 균등 처리
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
@@ -495,7 +495,7 @@ class IndexAnimations {
             });
             this.scrollTriggers.push(urgentTrigger);
 
-            // 소개 섹션
+            // 소개 섹션 - 5개 스텝 균등 애니메이션
             const introTrigger = ScrollTrigger.create({
                 trigger: '.intro-section',
                 start: 'top 80%',
@@ -509,7 +509,7 @@ class IndexAnimations {
                         duration: 0.6,
                         y: 0,
                         opacity: 1,
-                        stagger: 0.1,
+                        stagger: 0.08, // 5개에 맞게 조정
                         ease: 'power2.out'
                     });
                 },
@@ -763,10 +763,11 @@ class IndexPage {
                 
                 const { WaveEffect, FlowingBackground3D, SecurityVisualization } = window.ThreeEffects;
                 
-                // Wave 효과 초기화
+                // Wave 효과 초기화 - 개선된 버전
                 const waveCanvas = document.getElementById('waveCanvas');
                 if (waveCanvas && WaveEffect) {
                     this.waveEffect = new WaveEffect(waveCanvas);
+                    console.log('Wave effect initialized with full screen coverage');
                 }
                 
                 // 3D 배경 초기화
@@ -853,7 +854,7 @@ class IndexPage {
             this.hideLoadingOverlay();
         }, 500);
         
-        console.log('Index page ready');
+        console.log('Index page ready with enhanced wave coverage');
     }
 
     renderRankings() {

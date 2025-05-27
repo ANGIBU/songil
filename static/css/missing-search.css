@@ -386,11 +386,12 @@
     flex: 1;
 }
 
-/* 지역 선택 관련 스타일 */
+/* 지역 선택 관련 스타일 - 버그 수정 */
 .region-selector {
     position: relative;
     overflow: hidden;
-    min-height: 300px;
+    min-height: 350px; /* 최소 높이 증가 */
+    background: transparent;
 }
 
 .region-level-1,
@@ -399,21 +400,43 @@
     position: absolute;
     top: 0;
     left: 0;
+    right: 0;
+    background: white;
+    transition: all 0.3s ease;
 }
 
+/* 초기 상태: 1단계만 보이도록 */
 .region-level-1 {
     opacity: 1;
+    visibility: visible;
+    display: block;
     transform: translateX(0);
+    z-index: 2;
 }
 
 .region-level-2 {
     opacity: 0;
-    transform: translateX(100%);
+    visibility: hidden;
     display: none;
+    transform: translateX(100%);
+    z-index: 1;
 }
 
+/* 2단계 활성화 시 */
 .region-level-2.active {
+    opacity: 1;
+    visibility: visible;
     display: block;
+    transform: translateX(0);
+    z-index: 2;
+}
+
+/* 2단계 활성화 시 1단계 숨김 */
+.region-level-2.active ~ .region-level-1 {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-100%);
+    z-index: 1;
 }
 
 .region-header {
@@ -1436,6 +1459,11 @@
     .filter-apply-btn {
         padding: 12px 16px;
         font-size: 14px;
+    }
+    
+    /* 모바일 지역 선택 높이 조정 */
+    .region-selector {
+        min-height: 300px;
     }
 }
 
