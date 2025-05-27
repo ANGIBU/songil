@@ -25,7 +25,7 @@
 }
 
 .auth-container {
-    max-width: 680px; /* 훨씬 더 넓게 */
+    max-width: 580px; /* 줄임 */
     width: 100%;
     margin: 0 auto;
     background-color: var(--white);
@@ -424,9 +424,9 @@
     border-radius: var(--radius-xl);
     border: 2px solid var(--gray-200);
     margin-bottom: var(--spacing-6);
-    min-height: 380px; /* 고정 높이 설정 */
-    min-width: 600px; /* 아이디 찾기와 동일하게 넓게 */
-    width: 100%; /* 전체 너비 활용 */
+    min-height: 380px;
+    min-width: 480px; /* 아이디 찾기와 동일하게 줄임 */
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
