@@ -380,8 +380,8 @@
     margin-bottom: 0;
 }
 
-/* 아이디 찾기 정보 섹션 - 비밀번호 찾기와 동일한 크기 */
-.find-info-section {
+/* 아이디 찾기 넓은 레이아웃 - 비밀번호 찾기와 동일한 크기로 조정 */
+.find-form-wide {
     text-align: center;
     padding: var(--spacing-8) var(--spacing-6);
     background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
@@ -389,31 +389,46 @@
     border: 2px solid var(--gray-200);
     margin-bottom: var(--spacing-6);
     min-height: 380px; /* 비밀번호 찾기와 동일한 높이 */
+    min-width: 480px; /* 비밀번호 찾기와 동일한 최소 가로 크기 */
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.find-info-content {
+.form-row-wide {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
     margin-bottom: var(--spacing-6);
+    text-align: left; /* 폼 요소들은 좌측 정렬 */
 }
 
-.find-info-content i {
-    font-size: var(--font-size-4xl);
-    color: var(--secondary-green);
-    margin-bottom: var(--spacing-3);
+.find-action-wide {
+    margin-top: auto; /* 하단에 버튼 고정 */
 }
 
-.find-info-content h3 {
-    font-size: var(--font-size-xl);
+.btn-find-wide {
+    width: 100%; /* 전체 가로 길이로 확장 */
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: var(--white);
+    padding: var(--spacing-3) var(--spacing-6);
+    font-size: var(--font-size-base);
     font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: var(--spacing-2);
+    border-radius: var(--radius-lg);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-all);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
 }
 
-.find-info-content p {
-    color: var(--gray-600);
-    line-height: 1.6;
+.btn-find-wide:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 /* 이메일 인증 스타일 - 고정 크기로 수정 */
@@ -1091,7 +1106,7 @@
     font-size: var(--font-size-lg);
 }
 
-/* 탭 메뉴 - 호버 효과 수정 */
+/* 탭 메뉴 - 호버 효과를 회색으로 수정 */
 .tab-menu {
     display: flex;
     margin-bottom: var(--spacing-8);
@@ -1118,8 +1133,8 @@
 }
 
 .tab-btn:hover {
-    background-color: #f3f4f6; /* 단색 밝은 회색 */
-    color: var(--gray-600);
+    background-color: #d1d5db; /* 더 어두운 회색으로 변경 */
+    color: var(--gray-700); /* 텍스트도 더 어둡게 */
 }
 
 .tab-btn.active {
@@ -1323,11 +1338,6 @@
         min-height: 360px; /* 모바일에서 약간 줄임 */
     }
     
-    .find-info-section {
-        padding: var(--spacing-6) var(--spacing-4);
-        min-height: 360px; /* 모바일에서 약간 줄임 */
-    }
-    
     .progress-steps {
         margin-bottom: var(--spacing-4);
     }
@@ -1391,15 +1401,6 @@
         min-width: auto; /* 소형 모바일에서도 min-width 제거 */
         padding: var(--spacing-4);
         min-height: 340px; /* 소형 모바일에서 더 줄임 */
-    }
-    
-    .find-info-section {
-        padding: var(--spacing-4);
-        min-height: 340px; /* 소형 모바일에서 더 줄임 */
-    }
-    
-    .find-info-content i {
-        font-size: var(--font-size-3xl);
     }
     
     .email-auth-info i {
