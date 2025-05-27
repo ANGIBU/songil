@@ -528,31 +528,6 @@ body {
     transform: translateZ(0);
 }
 
-/* 히어로 섹션에서 네트워크 캔버스 제거 - 이제 순위만 표시 */
-#network-canvas {
-    /* 더 이상 사용하지 않음 - 보안 시각화 제거됨 */
-    display: none;
-}
-
-/* 보안 시각화 관련 스타일 제거 */
-.security-canvas {
-    /* 더 이상 사용하지 않음 */
-    display: none;
-}
-
-/* 3D 배경 관련 스타일 제거 */
-.stats-3d-background {
-    /* 더 이상 사용하지 않음 */
-    display: none;
-}
-
-/* 순위 디스플레이 - 요소 사라짐 방지 */
-.ranking-display {
-    opacity: 1;
-    transform: translateX(0);
-    visibility: visible;
-}
-
 /* 긴급 실종자 섹션 - 반응형 개선 */
 .urgent-section {
     padding: var(--spacing-20) 0;
@@ -690,17 +665,9 @@ body {
     }
 }
 
+/* 실종 기간 표시 완전 제거 */
 .missing-period {
-    position: absolute;
-    top: var(--spacing-3);
-    left: var(--spacing-3);
-    padding: var(--spacing-1) var(--spacing-3);
-    background: rgba(0, 0, 0, 0.7);
-    color: var(--white);
-    border-radius: var(--radius-lg);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    backdrop-filter: blur(10px);
+    display: none !important;
 }
 
 .card-content {
@@ -855,7 +822,7 @@ body {
     line-height: 1.6;
 }
 
-/* 통계 섹션 - 안정성 강화, 3D 배경 제거 */
+/* 통계 섹션 - 깔끔한 그라데이션 배경만 */
 .stats-section {
     padding: var(--spacing-20) 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -864,8 +831,6 @@ body {
     position: relative;
     /* 애니메이션 최적화 */
     transform: translateZ(0);
-    /* 물결 효과를 위한 overflow 설정 */
-    overflow: hidden;
 }
 
 .stats-section h2 {
@@ -911,25 +876,6 @@ body {
 .stat-label {
     font-size: var(--font-size-lg);
     opacity: 0.9;
-}
-
-/* 물결 캔버스 최적화 - 전체 화면 완전 커버 */
-.wave-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-    /* 마우스 인터랙션 완전 비활성화 */
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    /* 부드러운 혼합 모드 */
-    mix-blend-mode: soft-light;
 }
 
 /* CTA 섹션 */

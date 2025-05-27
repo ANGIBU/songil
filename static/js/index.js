@@ -17,7 +17,6 @@ const allMissingData = [
         physicalInfo: "175cm, 중간체형",
         dangerLevel: "high",
         upCount: 246,
-        period: "3일째",
         image: "/static/images/sample-missing-1.jpg"
     },
     {
@@ -32,7 +31,6 @@ const allMissingData = [
         physicalInfo: "120cm, 마른체형",
         dangerLevel: "high",
         upCount: 189,
-        period: "2일째",
         image: "/static/images/sample-missing-2.jpg"
     },
     {
@@ -47,7 +45,6 @@ const allMissingData = [
         physicalInfo: "160cm, 중간체형",
         dangerLevel: "high",
         upCount: 134,
-        period: "1일째",
         image: "/static/images/sample-missing-3.jpg"
     },
     {
@@ -62,7 +59,6 @@ const allMissingData = [
         physicalInfo: "168cm, 뚱뚱한체형",
         dangerLevel: "high",
         upCount: 87,
-        period: "4일째",
         image: "/static/images/placeholder.jpg"
     },
     {
@@ -77,7 +73,6 @@ const allMissingData = [
         physicalInfo: "165cm, 마른체형",
         dangerLevel: "high",
         upCount: 156,
-        period: "5일째",
         image: "/static/images/placeholder.jpg"
     },
     {
@@ -92,7 +87,6 @@ const allMissingData = [
         physicalInfo: "160cm, 마른체형",
         dangerLevel: "high",
         upCount: 23,
-        period: "방금",
         image: "/static/images/placeholder.jpg"
     },
     {
@@ -107,7 +101,6 @@ const allMissingData = [
         physicalInfo: "162cm, 마른체형",
         dangerLevel: "high",
         upCount: 98,
-        period: "6일째",
         image: "/static/images/placeholder.jpg"
     },
     {
@@ -122,7 +115,6 @@ const allMissingData = [
         physicalInfo: "172cm, 중간체형",
         dangerLevel: "high",
         upCount: 143,
-        period: "7일째",
         image: "/static/images/placeholder.jpg"
     }
 ];
@@ -269,11 +261,7 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
             React.createElement('div', {
                 className: `danger-level ${data.dangerLevel}`,
                 key: 'danger'
-            }, getDangerLevelText(data.dangerLevel)),
-            React.createElement('div', {
-                className: 'missing-period',
-                key: 'period'
-            }, data.period)
+            }, getDangerLevelText(data.dangerLevel))
         ]),
         React.createElement('div', { className: 'card-content', key: 'content' }, [
             React.createElement('h3', { key: 'title' }, `${data.name} (${data.age}세)`),
@@ -644,12 +632,9 @@ class ScrollObserver {
     }
 }
 
-// 메인 홈페이지 관리 클래스 - 강화된 FOUC 방지 및 로딩 관리
+// 메인 홈페이지 관리 클래스 - Three.js 제거
 class IndexPage {
     constructor() {
-        this.waveEffect = null;
-        this.background3D = null;
-        this.securityViz = null;
         this.animations = null;
         this.scrollObserver = null;
         this.isDestroyed = false;
@@ -658,7 +643,6 @@ class IndexPage {
         this.loadingSteps = {
             domReady: false,
             reactReady: false,
-            threeReady: false,
             componentsReady: false
         };
         this.init();
@@ -716,15 +700,11 @@ class IndexPage {
             await this.renderComponents();
             this.loadingSteps.reactReady = true;
             
-            // 2. Three.js 효과 초기화
-            await this.initializeThreeEffects();
-            this.loadingSteps.threeReady = true;
-            
-            // 3. 애니메이션 시스템 초기화
+            // 2. 애니메이션 시스템 초기화
             await this.initializeAnimations();
             this.loadingSteps.componentsReady = true;
             
-            // 4. 모든 준비 완료
+            // 3. 모든 준비 완료
             this.finishLoading();
             
         } catch (error) {
@@ -744,82 +724,6 @@ class IndexPage {
                 setTimeout(resolve, 100);
             } catch (error) {
                 console.error('React rendering failed:', error);
-                resolve();
-            }
-        });
-    }
-
-    async initializeThreeEffects() {
-        return new Promise((resolve) => {
-            try {
-                // Three.js 효과들이 로드되었는지 확인
-                if (typeof window.ThreeEffects === 'undefined') {
-                    console.warn('ThreeEffects not loaded');
-                    resolve();
-                    return;
-                }
-                
-                const { WaveEffect, FlowingBackground3D, SecurityVisualization } = window.ThreeEffects;
-                
-                // Wave 효과 초기화 - 개선된 버전
-                const waveCanvas = document.getElementById('waveCanvas');
-                if (waveCanvas && WaveEffect) {
-                    this.waveEffect = new WaveEffect(waveCanvas);
-                    console.log('Wave effect initialized with enhanced coverage');
-                }
-                
-                // 3D 배경 초기화
-                const statsSection = document.querySelector('.stats-section');
-                if (statsSection && FlowingBackground3D) {
-                    // 캔버스 생성
-                    const canvas3D = document.createElement('canvas');
-                    canvas3D.className = 'stats-3d-background';
-                    canvas3D.id = 'stats3DCanvas';
-                    canvas3D.style.cssText = `
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        pointer-events: none;
-                        z-index: 0;
-                        opacity: 0.3;
-                    `;
-                    
-                    statsSection.insertBefore(canvas3D, statsSection.firstChild);
-                    this.background3D = new FlowingBackground3D(canvas3D, statsSection);
-                }
-                
-                // 보안 시각화 초기화
-                const heroVisual = document.querySelector('.hero-visual');
-                if (heroVisual && SecurityVisualization) {
-                    const securityCanvas = document.createElement('canvas');
-                    securityCanvas.className = 'security-canvas';
-                    securityCanvas.id = 'securityCanvas';
-                    securityCanvas.style.cssText = `
-                        width: 400px;
-                        height: 400px;
-                        border-radius: 20px;
-                        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-                        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.1) 50%, rgba(249, 115, 22, 0.1) 100%);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        z-index: -1;
-                    `;
-                    
-                    // 히어로 비주얼에 배경으로 추가
-                    heroVisual.style.position = 'relative';
-                    heroVisual.appendChild(securityCanvas);
-                    this.securityViz = new SecurityVisualization(securityCanvas, heroVisual);
-                }
-                
-                setTimeout(resolve, 200);
-            } catch (error) {
-                console.error('Three.js initialization failed:', error);
                 resolve();
             }
         });
@@ -852,7 +756,7 @@ class IndexPage {
             this.hideLoadingOverlay();
         }, 500);
         
-        console.log('Index page ready with improved ranking and wave effects');
+        console.log('Index page ready - clean gradient backgrounds only');
     }
 
     renderRankings() {
@@ -928,19 +832,8 @@ class IndexPage {
                 clearTimeout(this.resizeTimeout);
             }
             this.resizeTimeout = setTimeout(() => {
-                if (this.isDestroyed) return;
-                
-                if (this.waveEffect) {
-                    this.waveEffect.onWindowResize();
-                }
-                
-                if (this.background3D) {
-                    this.background3D.onWindowResize();
-                }
-                
-                if (this.securityViz) {
-                    this.securityViz.onWindowResize();
-                }
+                // Three.js 리사이즈 제거됨
+                console.log('Window resized - gradients adjust automatically');
             }, 250);
         };
         
@@ -983,21 +876,6 @@ class IndexPage {
     destroy() {
         this.isDestroyed = true;
         
-        if (this.waveEffect) {
-            this.waveEffect.destroy();
-            this.waveEffect = null;
-        }
-        
-        if (this.background3D) {
-            this.background3D.destroy();
-            this.background3D = null;
-        }
-        
-        if (this.securityViz) {
-            this.securityViz.destroy();
-            this.securityViz = null;
-        }
-        
         if (this.animations) {
             this.animations.destroy();
             this.animations = null;
@@ -1034,35 +912,6 @@ window.addEventListener('beforeunload', () => {
     if (indexPage) {
         indexPage.destroy();
         indexPage = null;
-    }
-});
-
-// Visibility API를 사용한 탭 전환 시 최적화
-document.addEventListener('visibilitychange', () => {
-    if (!indexPage) return;
-    
-    if (document.hidden) {
-        // 페이지가 숨겨질 때 애니메이션 일시 정지
-        if (indexPage.waveEffect) {
-            indexPage.waveEffect.isDestroyed = true;
-        }
-        if (indexPage.background3D) {
-            indexPage.background3D.isDestroyed = true;
-        }
-        if (indexPage.securityViz) {
-            indexPage.securityViz.isDestroyed = true;
-        }
-    } else {
-        // 페이지가 다시 보일 때 애니메이션 재개
-        if (indexPage.waveEffect) {
-            indexPage.waveEffect.isDestroyed = false;
-        }
-        if (indexPage.background3D) {
-            indexPage.background3D.isDestroyed = false;
-        }
-        if (indexPage.securityViz) {
-            indexPage.securityViz.isDestroyed = false;
-        }
     }
 });
 

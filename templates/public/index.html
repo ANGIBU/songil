@@ -191,15 +191,11 @@
                 <div class="stat-label">포기하지 않는 마음</div>
             </div>
         </div>
-        <!-- 개선된 파도 효과 캔버스 - 완전 화면 커버 -->
-        <canvas id="waveCanvas" class="wave-canvas"></canvas>
     </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Three.js 효과 파일 먼저 로드 -->
-<script src="{{ url_for('static', filename='js/three-effects.js') }}"></script>
 <!-- 메인 index.js 로드 -->
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}
