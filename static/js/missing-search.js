@@ -1359,13 +1359,9 @@ class MissingSearchPage {
         if (gridView && listView) {
             // 강제로 뷰 상태 초기화
             gridView.style.display = 'grid';
-            gridView.style.opacity = '1';
-            gridView.style.visibility = 'visible';
             
-            // 리스트 뷰 완전히 숨김
+            // 리스트 뷰 완전히 숨김 - CSS 클래스 제거
             listView.style.display = 'none';
-            listView.style.opacity = '0';
-            listView.style.visibility = 'hidden';
             listView.classList.remove('active');
             
             // 뷰 버튼 상태 초기화
@@ -1607,27 +1603,19 @@ class MissingSearchPage {
         if (viewMode === 'grid') {
             // 그리드 뷰 활성화
             gridView.style.display = 'grid';
-            gridView.style.opacity = '1';
-            gridView.style.visibility = 'visible';
             
-            // 리스트 뷰 완전히 비활성화
+            // 리스트 뷰 완전히 비활성화 - CSS 클래스 제거
             listView.style.display = 'none';
-            listView.style.opacity = '0';
-            listView.style.visibility = 'hidden';
             listView.classList.remove('active');
             
             console.log('Switched to grid view');
         } else {
-            // 리스트 뷰 활성화
+            // 리스트 뷰 활성화 - CSS 클래스 추가
             listView.style.display = 'block';
-            listView.style.opacity = '1';
-            listView.style.visibility = 'visible';
             listView.classList.add('active');
             
             // 그리드 뷰 비활성화
             gridView.style.display = 'none';
-            gridView.style.opacity = '0';
-            gridView.style.visibility = 'hidden';
             
             console.log('Switched to list view');
         }
@@ -1818,6 +1806,33 @@ if (typeof window !== 'undefined') {
                 classList: level2?.classList.toString(),
                 visible: level2?.offsetHeight > 0
             });
+        },
+        checkViewState: () => {
+            const gridView = document.getElementById('missingGrid');
+            const listView = document.getElementById('missingList');
+            console.log('Grid View:', {
+                display: gridView?.style.display || 'default',
+                classList: gridView?.classList.toString(),
+                visible: gridView?.offsetHeight > 0
+            });
+            console.log('List View:', {
+                display: listView?.style.display || 'default',
+                classList: listView?.classList.toString(),
+                visible: listView?.offsetHeight > 0
+            });
+            console.log('Current view mode:', missingSearchPage.viewMode);
+        },
+        forceListView: () => {
+            missingSearchPage.toggleView('list');
+            setTimeout(() => {
+                window.missingSearchDebug.checkViewState();
+            }, 100);
+        },
+        forceGridView: () => {
+            missingSearchPage.toggleView('grid');
+            setTimeout(() => {
+                window.missingSearchDebug.checkViewState();
+            }, 100);
         }
     };
 }

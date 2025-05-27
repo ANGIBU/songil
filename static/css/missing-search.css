@@ -272,7 +272,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 80px; /* 위치를 올리기 위해 상단 패딩 추가 */
 }
 
 .filter-popup-modal {
@@ -650,13 +649,13 @@
     margin-bottom: 40px;
 }
 
-/* 리스트 뷰 - 기본적으로 숨김, 안정적인 초기화 */
+/* 리스트 뷰 - JavaScript 제어 가능하도록 수정 */
 .missing-list-view {
-    display: none !important;
+    display: none;
     margin-bottom: 40px;
 }
 
-/* 리스트 뷰 활성화 시에만 표시 */
+/* 리스트 뷰 활성화 시에만 표시 */  
 .missing-list-view.active {
     display: block !important;
 }
