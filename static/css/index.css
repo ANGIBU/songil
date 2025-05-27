@@ -2,47 +2,60 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 개선된 FOUC 방지 - 홈페이지 전용 요소들 */
-/* 페이지 로딩 중에만 선별적으로 숨김 */
-.page-loading .urgent-cards,
-.page-loading .stats-grid,
-.page-loading .intro-steps {
+/* 강화된 FOUC 방지 시스템 */
+/* 초기 상태에서 모든 애니메이션 요소 완전 숨김 */
+.hero-title,
+.hero-description,
+.hero-buttons,
+.ranking-display,
+.ranking-item,
+.urgent-cards,
+.missing-card,
+.intro-steps,
+.step,
+.stats-grid,
+.stat-item,
+.section-header {
     opacity: 0 !important;
     visibility: hidden !important;
-    transform: translateY(20px) !important;
+    transform: translateY(30px) !important;
     transition: none !important;
 }
 
-/* 페이지 준비 완료 후 부드럽게 표시 */
+/* 페이지 준비 완료 후 기본 상태로 복원 */
+.page-ready .hero-title,
+.page-ready .hero-description,
+.page-ready .hero-buttons,
+.page-ready .ranking-display,
+.page-ready .ranking-item,
 .page-ready .urgent-cards,
+.page-ready .missing-card,
+.page-ready .intro-steps,
+.page-ready .step,
 .page-ready .stats-grid,
-.page-ready .intro-steps {
+.page-ready .stat-item,
+.page-ready .section-header {
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
-    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease !important;
+    transition: all 0.5s ease !important;
 }
 
-/* 기본 상태 - 항상 표시 */
-.urgent-cards,
-.stats-grid,
-.intro-steps,
-.hero-visual,
-.hope-message {
-    /* 기본적으로는 모두 표시 */
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-/* JavaScript 비활성화 시 모든 요소 표시 보장 */
+/* JavaScript 비활성화 시 모든 요소 강제 표시 */
+.no-js .hero-title,
+.no-js .hero-description,
+.no-js .hero-buttons,
+.no-js .ranking-display,
+.no-js .ranking-item,
 .no-js .urgent-cards,
-.no-js .stats-grid,
+.no-js .missing-card,
 .no-js .intro-steps,
-.no-js .hero-visual,
-.no-js .hope-message {
+.no-js .step,
+.no-js .stats-grid,
+.no-js .stat-item,
+.no-js .section-header {
     opacity: 1 !important;
-    visibility: visible !important; 
+    visibility: visible !important;
     transform: translateY(0) !important;
     transition: none !important;
 }
@@ -50,13 +63,13 @@
 /* 히어로 섹션 - 위치 조정 */
 .hero-section {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-    padding: 60px 0 80px; /* 상단 패딩을 120px에서 60px로 줄임 */
+    padding: 60px 0 80px;
     position: relative;
     overflow: hidden;
-    min-height: 90vh; /* 100vh에서 90vh로 줄임 */
+    min-height: 90vh;
     display: flex;
     align-items: center;
-    margin-top: -20px; /* 헤더와의 거리 줄이기 */
+    margin-top: -20px;
 }
 
 .hero-section::before {
@@ -73,7 +86,7 @@
 .hero-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 60px; /* 80px에서 60px로 줄여서 순위표를 더 오른쪽으로 */
+    gap: 60px;
     align-items: center;
     position: relative;
     z-index: 1;
@@ -95,8 +108,6 @@
     line-height: 1.1;
     margin-bottom: 30px;
     position: relative;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .hero-title::after {
@@ -115,8 +126,6 @@
     color: var(--gray-600);
     line-height: 1.6;
     margin-bottom: 40px;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .hero-buttons {
@@ -124,35 +133,29 @@
     gap: 20px;
     align-items: center;
     flex-wrap: wrap;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .hero-visual {
     display: flex;
-    justify-content: flex-end; /* center에서 flex-end로 변경하여 더 오른쪽으로 */
+    justify-content: flex-end;
     align-items: center;
     position: relative;
-    opacity: 1;
-    transform: translateX(0);
-    padding-left: 20px; /* 왼쪽 여백 추가 */
+    padding-left: 20px;
 }
 
 /* 순위 디스플레이 - 크기 증가 및 위치 조정 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
-    padding: 35px 30px; /* 28px 25px에서 35px 30px로 증가 */
+    padding: 35px 30px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 580px; /* 520px에서 580px로 증가 */
+    width: 580px;
     max-width: 100%;
     position: relative;
     overflow: hidden;
-    opacity: 1;
-    transform: translateX(0);
     will-change: transform, opacity;
-    margin-left: auto; /* 자동 여백으로 더 오른쪽 정렬 */
+    margin-left: auto;
 }
 
 .ranking-display::before {
@@ -166,10 +169,10 @@
 }
 
 .ranking-title {
-    font-size: 1.2rem; /* 1.1rem에서 1.2rem로 증가 */
+    font-size: 1.2rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 20px; /* 15px에서 20px로 증가 */
+    margin-bottom: 20px;
     text-align: center;
     display: flex;
     align-items: center;
@@ -179,31 +182,29 @@
 
 .ranking-title i {
     color: var(--primary-orange);
-    font-size: 1.1rem; /* 1rem에서 1.1rem로 증가 */
+    font-size: 1.1rem;
 }
 
 .top-rankings {
     display: flex;
     flex-direction: column;
-    gap: 8px; /* 5px에서 8px로 증가 */
+    gap: 8px;
 }
 
 /* 순위 아이템 - 크기 증가 */
 .ranking-item {
     display: flex;
     align-items: center;
-    gap: 12px; /* 10px에서 12px로 증가 */
-    padding: 12px 16px; /* 8px 12px에서 12px 16px로 증가 */
-    border-radius: 12px; /* 10px에서 12px로 증가 */
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    min-height: 42px; /* 35px에서 42px로 증가 */
+    min-height: 42px;
     height: 42px;
-    opacity: 1;
-    transform: translateY(0);
     will-change: transform;
 }
 
@@ -213,14 +214,14 @@
 }
 
 .ranking-position {
-    width: 26px; /* 22px에서 26px로 증가 */
+    width: 26px;
     height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 0.85rem; /* 0.8rem에서 0.85rem로 증가 */
+    font-size: 0.85rem;
     color: white;
     flex-shrink: 0;
     position: relative;
@@ -248,7 +249,7 @@
     box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
 }
 
-/* 랭킹 정보 - 크기 조정 */
+/* 랭킹 정보 */
 .ranking-info {
     display: flex;
     align-items: center;
@@ -261,7 +262,7 @@
 .ranking-left {
     display: flex;
     align-items: center;
-    gap: 10px; /* 8px에서 10px로 증가 */
+    gap: 10px;
     flex: 1;
     min-width: 0;
 }
@@ -269,7 +270,7 @@
 .ranking-name {
     font-weight: 600;
     color: var(--gray-800);
-    font-size: 0.85rem; /* 0.8rem에서 0.85rem로 증가 */
+    font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -277,22 +278,22 @@
 }
 
 .ranking-points {
-    font-size: 0.75rem; /* 0.7rem에서 0.75rem로 증가 */
+    font-size: 0.75rem;
     color: var(--gray-600);
     display: flex;
     align-items: center;
-    gap: 3px; /* 2px에서 3px로 증가 */
+    gap: 3px;
     line-height: 1;
     white-space: nowrap;
 }
 
 .ranking-points i {
     color: var(--primary-orange);
-    font-size: 0.65rem; /* 0.6rem에서 0.65rem로 증가 */
+    font-size: 0.65rem;
 }
 
 .ranking-stats {
-    font-size: 0.7rem; /* 0.65rem에서 0.7rem로 증가 */
+    font-size: 0.7rem;
     color: var(--gray-500);
     flex-shrink: 0;
     white-space: nowrap;
@@ -340,8 +341,6 @@
     margin-bottom: 60px;
     position: relative;
     z-index: 1;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .section-header h2 {
@@ -372,7 +371,7 @@
     margin: 0 auto;
 }
 
-/* 긴급 실종자 카드 컨테이너 - 완전히 고정된 그리드 */
+/* 긴급 실종자 카드 컨테이너 */
 .urgent-cards-container {
     width: 100%;
     max-width: 1200px;
@@ -382,7 +381,6 @@
     padding: 0 16px;
 }
 
-/* 4x2 그리드 레이아웃 강화 및 버그 수정 */
 .urgent-cards {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
@@ -393,20 +391,14 @@
     margin: 0 auto !important;
     grid-auto-flow: row !important;
     grid-auto-rows: minmax(300px, auto) !important;
-    opacity: 1;
-    transform: translateY(0);
 }
 
-/* 카드 요소 강제 그리드 배치 및 안정성 확보 */
 .urgent-cards > * {
     display: block !important;
     position: relative !important;
-    opacity: 1 !important;
-    transform: translateY(0) !important;
     transition: all 0.3s ease !important;
 }
 
-/* 정확히 8개 카드만 표시 */
 .urgent-cards .missing-card:nth-child(n+9) {
     display: none !important;
 }
@@ -423,8 +415,6 @@
     display: block !important;
     width: 100%;
     box-sizing: border-box;
-    opacity: 1;
-    transform: translateY(0);
     will-change: transform, box-shadow;
 }
 
@@ -596,7 +586,7 @@
     z-index: 1;
 }
 
-/* 소개 섹션 */
+/* 소개 섹션 - 2줄 레이아웃으로 수정 */
 .intro-section {
     padding: 100px 0;
     background: white;
@@ -616,8 +606,6 @@
     color: var(--gray-900);
     margin-bottom: 60px;
     position: relative;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .intro-text h2::after {
@@ -632,10 +620,24 @@
     border-radius: 2px;
 }
 
+/* 수정된 intro-steps 레이아웃 */
 .intro-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.steps-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 35px;
+    justify-items: center;
+}
+
+.steps-row:last-child {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .step {
@@ -647,9 +649,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    opacity: 1;
-    transform: translateY(0);
     will-change: transform, box-shadow;
+    width: 100%;
+    max-width: 280px;
 }
 
 .step::before {
@@ -687,7 +689,7 @@
 }
 
 /* 단계별 고유 색상 */
-.step:first-child .step-icon {
+.step:nth-child(1) .step-icon {
     background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
 }
 
@@ -699,11 +701,11 @@
     background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-coral-light) 100%);
 }
 
-.step:nth-child(4) .step-icon {
+.steps-row:last-child .step:nth-child(1) .step-icon {
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
-.step:nth-child(5) .step-icon {
+.steps-row:last-child .step:nth-child(2) .step-icon {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
@@ -737,7 +739,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 - 3D 배경 제거하고 물결 효과만 유지 */
+/* 희망 메시지 섹션 */
 .stats-section {
     padding: 100px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -780,8 +782,6 @@
     margin-bottom: 30px;
     position: relative;
     z-index: 1;
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .hope-message {
@@ -814,8 +814,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    opacity: 1;
-    transform: translateY(0) scale(1);
     will-change: transform, box-shadow;
 }
 
@@ -854,7 +852,7 @@
     font-weight: 500;
 }
 
-/* Wave 캔버스 최적화 - 전체 화면 커버 */
+/* Wave 캔버스 최적화 - 완전 화면 커버 및 파장 버그 수정 */
 .wave-canvas {
     position: absolute;
     top: 0;
@@ -863,14 +861,15 @@
     height: 100%;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.4; /* 0.3에서 0.4로 약간 증가 */
-    /* 마우스 인터랙션 완전 비활성화 */
+    opacity: 0.4;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    /* 부드러운 혼합 모드 */
     mix-blend-mode: soft-light;
+    /* 캔버스 완전 커버를 위한 추가 스타일 */
+    min-width: 100vw;
+    min-height: 100%;
 }
 
 /* 버튼 호버 효과 개선 */
@@ -901,15 +900,6 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* 플로팅 파티클 - 성능 최적화 */
-.floating-particle {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-    will-change: transform, opacity;
-}
-
 /* 반응형 디자인 강화 */
 @media (max-width: 1024px) {
     .hero-content {
@@ -923,7 +913,7 @@
     }
     
     .ranking-display {
-        width: 500px; /* 450px에서 500px로 증가 */
+        width: 500px;
         margin: 0 auto;
     }
     
@@ -933,15 +923,20 @@
         gap: 20px !important;
     }
     
-    .intro-steps {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    .steps-row {
+        grid-template-columns: repeat(2, 1fr);
         gap: 30px;
+    }
+    
+    .steps-row:last-child {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: none;
     }
 }
 
 @media (max-width: 768px) {
     .hero-section {
-        padding: 40px 0 50px; /* 모바일에서도 위치 조정 */
+        padding: 40px 0 50px;
         min-height: auto;
         margin-top: -10px;
     }
@@ -967,9 +962,9 @@
     }
     
     .ranking-display {
-        width: 420px; /* 400px에서 420px로 증가 */
+        width: 420px;
         margin: 0 auto;
-        padding: 30px 25px; /* 패딩도 조정 */
+        padding: 30px 25px;
     }
     
     .ranking-item {
@@ -1001,7 +996,7 @@
         font-size: 2.25rem;
     }
     
-    .intro-steps {
+    .steps-row {
         grid-template-columns: 1fr;
         gap: 25px;
     }
@@ -1048,8 +1043,8 @@
     }
     
     .ranking-display {
-        width: 360px; /* 350px에서 360px로 증가 */
-        padding: 20px 18px; /* 18px 15px에서 20px 18px로 증가 */
+        width: 360px;
+        padding: 20px 18px;
     }
     
     .ranking-item {
@@ -1064,17 +1059,7 @@
     }
 }
 
-/* 애니메이션 최적화 및 안정성 향상 */
-.animated {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-}
-
-.animate-on-scroll {
-    will-change: transform, opacity;
-}
-
-/* GPU 가속화를 위한 최적화 */
+/* GPU 가속화 및 성능 최적화 */
 .hero-section,
 .urgent-cards,
 .ranking-display,
@@ -1083,4 +1068,13 @@
 .step {
     transform: translateZ(0);
     backface-visibility: hidden;
+}
+
+/* 애니메이션 완료 후 최적화 */
+.animated {
+    will-change: auto;
+}
+
+.animate-on-scroll {
+    will-change: transform, opacity;
 }

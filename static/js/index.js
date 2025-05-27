@@ -251,9 +251,7 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
         style: {
             display: 'block',
             width: '100%',
-            height: '300px',
-            opacity: 1,
-            transform: 'translateY(0)'
+            height: '300px'
         }
     }, [
         React.createElement('div', { className: 'card-image', key: 'image' }, [
@@ -371,1013 +369,7 @@ class StatCounter {
     }
 }
 
-// 범죄 예방을 나타내는 보안 시각화 클래스 - 새로 추가
-class SecurityVisualization {
-    constructor(canvas, container) {
-        this.canvas = canvas;
-        this.container = container;
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.securityElements = [];
-        this.particles = [];
-        this.protectionFields = [];
-        this.time = 0;
-        this.isDestroyed = false;
-        this.animationId = null;
-        
-        this.init();
-    }
-
-    init() {
-        if (typeof THREE === 'undefined' || !this.canvas || this.isDestroyed) {
-            return;
-        }
-
-        try {
-            this.setupScene();
-            this.createSecurityElements();
-            this.animate();
-        } catch (error) {
-            console.warn('Security Visualization initialization failed:', error);
-            this.destroy();
-        }
-    }
-
-    setupScene() {
-        // Scene 설정
-        this.scene = new THREE.Scene();
-        
-        // Camera 설정
-        const aspect = this.container.offsetWidth / this.container.offsetHeight;
-        this.camera = new THREE.PerspectiveCamera(70, aspect, 0.1, 1000);
-        this.camera.position.set(0, 10, 40);
-        this.camera.lookAt(0, 0, 0);
-        
-        // Renderer 설정
-        this.renderer = new THREE.WebGLRenderer({ 
-            canvas: this.canvas,
-            alpha: true, 
-            antialias: true,
-            powerPreference: "high-performance"
-        });
-        
-        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
-        this.renderer.setClearColor(0x000000, 0);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-        // 조명 설정
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-        this.scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-        directionalLight.position.set(20, 40, 20);
-        directionalLight.castShadow = true;
-        this.scene.add(directionalLight);
-
-        // 보안을 상징하는 색상의 포인트 라이트들
-        this.blueLight = new THREE.PointLight(0x3b82f6, 0.8, 60);
-        this.blueLight.position.set(-25, 20, 15);
-        this.scene.add(this.blueLight);
-
-        this.greenLight = new THREE.PointLight(0x22c55e, 0.8, 60);
-        this.greenLight.position.set(25, 20, 15);
-        this.scene.add(this.greenLight);
-
-        this.redLight = new THREE.PointLight(0xef4444, 0.6, 50);
-        this.redLight.position.set(0, 30, -10);
-        this.scene.add(this.redLight);
-    }
-
-    createSecurityElements() {
-        this.createProtectionShields();
-        this.createSecurityCameras();
-        this.createSafetyNetwork();
-        this.createPatrollingElements();
-        this.createSecurityParticles();
-    }
-
-    createProtectionShields() {
-        // 보호막을 나타내는 방패 형태들
-        for (let i = 0; i < 6; i++) {
-            const shieldGeometry = new THREE.ConeGeometry(2, 4, 6);
-            const shieldMaterial = new THREE.MeshPhongMaterial({
-                color: new THREE.Color().setHSL(0.6, 0.7, 0.6), // 파란색 계열
-                transparent: true,
-                opacity: 0.7,
-                shininess: 100
-            });
-
-            const shield = new THREE.Mesh(shieldGeometry, shieldMaterial);
-            
-            // 원형 배치
-            const angle = (i / 6) * Math.PI * 2;
-            shield.position.set(
-                Math.cos(angle) * 20,
-                Math.sin(angle) * 5,
-                Math.sin(angle) * 10
-            );
-            
-            shield.rotation.set(
-                Math.random() * Math.PI,
-                angle,
-                0
-            );
-
-            shield.userData = {
-                originalPosition: shield.position.clone(),
-                rotationSpeed: 0.005 + Math.random() * 0.01,
-                floatSpeed: 0.003 + Math.random() * 0.007,
-                floatRange: 3 + Math.random() * 4
-            };
-
-            shield.castShadow = true;
-            shield.receiveShadow = true;
-            
-            this.scene.add(shield);
-            this.securityElements.push(shield);
-        }
-    }
-
-    createSecurityCameras() {
-        // 보안 카메라를 나타내는 객체들
-        for (let i = 0; i < 4; i++) {
-            const cameraGroup = new THREE.Group();
-            
-            // 카메라 본체
-            const bodyGeometry = new THREE.BoxGeometry(1.5, 1, 2);
-            const bodyMaterial = new THREE.MeshPhongMaterial({
-                color: 0x2d3748,
-                shininess: 80
-            });
-            const cameraBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            
-            // 카메라 렌즈
-            const lensGeometry = new THREE.CylinderGeometry(0.3, 0.5, 1, 8);
-            const lensMaterial = new THREE.MeshPhongMaterial({
-                color: 0x1a202c,
-                shininess: 200
-            });
-            const lens = new THREE.Mesh(lensGeometry, lensMaterial);
-            lens.position.set(0, 0, 1);
-            lens.rotation.x = Math.PI / 2;
-            
-            cameraGroup.add(cameraBody);
-            cameraGroup.add(lens);
-            
-            // 위치 설정
-            cameraGroup.position.set(
-                (Math.random() - 0.5) * 50,
-                10 + Math.random() * 15,
-                (Math.random() - 0.5) * 30
-            );
-            
-            cameraGroup.userData = {
-                scanSpeed: 0.01 + Math.random() * 0.02,
-                scanRange: Math.PI / 3,
-                originalRotation: cameraGroup.rotation.y
-            };
-            
-            this.scene.add(cameraGroup);
-            this.securityElements.push(cameraGroup);
-        }
-    }
-
-    createSafetyNetwork() {
-        // 안전망을 나타내는 연결된 선들
-        const networkPoints = [];
-        for (let i = 0; i < 12; i++) {
-            networkPoints.push(new THREE.Vector3(
-                (Math.random() - 0.5) * 60,
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 40
-            ));
-        }
-
-        // 점들을 연결하는 선들 생성
-        for (let i = 0; i < networkPoints.length; i++) {
-            for (let j = i + 1; j < networkPoints.length; j++) {
-                const distance = networkPoints[i].distanceTo(networkPoints[j]);
-                if (distance < 25) { // 가까운 점들만 연결
-                    const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-                        networkPoints[i], networkPoints[j]
-                    ]);
-                    
-                    const lineMaterial = new THREE.LineBasicMaterial({
-                        color: 0x3b82f6,
-                        transparent: true,
-                        opacity: 0.4
-                    });
-                    
-                    const line = new THREE.Line(lineGeometry, lineMaterial);
-                    line.userData = {
-                        pulseSpeed: 0.05 + Math.random() * 0.1,
-                        originalOpacity: 0.4
-                    };
-                    
-                    this.scene.add(line);
-                    this.protectionFields.push(line);
-                }
-            }
-        }
-    }
-
-    createPatrollingElements() {
-        // 순찰을 나타내는 움직이는 객체들
-        for (let i = 0; i < 3; i++) {
-            const patrolGeometry = new THREE.SphereGeometry(0.8, 8, 8);
-            const patrolMaterial = new THREE.MeshPhongMaterial({
-                color: new THREE.Color().setHSL(0.1, 0.8, 0.6), // 주황색 계열
-                transparent: true,
-                opacity: 0.8,
-                emissive: new THREE.Color().setHSL(0.1, 0.3, 0.1)
-            });
-
-            const patrol = new THREE.Mesh(patrolGeometry, patrolMaterial);
-            
-            patrol.position.set(
-                (Math.random() - 0.5) * 40,
-                Math.random() * 10,
-                (Math.random() - 0.5) * 30
-            );
-
-            patrol.userData = {
-                patrolPath: [
-                    new THREE.Vector3((Math.random() - 0.5) * 40, Math.random() * 10, (Math.random() - 0.5) * 30),
-                    new THREE.Vector3((Math.random() - 0.5) * 40, Math.random() * 10, (Math.random() - 0.5) * 30),
-                    new THREE.Vector3((Math.random() - 0.5) * 40, Math.random() * 10, (Math.random() - 0.5) * 30)
-                ],
-                patrolSpeed: 0.01 + Math.random() * 0.02,
-                currentTarget: 0
-            };
-
-            this.scene.add(patrol);
-            this.securityElements.push(patrol);
-        }
-    }
-
-    createSecurityParticles() {
-        // 보안을 나타내는 파티클 시스템
-        const particleCount = 150;
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const sizes = new Float32Array(particleCount);
-
-        for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 100;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
-
-            // 보안 색상 (파란색, 초록색, 주황색)
-            const colorType = Math.random();
-            if (colorType < 0.4) {
-                colors[i * 3] = 0.23; colors[i * 3 + 1] = 0.51; colors[i * 3 + 2] = 0.96; // 파란색
-            } else if (colorType < 0.8) {
-                colors[i * 3] = 0.13; colors[i * 3 + 1] = 0.77; colors[i * 3 + 2] = 0.37; // 초록색
-            } else {
-                colors[i * 3] = 1; colors[i * 3 + 1] = 0.45; colors[i * 3 + 2] = 0.1; // 주황색
-            }
-
-            sizes[i] = Math.random() * 2 + 0.5;
-        }
-
-        const particleGeometry = new THREE.BufferGeometry();
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-        const particleMaterial = new THREE.PointsMaterial({
-            size: 1.2,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.8,
-            sizeAttenuation: true,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(particleGeometry, particleMaterial);
-        this.scene.add(particles);
-        this.particles.push(particles);
-    }
-
-    updateSecurityElements() {
-        this.time += 0.01;
-
-        // 보호막 애니메이션
-        this.securityElements.forEach((element, index) => {
-            const userData = element.userData;
-            
-            if (userData.floatSpeed) {
-                // 방패 유형 객체들 - 부유 애니메이션
-                element.position.y = userData.originalPosition.y + 
-                    Math.sin(this.time * userData.floatSpeed + index) * userData.floatRange;
-                element.rotation.y += userData.rotationSpeed;
-                element.rotation.z = Math.sin(this.time * 0.5 + index) * 0.1;
-            } else if (userData.scanSpeed) {
-                // 보안 카메라 - 스캔 움직임
-                const scanAngle = Math.sin(this.time * userData.scanSpeed) * userData.scanRange;
-                element.rotation.y = userData.originalRotation + scanAngle;
-            } else if (userData.patrolPath) {
-                // 순찰 객체 - 경로 따라 움직임
-                const target = userData.patrolPath[userData.currentTarget];
-                const distance = element.position.distanceTo(target);
-                
-                if (distance < 2) {
-                    userData.currentTarget = (userData.currentTarget + 1) % userData.patrolPath.length;
-                }
-                
-                element.position.lerp(target, userData.patrolSpeed);
-                element.rotation.x += 0.02;
-                element.rotation.y += 0.01;
-            }
-        });
-
-        // 안전망 펄스 효과
-        this.protectionFields.forEach((line, index) => {
-            const userData = line.userData;
-            const pulse = Math.sin(this.time * userData.pulseSpeed + index) * 0.3 + 0.7;
-            line.material.opacity = userData.originalOpacity * pulse;
-        });
-
-        // 파티클 움직임
-        this.particles.forEach(particle => {
-            const positions = particle.geometry.attributes.position.array;
-            
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i + 1] += Math.sin(this.time + positions[i] * 0.01) * 0.05;
-                positions[i] += Math.cos(this.time * 0.7 + positions[i + 2] * 0.01) * 0.03;
-            }
-            
-            particle.geometry.attributes.position.needsUpdate = true;
-            particle.rotation.y += 0.001;
-        });
-
-        // 조명 효과
-        if (this.blueLight) {
-            this.blueLight.intensity = 0.6 + Math.sin(this.time * 0.8) * 0.3;
-            this.blueLight.position.x = -25 + Math.sin(this.time * 0.3) * 8;
-        }
-
-        if (this.greenLight) {
-            this.greenLight.intensity = 0.6 + Math.cos(this.time * 0.6) * 0.3;
-            this.greenLight.position.x = 25 + Math.cos(this.time * 0.4) * 8;
-        }
-
-        if (this.redLight) {
-            this.redLight.intensity = 0.4 + Math.sin(this.time * 1.2) * 0.2;
-            this.redLight.position.y = 30 + Math.sin(this.time * 0.5) * 5;
-        }
-
-        // 카메라 부드러운 움직임
-        this.camera.position.x = Math.sin(this.time * 0.1) * 3;
-        this.camera.position.y = 10 + Math.cos(this.time * 0.08) * 2;
-        this.camera.lookAt(0, 0, 0);
-    }
-
-    animate() {
-        if (this.isDestroyed) return;
-        
-        this.animationId = requestAnimationFrame(() => this.animate());
-        
-        try {
-            this.updateSecurityElements();
-            
-            if (this.renderer && this.scene && this.camera) {
-                this.renderer.render(this.scene, this.camera);
-            }
-        } catch (error) {
-            console.warn('Security Visualization animation error:', error);
-            this.destroy();
-        }
-    }
-
-    onWindowResize() {
-        if (!this.renderer || !this.camera || this.isDestroyed) return;
-        
-        try {
-            const width = this.container.offsetWidth;
-            const height = this.container.offsetHeight;
-            
-            this.camera.aspect = width / height;
-            this.camera.updateProjectionMatrix();
-            
-            this.renderer.setSize(width, height);
-        } catch (error) {
-            console.warn('Security Visualization resize error:', error);
-        }
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-        
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-        
-        // 객체들 정리
-        this.securityElements.forEach(element => {
-            if (element.geometry) element.geometry.dispose();
-            if (element.material) element.material.dispose();
-        });
-        this.securityElements = [];
-        
-        this.protectionFields.forEach(field => {
-            if (field.geometry) field.geometry.dispose();
-            if (field.material) field.material.dispose();
-        });
-        this.protectionFields = [];
-        
-        this.particles.forEach(particle => {
-            if (particle.geometry) particle.geometry.dispose();
-            if (particle.material) particle.material.dispose();
-        });
-        this.particles = [];
-        
-        // 렌더러 정리
-        if (this.renderer) {
-            this.renderer.dispose();
-            this.renderer = null;
-        }
-        
-        this.scene = null;
-        this.camera = null;
-    }
-}
-// 개선된 파도 효과 Three.js 클래스 - 메모리 누수 방지
-class WaveEffect {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.waves = [];
-        this.time = 0;
-        this.isDestroyed = false;
-        this.animationId = null;
-        
-        this.init();
-    }
-
-    init() {
-        if (typeof THREE === 'undefined' || !this.canvas || this.isDestroyed) {
-            return;
-        }
-
-        try {
-            this.setupScene();
-            this.createWaves();
-            this.animate();
-        } catch (error) {
-            console.warn('Three.js initialization failed:', error);
-            this.destroy();
-        }
-    }
-
-    setupScene() {
-        // Scene 설정
-        this.scene = new THREE.Scene();
-        
-        // Camera 설정 
-        this.camera = new THREE.OrthographicCamera(
-            -window.innerWidth / 2, window.innerWidth / 2,
-            window.innerHeight / 2, -window.innerHeight / 2,
-            1, 1000
-        );
-        this.camera.position.z = 100;
-        
-        // Renderer 설정
-        this.renderer = new THREE.WebGLRenderer({ 
-            canvas: this.canvas,
-            alpha: true, 
-            antialias: true,
-            powerPreference: "high-performance"
-        });
-        
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x000000, 0);
-    }
-
-    createWaves() {
-        // 여러 개의 곡선 파도 생성 - 화면 전체를 완전히 덮도록 수정
-        for (let i = 0; i < 8; i++) { // 5개에서 8개로 증가
-            const geometry = new THREE.BufferGeometry();
-            const vertices = [];
-            const waveWidth = window.innerWidth + 400; // 200에서 400으로 증가하여 여유 확보
-            const segments = 200; // 150에서 200으로 증가하여 더 부드럽게
-            
-            // 곡선 파도 정점 생성 - 완전히 화면을 덮도록
-            for (let j = 0; j <= segments; j++) {
-                const x = (j / segments) * waveWidth - waveWidth / 2;
-                vertices.push(x, 0, 0);
-            }
-            
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-            
-            // 파도별 고유 설정
-            const waveSettings = {
-                amplitude: 25 + Math.random() * 40, // 진폭 증가
-                frequency: 0.008 + Math.random() * 0.015, // 주파수 조정
-                speed: 0.3 + Math.random() * 1.2,
-                phase: Math.random() * Math.PI * 2,
-                opacity: 0.1 + Math.random() * 0.3, // 더 다양한 투명도
-                yOffset: (Math.random() - 0.5) * window.innerHeight * 1.2 // 수직 범위 확장
-            };
-            
-            // 재질 생성 - 더 밝은 색상으로
-            const material = new THREE.LineBasicMaterial({
-                color: new THREE.Color().setHSL(0, 0, 0.85 + Math.random() * 0.15), // 더 밝게
-                transparent: true,
-                opacity: waveSettings.opacity,
-                linewidth: 3 // 선 굵기 증가
-            });
-            
-            const wave = new THREE.Line(geometry, material);
-            wave.position.y = waveSettings.yOffset;
-            wave.userData = waveSettings;
-            
-            this.scene.add(wave);
-            this.waves.push(wave);
-        }
-    }
-
-    updateWaves() {
-        this.time += 0.016; // ~60fps
-        
-        this.waves.forEach((wave, index) => {
-            if (!wave || !wave.userData) return;
-            
-            const settings = wave.userData;
-            const positions = wave.geometry.attributes.position.array;
-            
-            // 각 정점의 Y 좌표를 곡선 파도로 업데이트
-            for (let i = 0; i < positions.length; i += 3) {
-                const x = positions[i];
-                const baseWave = Math.sin(x * settings.frequency + this.time * settings.speed + settings.phase);
-                const harmonicWave = Math.sin(x * settings.frequency * 2 + this.time * settings.speed * 1.3 + settings.phase) * 0.3;
-                const complexWave = Math.sin(x * settings.frequency * 0.5 + this.time * settings.speed * 0.7 + settings.phase) * 0.5;
-                
-                positions[i + 1] = (baseWave + harmonicWave + complexWave) * settings.amplitude;
-            }
-            
-            wave.geometry.attributes.position.needsUpdate = true;
-            
-            // 파도 이동 (선택적)
-            wave.position.x += Math.sin(this.time * 0.1 + index) * 0.5;
-            
-            // 투명도 변화
-            const opacityVariation = Math.sin(this.time * 0.8 + index * 0.5) * 0.1;
-            wave.material.opacity = settings.opacity + opacityVariation;
-        });
-    }
-
-    animate() {
-        if (this.isDestroyed) return;
-        
-        this.animationId = requestAnimationFrame(() => this.animate());
-        
-        try {
-            this.updateWaves();
-            
-            if (this.renderer && this.scene && this.camera) {
-                this.renderer.render(this.scene, this.camera);
-            }
-        } catch (error) {
-            console.warn('Wave animation error:', error);
-            this.destroy();
-        }
-    }
-
-    onWindowResize() {
-        if (!this.renderer || !this.camera || this.isDestroyed) return;
-        
-        try {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            
-            this.camera.left = -width / 2;
-            this.camera.right = width / 2;
-            this.camera.top = height / 2;
-            this.camera.bottom = -height / 2;
-            this.camera.updateProjectionMatrix();
-            
-            this.renderer.setSize(width, height);
-        } catch (error) {
-            console.warn('Wave resize error:', error);
-        }
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-        
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-        
-        // 웨이브 정리
-        this.waves.forEach(wave => {
-            if (wave && wave.geometry) {
-                wave.geometry.dispose();
-            }
-            if (wave && wave.material) {
-                wave.material.dispose();
-            }
-        });
-        this.waves = [];
-        
-        // 렌더러 정리
-        if (this.renderer) {
-            this.renderer.dispose();
-            this.renderer = null;
-        }
-        
-        this.scene = null;
-        this.camera = null;
-    }
-}
-
-// 자연스러운 흐르는 3D 배경 효과 클래스 - 마우스 반응 제거
-class FlowingBackground3D {
-    constructor(canvas, container) {
-        this.canvas = canvas;
-        this.container = container;
-        this.scene = null;
-        this.camera = null;
-        this.renderer = null;
-        this.particles = [];
-        this.geometries = [];
-        this.time = 0;
-        this.isDestroyed = false;
-        this.animationId = null;
-        
-        this.init();
-    }
-
-    init() {
-        if (typeof THREE === 'undefined' || !this.canvas || this.isDestroyed) {
-            return;
-        }
-
-        try {
-            this.setupScene();
-            this.createObjects();
-            this.animate();
-        } catch (error) {
-            console.warn('Flowing 3D Background initialization failed:', error);
-            this.destroy();
-        }
-    }
-
-    setupScene() {
-        // Scene 설정
-        this.scene = new THREE.Scene();
-        
-        // Camera 설정 - 더 넓은 시야
-        const aspect = this.container.offsetWidth / this.container.offsetHeight;
-        this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
-        this.camera.position.set(0, 20, 60);
-        this.camera.lookAt(0, 0, 0);
-        
-        // Renderer 설정
-        this.renderer = new THREE.WebGLRenderer({ 
-            canvas: this.canvas,
-            alpha: true, 
-            antialias: true,
-            powerPreference: "high-performance"
-        });
-        
-        this.renderer.setSize(this.container.offsetWidth, this.container.offsetHeight);
-        this.renderer.setClearColor(0x000000, 0);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-        // 부드러운 환경광
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        this.scene.add(ambientLight);
-
-        // 주 방향광
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-        directionalLight.position.set(30, 50, 20);
-        directionalLight.castShadow = true;
-        this.scene.add(directionalLight);
-
-        // 색상이 있는 포인트 라이트들 - 물결처럼 움직일 예정
-        this.pointLight1 = new THREE.PointLight(0x22c55e, 0.8, 80);
-        this.pointLight1.position.set(-40, 15, 20);
-        this.scene.add(this.pointLight1);
-
-        this.pointLight2 = new THREE.PointLight(0xf97316, 0.8, 80);
-        this.pointLight2.position.set(40, 15, 20);
-        this.scene.add(this.pointLight2);
-
-        this.pointLight3 = new THREE.PointLight(0x3b82f6, 0.6, 60);
-        this.pointLight3.position.set(0, 30, -20);
-        this.scene.add(this.pointLight3);
-    }
-
-    createObjects() {
-        this.createFlowingGeometries();
-        this.createStreamingParticles();
-        this.createWavyConnections();
-    }
-
-    createFlowingGeometries() {
-        // 다양한 기하학적 형태 생성 - 물결처럼 흐르도록
-        const geometryTypes = [
-            new THREE.SphereGeometry(1.5, 12, 12),
-            new THREE.BoxGeometry(2.5, 2.5, 2.5),
-            new THREE.ConeGeometry(1.5, 3, 6),
-            new THREE.TetrahedronGeometry(2),
-            new THREE.OctahedronGeometry(1.8),
-            new THREE.IcosahedronGeometry(1.6)
-        ];
-
-        for (let i = 0; i < 20; i++) {
-            const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
-            
-            // 투명하고 부드러운 재질
-            const material = new THREE.MeshPhongMaterial({
-                color: new THREE.Color().setHSL(
-                    Math.random() * 0.15 + (i % 3 === 0 ? 0.1 : i % 3 === 1 ? 0.55 : 0.2), 
-                    0.6,
-                    0.7
-                ),
-                shininess: 80,
-                transparent: true,
-                opacity: 0.6
-            });
-
-            const mesh = new THREE.Mesh(geometry, material);
-            
-            // 넓은 범위에 배치
-            mesh.position.set(
-                (Math.random() - 0.5) * 120,
-                (Math.random() - 0.5) * 40,
-                (Math.random() - 0.5) * 80
-            );
-            
-            // 물결 흐름을 위한 사용자 정의 속성
-            mesh.userData = {
-                initialPosition: mesh.position.clone(),
-                flowSpeed: Math.random() * 0.008 + 0.005, // 더 부드러운 속도
-                flowAmplitude: {
-                    x: Math.random() * 15 + 8,
-                    y: Math.random() * 10 + 5,
-                    z: Math.random() * 12 + 6
-                },
-                rotationSpeed: {
-                    x: (Math.random() - 0.5) * 0.008,
-                    y: (Math.random() - 0.5) * 0.008,
-                    z: (Math.random() - 0.5) * 0.008
-                },
-                phaseOffset: Math.random() * Math.PI * 2,
-                scaleWave: Math.random() * 0.3 + 0.8
-            };
-            
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            
-            this.scene.add(mesh);
-            this.geometries.push(mesh);
-        }
-    }
-
-    createStreamingParticles() {
-        // 흐르는 파티클 시스템
-        const particleCount = 300;
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const sizes = new Float32Array(particleCount);
-
-        this.particleData = []; // 각 파티클의 흐름 데이터
-
-        for (let i = 0; i < particleCount; i++) {
-            // 넓은 영역에 배치
-            positions[i * 3] = (Math.random() - 0.5) * 200;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
-
-            // 부드러운 색상 그라데이션
-            const colorPhase = Math.random();
-            if (colorPhase < 0.33) {
-                colors[i * 3] = 0.13 + Math.random() * 0.2; // R
-                colors[i * 3 + 1] = 0.77 + Math.random() * 0.2; // G 
-                colors[i * 3 + 2] = 0.37 + Math.random() * 0.3; // B
-            } else if (colorPhase < 0.66) {
-                colors[i * 3] = 1; // R
-                colors[i * 3 + 1] = 0.45 + Math.random() * 0.3; // G
-                colors[i * 3 + 2] = 0.1 + Math.random() * 0.2; // B
-            } else {
-                colors[i * 3] = 0.23 + Math.random() * 0.3; // R
-                colors[i * 3 + 1] = 0.51 + Math.random() * 0.3; // G
-                colors[i * 3 + 2] = 0.96; // B
-            }
-
-            sizes[i] = Math.random() * 2 + 0.5;
-
-            // 흐름 데이터 저장
-            this.particleData.push({
-                originalX: positions[i * 3],
-                originalY: positions[i * 3 + 1],
-                originalZ: positions[i * 3 + 2],
-                flowSpeed: Math.random() * 0.01 + 0.005,
-                waveAmplitude: Math.random() * 20 + 10,
-                phaseOffset: Math.random() * Math.PI * 2
-            });
-        }
-
-        const particleGeometry = new THREE.BufferGeometry();
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-        const particleMaterial = new THREE.PointsMaterial({
-            size: 1.5,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.7,
-            sizeAttenuation: true,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(particleGeometry, particleMaterial);
-        this.scene.add(particles);
-        this.particles.push(particles);
-    }
-
-    createWavyConnections() {
-        // 웨이브 형태의 연결선들
-        for (let i = 0; i < 8; i++) {
-            const curve = new THREE.CatmullRomCurve3([
-                new THREE.Vector3(-60 + i * 15, -20, -30),
-                new THREE.Vector3(-30 + i * 10, 0, 0),
-                new THREE.Vector3(0 + i * 8, 15, 20),
-                new THREE.Vector3(30 + i * 12, 0, 40),
-                new THREE.Vector3(60 + i * 10, -15, 10)
-            ]);
-
-            const tubeGeometry = new THREE.TubeGeometry(curve, 50, 0.3, 6, false);
-            const tubeMaterial = new THREE.MeshPhongMaterial({
-                color: new THREE.Color().setHSL(Math.random() * 0.6, 0.7, 0.5),
-                transparent: true,
-                opacity: 0.4,
-                shininess: 100
-            });
-
-            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
-            tube.userData = {
-                rotationSpeed: (Math.random() - 0.5) * 0.005,
-                floatSpeed: Math.random() * 0.003 + 0.002
-            };
-
-            this.scene.add(tube);
-            this.geometries.push(tube);
-        }
-    }
-
-    updateFlowingMotion() {
-        this.time += 0.008; // 더 부드러운 시간 진행
-        
-        // 기하학적 객체들의 물결 움직임
-        this.geometries.forEach((mesh, index) => {
-            const userData = mesh.userData;
-            
-            if (userData.flowSpeed) {
-                // 물결처럼 흐르는 움직임
-                const waveX = Math.sin(this.time * userData.flowSpeed + userData.phaseOffset) * userData.flowAmplitude.x;
-                const waveY = Math.sin(this.time * userData.flowSpeed * 1.3 + userData.phaseOffset + Math.PI / 3) * userData.flowAmplitude.y;
-                const waveZ = Math.cos(this.time * userData.flowSpeed * 0.8 + userData.phaseOffset) * userData.flowAmplitude.z;
-                
-                mesh.position.x = userData.initialPosition.x + waveX;
-                mesh.position.y = userData.initialPosition.y + waveY;
-                mesh.position.z = userData.initialPosition.z + waveZ;
-                
-                // 부드러운 회전
-                mesh.rotation.x += userData.rotationSpeed.x;
-                mesh.rotation.y += userData.rotationSpeed.y;
-                mesh.rotation.z += userData.rotationSpeed.z;
-                
-                // 부드러운 크기 변화
-                const scaleWave = Math.sin(this.time * userData.flowSpeed * 2 + userData.phaseOffset) * 0.2 + 1;
-                mesh.scale.setScalar(userData.scaleWave * scaleWave);
-            }
-        });
-
-        // 파티클들의 흐르는 움직임
-        this.particles.forEach(particle => {
-            const positions = particle.geometry.attributes.position.array;
-            
-            for (let i = 0; i < this.particleData.length; i++) {
-                const data = this.particleData[i];
-                const i3 = i * 3;
-                
-                // 물결 모양으로 흐르는 움직임
-                const flowWaveX = Math.sin(this.time * data.flowSpeed + data.phaseOffset) * data.waveAmplitude;
-                const flowWaveY = Math.cos(this.time * data.flowSpeed * 1.2 + data.phaseOffset) * (data.waveAmplitude * 0.6);
-                const flowWaveZ = Math.sin(this.time * data.flowSpeed * 0.9 + data.phaseOffset + Math.PI / 4) * (data.waveAmplitude * 0.8);
-                
-                positions[i3] = data.originalX + flowWaveX;
-                positions[i3 + 1] = data.originalY + flowWaveY;
-                positions[i3 + 2] = data.originalZ + flowWaveZ;
-            }
-            
-            particle.geometry.attributes.position.needsUpdate = true;
-        });
-
-        // 조명들도 물결처럼 움직임
-        if (this.pointLight1) {
-            this.pointLight1.position.x = -40 + Math.sin(this.time * 0.5) * 20;
-            this.pointLight1.position.y = 15 + Math.cos(this.time * 0.3) * 8;
-            this.pointLight1.intensity = 0.6 + Math.sin(this.time * 0.4) * 0.3;
-        }
-
-        if (this.pointLight2) {
-            this.pointLight2.position.x = 40 + Math.cos(this.time * 0.6) * 18;
-            this.pointLight2.position.y = 15 + Math.sin(this.time * 0.4) * 10;
-            this.pointLight2.intensity = 0.6 + Math.cos(this.time * 0.5) * 0.3;
-        }
-
-        if (this.pointLight3) {
-            this.pointLight3.position.y = 30 + Math.sin(this.time * 0.7) * 12;
-            this.pointLight3.position.z = -20 + Math.cos(this.time * 0.3) * 15;
-            this.pointLight3.intensity = 0.4 + Math.sin(this.time * 0.6) * 0.2;
-        }
-
-        // 카메라도 부드럽게 흔들림
-        this.camera.position.x = Math.sin(this.time * 0.1) * 5;
-        this.camera.position.y = 20 + Math.cos(this.time * 0.08) * 3;
-        this.camera.lookAt(0, 0, 0);
-    }
-
-    animate() {
-        if (this.isDestroyed) return;
-        
-        this.animationId = requestAnimationFrame(() => this.animate());
-        
-        try {
-            this.updateFlowingMotion();
-            
-            if (this.renderer && this.scene && this.camera) {
-                this.renderer.render(this.scene, this.camera);
-            }
-        } catch (error) {
-            console.warn('Flowing 3D Background animation error:', error);
-            this.destroy();
-        }
-    }
-
-    onWindowResize() {
-        if (!this.renderer || !this.camera || this.isDestroyed) return;
-        
-        try {
-            const width = this.container.offsetWidth;
-            const height = this.container.offsetHeight;
-            
-            this.camera.aspect = width / height;
-            this.camera.updateProjectionMatrix();
-            
-            this.renderer.setSize(width, height);
-        } catch (error) {
-            console.warn('Flowing 3D Background resize error:', error);
-        }
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-        
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-        
-        // 객체들 정리
-        this.geometries.forEach(mesh => {
-            if (mesh.geometry) mesh.geometry.dispose();
-            if (mesh.material) mesh.material.dispose();
-        });
-        this.geometries = [];
-        
-        this.particles.forEach(particle => {
-            if (particle.geometry) particle.geometry.dispose();
-            if (particle.material) particle.material.dispose();
-        });
-        this.particles = [];
-        
-        // 렌더러 정리
-        if (this.renderer) {
-            this.renderer.dispose();
-            this.renderer = null;
-        }
-        
-        this.scene = null;
-        this.camera = null;
-        this.particleData = null;
-    }
-}
-
-// GSAP 애니메이션 관리자 (버그 수정 및 개선)
+// GSAP 애니메이션 관리자 - 강화된 FOUC 방지
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
@@ -1412,68 +404,63 @@ class IndexAnimations {
             if (trigger) trigger.kill();
         });
         this.scrollTriggers = [];
-        
-        // 페이지 준비 상태에서만 스타일 정리
-        if (document.body.classList.contains('page-ready')) {
-            gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
-                clearProps: 'transform,opacity',
-                opacity: 1,
-                visibility: 'visible',
-                transform: 'translateY(0)'
-            });
-        }
     }
 
     setupAnimations() {
         // 페이지가 준비되지 않았다면 대기
-        if (document.body.classList.contains('page-loading')) {
+        if (!document.body.classList.contains('page-ready')) {
             setTimeout(() => this.setupAnimations(), 100);
             return;
         }
 
-        // 히어로 섹션 애니메이션 - 안정적인 시작
+        // 히어로 섹션 애니메이션 - 순차적 등장
         this.timeline = gsap.timeline({ 
-            delay: 0.6, // 페이지 준비 후 충분한 지연
-            onStart: () => {
-                // 애니메이션 시작 전 요소들이 표시되도록 보장
-                gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
-                    opacity: 1,
-                    visibility: 'visible'
-                });
-            },
+            delay: 0.3,
             onComplete: () => {
-                // 애니메이션 완료 후 모든 요소의 스타일 고정
-                gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
-                    clearProps: 'all',
-                    opacity: 1,
-                    transform: 'none'
-                });
-                
-                // 성능 최적화를 위한 클래스 추가
+                // 애니메이션 완료 후 성능 최적화
                 document.body.classList.add('animations-complete');
             }
         });
         
         this.timeline
             .fromTo('.hero-title', {
-                y: 50,
+                y: 60,
+                opacity: 0
+            }, {
+                duration: 1,
+                y: 0,
+                opacity: 1,
+                ease: 'power2.out'
+            })
+            .fromTo('.hero-description', {
+                y: 40,
                 opacity: 0
             }, {
                 duration: 0.8,
                 y: 0,
                 opacity: 1,
                 ease: 'power2.out'
-            })
-            .fromTo('.hero-description', {
+            }, '-=0.5')
+            .fromTo('.hero-buttons .btn', {
                 y: 30,
                 opacity: 0
             }, {
                 duration: 0.6,
                 y: 0,
                 opacity: 1,
+                stagger: 0.15,
                 ease: 'power2.out'
             }, '-=0.4')
-            .fromTo('.hero-buttons .btn', {
+            .fromTo('.ranking-display', {
+                x: 40,
+                opacity: 0
+            }, {
+                duration: 1,
+                x: 0,
+                opacity: 1,
+                ease: 'power2.out'
+            }, '-=0.7')
+            .fromTo('.ranking-item', {
                 y: 20,
                 opacity: 0
             }, {
@@ -1482,113 +469,37 @@ class IndexAnimations {
                 opacity: 1,
                 stagger: 0.1,
                 ease: 'power2.out'
-            }, '-=0.3')
-            .fromTo('.ranking-display', {
-                x: 30,
-                opacity: 0
-            }, {
-                duration: 0.8,
-                x: 0,
-                opacity: 1,
-                ease: 'power2.out'
-            }, '-=0.6')
-            .fromTo('.ranking-item', {
-                y: 15,
-                opacity: 0
-            }, {
-                duration: 0.4,
-                y: 0,
-                opacity: 1,
-                stagger: 0.08,
-                ease: 'power2.out'
-            }, '-=0.2');
-        
-        this.timeline
-            .fromTo('.hero-title', {
-                y: 80,
-                opacity: 0
-            }, {
-                duration: 1.2,
-                y: 0,
-                opacity: 1,
-                ease: 'power3.out'
-            })
-            .fromTo('.hero-description', {
-                y: 40,
-                opacity: 0
-            }, {
-                duration: 1,
-                y: 0,
-                opacity: 1,
-                ease: 'power2.out'
-            }, '-=0.6')
-            .fromTo('.hero-buttons .btn', {
-                y: 30,
-                opacity: 0
-            }, {
-                duration: 0.8,
-                y: 0,
-                opacity: 1,
-                stagger: 0.2,
-                ease: 'power2.out'
-            }, '-=0.4')
-            .fromTo('.ranking-display', {
-                x: 50,
-                opacity: 0
-            }, {
-                duration: 1.2,
-                x: 0,
-                opacity: 1,
-                ease: 'power2.out'
-            }, '-=0.8')
-            .fromTo('.ranking-item', {
-                y: 20,
-                opacity: 0
-            }, {
-                duration: 0.6,
-                y: 0,
-                opacity: 1,
-                stagger: 0.1,
-                ease: 'power2.out'
-            }, '-=0.4');
+            }, '-=0.3');
 
-        // ScrollTrigger 애니메이션들 - 타이밍 개선
+        // ScrollTrigger 애니메이션들
         if (typeof ScrollTrigger !== 'undefined') {
-            // 긴급 실종자 섹션 - 즉각 반응하도록 개선
+            // 긴급 실종자 섹션
             const urgentTrigger = ScrollTrigger.create({
                 trigger: '.urgent-section',
-                start: 'top 80%', // 더 일찍 트리거
-                end: 'bottom 20%',
+                start: 'top 75%',
+                end: 'bottom 25%',
                 onEnter: () => {
                     const cards = document.querySelectorAll('.urgent-cards .missing-card');
                     gsap.fromTo(cards, {
-                        y: 60,
+                        y: 50,
                         opacity: 0
                     }, {
-                        duration: 0.8,
+                        duration: 0.7,
                         y: 0,
                         opacity: 1,
-                        stagger: 0.15,
-                        ease: 'power2.out',
-                        onComplete: () => {
-                            // 애니메이션 완료 후 스타일 고정
-                            gsap.set(cards, {
-                                clearProps: 'transform,opacity',
-                                opacity: 1,
-                                transform: 'translateY(0)'
-                            });
-                        }
+                        stagger: 0.12,
+                        ease: 'power2.out'
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(urgentTrigger);
 
-            // 소개 섹션 - 반응성 개선
+            // 소개 섹션
             const introTrigger = ScrollTrigger.create({
                 trigger: '.intro-section',
-                start: 'top 85%', // 더 일찍 트리거
-                end: 'bottom 15%',
+                start: 'top 80%',
+                end: 'bottom 20%',
                 onEnter: () => {
                     const steps = document.querySelectorAll('.intro-steps .step');
                     gsap.fromTo(steps, {
@@ -1598,26 +509,19 @@ class IndexAnimations {
                         duration: 0.6,
                         y: 0,
                         opacity: 1,
-                        stagger: 0.15,
-                        ease: 'power2.out',
-                        onComplete: () => {
-                            gsap.set(steps, {
-                                clearProps: 'transform,opacity',
-                                opacity: 1,
-                                transform: 'translateY(0)'
-                            });
-                        }
+                        stagger: 0.1,
+                        ease: 'power2.out'
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(introTrigger);
 
-            // 통계 섹션 - 안정적인 애니메이션
+            // 통계 섹션
             const statsTrigger = ScrollTrigger.create({
                 trigger: '.stats-section',
-                start: 'top 85%',
-                end: 'bottom 15%',
+                start: 'top 80%',
+                end: 'bottom 20%',
                 onEnter: () => {
                     const statItems = document.querySelectorAll('.stats-grid .stat-item');
                     gsap.fromTo(statItems, {
@@ -1628,75 +532,12 @@ class IndexAnimations {
                         scale: 1,
                         opacity: 1,
                         stagger: 0.1,
-                        ease: 'back.out(1.7)',
-                        onComplete: () => {
-                            gsap.set(statItems, {
-                                clearProps: 'transform,opacity',
-                                opacity: 1,
-                                transform: 'scale(1)'
-                            });
-                        }
+                        ease: 'back.out(1.7)'
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(statsTrigger);
-        }
-
-        this.setupBackgroundAnimations();
-    }
-
-    setupBackgroundAnimations() {
-        this.createFloatingParticles('.hero-section', 6);
-    }
-
-    createFloatingParticles(containerSelector, count) {
-        const container = document.querySelector(containerSelector);
-        if (!container || this.isDestroyed) return;
-
-        for (let i = 0; i < count; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'floating-particle';
-            particle.style.cssText = `
-                position: absolute;
-                width: ${3 + Math.random() * 8}px;
-                height: ${3 + Math.random() * 8}px;
-                background: linear-gradient(45deg, 
-                    rgba(59, 130, 246, 0.3), 
-                    rgba(96, 165, 250, 0.2));
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 0;
-                will-change: transform, opacity;
-            `;
-            
-            container.appendChild(particle);
-            
-            gsap.set(particle, {
-                x: Math.random() * container.offsetWidth,
-                y: Math.random() * container.offsetHeight,
-                scale: Math.random() * 0.5 + 0.5
-            });
-            
-            gsap.to(particle, {
-                y: '-=100',
-                x: `+=${Math.random() * 200 - 100}`,
-                rotation: Math.random() * 360,
-                duration: 10 + Math.random() * 10,
-                ease: 'sine.inOut',
-                repeat: -1,
-                yoyo: true,
-                delay: Math.random() * 5
-            });
-            
-            gsap.to(particle, {
-                opacity: Math.random() * 0.5 + 0.3,
-                duration: 3 + Math.random() * 3,
-                ease: 'sine.inOut',
-                repeat: -1,
-                yoyo: true,
-                delay: Math.random() * 3
-            });
         }
     }
 
@@ -1714,10 +555,7 @@ class IndexAnimations {
             .to(button, {
                 scale: 1,
                 duration: 0.2,
-                ease: 'elastic.out(2, 0.3)',
-                onComplete: () => {
-                    gsap.set(button, { clearProps: 'transform' });
-                }
+                ease: 'elastic.out(2, 0.3)'
             });
             
         const countElement = button.querySelector('span');
@@ -1727,10 +565,7 @@ class IndexAnimations {
                 {
                     scale: 1,
                     duration: 0.3,
-                    ease: 'back.out(1.7)',
-                    onComplete: () => {
-                        gsap.set(countElement, { clearProps: 'transform' });
-                    }
+                    ease: 'back.out(1.7)'
                 }
             );
         }
@@ -1743,7 +578,7 @@ class IndexAnimations {
     }
 }
 
-// Intersection Observer를 활용한 스크롤 트리거 - 개선된 버전
+// Intersection Observer를 활용한 스크롤 트리거
 class ScrollObserver {
     constructor() {
         this.counters = new Map();
@@ -1811,168 +646,216 @@ class ScrollObserver {
     }
 }
 
-// 메인 홈페이지 관리 클래스 - 완전히 개선된 버전
+// 메인 홈페이지 관리 클래스 - 강화된 FOUC 방지 및 로딩 관리
 class IndexPage {
     constructor() {
         this.waveEffect = null;
         this.background3D = null;
-        this.securityViz = null; // 보안 시각화 추가
+        this.securityViz = null;
         this.animations = null;
         this.scrollObserver = null;
         this.isDestroyed = false;
         this.eventCleanup = null;
         this.resizeTimeout = null;
+        this.loadingSteps = {
+            domReady: false,
+            reactReady: false,
+            threeReady: false,
+            componentsReady: false
+        };
         this.init();
     }
 
     init() {
         if (this.isDestroyed) return;
         
+        // DOM 준비 상태 확인
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setup());
+            document.addEventListener('DOMContentLoaded', () => this.handleDOMReady());
         } else {
-            this.setup();
+            this.handleDOMReady();
         }
     }
 
-    setup() {
+    handleDOMReady() {
+        if (this.isDestroyed) return;
+        
+        this.loadingSteps.domReady = true;
+        this.showLoadingOverlay();
+        
+        // JavaScript 비활성화 감지
+        document.documentElement.classList.remove('no-js');
+        
+        // 페이지 로딩 클래스 추가
+        document.body.classList.add('page-loading');
+        
+        // 단계별 초기화
+        this.initializeComponents();
+    }
+
+    showLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+        }
+    }
+
+    hideLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    async initializeComponents() {
         if (this.isDestroyed) return;
         
         try {
-            // 페이지 준비 상태 확인
-            this.waitForPageReady().then(() => {
-                if (this.isDestroyed) return;
-                
+            // 1. React 컴포넌트 렌더링
+            await this.renderComponents();
+            this.loadingSteps.reactReady = true;
+            
+            // 2. Three.js 효과 초기화
+            await this.initializeThreeEffects();
+            this.loadingSteps.threeReady = true;
+            
+            // 3. 애니메이션 시스템 초기화
+            await this.initializeAnimations();
+            this.loadingSteps.componentsReady = true;
+            
+            // 4. 모든 준비 완료
+            this.finishLoading();
+            
+        } catch (error) {
+            console.error('Component initialization error:', error);
+            this.finishLoading(); // 오류 발생 시에도 페이지 표시
+        }
+    }
+
+    async renderComponents() {
+        return new Promise((resolve) => {
+            try {
                 // React 컴포넌트 렌더링
                 this.renderRankings();
                 this.renderUrgentCards();
                 
-                // 보안 시각화 캔버스 추가
-                this.addSecurityCanvas();
-                
-                // 3D 배경 캔버스 추가
-                this.add3DBackgroundCanvas();
-                
-                // 시각화 초기화
-                setTimeout(() => {
-                    if (!this.isDestroyed) {
-                        this.initWaveEffect();
-                        this.init3DBackground();
-                        this.initSecurityVisualization(); // 보안 시각화 초기화 추가
-                    }
-                }, 100);
-                
-                // 애니메이션 초기화
-                setTimeout(() => {
-                    if (!this.isDestroyed) {
-                        this.animations = new IndexAnimations();
-                        this.scrollObserver = new ScrollObserver();
-                    }
-                }, 200);
-                
-                this.setupEventListeners();
-                
-                console.log('Index page initialized successfully');
-            });
-        } catch (error) {
-            console.error('Index page setup error:', error);
-        }
-    }
-
-    // 페이지 준비 상태 대기
-    waitForPageReady() {
-        return new Promise((resolve) => {
-            if (document.body.classList.contains('page-ready')) {
+                // React 렌더링 완료 대기
+                setTimeout(resolve, 100);
+            } catch (error) {
+                console.error('React rendering failed:', error);
                 resolve();
-                return;
             }
-            
-            const checkReady = () => {
-                if (document.body.classList.contains('page-ready')) {
-                    resolve();
-                } else {
-                    setTimeout(checkReady, 50);
-                }
-            };
-            
-            // 최대 2초 대기
-            setTimeout(() => {
-                console.warn('Page ready timeout, proceeding anyway');
-                resolve();
-            }, 2000);
-            
-            checkReady();
         });
     }
 
-    // 보안 시각화 캔버스 추가
-    addSecurityCanvas() {
-        const heroVisual = document.querySelector('.hero-visual');
-        if (!heroVisual) return;
-
-        // 기존 network-canvas를 보안 캔버스로 교체
-        const existingCanvas = document.getElementById('network-canvas');
-        if (existingCanvas) {
-            existingCanvas.remove();
-        }
-
-        // 보안 시각화 캔버스 생성
-        const securityCanvas = document.createElement('canvas');
-        securityCanvas.className = 'security-canvas';
-        securityCanvas.id = 'securityCanvas';
-        securityCanvas.style.cssText = `
-            width: 400px;
-            height: 400px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.1) 50%, rgba(249, 115, 22, 0.1) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        `;
-        
-        // 히어로 비주얼에 추가
-        heroVisual.appendChild(securityCanvas);
+    async initializeThreeEffects() {
+        return new Promise((resolve) => {
+            try {
+                // Three.js 효과들이 로드되었는지 확인
+                if (typeof window.ThreeEffects === 'undefined') {
+                    console.warn('ThreeEffects not loaded');
+                    resolve();
+                    return;
+                }
+                
+                const { WaveEffect, FlowingBackground3D, SecurityVisualization } = window.ThreeEffects;
+                
+                // Wave 효과 초기화
+                const waveCanvas = document.getElementById('waveCanvas');
+                if (waveCanvas && WaveEffect) {
+                    this.waveEffect = new WaveEffect(waveCanvas);
+                }
+                
+                // 3D 배경 초기화
+                const statsSection = document.querySelector('.stats-section');
+                if (statsSection && FlowingBackground3D) {
+                    // 캔버스 생성
+                    const canvas3D = document.createElement('canvas');
+                    canvas3D.className = 'stats-3d-background';
+                    canvas3D.id = 'stats3DCanvas';
+                    canvas3D.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                        z-index: 0;
+                        opacity: 0.3;
+                    `;
+                    
+                    statsSection.insertBefore(canvas3D, statsSection.firstChild);
+                    this.background3D = new FlowingBackground3D(canvas3D, statsSection);
+                }
+                
+                // 보안 시각화 초기화
+                const heroVisual = document.querySelector('.hero-visual');
+                if (heroVisual && SecurityVisualization) {
+                    const securityCanvas = document.createElement('canvas');
+                    securityCanvas.className = 'security-canvas';
+                    securityCanvas.id = 'securityCanvas';
+                    securityCanvas.style.cssText = `
+                        width: 400px;
+                        height: 400px;
+                        border-radius: 20px;
+                        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+                        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.1) 50%, rgba(249, 115, 22, 0.1) 100%);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        z-index: -1;
+                    `;
+                    
+                    // 히어로 비주얼에 배경으로 추가
+                    heroVisual.style.position = 'relative';
+                    heroVisual.appendChild(securityCanvas);
+                    this.securityViz = new SecurityVisualization(securityCanvas, heroVisual);
+                }
+                
+                setTimeout(resolve, 200);
+            } catch (error) {
+                console.error('Three.js initialization failed:', error);
+                resolve();
+            }
+        });
     }
 
-    // 보안 시각화 초기화
-    initSecurityVisualization() {
+    async initializeAnimations() {
+        return new Promise((resolve) => {
+            try {
+                this.animations = new IndexAnimations();
+                this.scrollObserver = new ScrollObserver();
+                this.setupEventListeners();
+                
+                setTimeout(resolve, 100);
+            } catch (error) {
+                console.error('Animation initialization failed:', error);
+                resolve();
+            }
+        });
+    }
+
+    finishLoading() {
         if (this.isDestroyed) return;
         
-        const securityCanvas = document.getElementById('securityCanvas');
-        const container = document.querySelector('.hero-visual');
+        // 로딩 상태 제거
+        document.body.classList.remove('page-loading');
+        document.body.classList.add('page-ready');
         
-        if (securityCanvas && container && !this.isDestroyed) {
-            this.securityViz = new SecurityVisualization(securityCanvas, container);
-        }
+        // 로딩 오버레이 숨기기
+        setTimeout(() => {
+            this.hideLoadingOverlay();
+        }, 500);
+        
+        console.log('Index page ready');
     }
 
-    // 3D 배경 캔버스 추가
-    add3DBackgroundCanvas() {
-        const statsSection = document.querySelector('.stats-section');
-        if (!statsSection) return;
-
-        // 3D 배경 캔버스 생성
-        const canvas3D = document.createElement('canvas');
-        canvas3D.className = 'stats-3d-background';
-        canvas3D.id = 'stats3DCanvas';
-        
-        // 캔버스를 stats-section에 추가
-        statsSection.insertBefore(canvas3D, statsSection.firstChild);
-    }
-
-    // 3D 배경 초기화
-    init3DBackground() {
-        if (this.isDestroyed) return;
-        
-        const canvas3D = document.getElementById('stats3DCanvas');
-        const container = document.querySelector('.stats-section');
-        
-        if (canvas3D && container && !this.isDestroyed) {
-            this.background3D = new FlowingBackground3D(canvas3D, container);
-        }
-    }
-
-    // 순위 렌더링 - 에러 핸들링 강화
     renderRankings() {
         const rankingContainer = document.getElementById('topRankings');
         if (!rankingContainer || typeof React === 'undefined' || this.isDestroyed) {
@@ -1991,7 +874,6 @@ class IndexPage {
         }
     }
 
-    // React 컴포넌트 렌더링 - 안정성 대폭 강화
     renderUrgentCards() {
         const urgentContainer = document.querySelector('.urgent-cards');
         if (!urgentContainer || typeof React === 'undefined' || this.isDestroyed) {
@@ -2001,8 +883,6 @@ class IndexPage {
 
         const handleUpClick = (cardId) => {
             if (this.isDestroyed) return;
-            
-            console.log(`UP clicked for card ${cardId}`);
             
             const button = document.querySelector(`[data-id="${cardId}"] .up-btn`);
             if (button && this.animations && !this.isDestroyed) {
@@ -2014,7 +894,7 @@ class IndexPage {
             }
         };
 
-        // 컨테이너 강제 스타일 설정 - 버그 수정
+        // 컨테이너 강제 스타일 설정
         urgentContainer.style.display = 'grid';
         urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
         urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
@@ -2022,8 +902,6 @@ class IndexPage {
         urgentContainer.style.width = '100%';
         urgentContainer.style.maxWidth = '1200px';
         urgentContainer.style.margin = '0 auto';
-        urgentContainer.style.opacity = '1';
-        urgentContainer.style.transform = 'translateY(0)';
 
         try {
             const root = ReactDOM.createRoot(urgentContainer);
@@ -2038,43 +916,8 @@ class IndexPage {
                     )
                 )
             );
-            
-            // 렌더링 후 안정성 확보
-            setTimeout(() => {
-                if (this.isDestroyed) return;
-                
-                urgentContainer.style.display = 'grid';
-                urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
-                urgentContainer.style.gap = '25px';
-                urgentContainer.style.opacity = '1';
-                urgentContainer.style.transform = 'translateY(0)';
-                
-                // 각 카드 안정성 확보
-                const cards = urgentContainer.querySelectorAll('.missing-card');
-                cards.forEach((card, index) => {
-                    if (index < 8) {
-                        card.style.display = 'block';
-                        card.style.width = '100%';
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }, 50);
-            
         } catch (error) {
             console.error('React rendering failed:', error);
-        }
-    }
-
-    initWaveEffect() {
-        if (this.isDestroyed) return;
-        
-        const waveCanvas = document.getElementById('waveCanvas');
-        if (waveCanvas && !this.isDestroyed) {
-            this.waveEffect = new WaveEffect(waveCanvas);
         }
     }
 
@@ -2099,17 +942,6 @@ class IndexPage {
                 if (this.securityViz) {
                     this.securityViz.onWindowResize();
                 }
-                
-                // 리사이즈 시 그리드 레이아웃 재적용
-                const urgentContainer = document.querySelector('.urgent-cards');
-                if (urgentContainer) {
-                    urgentContainer.style.display = 'grid';
-                    urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                    urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
-                    urgentContainer.style.gap = '25px';
-                    urgentContainer.style.opacity = '1';
-                    urgentContainer.style.transform = 'translateY(0)';
-                }
             }, 250);
         };
         
@@ -2120,9 +952,8 @@ class IndexPage {
             
             if (e.target.closest('.up-btn')) {
                 const button = e.target.closest('.up-btn');
-                const card = button.closest('.missing-card');
                 
-                if (card && this.animations && !this.isDestroyed) {
+                if (this.animations && !this.isDestroyed) {
                     this.animations.animateUpButton(button);
                 }
             }
@@ -2195,13 +1026,9 @@ class IndexPage {
 // 페이지 로드 시 자동 초기화
 let indexPage = null;
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        indexPage = new IndexPage();
-    });
-} else {
-    indexPage = new IndexPage();
-}
+// 즉시 초기화
+document.documentElement.classList.add('no-js'); // JavaScript 비활성화 대비
+indexPage = new IndexPage();
 
 // 페이지 언로드 시 정리
 window.addEventListener('beforeunload', () => {
@@ -2213,26 +1040,28 @@ window.addEventListener('beforeunload', () => {
 
 // Visibility API를 사용한 탭 전환 시 최적화
 document.addEventListener('visibilitychange', () => {
+    if (!indexPage) return;
+    
     if (document.hidden) {
         // 페이지가 숨겨질 때 애니메이션 일시 정지
-        if (indexPage && indexPage.waveEffect) {
+        if (indexPage.waveEffect) {
             indexPage.waveEffect.isDestroyed = true;
         }
-        if (indexPage && indexPage.background3D) {
+        if (indexPage.background3D) {
             indexPage.background3D.isDestroyed = true;
         }
-        if (indexPage && indexPage.securityViz) {
+        if (indexPage.securityViz) {
             indexPage.securityViz.isDestroyed = true;
         }
     } else {
         // 페이지가 다시 보일 때 애니메이션 재개
-        if (indexPage && indexPage.waveEffect) {
+        if (indexPage.waveEffect) {
             indexPage.waveEffect.isDestroyed = false;
         }
-        if (indexPage && indexPage.background3D) {
+        if (indexPage.background3D) {
             indexPage.background3D.isDestroyed = false;
         }
-        if (indexPage && indexPage.securityViz) {
+        if (indexPage.securityViz) {
             indexPage.securityViz.isDestroyed = false;
         }
     }
@@ -2255,10 +1084,11 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// 개발자 도구 - 메모리 누수 방지
+// 개발자 도구
 if (typeof window !== 'undefined') {
     window.indexPageDebug = {
         get instance() { return indexPage; },
+        get loadingSteps() { return indexPage?.loadingSteps; },
         testAnimations: () => {
             if (typeof gsap !== 'undefined' && indexPage && !indexPage.isDestroyed) {
                 gsap.to('.missing-card', {
@@ -2266,31 +1096,7 @@ if (typeof window !== 'undefined') {
                     scale: 1.05,
                     stagger: 0.1,
                     yoyo: true,
-                    repeat: 1,
-                    onComplete: () => {
-                        gsap.set('.missing-card', { clearProps: 'transform' });
-                    }
-                });
-            }
-        },
-        testFlowingBackground: () => {
-            if (indexPage && indexPage.background3D && !indexPage.isDestroyed) {
-                console.log('Flowing 3D Background status:', {
-                    isDestroyed: indexPage.background3D.isDestroyed,
-                    geometriesCount: indexPage.background3D.geometries.length,
-                    particlesCount: indexPage.background3D.particles.length,
-                    currentTime: indexPage.background3D.time
-                });
-            }
-        },
-        testSecurityVisualization: () => {
-            if (indexPage && indexPage.securityViz && !indexPage.isDestroyed) {
-                console.log('Security Visualization status:', {
-                    isDestroyed: indexPage.securityViz.isDestroyed,
-                    securityElementsCount: indexPage.securityViz.securityElements.length,
-                    protectionFieldsCount: indexPage.securityViz.protectionFields.length,
-                    particlesCount: indexPage.securityViz.particles.length,
-                    currentTime: indexPage.securityViz.time
+                    repeat: 1
                 });
             }
         },

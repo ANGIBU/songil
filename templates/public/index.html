@@ -10,9 +10,58 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <!-- GSAP ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<!-- FOUC 방지를 위한 초기 스타일 -->
+<style>
+    /* 페이지 로딩 중 필수 요소들 숨김 */
+    .hero-title,
+    .hero-description,
+    .hero-buttons,
+    .ranking-display,
+    .urgent-cards,
+    .intro-steps,
+    .stats-grid {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateY(20px) !important;
+    }
+    
+    /* 로딩 표시 */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #f97316;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
+<!-- 로딩 오버레이 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
 <!-- 히어로 섹션 -->
 <section class="hero-section">
     <div class="container">
@@ -56,33 +105,6 @@
         <div class="urgent-cards-container">
             <div class="urgent-cards" id="urgentCardsGrid">
                 <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
-                
-                <!-- 폴백용 샘플 카드 (React 로드 실패시) -->
-                <div class="missing-card urgent" data-id="1" style="display: none;">
-                    <div class="card-image">
-                        <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
-                        <div class="danger-level high">긴급</div>
-                        <div class="missing-period">3일째</div>
-                    </div>
-                    <div class="card-content">
-                        <h3>김○○ (32세)</h3>
-                        <p class="missing-info">
-                            <i class="fas fa-calendar"></i> 2024.05.20 실종<br>
-                            <i class="fas fa-map-marker-alt"></i> 서울시 강남구<br>
-                            <i class="fas fa-tshirt"></i> 검은색 정장, 갈색 구두
-                        </p>
-                        <div class="card-actions">
-                            <button class="up-btn" onclick="handleUpClick(this, 1)">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>246</span>
-                            </button>
-                            <a href="{{ url_for('missing_detail', missing_id=1) }}" class="detail-btn">
-                                <i class="fas fa-eye"></i>
-                                상세보기
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="section-footer">
@@ -101,40 +123,46 @@
             <div class="intro-text">
                 <h2>어떻게 작동하나요?</h2>
                 <div class="intro-steps">
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-user-plus"></i>
+                    <!-- 첫 번째 줄: 1-3번 -->
+                    <div class="steps-row">
+                        <div class="step">
+                            <div class="step-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h3>1. 실종자 신고</h3>
+                            <p>실종자의 정보와 사진을<br>등록하면 경찰청 API를<br>통해 공식 접수됩니다.</p>
                         </div>
-                        <h3>1. 실종자 신고</h3>
-                        <p>실종자의 정보와 사진을<br>등록하면 경찰청 API를<br>통해 공식 접수됩니다.</p>
+                        <div class="step">
+                            <div class="step-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <h3>2. 목격 정보 제보</h3>
+                            <p>실종자를 목격한 시민들이<br>손길을 통해 제보를 합니다</p>
+                        </div>
+                        <div class="step">
+                            <div class="step-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <h3>3. 가족 상봉</h3>
+                            <p>수집된 정보를 바탕으로<br>경찰이 CCTV를 분석하여<br>실종자를 찾습니다.</p>
+                        </div>
                     </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-eye"></i>
+                    <!-- 두 번째 줄: 4-5번 -->
+                    <div class="steps-row">
+                        <div class="step">
+                            <div class="step-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <h3>4. 포인트 보상</h3>
+                            <p>유용한 정보 제공자에게<br>포인트를 지급하여<br>참여를 독려합니다.</p>
                         </div>
-                        <h3>2. 목격 정보 제보</h3>
-                        <p>실종자를 목격한 시민들이<br>손길을 통해 제보를 합니다다</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-heart"></i>
+                        <div class="step">
+                            <div class="step-icon">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <h3>5. 상품 교환</h3>
+                            <p>적립된 포인트로 다양한<br>상품을 교환하고 지속적인<br>참여를 유도합니다.</p>
                         </div>
-                        <h3>3. 가족 상봉</h3>
-                        <p>수집된 정보를 바탕으로<br>경찰이 CCTV를 분석하여<br>실종자를 찾습니다.</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
-                        <h3>4. 포인트 보상</h3>
-                        <p>유용한 정보 제공자에게<br>포인트를 지급하여<br>참여를 독려합니다.</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-icon">
-                            <i class="fas fa-gift"></i>
-                        </div>
-                        <h3>5. 상품 교환</h3>
-                        <p>적립된 포인트로 다양한<br>상품을 교환하고 지속적인<br>참여를 유도합니다.</p>
                     </div>
                 </div>
             </div>
@@ -175,5 +203,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Three.js 효과 파일 먼저 로드 -->
+<script src="{{ url_for('static', filename='js/three-effects.js') }}"></script>
+<!-- 메인 index.js 로드 -->
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 {% endblock %}

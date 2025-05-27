@@ -2,17 +2,25 @@
 
 /* ===== 실종자 검색 페이지 전용 스타일 ===== */
 
-/* CSS 변수 정의 (기본값) */
+/* CSS 변수 정의 (PDF 설계 문서와 일치) */
 :root {
-    --primary-blue: #3b82f6;
-    --primary-blue-light: #60a5fa;
-    --primary-blue-dark: #1d4ed8;
-    --primary-blue-soft: #dbeafe;
-    --secondary-red: #ef4444;
-    --secondary-red-light: #f87171;
-    --accent-orange: #f59e0b;
-    --accent-orange-light: #fbbf24;
-    --warning-yellow: #eab308;
+    --primary-orange: #f97316;
+    --primary-orange-light: #fb923c;
+    --primary-orange-dark: #ea580c;
+    --primary-orange-soft: #fed7aa;
+    --secondary-green: #22c55e;
+    --secondary-green-light: #4ade80;
+    --secondary-green-dark: #16a34a;
+    --secondary-green-soft: #bbf7d0;
+    --danger-red: #ef4444;
+    --danger-red-light: #f87171;
+    --danger-red-dark: #dc2626;
+    --danger-red-soft: #fecaca;
+    --accent-coral: #ff6b6b;
+    --accent-coral-light: #ff8e8e;
+    --warning-amber: #f59e0b;
+    --warning-amber-light: #fbbf24;
+    --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
     --gray-300: #d1d5db;
@@ -26,7 +34,7 @@
 
 /* 검색 헤더 섹션 */
 .search-header {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 60px 0 40px;
     position: relative;
     overflow: hidden;
@@ -39,7 +47,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -62,7 +70,7 @@
 }
 
 .search-title h1 i {
-    color: var(--primary-blue);
+    color: var(--primary-orange);
     font-size: 2.5rem;
 }
 
@@ -121,8 +129,8 @@
 
 .search-input:focus {
     outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .search-input::placeholder {
@@ -131,14 +139,14 @@
 
 .search-btn {
     padding: 16px 24px;
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     border: none;
     border-radius: 0 12px 12px 0;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -151,7 +159,7 @@
 }
 
 .search-btn:hover {
-    background: var(--primary-blue-dark);
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
 /* 필터 컨트롤 */
@@ -164,21 +172,21 @@
 
 .filter-popup-btn {
     padding: 14px 24px;
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     border: none;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .filter-popup-btn:hover {
-    background: var(--primary-blue-dark);
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
 .filter-reset-btn {
@@ -213,8 +221,8 @@
 }
 
 .filter-tag {
-    background: var(--primary-blue-soft);
-    color: var(--primary-blue);
+    background: var(--primary-orange-soft);
+    color: var(--primary-orange-dark);
     padding: 8px 14px;
     border-radius: 20px;
     font-size: 13px;
@@ -222,7 +230,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    border: 1px solid var(--primary-blue-light);
+    border: 1px solid var(--primary-orange-light);
     animation: filterTagSlideIn 0.3s ease-out;
 }
 
@@ -244,10 +252,10 @@
 }
 
 .filter-tag i:hover {
-    color: var(--secondary-red);
+    color: var(--danger-red);
 }
 
-/* 필터 팝업 모달 */
+/* 필터 팝업 모달 - viewport 중앙 정렬 (PDF 가이드라인 준수) */
 .filter-popup-overlay {
     position: fixed;
     top: 0;
@@ -260,6 +268,8 @@
     align-items: center;
     z-index: 2000;
     backdrop-filter: blur(5px);
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .filter-popup-overlay.active {
@@ -269,11 +279,13 @@
 .filter-popup-modal {
     background: white;
     border-radius: 20px;
-    width: 90%;
+    width: 100%;
     max-width: 600px;
-    max-height: 80vh;
+    max-height: calc(100vh - 40px);
     overflow-y: auto;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    position: relative;
+    margin: auto;
 }
 
 .filter-popup-header {
@@ -294,7 +306,7 @@
 }
 
 .filter-popup-header h3 i {
-    color: var(--primary-blue);
+    color: var(--primary-orange);
 }
 
 .filter-popup-close {
@@ -356,8 +368,8 @@
 }
 
 .filter-option:hover {
-    border-color: var(--primary-blue-light);
-    background: var(--primary-blue-soft);
+    border-color: var(--primary-orange-light);
+    background: var(--primary-orange-soft);
 }
 
 .filter-option input[type="radio"] {
@@ -375,8 +387,8 @@
 }
 
 .filter-option input[type="radio"]:checked ~ .checkmark {
-    border-color: var(--primary-blue);
-    background: var(--primary-blue);
+    border-color: var(--primary-orange);
+    background: var(--primary-orange);
 }
 
 .filter-option input[type="radio"]:checked ~ .checkmark::after {
@@ -392,7 +404,7 @@
 }
 
 .filter-option input[type="radio"]:checked ~ span:last-child {
-    color: var(--primary-blue);
+    color: var(--primary-orange-dark);
     font-weight: 600;
 }
 
@@ -419,8 +431,8 @@
 
 .filter-select-wrapper select:focus {
     outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .filter-popup-footer {
@@ -431,14 +443,14 @@
 .filter-apply-btn {
     width: 100%;
     padding: 16px 24px;
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     border: none;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -446,7 +458,7 @@
 }
 
 .filter-apply-btn:hover {
-    background: var(--primary-blue-dark);
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
 /* 검색 결과 정보 */
@@ -470,7 +482,7 @@
 }
 
 .results-count span {
-    color: var(--primary-blue);
+    color: var(--primary-orange);
     font-weight: 700;
 }
 
@@ -498,7 +510,7 @@
 }
 
 .view-btn.active {
-    background: var(--primary-blue);
+    background: var(--primary-orange);
     color: white;
 }
 
@@ -508,7 +520,7 @@
     background: white;
 }
 
-/* 그리드 뷰 */
+/* 그리드 뷰 - 기본 표시 */
 .missing-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -516,10 +528,15 @@
     margin-bottom: 40px;
 }
 
-/* 리스트 뷰 */
+/* 리스트 뷰 - 기본적으로 숨김, 안정적인 초기화 */
 .missing-list-view {
-    display: none;
+    display: none !important;
     margin-bottom: 40px;
+}
+
+/* 리스트 뷰 활성화 시에만 표시 */
+.missing-list-view.active {
+    display: block !important;
 }
 
 .missing-card {
@@ -544,7 +561,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
@@ -584,16 +601,16 @@
 }
 
 .danger-level.high {
-    background: linear-gradient(135deg, var(--secondary-red) 0%, var(--secondary-red-light) 100%);
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
     animation: dangerPulse 2s infinite;
 }
 
 .danger-level.medium {
-    background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-light) 100%);
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
 .danger-level.low {
-    background: linear-gradient(135deg, var(--warning-yellow) 0%, #fbbf24 100%);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
 @keyframes dangerPulse {
@@ -639,7 +656,7 @@
 }
 
 .missing-info i {
-    color: var(--primary-blue);
+    color: var(--primary-orange);
     width: 16px;
     text-align: center;
 }
@@ -655,9 +672,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--primary-blue-soft);
-    color: var(--primary-blue);
-    border: 1px solid var(--primary-blue-light);
+    background: var(--secondary-green-soft);
+    color: var(--secondary-green-dark);
+    border: 1px solid var(--secondary-green-light);
     padding: 12px 18px;
     border-radius: 10px;
     cursor: pointer;
@@ -669,19 +686,20 @@
 }
 
 .up-btn:hover {
-    background: var(--primary-blue);
+    background: var(--secondary-green);
     color: white;
+    transform: translateY(-2px);
 }
 
 .detail-btn {
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     padding: 12px 20px;
     border-radius: 10px;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 600;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -690,7 +708,8 @@
 }
 
 .detail-btn:hover {
-    background: var(--primary-blue-dark);
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+    transform: translateY(-2px);
 }
 
 /* 리스트 뷰 스타일 */
@@ -759,7 +778,7 @@
 .loading-indicator i {
     font-size: 2.5rem;
     margin-bottom: 15px;
-    color: var(--primary-blue);
+    color: var(--primary-orange);
     animation: spin 2s linear infinite;
 }
 
@@ -793,7 +812,7 @@
     color: var(--gray-500);
 }
 
-/* 페이지네이션 개선 */
+/* 페이지네이션 (PDF 가이드라인: 단순한 hover 효과만) */
 .pagination {
     display: flex;
     justify-content: center;
@@ -820,7 +839,7 @@
 }
 
 .page-btn:hover:not(:disabled) {
-    background: var(--gray-200);
+    background: var(--gray-100);
 }
 
 .page-btn:disabled {
@@ -858,17 +877,17 @@
 }
 
 .page-num:hover {
-    background: var(--gray-200);
+    background: var(--gray-100);
 }
 
 .page-num.active {
-    background: var(--primary-blue);
+    background: var(--primary-orange);
     color: white;
-    border-color: var(--primary-blue);
+    border-color: var(--primary-orange);
 }
 
 .page-num.active:hover {
-    background: var(--primary-blue-dark);
+    background: var(--primary-orange-dark);
 }
 
 .page-dots {
@@ -902,7 +921,7 @@
 }
 
 .main-btn {
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     font-size: 1.5rem;
     margin-bottom: 15px;
@@ -910,7 +929,7 @@
 
 .main-btn:hover {
     transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 12px 35px rgba(249, 115, 22, 0.4);
 }
 
 .floating-sub-btns {
@@ -941,14 +960,14 @@
 
 .sub-btn:hover {
     transform: scale(1.1);
-    border-color: var(--primary-blue);
-    color: var(--primary-blue);
+    border-color: var(--primary-orange);
+    color: var(--primary-orange);
 }
 
 .sub-btn.emergency {
-    background: var(--secondary-red);
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
     color: white;
-    border-color: var(--secondary-red);
+    border-color: var(--danger-red);
     animation: emergencyPulse 2s infinite;
 }
 
@@ -994,7 +1013,7 @@
     opacity: 1;
 }
 
-/* 반응형 디자인 */
+/* 반응형 디자인 (PDF 가이드라인: Mobile First) */
 @media (max-width: 1024px) {
     .search-controls {
         padding: 25px;
@@ -1212,4 +1231,26 @@
     .filter-reset-btn {
         width: 100%;
     }
+}
+
+/* GPU 가속화를 위한 최적화 (PDF 가이드라인) */
+.search-header,
+.missing-grid,
+.missing-list-view,
+.filter-popup-modal,
+.missing-card,
+.page-num,
+.floating-btn {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* 애니메이션 최적화 및 안정성 향상 */
+.animated {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.animate-on-scroll {
+    will-change: transform, opacity;
 }
