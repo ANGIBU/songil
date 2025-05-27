@@ -23,78 +23,32 @@
         
         <!-- 검색 및 필터 -->
         <div class="search-controls">
-            <div class="search-bar">
-                <div class="search-input-group">
-                    <input type="text" id="searchInput" placeholder="이름, 특징, 지역으로 검색하세요" class="search-input">
-                    <div class="search-status">검색 중...</div>
-                    <button class="search-btn" onclick="performSearch()">
-                        <i class="fas fa-search"></i>
-                        검색
+            <div class="search-section">
+                <div class="search-input-container">
+                    <div class="search-input-group">
+                        <input type="text" id="searchInput" placeholder="이름, 특징, 지역으로 검색하세요" class="search-input">
+                        <div class="search-status">검색 중...</div>
+                        <button class="search-btn" onclick="performSearch()">
+                            <i class="fas fa-search"></i>
+                            검색
+                        </button>
+                    </div>
+                    <button class="filter-reset-btn" id="filterResetBtn">
+                        <i class="fas fa-undo"></i>
+                        초기화
                     </button>
                 </div>
             </div>
             
             <div class="filter-controls">
-                <div class="filter-group">
-                    <label>정렬:</label>
-                    <select id="sortSelect">
-                        <option value="danger">위험도순</option>
-                        <option value="up">UP순</option>
-                        <option value="recent">최신순</option>
-                        <option value="old">오래된순</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label>지역:</label>
-                    <select id="regionSelect">
-                        <option value="">전체 지역</option>
-                        <option value="seoul">서울특별시</option>
-                        <option value="busan">부산광역시</option>
-                        <option value="daegu">대구광역시</option>
-                        <option value="incheon">인천광역시</option>
-                        <option value="gwangju">광주광역시</option>
-                        <option value="daejeon">대전광역시</option>
-                        <option value="ulsan">울산광역시</option>
-                        <option value="gyeonggi">경기도</option>
-                        <option value="gangwon">강원도</option>
-                        <option value="chungbuk">충청북도</option>
-                        <option value="chungnam">충청남도</option>
-                        <option value="jeonbuk">전라북도</option>
-                        <option value="jeonnam">전라남도</option>
-                        <option value="gyeongbuk">경상북도</option>
-                        <option value="gyeongnam">경상남도</option>
-                        <option value="jeju">제주특별자치도</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label>연령대:</label>
-                    <select id="ageSelect">
-                        <option value="">전체 연령</option>
-                        <option value="child">어린이 (0-12세)</option>
-                        <option value="teen">청소년 (13-19세)</option>
-                        <option value="adult">성인 (20-64세)</option>
-                        <option value="senior">고령자 (65세 이상)</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label>실종기간:</label>
-                    <select id="periodSelect">
-                        <option value="">전체 기간</option>
-                        <option value="today">오늘</option>
-                        <option value="week">최근 1주일</option>
-                        <option value="month">최근 1개월</option>
-                        <option value="3month">최근 3개월</option>
-                        <option value="year">최근 1년</option>
-                    </select>
-                </div>
-                
-                <button class="filter-reset-btn">
-                    <i class="fas fa-undo"></i>
-                    초기화
+                <button class="filter-popup-btn" id="filterPopupBtn">
+                    <i class="fas fa-filter"></i>
+                    상세 필터링
                 </button>
+                
+                <div class="active-filters" id="activeFilters">
+                    <!-- 활성화된 필터들이 여기에 표시됩니다 -->
+                </div>
             </div>
         </div>
         
@@ -143,24 +97,159 @@
         
         <!-- 페이지네이션 -->
         <div class="pagination" id="pagination">
-            <button class="page-btn prev" onclick="changePage(-1)">
+            <button class="page-btn prev" id="prevBtn">
                 <i class="fas fa-chevron-left"></i>
                 이전
             </button>
-            <div class="page-numbers">
-                <button class="page-num active" onclick="goToPage(1)">1</button>
-                <button class="page-num" onclick="goToPage(2)">2</button>
-                <button class="page-num" onclick="goToPage(3)">3</button>
-                <span class="page-dots">...</span>
-                <button class="page-num" onclick="goToPage(12)">12</button>
+            <div class="page-numbers" id="pageNumbers">
+                <!-- 페이지 번호들이 동적으로 생성됩니다 -->
             </div>
-            <button class="page-btn next" onclick="changePage(1)">
+            <button class="page-btn next" id="nextBtn">
                 다음
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
     </div>
 </section>
+
+<!-- 필터 팝업 모달 -->
+<div class="filter-popup-overlay" id="filterPopupOverlay">
+    <div class="filter-popup-modal">
+        <div class="filter-popup-header">
+            <h3><i class="fas fa-filter"></i> 상세 필터링</h3>
+            <button class="filter-popup-close" id="filterPopupClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="filter-popup-body">
+            <div class="filter-section">
+                <h4>정렬 기준</h4>
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="danger" checked>
+                        <span class="checkmark"></span>
+                        위험도순
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="up">
+                        <span class="checkmark"></span>
+                        UP순
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="recent">
+                        <span class="checkmark"></span>
+                        최신순
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="old">
+                        <span class="checkmark"></span>
+                        오래된순
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>지역</h4>
+                <div class="filter-select-wrapper">
+                    <select id="popupRegionSelect">
+                        <option value="">전체 지역</option>
+                        <option value="seoul">서울특별시</option>
+                        <option value="busan">부산광역시</option>
+                        <option value="daegu">대구광역시</option>
+                        <option value="incheon">인천광역시</option>
+                        <option value="gwangju">광주광역시</option>
+                        <option value="daejeon">대전광역시</option>
+                        <option value="ulsan">울산광역시</option>
+                        <option value="gyeonggi">경기도</option>
+                        <option value="gangwon">강원도</option>
+                        <option value="chungbuk">충청북도</option>
+                        <option value="chungnam">충청남도</option>
+                        <option value="jeonbuk">전라북도</option>
+                        <option value="jeonnam">전라남도</option>
+                        <option value="gyeongbuk">경상북도</option>
+                        <option value="gyeongnam">경상남도</option>
+                        <option value="jeju">제주특별자치도</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>연령대</h4>
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="" checked>
+                        <span class="checkmark"></span>
+                        전체 연령
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="child">
+                        <span class="checkmark"></span>
+                        어린이 (0-12세)
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="teen">
+                        <span class="checkmark"></span>
+                        청소년 (13-19세)
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="adult">
+                        <span class="checkmark"></span>
+                        성인 (20-64세)
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="senior">
+                        <span class="checkmark"></span>
+                        고령자 (65세 이상)
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>실종기간</h4>
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="" checked>
+                        <span class="checkmark"></span>
+                        전체 기간
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="today">
+                        <span class="checkmark"></span>
+                        오늘
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="week">
+                        <span class="checkmark"></span>
+                        최근 1주일
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="month">
+                        <span class="checkmark"></span>
+                        최근 1개월
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="3month">
+                        <span class="checkmark"></span>
+                        최근 3개월
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="year">
+                        <span class="checkmark"></span>
+                        최근 1년
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-popup-footer">
+            <button class="filter-apply-btn" id="filterApplyBtn">
+                <i class="fas fa-check"></i>
+                필터 적용
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- 긴급 신고 플로팅 버튼 -->
 <div class="floating-report-btns">

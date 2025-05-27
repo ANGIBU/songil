@@ -564,8 +564,8 @@ class WaveEffect {
     }
 }
 
-// 고품질 3D 배경 효과 클래스 - 새로 추가
-class Interactive3DBackground {
+// 자연스러운 흐르는 3D 배경 효과 클래스 - 마우스 반응 제거
+class FlowingBackground3D {
     constructor(canvas, container) {
         this.canvas = canvas;
         this.container = container;
@@ -577,8 +577,6 @@ class Interactive3DBackground {
         this.time = 0;
         this.isDestroyed = false;
         this.animationId = null;
-        this.mouse = { x: 0, y: 0 };
-        this.targetMouse = { x: 0, y: 0 };
         
         this.init();
     }
@@ -591,10 +589,9 @@ class Interactive3DBackground {
         try {
             this.setupScene();
             this.createObjects();
-            this.setupEventListeners();
             this.animate();
         } catch (error) {
-            console.warn('3D Background initialization failed:', error);
+            console.warn('Flowing 3D Background initialization failed:', error);
             this.destroy();
         }
     }
@@ -603,10 +600,11 @@ class Interactive3DBackground {
         // Scene 설정
         this.scene = new THREE.Scene();
         
-        // Camera 설정
+        // Camera 설정 - 더 넓은 시야
         const aspect = this.container.offsetWidth / this.container.offsetHeight;
-        this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
-        this.camera.position.z = 50;
+        this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+        this.camera.position.set(0, 20, 60);
+        this.camera.lookAt(0, 0, 0);
         
         // Renderer 설정
         this.renderer = new THREE.WebGLRenderer({ 
@@ -621,86 +619,87 @@ class Interactive3DBackground {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        // 조명 설정
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        // 부드러운 환경광
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(50, 50, 25);
+        // 주 방향광
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(30, 50, 20);
         directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 1024;
-        directionalLight.shadow.mapSize.height = 1024;
         this.scene.add(directionalLight);
 
-        // 포인트 라이트 추가
-        const pointLight1 = new THREE.PointLight(0x22c55e, 0.5, 100);
-        pointLight1.position.set(-30, 20, 10);
-        this.scene.add(pointLight1);
+        // 색상이 있는 포인트 라이트들 - 물결처럼 움직일 예정
+        this.pointLight1 = new THREE.PointLight(0x22c55e, 0.8, 80);
+        this.pointLight1.position.set(-40, 15, 20);
+        this.scene.add(this.pointLight1);
 
-        const pointLight2 = new THREE.PointLight(0xf97316, 0.5, 100);
-        pointLight2.position.set(30, -20, 10);
-        this.scene.add(pointLight2);
+        this.pointLight2 = new THREE.PointLight(0xf97316, 0.8, 80);
+        this.pointLight2.position.set(40, 15, 20);
+        this.scene.add(this.pointLight2);
+
+        this.pointLight3 = new THREE.PointLight(0x3b82f6, 0.6, 60);
+        this.pointLight3.position.set(0, 30, -20);
+        this.scene.add(this.pointLight3);
     }
 
     createObjects() {
-        // 복잡한 3D 객체들 생성
-        this.createFloatingGeometries();
-        this.createParticleSystem();
-        this.createConnectedNetwork();
+        this.createFlowingGeometries();
+        this.createStreamingParticles();
+        this.createWavyConnections();
     }
 
-    createFloatingGeometries() {
-        // 다양한 기하학적 형태 생성
+    createFlowingGeometries() {
+        // 다양한 기하학적 형태 생성 - 물결처럼 흐르도록
         const geometryTypes = [
-            new THREE.SphereGeometry(2, 16, 16),
-            new THREE.BoxGeometry(3, 3, 3),
-            new THREE.ConeGeometry(2, 4, 8),
-            new THREE.TetrahedronGeometry(2.5),
-            new THREE.OctahedronGeometry(2),
-            new THREE.IcosahedronGeometry(2)
+            new THREE.SphereGeometry(1.5, 12, 12),
+            new THREE.BoxGeometry(2.5, 2.5, 2.5),
+            new THREE.ConeGeometry(1.5, 3, 6),
+            new THREE.TetrahedronGeometry(2),
+            new THREE.OctahedronGeometry(1.8),
+            new THREE.IcosahedronGeometry(1.6)
         ];
 
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 20; i++) {
             const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
             
-            // 그라데이션 재질 생성
+            // 투명하고 부드러운 재질
             const material = new THREE.MeshPhongMaterial({
                 color: new THREE.Color().setHSL(
-                    Math.random() * 0.3 + (i % 2 === 0 ? 0.1 : 0.55), // 주황색 또는 초록색 계열
-                    0.7,
-                    0.6
+                    Math.random() * 0.15 + (i % 3 === 0 ? 0.1 : i % 3 === 1 ? 0.55 : 0.2), 
+                    0.6,
+                    0.7
                 ),
-                shininess: 100,
+                shininess: 80,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.6
             });
 
             const mesh = new THREE.Mesh(geometry, material);
             
-            // 랜덤 위치 배치
+            // 넓은 범위에 배치
             mesh.position.set(
-                (Math.random() - 0.5) * 100,
-                (Math.random() - 0.5) * 60,
-                (Math.random() - 0.5) * 40
+                (Math.random() - 0.5) * 120,
+                (Math.random() - 0.5) * 40,
+                (Math.random() - 0.5) * 80
             );
             
-            // 랜덤 회전
-            mesh.rotation.set(
-                Math.random() * Math.PI * 2,
-                Math.random() * Math.PI * 2,
-                Math.random() * Math.PI * 2
-            );
-            
-            // 사용자 정의 속성
+            // 물결 흐름을 위한 사용자 정의 속성
             mesh.userData = {
                 initialPosition: mesh.position.clone(),
-                rotationSpeed: {
-                    x: (Math.random() - 0.5) * 0.02,
-                    y: (Math.random() - 0.5) * 0.02,
-                    z: (Math.random() - 0.5) * 0.02
+                flowSpeed: Math.random() * 0.008 + 0.005, // 더 부드러운 속도
+                flowAmplitude: {
+                    x: Math.random() * 15 + 8,
+                    y: Math.random() * 10 + 5,
+                    z: Math.random() * 12 + 6
                 },
-                floatSpeed: Math.random() * 0.02 + 0.01,
-                floatRange: Math.random() * 10 + 5
+                rotationSpeed: {
+                    x: (Math.random() - 0.5) * 0.008,
+                    y: (Math.random() - 0.5) * 0.008,
+                    z: (Math.random() - 0.5) * 0.008
+                },
+                phaseOffset: Math.random() * Math.PI * 2,
+                scaleWave: Math.random() * 0.3 + 0.8
             };
             
             mesh.castShadow = true;
@@ -711,33 +710,48 @@ class Interactive3DBackground {
         }
     }
 
-    createParticleSystem() {
-        // 파티클 시스템 생성
-        const particleCount = 200;
+    createStreamingParticles() {
+        // 흐르는 파티클 시스템
+        const particleCount = 300;
         const positions = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
         const sizes = new Float32Array(particleCount);
 
-        for (let i = 0; i < particleCount; i++) {
-            // 위치 설정
-            positions[i * 3] = (Math.random() - 0.5) * 150;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
+        this.particleData = []; // 각 파티클의 흐름 데이터
 
-            // 색상 설정 (주황색과 초록색 계열)
-            const colorType = Math.random();
-            if (colorType < 0.5) {
+        for (let i = 0; i < particleCount; i++) {
+            // 넓은 영역에 배치
+            positions[i * 3] = (Math.random() - 0.5) * 200;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+
+            // 부드러운 색상 그라데이션
+            const colorPhase = Math.random();
+            if (colorPhase < 0.33) {
+                colors[i * 3] = 0.13 + Math.random() * 0.2; // R
+                colors[i * 3 + 1] = 0.77 + Math.random() * 0.2; // G 
+                colors[i * 3 + 2] = 0.37 + Math.random() * 0.3; // B
+            } else if (colorPhase < 0.66) {
                 colors[i * 3] = 1; // R
-                colors[i * 3 + 1] = 0.45; // G
-                colors[i * 3 + 2] = 0.1; // B
+                colors[i * 3 + 1] = 0.45 + Math.random() * 0.3; // G
+                colors[i * 3 + 2] = 0.1 + Math.random() * 0.2; // B
             } else {
-                colors[i * 3] = 0.13; // R
-                colors[i * 3 + 1] = 0.77; // G
-                colors[i * 3 + 2] = 0.37; // B
+                colors[i * 3] = 0.23 + Math.random() * 0.3; // R
+                colors[i * 3 + 1] = 0.51 + Math.random() * 0.3; // G
+                colors[i * 3 + 2] = 0.96; // B
             }
 
-            // 크기 설정
-            sizes[i] = Math.random() * 3 + 1;
+            sizes[i] = Math.random() * 2 + 0.5;
+
+            // 흐름 데이터 저장
+            this.particleData.push({
+                originalX: positions[i * 3],
+                originalY: positions[i * 3 + 1],
+                originalZ: positions[i * 3 + 2],
+                flowSpeed: Math.random() * 0.01 + 0.005,
+                waveAmplitude: Math.random() * 20 + 10,
+                phaseOffset: Math.random() * Math.PI * 2
+            });
         }
 
         const particleGeometry = new THREE.BufferGeometry();
@@ -746,11 +760,12 @@ class Interactive3DBackground {
         particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
         const particleMaterial = new THREE.PointsMaterial({
-            size: 2,
+            size: 1.5,
             vertexColors: true,
             transparent: true,
-            opacity: 0.6,
-            sizeAttenuation: true
+            opacity: 0.7,
+            sizeAttenuation: true,
+            blending: THREE.AdditiveBlending
         });
 
         const particles = new THREE.Points(particleGeometry, particleMaterial);
@@ -758,123 +773,107 @@ class Interactive3DBackground {
         this.particles.push(particles);
     }
 
-    createConnectedNetwork() {
-        // 네트워크 연결선 생성
-        const lineGeometry = new THREE.BufferGeometry();
-        const linePositions = [];
-        const lineColors = [];
+    createWavyConnections() {
+        // 웨이브 형태의 연결선들
+        for (let i = 0; i < 8; i++) {
+            const curve = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-60 + i * 15, -20, -30),
+                new THREE.Vector3(-30 + i * 10, 0, 0),
+                new THREE.Vector3(0 + i * 8, 15, 20),
+                new THREE.Vector3(30 + i * 12, 0, 40),
+                new THREE.Vector3(60 + i * 10, -15, 10)
+            ]);
 
-        // 일부 기하학적 객체들을 선으로 연결
-        for (let i = 0; i < this.geometries.length - 1; i += 2) {
-            if (i + 1 < this.geometries.length) {
-                const obj1 = this.geometries[i];
-                const obj2 = this.geometries[i + 1];
+            const tubeGeometry = new THREE.TubeGeometry(curve, 50, 0.3, 6, false);
+            const tubeMaterial = new THREE.MeshPhongMaterial({
+                color: new THREE.Color().setHSL(Math.random() * 0.6, 0.7, 0.5),
+                transparent: true,
+                opacity: 0.4,
+                shininess: 100
+            });
 
-                linePositions.push(
-                    obj1.position.x, obj1.position.y, obj1.position.z,
-                    obj2.position.x, obj2.position.y, obj2.position.z
-                );
+            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            tube.userData = {
+                rotationSpeed: (Math.random() - 0.5) * 0.005,
+                floatSpeed: Math.random() * 0.003 + 0.002
+            };
 
-                // 연결선 색상
-                lineColors.push(
-                    0.5, 0.5, 0.5,
-                    0.5, 0.5, 0.5
-                );
-            }
+            this.scene.add(tube);
+            this.geometries.push(tube);
         }
-
-        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-        lineGeometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
-
-        const lineMaterial = new THREE.LineBasicMaterial({
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.3
-        });
-
-        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-        this.scene.add(lines);
     }
 
-    setupEventListeners() {
-        this.mouseMoveHandler = (event) => {
-            if (this.isDestroyed) return;
-            
-            const rect = this.container.getBoundingClientRect();
-            this.targetMouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            this.targetMouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        };
-
-        this.container.addEventListener('mousemove', this.mouseMoveHandler);
-    }
-
-    updateObjects() {
-        this.time += 0.01;
+    updateFlowingMotion() {
+        this.time += 0.008; // 더 부드러운 시간 진행
         
-        // 마우스 따라 움직이는 효과 (부드럽게)
-        this.mouse.x += (this.targetMouse.x - this.mouse.x) * 0.05;
-        this.mouse.y += (this.targetMouse.y - this.mouse.y) * 0.05;
-
-        // 기하학적 객체들 애니메이션
+        // 기하학적 객체들의 물결 움직임
         this.geometries.forEach((mesh, index) => {
             const userData = mesh.userData;
             
-            // 회전
-            mesh.rotation.x += userData.rotationSpeed.x;
-            mesh.rotation.y += userData.rotationSpeed.y;
-            mesh.rotation.z += userData.rotationSpeed.z;
-            
-            // 부유 효과
-            mesh.position.y = userData.initialPosition.y + 
-                Math.sin(this.time * userData.floatSpeed + index) * userData.floatRange;
-            
-            // 마우스 반응
-            const distance = new THREE.Vector2(this.mouse.x * 20, this.mouse.y * 20);
-            mesh.position.x = userData.initialPosition.x + distance.x * 0.1;
-            mesh.position.z = userData.initialPosition.z + distance.y * 0.1;
-            
-            // 호버 효과
-            const mouseDistance = Math.sqrt(
-                Math.pow(this.mouse.x * 50 - mesh.position.x, 2) +
-                Math.pow(this.mouse.y * 30 - mesh.position.y, 2)
-            );
-            
-            if (mouseDistance < 20) {
-                mesh.scale.setScalar(1.2 + Math.sin(this.time * 5) * 0.1);
-                mesh.material.opacity = 0.9;
-            } else {
-                mesh.scale.setScalar(1);
-                mesh.material.opacity = 0.8;
+            if (userData.flowSpeed) {
+                // 물결처럼 흐르는 움직임
+                const waveX = Math.sin(this.time * userData.flowSpeed + userData.phaseOffset) * userData.flowAmplitude.x;
+                const waveY = Math.sin(this.time * userData.flowSpeed * 1.3 + userData.phaseOffset + Math.PI / 3) * userData.flowAmplitude.y;
+                const waveZ = Math.cos(this.time * userData.flowSpeed * 0.8 + userData.phaseOffset) * userData.flowAmplitude.z;
+                
+                mesh.position.x = userData.initialPosition.x + waveX;
+                mesh.position.y = userData.initialPosition.y + waveY;
+                mesh.position.z = userData.initialPosition.z + waveZ;
+                
+                // 부드러운 회전
+                mesh.rotation.x += userData.rotationSpeed.x;
+                mesh.rotation.y += userData.rotationSpeed.y;
+                mesh.rotation.z += userData.rotationSpeed.z;
+                
+                // 부드러운 크기 변화
+                const scaleWave = Math.sin(this.time * userData.flowSpeed * 2 + userData.phaseOffset) * 0.2 + 1;
+                mesh.scale.setScalar(userData.scaleWave * scaleWave);
             }
         });
 
-        // 파티클 애니메이션
+        // 파티클들의 흐르는 움직임
         this.particles.forEach(particle => {
             const positions = particle.geometry.attributes.position.array;
             
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i + 1] += Math.sin(this.time + positions[i] * 0.01) * 0.1;
+            for (let i = 0; i < this.particleData.length; i++) {
+                const data = this.particleData[i];
+                const i3 = i * 3;
                 
-                // 마우스 반응
-                const particleX = positions[i];
-                const particleY = positions[i + 1];
-                const mouseDistance = Math.sqrt(
-                    Math.pow(this.mouse.x * 50 - particleX, 2) +
-                    Math.pow(this.mouse.y * 30 - particleY, 2)
-                );
+                // 물결 모양으로 흐르는 움직임
+                const flowWaveX = Math.sin(this.time * data.flowSpeed + data.phaseOffset) * data.waveAmplitude;
+                const flowWaveY = Math.cos(this.time * data.flowSpeed * 1.2 + data.phaseOffset) * (data.waveAmplitude * 0.6);
+                const flowWaveZ = Math.sin(this.time * data.flowSpeed * 0.9 + data.phaseOffset + Math.PI / 4) * (data.waveAmplitude * 0.8);
                 
-                if (mouseDistance < 30) {
-                    positions[i] += (this.mouse.x * 50 - particleX) * 0.01;
-                    positions[i + 1] += (this.mouse.y * 30 - particleY) * 0.01;
-                }
+                positions[i3] = data.originalX + flowWaveX;
+                positions[i3 + 1] = data.originalY + flowWaveY;
+                positions[i3 + 2] = data.originalZ + flowWaveZ;
             }
             
             particle.geometry.attributes.position.needsUpdate = true;
         });
 
-        // 카메라 움직임
-        this.camera.position.x += (this.mouse.x * 5 - this.camera.position.x) * 0.05;
-        this.camera.position.y += (this.mouse.y * 5 - this.camera.position.y) * 0.05;
+        // 조명들도 물결처럼 움직임
+        if (this.pointLight1) {
+            this.pointLight1.position.x = -40 + Math.sin(this.time * 0.5) * 20;
+            this.pointLight1.position.y = 15 + Math.cos(this.time * 0.3) * 8;
+            this.pointLight1.intensity = 0.6 + Math.sin(this.time * 0.4) * 0.3;
+        }
+
+        if (this.pointLight2) {
+            this.pointLight2.position.x = 40 + Math.cos(this.time * 0.6) * 18;
+            this.pointLight2.position.y = 15 + Math.sin(this.time * 0.4) * 10;
+            this.pointLight2.intensity = 0.6 + Math.cos(this.time * 0.5) * 0.3;
+        }
+
+        if (this.pointLight3) {
+            this.pointLight3.position.y = 30 + Math.sin(this.time * 0.7) * 12;
+            this.pointLight3.position.z = -20 + Math.cos(this.time * 0.3) * 15;
+            this.pointLight3.intensity = 0.4 + Math.sin(this.time * 0.6) * 0.2;
+        }
+
+        // 카메라도 부드럽게 흔들림
+        this.camera.position.x = Math.sin(this.time * 0.1) * 5;
+        this.camera.position.y = 20 + Math.cos(this.time * 0.08) * 3;
         this.camera.lookAt(0, 0, 0);
     }
 
@@ -884,13 +883,13 @@ class Interactive3DBackground {
         this.animationId = requestAnimationFrame(() => this.animate());
         
         try {
-            this.updateObjects();
+            this.updateFlowingMotion();
             
             if (this.renderer && this.scene && this.camera) {
                 this.renderer.render(this.scene, this.camera);
             }
         } catch (error) {
-            console.warn('3D Background animation error:', error);
+            console.warn('Flowing 3D Background animation error:', error);
             this.destroy();
         }
     }
@@ -907,7 +906,7 @@ class Interactive3DBackground {
             
             this.renderer.setSize(width, height);
         } catch (error) {
-            console.warn('3D Background resize error:', error);
+            console.warn('Flowing 3D Background resize error:', error);
         }
     }
 
@@ -917,11 +916,6 @@ class Interactive3DBackground {
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
             this.animationId = null;
-        }
-        
-        // 이벤트 리스너 제거
-        if (this.mouseMoveHandler && this.container) {
-            this.container.removeEventListener('mousemove', this.mouseMoveHandler);
         }
         
         // 객체들 정리
@@ -945,6 +939,7 @@ class Interactive3DBackground {
         
         this.scene = null;
         this.camera = null;
+        this.particleData = null;
     }
 }
 
@@ -984,8 +979,8 @@ class IndexAnimations {
         });
         this.scrollTriggers = [];
         
-        // FOUC 방지를 위한 기본 상태 보장
-        if (document.body.classList.contains('js-loaded')) {
+        // 페이지 준비 상태에서만 스타일 정리
+        if (document.body.classList.contains('page-ready')) {
             gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
                 clearProps: 'transform,opacity',
                 opacity: 1,
@@ -996,15 +991,15 @@ class IndexAnimations {
     }
 
     setupAnimations() {
-        // 페이지가 준비되지 않았다면 잠시 대기
-        if (document.body.classList.contains('loading')) {
+        // 페이지가 준비되지 않았다면 대기
+        if (document.body.classList.contains('page-loading')) {
             setTimeout(() => this.setupAnimations(), 100);
             return;
         }
 
-        // 히어로 섹션 애니메이션 - 요소가 사라지지 않도록 수정
+        // 히어로 섹션 애니메이션 - 안정적인 시작
         this.timeline = gsap.timeline({ 
-            delay: 0.8, // 약간 더 긴 지연으로 자연스럽게
+            delay: 0.6, // 페이지 준비 후 충분한 지연
             onStart: () => {
                 // 애니메이션 시작 전 요소들이 표시되도록 보장
                 gsap.set('.hero-title, .hero-description, .hero-buttons, .ranking-display', {
@@ -1019,8 +1014,60 @@ class IndexAnimations {
                     opacity: 1,
                     transform: 'none'
                 });
+                
+                // 성능 최적화를 위한 클래스 추가
+                document.body.classList.add('animations-complete');
             }
         });
+        
+        this.timeline
+            .fromTo('.hero-title', {
+                y: 50,
+                opacity: 0
+            }, {
+                duration: 0.8,
+                y: 0,
+                opacity: 1,
+                ease: 'power2.out'
+            })
+            .fromTo('.hero-description', {
+                y: 30,
+                opacity: 0
+            }, {
+                duration: 0.6,
+                y: 0,
+                opacity: 1,
+                ease: 'power2.out'
+            }, '-=0.4')
+            .fromTo('.hero-buttons .btn', {
+                y: 20,
+                opacity: 0
+            }, {
+                duration: 0.5,
+                y: 0,
+                opacity: 1,
+                stagger: 0.1,
+                ease: 'power2.out'
+            }, '-=0.3')
+            .fromTo('.ranking-display', {
+                x: 30,
+                opacity: 0
+            }, {
+                duration: 0.8,
+                x: 0,
+                opacity: 1,
+                ease: 'power2.out'
+            }, '-=0.6')
+            .fromTo('.ranking-item', {
+                y: 15,
+                opacity: 0
+            }, {
+                duration: 0.4,
+                y: 0,
+                opacity: 1,
+                stagger: 0.08,
+                ease: 'power2.out'
+            }, '-=0.2');
         
         this.timeline
             .fromTo('.hero-title', {
@@ -1357,64 +1404,66 @@ class IndexPage {
         if (this.isDestroyed) return;
         
         try {
-            // FOUC 방지 - 페이지 준비 완료 표시
-            this.markPageReady();
-            
-            // React 컴포넌트 렌더링 (약간의 지연으로 자연스럽게)
-            setTimeout(() => {
-                if (!this.isDestroyed) {
-                    this.renderRankings();
-                    this.renderUrgentCards();
-                }
-            }, 50);
-            
-            // 3D 배경 캔버스 추가
-            this.add3DBackgroundCanvas();
-            
-            // 시각화 초기화 - 안전한 지연
-            setTimeout(() => {
-                if (!this.isDestroyed) {
-                    this.initWaveEffect();
-                    this.init3DBackground();
-                }
-            }, 150);
-            
-            // 애니메이션 초기화 - 안전한 지연
-            setTimeout(() => {
-                if (!this.isDestroyed) {
-                    this.animations = new IndexAnimations();
-                    this.scrollObserver = new ScrollObserver();
-                }
-            }, 300);
-            
-            this.setupEventListeners();
-            
-            console.log('Index page initialized successfully');
+            // 페이지 준비 상태 확인
+            this.waitForPageReady().then(() => {
+                if (this.isDestroyed) return;
+                
+                // React 컴포넌트 렌더링
+                this.renderRankings();
+                this.renderUrgentCards();
+                
+                // 3D 배경 캔버스 추가
+                this.add3DBackgroundCanvas();
+                
+                // 시각화 초기화
+                setTimeout(() => {
+                    if (!this.isDestroyed) {
+                        this.initWaveEffect();
+                        this.init3DBackground();
+                    }
+                }, 100);
+                
+                // 애니메이션 초기화
+                setTimeout(() => {
+                    if (!this.isDestroyed) {
+                        this.animations = new IndexAnimations();
+                        this.scrollObserver = new ScrollObserver();
+                    }
+                }, 200);
+                
+                this.setupEventListeners();
+                
+                console.log('Index page initialized successfully');
+            });
         } catch (error) {
             console.error('Index page setup error:', error);
         }
     }
 
-    // 페이지 준비 완료 표시
-    markPageReady() {
-        // 추가적인 페이지 준비 완료 표시
-        document.body.classList.add('page-ready');
-        
-        // 약간의 지연 후 요소들을 자연스럽게 표시
-        setTimeout(() => {
-            if (!this.isDestroyed) {
-                // 모든 숨겨진 요소들을 자연스럽게 표시
-                const hiddenElements = document.querySelectorAll('.loading .hero-title, .loading .hero-description, .loading .hero-buttons, .loading .ranking-display, .loading .urgent-cards, .loading .stats-grid, .loading .intro-steps');
-                hiddenElements.forEach((el, index) => {
-                    setTimeout(() => {
-                        el.style.transition = 'opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease';
-                        el.style.opacity = '1';
-                        el.style.visibility = 'visible';
-                        el.style.transform = 'translateY(0)';
-                    }, index * 50);
-                });
+    // 페이지 준비 상태 대기
+    waitForPageReady() {
+        return new Promise((resolve) => {
+            if (document.body.classList.contains('page-ready')) {
+                resolve();
+                return;
             }
-        }, 100);
+            
+            const checkReady = () => {
+                if (document.body.classList.contains('page-ready')) {
+                    resolve();
+                } else {
+                    setTimeout(checkReady, 50);
+                }
+            };
+            
+            // 최대 2초 대기
+            setTimeout(() => {
+                console.warn('Page ready timeout, proceeding anyway');
+                resolve();
+            }, 2000);
+            
+            checkReady();
+        });
     }
 
     // 3D 배경 캔버스 추가
@@ -1439,7 +1488,7 @@ class IndexPage {
         const container = document.querySelector('.stats-section');
         
         if (canvas3D && container && !this.isDestroyed) {
-            this.background3D = new Interactive3DBackground(canvas3D, container);
+            this.background3D = new FlowingBackground3D(canvas3D, container);
         }
     }
 
@@ -1726,6 +1775,16 @@ if (typeof window !== 'undefined') {
                     onComplete: () => {
                         gsap.set('.missing-card', { clearProps: 'transform' });
                     }
+                });
+            }
+        },
+        testFlowingBackground: () => {
+            if (indexPage && indexPage.background3D && !indexPage.isDestroyed) {
+                console.log('Flowing 3D Background status:', {
+                    isDestroyed: indexPage.background3D.isDestroyed,
+                    geometriesCount: indexPage.background3D.geometries.length,
+                    particlesCount: indexPage.background3D.particles.length,
+                    currentTime: indexPage.background3D.time
                 });
             }
         },

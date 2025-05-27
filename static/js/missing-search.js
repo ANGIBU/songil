@@ -94,8 +94,388 @@ const sampleMissingData = [
         upCount: 23,
         period: "방금",
         image: "/static/images/placeholder.jpg"
+    },
+    // 추가 샘플 데이터 (페이지네이션 테스트용)
+    {
+        id: 7,
+        name: "강○○",
+        age: 55,
+        gender: "여성",
+        date: "2024-05-17",
+        location: "울산시 남구 삼산동",
+        region: "ulsan",
+        description: "베이지색 코트, 검은색 핸드백",
+        physicalInfo: "158cm, 중간체형",
+        dangerLevel: "medium",
+        upCount: 98,
+        period: "6일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 8,
+        name: "조○○",
+        age: 29,
+        gender: "남성",
+        date: "2024-05-16",
+        location: "경기도 수원시 영통구",
+        region: "gyeonggi",
+        description: "네이비 패딩, 청바지",
+        physicalInfo: "172cm, 마른체형",
+        dangerLevel: "low",
+        upCount: 67,
+        period: "7일째",
+        image: "/static/images/placeholder.jpg"
     }
 ];
+
+// 페이지네이션 관리자 클래스
+class PaginationManager {
+    constructor(itemsPerPage = 6) {
+        this.itemsPerPage = itemsPerPage;
+        this.currentPage = 1;
+        this.totalItems = 0;
+        this.maxVisiblePages = 5;
+        this.callbacks = [];
+    }
+
+    addCallback(callback) {
+        this.callbacks.push(callback);
+    }
+
+    notify() {
+        this.callbacks.forEach(callback => callback({
+            currentPage: this.currentPage,
+            totalPages: this.getTotalPages(),
+            startIndex: this.getStartIndex(),
+            endIndex: this.getEndIndex()
+        }));
+    }
+
+    setTotalItems(count) {
+        this.totalItems = count;
+        if (this.currentPage > this.getTotalPages()) {
+            this.currentPage = Math.max(1, this.getTotalPages());
+        }
+        this.renderPagination();
+        this.notify();
+    }
+
+    getTotalPages() {
+        return Math.ceil(this.totalItems / this.itemsPerPage);
+    }
+
+    getStartIndex() {
+        return (this.currentPage - 1) * this.itemsPerPage;
+    }
+
+    getEndIndex() {
+        return Math.min(this.getStartIndex() + this.itemsPerPage, this.totalItems);
+    }
+
+    goToPage(page) {
+        const totalPages = this.getTotalPages();
+        if (page >= 1 && page <= totalPages && page !== this.currentPage) {
+            this.currentPage = page;
+            this.renderPagination();
+            this.notify();
+            this.scrollToTop();
+        }
+    }
+
+    nextPage() {
+        if (this.currentPage < this.getTotalPages()) {
+            this.goToPage(this.currentPage + 1);
+        }
+    }
+
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.goToPage(this.currentPage - 1);
+        }
+    }
+
+    scrollToTop() {
+        window.scrollTo({
+            top: document.querySelector('.missing-list').offsetTop - 100,
+            behavior: 'smooth'
+        });
+    }
+
+    renderPagination() {
+        const pageNumbersContainer = document.getElementById('pageNumbers');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        if (!pageNumbersContainer) return;
+
+        const totalPages = this.getTotalPages();
+        
+        // 이전/다음 버튼 상태 업데이트
+        if (prevBtn) {
+            prevBtn.disabled = this.currentPage === 1;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = this.currentPage === totalPages;
+        }
+
+        // 페이지 번호 생성
+        pageNumbersContainer.innerHTML = '';
+        
+        if (totalPages <= 1) return;
+
+        const startPage = Math.max(1, this.currentPage - Math.floor(this.maxVisiblePages / 2));
+        const endPage = Math.min(totalPages, startPage + this.maxVisiblePages - 1);
+        const adjustedStartPage = Math.max(1, endPage - this.maxVisiblePages + 1);
+
+        // 첫 페이지와 점점점 표시
+        if (adjustedStartPage > 1) {
+            this.createPageButton(1, pageNumbersContainer);
+            if (adjustedStartPage > 2) {
+                this.createDots(pageNumbersContainer);
+            }
+        }
+
+        // 페이지 번호들
+        for (let i = adjustedStartPage; i <= endPage; i++) {
+            this.createPageButton(i, pageNumbersContainer);
+        }
+
+        // 마지막 페이지와 점점점 표시
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                this.createDots(pageNumbersContainer);
+            }
+            this.createPageButton(totalPages, pageNumbersContainer);
+        }
+    }
+
+    createPageButton(pageNum, container) {
+        const button = document.createElement('button');
+        button.className = `page-num ${pageNum === this.currentPage ? 'active' : ''}`;
+        button.innerHTML = `<span>${pageNum}</span>`;
+        button.addEventListener('click', () => this.goToPage(pageNum));
+        container.appendChild(button);
+    }
+
+    createDots(container) {
+        const dots = document.createElement('span');
+        dots.className = 'page-dots';
+        dots.textContent = '...';
+        container.appendChild(dots);
+    }
+}
+
+// 필터 팝업 관리자 클래스
+class FilterPopupManager {
+    constructor(searchManager) {
+        this.searchManager = searchManager;
+        this.overlay = null;
+        this.modal = null;
+        this.currentFilters = {
+            sort: 'danger',
+            region: '',
+            age: '',
+            period: ''
+        };
+        this.init();
+    }
+
+    init() {
+        this.overlay = document.getElementById('filterPopupOverlay');
+        this.modal = this.overlay?.querySelector('.filter-popup-modal');
+        
+        if (!this.overlay || !this.modal) return;
+
+        this.setupEventListeners();
+        this.loadCurrentFilters();
+    }
+
+    setupEventListeners() {
+        // 팝업 열기 버튼
+        const openBtn = document.getElementById('filterPopupBtn');
+        if (openBtn) {
+            openBtn.addEventListener('click', () => this.openPopup());
+        }
+
+        // 팝업 닫기 버튼
+        const closeBtn = document.getElementById('filterPopupClose');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closePopup());
+        }
+
+        // 오버레이 클릭시 닫기
+        this.overlay.addEventListener('click', (e) => {
+            if (e.target === this.overlay) {
+                this.closePopup();
+            }
+        });
+
+        // 필터 적용 버튼
+        const applyBtn = document.getElementById('filterApplyBtn');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => this.applyFilters());
+        }
+
+        // ESC 키로 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
+                this.closePopup();
+            }
+        });
+    }
+
+    openPopup() {
+        this.loadCurrentFilters();
+        this.overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.from(this.modal, {
+                scale: 0.9,
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+        }
+    }
+
+    closePopup() {
+        this.overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    loadCurrentFilters() {
+        const filters = this.searchManager.filters;
+        
+        // 정렬 라디오 버튼
+        const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
+        if (sortRadio) sortRadio.checked = true;
+
+        // 지역 선택
+        const regionSelect = document.getElementById('popupRegionSelect');
+        if (regionSelect) regionSelect.value = filters.region;
+
+        // 연령대 라디오 버튼
+        const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
+        if (ageRadio) ageRadio.checked = true;
+
+        // 실종기간 라디오 버튼
+        const periodRadio = document.querySelector(`input[name="period"][value="${filters.period}"]`);
+        if (periodRadio) periodRadio.checked = true;
+    }
+
+    applyFilters() {
+        // 정렬
+        const sortValue = document.querySelector('input[name="sort"]:checked')?.value || 'danger';
+        
+        // 지역
+        const regionValue = document.getElementById('popupRegionSelect')?.value || '';
+        
+        // 연령대
+        const ageValue = document.querySelector('input[name="age"]:checked')?.value || '';
+        
+        // 실종기간
+        const periodValue = document.querySelector('input[name="period"]:checked')?.value || '';
+
+        // 필터 적용
+        this.searchManager.updateFilter('sort', sortValue);
+        this.searchManager.updateFilter('region', regionValue);
+        this.searchManager.updateFilter('age', ageValue);
+        this.searchManager.updateFilter('period', periodValue);
+
+        // 활성 필터 업데이트
+        this.updateActiveFilters();
+        
+        // 팝업 닫기
+        this.closePopup();
+        
+        // 성공 알림
+        if (window.showNotification) {
+            window.showNotification('필터가 적용되었습니다.', 'success');
+        }
+    }
+
+    updateActiveFilters() {
+        const container = document.getElementById('activeFilters');
+        if (!container) return;
+
+        container.innerHTML = '';
+        const filters = this.searchManager.filters;
+        
+        const filterLabels = {
+            sort: {
+                danger: '위험도순',
+                up: 'UP순',
+                recent: '최신순',
+                old: '오래된순'
+            },
+            region: {
+                seoul: '서울특별시',
+                busan: '부산광역시',
+                daegu: '대구광역시',
+                incheon: '인천광역시',
+                gwangju: '광주광역시',
+                daejeon: '대전광역시',
+                ulsan: '울산광역시',
+                gyeonggi: '경기도',
+                gangwon: '강원도',
+                chungbuk: '충청북도',
+                chungnam: '충청남도',
+                jeonbuk: '전라북도',
+                jeonnam: '전라남도',
+                gyeongbuk: '경상북도',
+                gyeongnam: '경상남도',
+                jeju: '제주특별자치도'
+            },
+            age: {
+                child: '어린이',
+                teen: '청소년',
+                adult: '성인',
+                senior: '고령자'
+            },
+            period: {
+                today: '오늘',
+                week: '최근 1주일',
+                month: '최근 1개월',
+                '3month': '최근 3개월',
+                year: '최근 1년'
+            }
+        };
+
+        // 기본값이 아닌 필터들만 표시
+        Object.keys(filters).forEach(key => {
+            const value = filters[key];
+            if (value && value !== 'danger') { // 정렬의 기본값 제외
+                const label = filterLabels[key]?.[value] || value;
+                this.createFilterTag(key, value, label, container);
+            }
+        });
+    }
+
+    createFilterTag(filterKey, filterValue, label, container) {
+        const tag = document.createElement('span');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `
+            ${label}
+            <i class="fas fa-times" data-filter="${filterKey}"></i>
+        `;
+        
+        // 태그 제거 이벤트
+        const removeIcon = tag.querySelector('i');
+        removeIcon.addEventListener('click', () => {
+            this.removeFilter(filterKey);
+        });
+        
+        container.appendChild(tag);
+    }
+
+    removeFilter(filterKey) {
+        const defaultValue = filterKey === 'sort' ? 'danger' : '';
+        this.searchManager.updateFilter(filterKey, defaultValue);
+        this.updateActiveFilters();
+    }
+}
 
 // 실종자 카드 React 컴포넌트
 function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
@@ -526,82 +906,6 @@ class SearchAnimations {
     }
 }
 
-// 무한 스크롤 관리자
-class InfiniteScroll {
-    constructor(callback) {
-        this.callback = callback;
-        this.isLoading = false;
-        this.hasMore = true;
-        this.page = 1;
-        this.init();
-    }
-
-    init() {
-        let ticking = false;
-        
-        window.addEventListener('scroll', () => {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    this.checkScroll();
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-    }
-
-    checkScroll() {
-        if (this.isLoading || !this.hasMore) return;
-
-        const scrollHeight = document.documentElement.scrollHeight;
-        const scrollTop = document.documentElement.scrollTop;
-        const clientHeight = document.documentElement.clientHeight;
-
-        if (scrollTop + clientHeight >= scrollHeight - 1000) {
-            this.loadMore();
-        }
-    }
-
-    async loadMore() {
-        if (this.isLoading) return;
-
-        this.isLoading = true;
-        this.showLoading();
-
-        try {
-            // 시뮬레이션된 API 호출
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // 더 이상 로드할 데이터가 없다고 가정
-            if (this.page >= 3) {
-                this.hasMore = false;
-            } else {
-                this.page++;
-                this.callback();
-            }
-        } catch (error) {
-            console.error('Failed to load more data:', error);
-        } finally {
-            this.isLoading = false;
-            this.hideLoading();
-        }
-    }
-
-    showLoading() {
-        const indicator = document.getElementById('loadingIndicator');
-        if (indicator) {
-            indicator.style.display = 'flex';
-        }
-    }
-
-    hideLoading() {
-        const indicator = document.getElementById('loadingIndicator');
-        if (indicator) {
-            indicator.style.display = 'none';
-        }
-    }
-}
-
 // 플로팅 버튼 관리자
 class FloatingButtons {
     constructor() {
@@ -701,11 +1005,13 @@ class SearchDebouncer {
 class MissingSearchPage {
     constructor() {
         this.searchManager = new SearchManager();
+        this.paginationManager = new PaginationManager(6);
+        this.filterPopupManager = null;
         this.animations = new SearchAnimations();
         this.floatingButtons = null;
-        this.infiniteScroll = null;
         this.searchDebouncer = null;
         this.viewMode = 'grid';
+        this.currentPageData = [];
         this.init();
     }
 
@@ -719,7 +1025,13 @@ class MissingSearchPage {
 
     setup() {
         // 검색 관리자 콜백 등록
-        this.searchManager.addCallback((data) => this.renderResults(data));
+        this.searchManager.addCallback((data) => this.handleDataChange(data));
+        
+        // 페이지네이션 콜백 등록
+        this.paginationManager.addCallback((paginationInfo) => this.handlePaginationChange(paginationInfo));
+        
+        // 필터 팝업 초기화
+        this.filterPopupManager = new FilterPopupManager(this.searchManager);
         
         // 검색 디바운서 설정
         this.searchDebouncer = new SearchDebouncer((value) => {
@@ -732,13 +1044,8 @@ class MissingSearchPage {
         // 플로팅 버튼 초기화
         this.floatingButtons = new FloatingButtons();
         
-        // 무한 스크롤 초기화
-        this.infiniteScroll = new InfiniteScroll(() => {
-            console.log('Loading more content...');
-        });
-        
         // 초기 렌더링
-        this.renderResults(this.searchManager.filteredData);
+        this.handleDataChange(this.searchManager.filteredData);
         
         console.log('Missing search page initialized successfully');
     }
@@ -759,22 +1066,6 @@ class MissingSearchPage {
                 }
             });
         }
-
-        // 필터 변경
-        const filters = ['sortSelect', 'regionSelect', 'ageSelect', 'periodSelect'];
-        filters.forEach(filterId => {
-            const element = document.getElementById(filterId);
-            if (element) {
-                element.addEventListener('change', (e) => {
-                    const filterKey = filterId.replace('Select', '').replace('sort', 'sort');
-                    this.searchManager.updateFilter(
-                        filterKey === 'sort' ? 'sort' : filterKey,
-                        e.target.value
-                    );
-                    this.animations.animateFilterChange();
-                });
-            }
-        });
 
         // 뷰 토글
         document.addEventListener('click', (e) => {
@@ -798,11 +1089,22 @@ class MissingSearchPage {
         }
 
         // 리셋 버튼
-        const resetBtn = document.querySelector('.filter-reset-btn');
+        const resetBtn = document.getElementById('filterResetBtn');
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
                 this.resetFilters();
             });
+        }
+
+        // 페이지네이션 버튼
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => this.paginationManager.prevPage());
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.paginationManager.nextPage());
         }
 
         // 리사이즈 핸들러
@@ -813,6 +1115,34 @@ class MissingSearchPage {
                 this.handleResize();
             }, 250);
         });
+    }
+
+    handleDataChange(data) {
+        // 페이지네이션 업데이트
+        this.paginationManager.setTotalItems(data.length);
+        
+        // 총 개수 업데이트
+        const totalCountElement = document.getElementById('totalCount');
+        if (totalCountElement) {
+            totalCountElement.textContent = data.length;
+        }
+        
+        // 결과 없음 표시
+        const noResults = document.getElementById('noResults');
+        if (noResults) {
+            noResults.style.display = data.length === 0 ? 'block' : 'none';
+        }
+
+        // 활성 필터 업데이트
+        if (this.filterPopupManager) {
+            this.filterPopupManager.updateActiveFilters();
+        }
+    }
+
+    handlePaginationChange(paginationInfo) {
+        const { startIndex, endIndex } = paginationInfo;
+        this.currentPageData = this.searchManager.filteredData.slice(startIndex, endIndex);
+        this.renderResults(this.currentPageData);
     }
 
     showSearchStatus(term) {
@@ -827,19 +1157,7 @@ class MissingSearchPage {
     renderResults(data) {
         const gridContainer = document.getElementById('missingGrid');
         const listContainer = document.getElementById('missingList');
-        const totalCountElement = document.getElementById('totalCount');
-        const noResults = document.getElementById('noResults');
         
-        // 결과 카운트 업데이트
-        if (totalCountElement) {
-            totalCountElement.textContent = data.length;
-        }
-        
-        // 결과 없음 표시
-        if (noResults) {
-            noResults.style.display = data.length === 0 ? 'block' : 'none';
-        }
-
         if (data.length === 0) return;
 
         // React 렌더링
@@ -906,7 +1224,6 @@ class MissingSearchPage {
     renderWithVanilla(data) {
         // 폴백 렌더링 (React 없이)
         console.log('Rendering with vanilla JS:', data.length, 'items');
-        // 필요시 구현
     }
 
     toggleView(viewMode) {
@@ -935,23 +1252,28 @@ class MissingSearchPage {
         
         // React 리렌더링
         setTimeout(() => {
-            this.renderResults(this.searchManager.filteredData);
+            this.renderResults(this.currentPageData);
         }, 50);
     }
 
     resetFilters() {
         // 폼 리셋
         const searchInput = document.getElementById('searchInput');
-        const selects = document.querySelectorAll('#sortSelect, #regionSelect, #ageSelect, #periodSelect');
-        
         if (searchInput) searchInput.value = '';
-        selects.forEach(select => select.value = '');
         
         // 검색 관리자 리셋
         this.searchManager.resetFilters();
         
+        // 페이지네이션 리셋
+        this.paginationManager.currentPage = 1;
+        
         // 애니메이션
         this.animations.animateFilterChange();
+        
+        // 활성 필터 업데이트
+        if (this.filterPopupManager) {
+            this.filterPopupManager.updateActiveFilters();
+        }
         
         // 알림
         if (window.showNotification) {
@@ -977,27 +1299,6 @@ window.performSearch = function() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput && missingSearchPage.searchManager) {
         missingSearchPage.searchManager.updateFilter('searchTerm', searchInput.value.trim());
-    }
-};
-
-window.applySorting = function() {
-    const sortSelect = document.getElementById('sortSelect');
-    if (sortSelect && missingSearchPage.searchManager) {
-        missingSearchPage.searchManager.updateFilter('sort', sortSelect.value);
-    }
-};
-
-window.applyFilters = function() {
-    if (missingSearchPage.searchManager) {
-        const filters = {
-            region: document.getElementById('regionSelect')?.value || '',
-            age: document.getElementById('ageSelect')?.value || '',
-            period: document.getElementById('periodSelect')?.value || ''
-        };
-        
-        Object.keys(filters).forEach(key => {
-            missingSearchPage.searchManager.updateFilter(key, filters[key]);
-        });
     }
 };
 
@@ -1036,6 +1337,11 @@ if (typeof window !== 'undefined') {
         sampleData: sampleMissingData,
         testSearch: (term) => {
             missingSearchPage.searchManager.updateFilter('searchTerm', term);
+        },
+        testPagination: () => {
+            console.log('Current page:', missingSearchPage.paginationManager.currentPage);
+            console.log('Total pages:', missingSearchPage.paginationManager.getTotalPages());
+            console.log('Page data:', missingSearchPage.currentPageData);
         },
         testAnimations: () => {
             if (typeof gsap !== 'undefined') {

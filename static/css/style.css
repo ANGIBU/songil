@@ -89,6 +89,114 @@
     --transition-fast: all 0.15s ease;
 }
 
+/* 개선된 FOUC 방지 - 선별적 적용 */
+/* 핵심 콘텐츠는 항상 표시, 애니메이션 요소만 초기 숨김 */
+
+/* 페이지 로딩 중에만 애니메이션 요소들 숨김 */
+.page-loading .hero-title,
+.page-loading .hero-description,
+.page-loading .hero-buttons,
+.page-loading .ranking-display {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(30px) !important;
+    transition: none !important;
+    will-change: transform, opacity;
+}
+
+/* 페이지 준비 완료 후 부드럽게 표시 */
+.page-ready .hero-title,
+.page-ready .hero-description,
+.page-ready .hero-buttons,
+.page-ready .ranking-display {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease !important;
+    will-change: transform, opacity;
+}
+
+/* 애니메이션 완료 후 최적화 */
+.page-ready.animations-complete .hero-title,
+.page-ready.animations-complete .hero-description,
+.page-ready.animations-complete .hero-buttons,
+.page-ready.animations-complete .ranking-display {
+    will-change: auto;
+}
+
+/* 기본 상태 - 모든 요소는 기본적으로 표시 */
+.hero-title,
+.hero-description,
+.hero-buttons,
+.ranking-display,
+.ranking-item,
+.missing-card,
+.stat-item,
+.step,
+.section-header,
+.intro-text h2 {
+    /* 기본적으로는 모두 표시 */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* JavaScript 비활성화 시 모든 요소 표시 보장 */
+.no-js .hero-title,
+.no-js .hero-description,
+.no-js .hero-buttons,
+.no-js .ranking-display,
+.no-js .ranking-item,
+.no-js .missing-card,
+.no-js .stat-item,
+.no-js .step,
+.no-js .section-header,
+.no-js .intro-text h2 {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition: none !important;
+    will-change: auto !important;
+}
+
+/* 로딩 상태에서 전체 페이지 깜빡임 방지 */
+.page-loading {
+    /* 페이지 전체에 미세한 투명도 적용으로 부드러운 전환 */
+    opacity: 0.95;
+}
+
+.page-ready {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+/* 디버그용 - 개발 시에만 사용 */
+.debug-fouc .page-loading::before {
+    content: 'Loading...';
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #f97316;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 10000;
+    font-size: 12px;
+}
+
+.debug-fouc .page-ready::before {
+    content: 'Ready';
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #22c55e;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 10000;
+    font-size: 12px;
+}
+
 /* 애니메이션 최적화를 위한 기본 설정 */
 html {
     scroll-behavior: smooth;
@@ -106,22 +214,6 @@ body {
     /* 애니메이션 최적화 */
     transform: translateZ(0);
     backface-visibility: hidden;
-}
-
-/* 애니메이션 요소들의 초기 상태 안정화 */
-.hero-title,
-.hero-description,
-.hero-buttons,
-.ranking-display,
-.missing-card,
-.stat-item,
-.step {
-    /* 기본 상태를 명시적으로 설정하여 깜빡임 방지 */
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
-    /* 성능 최적화 */
-    will-change: auto;
 }
 
 /* GSAP 애니메이션 중인 요소들 */
@@ -493,36 +585,23 @@ body {
     z-index: 1;
 }
 
-/* 히어로 요소들 - 안정적인 기본 상태 */
 .hero-title {
     font-size: var(--font-size-4xl);
     font-weight: 700;
     color: var(--gray-900);
     margin-bottom: var(--spacing-6);
     line-height: 1.2;
-    /* 깜빡임 방지 */
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
 }
 
 .hero-description {
     font-size: var(--font-size-lg);
     color: var(--gray-600);
     margin-bottom: var(--spacing-8);
-    /* 깜빡임 방지 */
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
 }
 
 .hero-buttons {
     display: flex;
     gap: var(--spacing-4);
-    /* 깜빡임 방지 */
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
 }
 
 .hero-visual {
@@ -549,7 +628,6 @@ body {
 
 /* 순위 디스플레이 - 안정성 강화 */
 .ranking-display {
-    /* 깜빡임 방지 */
     opacity: 1;
     transform: translateX(0);
     visibility: visible;
