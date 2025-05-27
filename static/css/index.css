@@ -18,7 +18,7 @@
 .section-header {
     opacity: 0 !important;
     visibility: hidden !important;
-    transform: translateY(30px) !important;
+    transform: translateY(40px) !important;
     transition: none !important;
 }
 
@@ -38,7 +38,7 @@
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
-    transition: all 0.5s ease !important;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
 
 /* JavaScript 비활성화 시 모든 요소 강제 표시 */
@@ -60,16 +60,17 @@
     transition: none !important;
 }
 
-/* 히어로 섹션 - 위치 조정 */
+/* 히어로 섹션 - 헤더와의 여백 대폭 축소 */
 .hero-section {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-    padding: 60px 0 80px;
+    padding: 40px 0 60px; /* 60px에서 40px로 축소 */
     position: relative;
     overflow: hidden;
-    min-height: 90vh;
+    min-height: 85vh; /* 90vh에서 85vh로 축소 */
     display: flex;
     align-items: center;
-    margin-top: -20px;
+    margin-top: -60px; /* -20px에서 -60px로 대폭 축소 */
+    padding-top: 80px; /* 헤더 높이만큼 패딩 추가 */
 }
 
 .hero-section::before {
@@ -318,9 +319,9 @@
     color: var(--secondary-green);
 }
 
-/* 긴급 실종자 섹션 */
+/* 긴급 실종자 섹션 - 상단 여백 조정 */
 .urgent-section {
-    padding: 100px 0;
+    padding: 80px 0; /* 100px에서 80px로 축소 */
     background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
     position: relative;
     overflow: hidden;
@@ -339,7 +340,7 @@
 
 .section-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 50px; /* 60px에서 50px로 축소 */
     position: relative;
     z-index: 1;
 }
@@ -376,7 +377,7 @@
 .urgent-cards-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto 50px;
+    margin: 0 auto 40px; /* 50px에서 40px로 축소 */
     position: relative;
     z-index: 1;
     padding: 0 16px;
@@ -600,9 +601,9 @@
     z-index: 1;
 }
 
-/* 소개 섹션 - 모든 스텝 크기 균등화 */
+/* 소개 섹션 - 여백 조정 */
 .intro-section {
-    padding: 100px 0;
+    padding: 80px 0; /* 100px에서 80px로 축소 */
     background: white;
     position: relative;
 }
@@ -618,7 +619,7 @@
     font-size: 2.75rem;
     font-weight: 700;
     color: var(--gray-900);
-    margin-bottom: 60px;
+    margin-bottom: 50px; /* 60px에서 50px로 축소 */
     position: relative;
 }
 
@@ -744,9 +745,9 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 - 깔끔한 그라데이션 배경만 */
+/* 희망 메시지 섹션 - 여백 조정 */
 .stats-section {
-    padding: 100px 0;
+    padding: 80px 0; /* 100px에서 80px로 축소 */
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
     color: white;
     text-align: center;
@@ -796,7 +797,7 @@
     font-size: 1.4rem;
     line-height: 1.8;
     max-width: 800px;
-    margin: 0 auto 50px;
+    margin: 0 auto 40px; /* 50px에서 40px로 축소 */
     opacity: 0.95;
     position: relative;
     z-index: 1;
@@ -890,9 +891,15 @@
 
 /* 반응형 디자인 강화 */
 @media (max-width: 1024px) {
+    .hero-section {
+        margin-top: -40px; /* 태블릿에서 여백 조정 */
+        padding-top: 60px;
+        min-height: 80vh;
+    }
+    
     .hero-content {
         grid-template-columns: 1fr;
-        gap: 50px;
+        gap: 40px; /* 50px에서 40px로 축소 */
         text-align: center;
     }
     
@@ -911,23 +918,36 @@
         transform: translateX(0);
     }
     
+    .urgent-section {
+        padding: 60px 0; /* 80px에서 60px로 축소 */
+    }
+    
     .urgent-cards {
         grid-template-columns: repeat(3, 1fr) !important;
         grid-template-rows: repeat(3, minmax(280px, auto)) !important;
         gap: 20px !important;
     }
     
+    .intro-section {
+        padding: 60px 0; /* 80px에서 60px로 축소 */
+    }
+    
     .intro-steps {
         grid-template-columns: repeat(3, 1fr);
         gap: 25px;
+    }
+    
+    .stats-section {
+        padding: 60px 0; /* 80px에서 60px로 축소 */
     }
 }
 
 @media (max-width: 768px) {
     .hero-section {
-        padding: 40px 0 50px;
+        padding: 30px 0 40px; /* 40px에서 30px로 축소 */
         min-height: auto;
-        margin-top: -10px;
+        margin-top: -30px; /* -10px에서 -30px로 조정 */
+        padding-top: 50px;
     }
     
     .hero-title {
@@ -972,6 +992,10 @@
         font-size: 2.25rem;
     }
     
+    .urgent-section {
+        padding: 50px 0; /* 60px에서 50px로 축소 */
+    }
+    
     .urgent-cards {
         grid-template-columns: repeat(2, 1fr) !important;
         grid-template-rows: repeat(4, minmax(270px, auto)) !important;
@@ -986,9 +1010,17 @@
         font-size: 2.25rem;
     }
     
+    .intro-section {
+        padding: 50px 0; /* 60px에서 50px로 축소 */
+    }
+    
     .intro-steps {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
+    }
+    
+    .stats-section {
+        padding: 50px 0; /* 60px에서 50px로 축소 */
     }
     
     .stats-grid {
@@ -998,6 +1030,12 @@
 }
 
 @media (max-width: 480px) {
+    .hero-section {
+        margin-top: -20px;
+        padding-top: 40px;
+        padding-bottom: 30px;
+    }
+    
     .hero-title {
         font-size: 2.25rem;
     }
@@ -1021,6 +1059,10 @@
     .step {
         padding: 25px 15px;
         min-height: 280px;
+    }
+    
+    .urgent-section {
+        padding: 40px 0; /* 50px에서 40px로 축소 */
     }
     
     .urgent-cards {
@@ -1049,9 +1091,17 @@
         height: 22px;
     }
     
+    .intro-section {
+        padding: 40px 0; /* 50px에서 40px로 축소 */
+    }
+    
     .intro-steps {
         grid-template-columns: 1fr;
         gap: 20px;
+    }
+    
+    .stats-section {
+        padding: 40px 0; /* 50px에서 40px로 축소 */
     }
 }
 

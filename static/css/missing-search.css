@@ -255,26 +255,41 @@
     color: var(--danger-red);
 }
 
-/* 필터 팝업 모달 - 스크롤 버그 완전 해결 */
+/* ============ 팝업 모달 - 스크롤 버그 완전 해결 ============ */
+
+/* 모달 오픈 시 body 스크롤 방지 - 스크롤 위치 보존 */
+body.modal-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    top: var(--scroll-y, 0);
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
 .filter-popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
     background: rgba(0, 0, 0, 0.5);
     display: none;
-    z-index: 2000;
+    z-index: 9999 !important;
     backdrop-filter: blur(5px);
-    /* 중앙 정렬을 위한 수정 */
-    align-items: center;
-    justify-content: center;
+    /* 중앙 정렬 강제 적용 */
+    align-items: center !important;
+    justify-content: center !important;
     /* 스크롤 방지 */
-    overflow: hidden;
+    overflow: hidden !important;
+    /* iOS Safari 터치 스크롤 방지 */
+    -webkit-overflow-scrolling: auto !important;
+    overscroll-behavior: contain;
 }
 
 .filter-popup-overlay.active {
-    display: flex;
+    display: flex !important;
 }
 
 .filter-popup-modal {
@@ -282,17 +297,20 @@
     border-radius: 20px;
     width: 90%;
     max-width: 450px;
-    max-height: 70vh;
+    max-height: 80vh !important;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
     position: relative;
     display: flex;
     flex-direction: column;
-    /* 스크롤에 관계없이 고정 위치 보장 */
-    margin: auto;
-    /* 추가적인 중앙 정렬 보장 */
+    /* 스크롤과 무관하게 중앙 정렬 보장 */
+    margin: 0 !important;
+    /* GPU 가속화 */
     transform: translateZ(0);
-    backface-visibility: hidden;
+    will-change: transform;
+    /* iOS Safari 지원 */
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
 }
 
 .filter-popup-header {
@@ -389,8 +407,11 @@
 
 .filter-popup-body {
     padding: 20px 25px;
-    overflow-y: auto;
+    overflow-y: auto !important;
     flex: 1;
+    /* 내부 스크롤 최적화 */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 /* 지역 선택 관련 스타일 - 완전 재작성으로 버그 해결 */
@@ -630,8 +651,17 @@
     border-radius: 8px;
     color: var(--gray-600);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.view-btn .view-label {
+    font-size: 13px;
+    font-weight: 500;
 }
 
 .view-btn:hover {
@@ -639,11 +669,11 @@
 }
 
 .view-btn.active {
-    background: var(--primary-orange);
-    color: white;
+    background: var(--primary-orange) !important;
+    color: white !important;
 }
 
-/* 실종자 목록 섹션 */
+/* ============ 실종자 목록 섹션 - 리스트 뷰 버그 완전 해결 ============ */
 .missing-list {
     padding: 40px 0 80px;
     background: white;
@@ -651,29 +681,28 @@
 
 /* 그리드 뷰 - 기본 표시 */
 .missing-grid {
-    display: grid;
+    display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 30px;
     margin-bottom: 40px;
+    /* 그리드 뷰 숨김 시 */
 }
 
-/* 리스트 뷰 - 완전히 수정된 스타일 */
+.missing-grid.view-hidden {
+    display: none !important;
+}
+
+/* 리스트 뷰 - 강력한 스타일 적용 */
 .missing-list-view {
-    display: none;
+    display: none !important;
+    flex-direction: column !important;
+    gap: 15px !important;
     margin-bottom: 40px;
-    /* 리스트 뷰 전용 스타일 추가 */
-    flex-direction: column;
-    gap: 15px;
 }
 
-/* 리스트 뷰 활성화 시에만 표시 - !important 제거하고 명확한 스타일 적용 */  
-.missing-list-view.active {
-    display: flex;
-}
-
-/* 그리드 뷰 숨김 처리 개선 */
-.missing-grid.hidden {
-    display: none;
+/* 리스트 뷰 활성화 - 최고 우선순위 적용 */
+.missing-list-view.view-active {
+    display: flex !important;
 }
 
 .missing-card {
@@ -849,22 +878,21 @@
     transform: translateY(-2px);
 }
 
-/* 리스트 뷰 스타일 - 개선된 버전 */
+/* 리스트 뷰 아이템 스타일 - 강화 */
 .list-item {
-    display: grid;
-    grid-template-columns: 120px 1fr auto;
-    gap: 20px;
-    padding: 20px;
-    background: white;
-    border-radius: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--gray-200);
-    transition: all 0.3s ease;
-    align-items: center;
-    /* 리스트 아이템 안정성 향상 */
-    width: 100%;
-    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: 120px 1fr auto !important;
+    gap: 20px !important;
+    padding: 20px !important;
+    background: white !important;
+    border-radius: 15px !important;
+    margin-bottom: 15px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid var(--gray-200) !important;
+    transition: all 0.3s ease !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .list-item:hover {
@@ -873,42 +901,42 @@
 }
 
 .list-image {
-    width: 120px;
-    height: 80px;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    flex-shrink: 0;
+    width: 120px !important;
+    height: 80px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
 }
 
 .list-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
 }
 
 .list-content {
-    flex: 1;
-    min-width: 0; /* 텍스트 오버플로우 방지 */
+    flex: 1 !important;
+    min-width: 0 !important;
 }
 
 .list-content h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: 8px;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    color: var(--gray-900) !important;
+    margin-bottom: 8px !important;
 }
 
 .list-content .missing-info {
-    margin-bottom: 0;
-    line-height: 1.6;
+    margin-bottom: 0 !important;
+    line-height: 1.6 !important;
 }
 
 .list-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-shrink: 0;
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
 }
 
 /* 로딩 인디케이터 */
@@ -1233,19 +1261,23 @@
         text-align: center;
     }
     
+    .view-btn .view-label {
+        display: none;
+    }
+    
     .missing-grid {
         grid-template-columns: 1fr;
         gap: 20px;
     }
     
     .list-item {
-        grid-template-columns: 1fr;
-        gap: 15px;
-        text-align: center;
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+        text-align: center !important;
     }
     
     .list-image {
-        justify-self: center;
+        justify-self: center !important;
     }
     
     .floating-report-btns {
@@ -1273,9 +1305,9 @@
     
     /* 모바일 필터 팝업 조정 */
     .filter-popup-modal {
-        width: 95%;
-        max-width: 400px;
-        max-height: 80vh;
+        width: 95% !important;
+        max-width: 400px !important;
+        max-height: 85vh !important;
     }
     
     .filter-popup-header {
@@ -1401,9 +1433,9 @@
     
     /* 소형 모바일 필터 팝업 */
     .filter-popup-modal {
-        width: 98%;
-        max-width: 350px;
-        max-height: 85vh;
+        width: 98% !important;
+        max-width: 350px !important;
+        max-height: 90vh !important;
     }
     
     .filter-popup-header {

@@ -355,7 +355,7 @@ class StatCounter {
     }
 }
 
-// GSAP 애니메이션 관리자 - 5개 스텝 균등 처리
+// GSAP 애니메이션 관리자 - 부드러운 애니메이션으로 대폭 개선
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
@@ -399,126 +399,181 @@ class IndexAnimations {
             return;
         }
 
-        // 히어로 섹션 애니메이션 - 순차적 등장
+        // 히어로 섹션 애니메이션 - 훨씬 부드럽고 자연스럽게 개선
         this.timeline = gsap.timeline({ 
-            delay: 0.3,
+            delay: 0.2, // 0.3에서 0.2로 단축
             onComplete: () => {
                 // 애니메이션 완료 후 성능 최적화
                 document.body.classList.add('animations-complete');
             }
         });
         
+        // 부드러운 easing과 더 긴 duration으로 개선
         this.timeline
             .fromTo('.hero-title', {
-                y: 60,
-                opacity: 0
+                y: 50, // 60에서 50으로 축소
+                opacity: 0,
+                scale: 0.95 // 살짝 작게 시작해서 더 자연스럽게
             }, {
-                duration: 1,
+                duration: 1.4, // 1.0에서 1.4로 연장
                 y: 0,
                 opacity: 1,
-                ease: 'power2.out'
+                scale: 1,
+                ease: 'power1.out' // power2.out에서 power1.out으로 부드럽게
             })
             .fromTo('.hero-description', {
-                y: 40,
+                y: 30, // 40에서 30으로 축소
                 opacity: 0
             }, {
-                duration: 0.8,
+                duration: 1.2, // 0.8에서 1.2로 연장
                 y: 0,
                 opacity: 1,
-                ease: 'power2.out'
-            }, '-=0.5')
+                ease: 'power1.out'
+            }, '-=0.8') // -=0.5에서 -=0.8로 더 많이 겹치게
             .fromTo('.hero-buttons .btn', {
-                y: 30,
-                opacity: 0
+                y: 25, // 30에서 25로 축소
+                opacity: 0,
+                scale: 0.9
             }, {
-                duration: 0.6,
+                duration: 1.0, // 0.6에서 1.0으로 연장
                 y: 0,
                 opacity: 1,
-                stagger: 0.15,
-                ease: 'power2.out'
-            }, '-=0.4')
+                scale: 1,
+                stagger: 0.1, // 0.15에서 0.1로 단축해서 연속성 향상
+                ease: 'back.out(1.2)' // 살짝 튀는 효과로 생동감 추가
+            }, '-=0.6') // -=0.4에서 -=0.6로 더 많이 겹치게
             .fromTo('.ranking-display', {
-                x: 40,
-                opacity: 0
+                x: 60, // 40에서 60으로 확대 (오른쪽에서 나오는 효과 강화)
+                opacity: 0,
+                scale: 0.9
             }, {
-                duration: 1,
+                duration: 1.3, // 1.0에서 1.3으로 연장
                 x: 0,
                 opacity: 1,
-                ease: 'power2.out'
-            }, '-=0.7')
+                scale: 1,
+                ease: 'power1.out'
+            }, '-=1.0') // -=0.7에서 -=1.0으로 더 많이 겹치게
             .fromTo('.ranking-item', {
-                y: 20,
-                opacity: 0
+                y: 15, // 20에서 15로 축소
+                opacity: 0,
+                scale: 0.95
             }, {
-                duration: 0.5,
+                duration: 0.8, // 0.5에서 0.8로 연장
                 y: 0,
                 opacity: 1,
-                stagger: 0.1,
-                ease: 'power2.out'
-            }, '-=0.3');
+                scale: 1,
+                stagger: 0.06, // 0.1에서 0.06으로 단축해서 더 연속적으로
+                ease: 'power1.out'
+            }, '-=0.5'); // -=0.3에서 -=0.5로 더 많이 겹치게
 
-        // ScrollTrigger 애니메이션들
+        // ScrollTrigger 애니메이션들 - 모두 부드럽게 개선
         if (typeof ScrollTrigger !== 'undefined') {
-            // 긴급 실종자 섹션
+            // 긴급 실종자 섹션 - 부드러운 스태거 애니메이션
             const urgentTrigger = ScrollTrigger.create({
                 trigger: '.urgent-section',
-                start: 'top 75%',
-                end: 'bottom 25%',
+                start: 'top 80%', // 75%에서 80%로 조정해서 더 일찍 시작
+                end: 'bottom 20%',
                 onEnter: () => {
-                    const cards = document.querySelectorAll('.urgent-cards .missing-card');
-                    gsap.fromTo(cards, {
-                        y: 50,
+                    // 섹션 헤더 먼저 애니메이션
+                    gsap.fromTo('.urgent-section .section-header', {
+                        y: 40,
                         opacity: 0
                     }, {
-                        duration: 0.7,
+                        duration: 1.0,
                         y: 0,
                         opacity: 1,
-                        stagger: 0.12,
-                        ease: 'power2.out'
+                        ease: 'power1.out'
+                    });
+                    
+                    // 카드들은 조금 늦게 시작해서 자연스럽게 연결
+                    const cards = document.querySelectorAll('.urgent-cards .missing-card');
+                    gsap.fromTo(cards, {
+                        y: 40, // 50에서 40으로 축소
+                        opacity: 0,
+                        scale: 0.95
+                    }, {
+                        duration: 0.9, // 0.7에서 0.9로 연장
+                        y: 0,
+                        opacity: 1,
+                        scale: 1,
+                        stagger: 0.08, // 0.12에서 0.08로 단축해서 더 연속적으로
+                        ease: 'power1.out',
+                        delay: 0.3 // 헤더 애니메이션 후 시작
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(urgentTrigger);
 
-            // 소개 섹션 - 5개 스텝 균등 애니메이션
+            // 소개 섹션 - 5개 스텝 부드러운 애니메이션
             const introTrigger = ScrollTrigger.create({
                 trigger: '.intro-section',
-                start: 'top 80%',
-                end: 'bottom 20%',
+                start: 'top 85%', // 80%에서 85%로 조정
+                end: 'bottom 15%',
                 onEnter: () => {
-                    const steps = document.querySelectorAll('.intro-steps .step');
-                    gsap.fromTo(steps, {
-                        y: 40,
+                    // 제목 먼저 애니메이션
+                    gsap.fromTo('.intro-text h2', {
+                        y: 30,
                         opacity: 0
                     }, {
-                        duration: 0.6,
+                        duration: 1.0,
                         y: 0,
                         opacity: 1,
-                        stagger: 0.08,
-                        ease: 'power2.out'
+                        ease: 'power1.out'
+                    });
+                    
+                    // 스텝들은 파도 모양으로 애니메이션
+                    const steps = document.querySelectorAll('.intro-steps .step');
+                    gsap.fromTo(steps, {
+                        y: 35, // 40에서 35로 축소
+                        opacity: 0,
+                        scale: 0.9
+                    }, {
+                        duration: 0.8, // 0.6에서 0.8로 연장
+                        y: 0,
+                        opacity: 1,
+                        scale: 1,
+                        stagger: 0.06, // 0.08에서 0.06으로 단축
+                        ease: 'back.out(1.1)', // 살짝 튀는 효과
+                        delay: 0.4
                     });
                 },
                 once: true
             });
             this.scrollTriggers.push(introTrigger);
 
-            // 통계 섹션
+            // 통계 섹션 - 가장 임팩트 있게
             const statsTrigger = ScrollTrigger.create({
                 trigger: '.stats-section',
-                start: 'top 80%',
-                end: 'bottom 20%',
+                start: 'top 85%',
+                end: 'bottom 15%',
                 onEnter: () => {
-                    const statItems = document.querySelectorAll('.stats-grid .stat-item');
-                    gsap.fromTo(statItems, {
-                        scale: 0.8,
+                    // 제목과 메시지 먼저
+                    gsap.fromTo('.stats-section h2, .hope-message', {
+                        y: 30,
                         opacity: 0
                     }, {
-                        duration: 0.8,
+                        duration: 1.0,
+                        y: 0,
+                        opacity: 1,
+                        stagger: 0.2,
+                        ease: 'power1.out'
+                    });
+                    
+                    // 통계 아이템들은 스케일 효과로 임팩트 있게
+                    const statItems = document.querySelectorAll('.stats-grid .stat-item');
+                    gsap.fromTo(statItems, {
+                        scale: 0.7, // 0.8에서 0.7로 더 작게 시작
+                        opacity: 0,
+                        y: 30
+                    }, {
+                        duration: 1.0, // 0.8에서 1.0으로 연장
                         scale: 1,
                         opacity: 1,
-                        stagger: 0.1,
-                        ease: 'back.out(1.7)'
+                        y: 0,
+                        stagger: 0.08, // 0.1에서 0.08로 단축
+                        ease: 'back.out(1.4)', // 더 강한 튀는 효과
+                        delay: 0.5
                     });
                 },
                 once: true
@@ -534,24 +589,24 @@ class IndexAnimations {
         
         timeline
             .to(button, {
-                scale: 1.2,
-                duration: 0.1,
-                ease: 'power2.out'
+                scale: 1.15, // 1.2에서 1.15로 살짝 축소
+                duration: 0.12, // 0.1에서 0.12로 약간 연장
+                ease: 'power1.out'
             })
             .to(button, {
                 scale: 1,
-                duration: 0.2,
-                ease: 'elastic.out(2, 0.3)'
+                duration: 0.25, // 0.2에서 0.25로 연장
+                ease: 'elastic.out(1.8, 0.4)' // 더 부드러운 탄성 효과
             });
             
         const countElement = button.querySelector('span');
         if (countElement) {
             gsap.fromTo(countElement, 
-                { scale: 1.5 },
+                { scale: 1.4 }, // 1.5에서 1.4로 축소
                 {
                     scale: 1,
-                    duration: 0.3,
-                    ease: 'back.out(1.7)'
+                    duration: 0.35, // 0.3에서 0.35로 연장
+                    ease: 'back.out(1.5)' // 1.7에서 1.5로 부드럽게
                 }
             );
         }
@@ -754,9 +809,9 @@ class IndexPage {
         // 로딩 오버레이 숨기기
         setTimeout(() => {
             this.hideLoadingOverlay();
-        }, 500);
+        }, 400); // 500에서 400으로 단축
         
-        console.log('Index page ready - clean gradient backgrounds only');
+        console.log('Index page ready with smooth GSAP animations');
     }
 
     renderRankings() {
@@ -832,7 +887,6 @@ class IndexPage {
                 clearTimeout(this.resizeTimeout);
             }
             this.resizeTimeout = setTimeout(() => {
-                // Three.js 리사이즈 제거됨
                 console.log('Window resized - gradients adjust automatically');
             }, 250);
         };
