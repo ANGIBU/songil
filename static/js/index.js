@@ -127,7 +127,7 @@ const allMissingData = [
     }
 ];
 
-// 순위 데이터 (전체 기간 누적) - 제보 건수와 기여도 추가
+// 순위 데이터 (제보와 해결로 변경)
 const rankingData = [
     { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 23, witnesses: 45 },
     { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 18, witnesses: 38 },
@@ -145,7 +145,7 @@ function getUrgentMissingData() {
 // 긴급 실종자 데이터 (정확히 8개)
 const urgentMissingData = getUrgentMissingData();
 
-// 순위 React 컴포넌트 - 한 줄 레이아웃으로 수정
+// 순위 React 컴포넌트 - 레이아웃 변경 (이름/포인트 왼쪽, 통계 오른쪽)
 function RankingDisplay({ rankings }) {
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) =>
@@ -162,18 +162,23 @@ function RankingDisplay({ rankings }) {
                     key: 'info'
                 }, [
                     React.createElement('div', {
-                        className: 'ranking-name',
-                        key: 'name'
-                    }, rank.name),
-                    React.createElement('div', {
-                        className: 'ranking-points',
-                        key: 'points'
+                        className: 'ranking-left',
+                        key: 'left'
                     }, [
-                        React.createElement('i', {
-                            className: 'fas fa-coins',
-                            key: 'icon'
-                        }),
-                        `${rank.points.toLocaleString()}P`
+                        React.createElement('div', {
+                            className: 'ranking-name',
+                            key: 'name'
+                        }, rank.name),
+                        React.createElement('div', {
+                            className: 'ranking-points',
+                            key: 'points'
+                        }, [
+                            React.createElement('i', {
+                                className: 'fas fa-coins',
+                                key: 'icon'
+                            }),
+                            `${rank.points.toLocaleString()}P`
+                        ])
                     ]),
                     React.createElement('div', {
                         className: 'ranking-stats',
@@ -187,17 +192,17 @@ function RankingDisplay({ rankings }) {
                                 className: 'fas fa-user-plus',
                                 key: 'reports-icon'
                             }),
-                            `신고 : ${rank.reports}건`
+                            `제보 : ${rank.reports}건`
                         ]),
                         React.createElement('div', {
                             className: 'stat-item',
                             key: 'witnesses'
                         }, [
                             React.createElement('i', {
-                                className: 'fas fa-eye',
+                                className: 'fas fa-check-circle',
                                 key: 'witnesses-icon'
                             }),
-                            `목격 : ${rank.witnesses}건`
+                            `해결 : ${rank.witnesses}건`
                         ])
                     ])
                 ])
@@ -236,7 +241,12 @@ function MissingCard({ data, onUpClick }) {
 
     return React.createElement('div', {
         className: `missing-card urgent ${isAnimating ? 'animating' : ''}`,
-        'data-id': data.id
+        'data-id': data.id,
+        style: {
+            display: 'block',
+            width: '100%',
+            height: '300px'
+        }
     }, [
         React.createElement('div', { className: 'card-image', key: 'image' }, [
             React.createElement('img', {
@@ -848,7 +858,7 @@ class IndexPage {
         }
     }
 
-    // React 컴포넌트 렌더링
+    // React 컴포넌트 렌더링 - 4x2 그리드 강화
     renderUrgentCards() {
         const urgentContainer = document.querySelector('.urgent-cards');
         if (!urgentContainer || typeof React === 'undefined') {
@@ -869,18 +879,20 @@ class IndexPage {
             }
         };
 
+        // 컨테이너 직접 스타일 설정
+        urgentContainer.style.display = 'grid';
+        urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        urgentContainer.style.gridTemplateRows = 'repeat(2, auto)';
+        urgentContainer.style.gap = '25px';
+        urgentContainer.style.width = '100%';
+        urgentContainer.style.maxWidth = '1200px';
+        urgentContainer.style.margin = '0 auto';
+
         try {
+            // 일반적인 React Fragment로 렌더링
             const root = ReactDOM.createRoot(urgentContainer);
             root.render(
-                React.createElement('div', { 
-                    style: { 
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(4, 1fr)',
-                        gridTemplateRows: 'repeat(2, 1fr)',
-                        gap: '25px',
-                        width: '100%'
-                    } 
-                },
+                React.createElement(React.Fragment, null,
                     urgentMissingData.map(data =>
                         React.createElement(MissingCard, {
                             key: data.id,
@@ -890,6 +902,26 @@ class IndexPage {
                     )
                 )
             );
+            
+            // 렌더링 후 추가 스타일 강제 적용
+            setTimeout(() => {
+                urgentContainer.style.display = 'grid';
+                urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                urgentContainer.style.gridTemplateRows = 'repeat(2, auto)';
+                urgentContainer.style.gap = '25px';
+                
+                // 각 카드도 강제 스타일 적용
+                const cards = urgentContainer.querySelectorAll('.missing-card');
+                cards.forEach((card, index) => {
+                    if (index < 8) {
+                        card.style.display = 'block';
+                        card.style.width = '100%';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }, 50);
+            
         } catch (error) {
             console.error('React rendering failed:', error);
         }
@@ -909,6 +941,15 @@ class IndexPage {
             resizeTimeout = setTimeout(() => {
                 if (this.waveEffect && !this.isDestroyed) {
                     this.waveEffect.onWindowResize();
+                }
+                
+                // 리사이즈 시 그리드 레이아웃 재적용
+                const urgentContainer = document.querySelector('.urgent-cards');
+                if (urgentContainer) {
+                    urgentContainer.style.display = 'grid';
+                    urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+                    urgentContainer.style.gridTemplateRows = 'repeat(2, auto)';
+                    urgentContainer.style.gap = '25px';
                 }
             }, 250);
         };
