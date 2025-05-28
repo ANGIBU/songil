@@ -144,7 +144,7 @@
     padding-left: 40px;
 }
 
-/* 순위 디스플레이 */
+/* 순위 디스플레이 - 위치 문제 수정 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
@@ -156,7 +156,9 @@
     position: relative;
     overflow: hidden;
     margin-left: auto;
-    transform: translateX(30px) translateY(50px);
+    /* transform 제거하고 margin으로 위치 조정 */
+    margin-top: 50px;
+    margin-right: 30px;
 }
 
 .ranking-display::before {
@@ -881,7 +883,8 @@
     .ranking-display {
         width: 460px;
         margin: 0 auto;
-        transform: translateX(0) translateY(50px);
+        margin-top: 50px;
+        margin-right: 0;
     }
     
     .urgent-section {
@@ -940,7 +943,8 @@
         width: 380px;
         margin: 0 auto;
         padding: 25px 20px;
-        transform: translateX(0) translateY(50px);
+        margin-top: 50px;
+        margin-right: 0;
     }
     
     .ranking-item {
@@ -1044,6 +1048,7 @@
     .ranking-display {
         width: 320px;
         padding: 20px 15px;
+        margin-right: 0;
     }
     
     .ranking-item {

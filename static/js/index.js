@@ -345,7 +345,7 @@ class StatCounter {
     }
 }
 
-// 단순화된 애니메이션 관리자
+// 개선된 애니메이션 관리자
 class SimpleAnimations {
     constructor() {
         this.isDestroyed = false;
@@ -366,7 +366,7 @@ class SimpleAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        // 간단한 순차 애니메이션
+        // 개선된 순차 애니메이션
         this.startSequentialAnimations();
         this.setupScrollAnimations();
         
@@ -389,21 +389,42 @@ class SimpleAnimations {
         animationSequence.forEach(({ selector, delay }) => {
             const element = document.querySelector(selector);
             if (element) {
-                gsap.fromTo(element, {
-                    opacity: 0,
-                    y: 30,
-                    visibility: 'hidden'
-                }, {
-                    opacity: 1,
-                    y: 0,
-                    visibility: 'visible',
-                    duration: 0.8,
-                    delay: delay,
-                    ease: "power2.out",
-                    onComplete: () => {
-                        element.classList.add('animate-complete');
-                    }
-                });
+                // 순위 디스플레이에 대한 특별한 처리
+                if (selector === '.ranking-display') {
+                    gsap.fromTo(element, {
+                        opacity: 0,
+                        y: 30,
+                        visibility: 'hidden'
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        visibility: 'visible',
+                        duration: 0.8,
+                        delay: delay,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            element.classList.add('animate-complete');
+                            // transform을 완전히 정리
+                            gsap.set(element, { clearProps: 'all' });
+                        }
+                    });
+                } else {
+                    gsap.fromTo(element, {
+                        opacity: 0,
+                        y: 30,
+                        visibility: 'hidden'
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        visibility: 'visible',
+                        duration: 0.8,
+                        delay: delay,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            element.classList.add('animate-complete');
+                        }
+                    });
+                }
             }
         });
 
@@ -421,7 +442,11 @@ class SimpleAnimations {
                     scale: 1,
                     duration: 0.6,
                     stagger: 0.1,
-                    ease: "back.out(1.7)"
+                    ease: "back.out(1.7)",
+                    onComplete: () => {
+                        // 모든 카드 애니메이션 완료 후 transform 정리
+                        gsap.set(cards, { clearProps: 'transform' });
+                    }
                 });
             }
         }, 1400);
@@ -440,7 +465,11 @@ class SimpleAnimations {
                     scale: 1,
                     duration: 0.8,
                     stagger: 0.15,
-                    ease: "back.out(1.7)"
+                    ease: "back.out(1.7)",
+                    onComplete: () => {
+                        // 모든 스텝 애니메이션 완료 후 transform 정리
+                        gsap.set(steps, { clearProps: 'transform' });
+                    }
                 });
             }
         }, 2000);
@@ -489,6 +518,9 @@ class SimpleAnimations {
                         counter.start();
                     }
                 });
+                
+                // 애니메이션 완료 후 transform 정리
+                gsap.set(statsItems, { clearProps: 'transform' });
             }
         });
     }
@@ -554,7 +586,11 @@ class SimpleAnimations {
             .to(button, {
                 scale: 1,
                 duration: 0.3,
-                ease: 'elastic.out(1.5, 0.3)'
+                ease: 'elastic.out(1.5, 0.3)',
+                onComplete: () => {
+                    // 애니메이션 완료 후 transform 정리
+                    gsap.set(button, { clearProps: 'transform' });
+                }
             });
             
         const countElement = button.querySelector('span');
@@ -564,7 +600,10 @@ class SimpleAnimations {
                 {
                     scale: 1,
                     duration: 0.4,
-                    ease: 'back.out(1.4)'
+                    ease: 'back.out(1.4)',
+                    onComplete: () => {
+                        gsap.set(countElement, { clearProps: 'transform' });
+                    }
                 }
             );
         }
