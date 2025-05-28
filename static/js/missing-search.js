@@ -1068,16 +1068,19 @@ class SearchManager {
     }
 }
 
-// GSAP 애니메이션 관리자
+// ============ 개선된 애니메이션 관리자 - index.js 스타일 적용 ============
 class SearchAnimations {
     constructor() {
         this.isInitialized = false;
+        this.scrollTriggers = [];
+        this.isDestroyed = false;
         this.init();
     }
 
     init() {
         if (typeof gsap === 'undefined') {
-            console.warn('GSAP not loaded, skipping animations');
+            console.warn('GSAP not loaded, using fallback animations');
+            this.fallbackAnimations();
             return;
         }
 
@@ -1085,90 +1088,149 @@ class SearchAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        this.setupAnimations();
+        this.setupInitialAnimations();
         this.isInitialized = true;
     }
 
-    setupAnimations() {
-        // 헤더 애니메이션
-        gsap.timeline({ delay: 0.3 })
-            .from('.search-title h1', {
-                duration: 0.8,
-                y: 30,
-                opacity: 0,
-                ease: 'power2.out'
-            })
-            .from('.search-title p', {
-                duration: 0.6,
-                y: 20,
-                opacity: 0,
-                ease: 'power2.out'
-            }, '-=0.4')
-            .from('.search-controls', {
-                duration: 0.8,
-                y: 40,
-                opacity: 0,
-                ease: 'back.out(1.7)'
-            }, '-=0.3');
+    // ============ index.js 스타일의 부드러운 순차 애니메이션 ============
+    setupInitialAnimations() {
+        // 애니메이션할 요소들 순서대로 정의 (index.js 참고)
+        const animationSequence = [
+            { selector: '.search-title h1', delay: 0.1 },
+            { selector: '.search-title p', delay: 0.3 },
+            { selector: '.search-controls', delay: 0.5 },
+            { selector: '.search-results-info', delay: 0.7 }
+        ];
 
-        // 검색 결과 애니메이션
-        this.animateSearchResults();
+        animationSequence.forEach(({ selector, delay }) => {
+            const element = document.querySelector(selector);
+            if (element && !this.isDestroyed) {
+                gsap.fromTo(element, {
+                    opacity: 0,
+                    y: 30,
+                    visibility: 'hidden'
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    visibility: 'visible',
+                    duration: 0.8,
+                    delay: delay,
+                    ease: "power2.out", // index.js와 동일한 부드러운 easing
+                    onComplete: () => {
+                        if (element) {
+                            element.classList.add('animate-complete');
+                            gsap.set(element, { clearProps: 'transform,opacity' });
+                        }
+                    }
+                });
+            }
+        });
+
+        console.log('🎨 Smooth initial animations setup completed');
     }
 
+    // ============ 검색 결과 애니메이션 - 더 부드럽게 개선 ============
     animateSearchResults() {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized || this.isDestroyed) return;
 
-        const cards = document.querySelectorAll('.missing-card, .list-item');
+        const cards = document.querySelectorAll('.missing-card:not(.animated), .list-item:not(.animated)');
         if (cards.length === 0) return;
 
-        gsap.from(cards, {
-            duration: 0.6,
-            y: 30,
+        // index.js 스타일의 부드러운 애니메이션
+        gsap.fromTo(cards, {
             opacity: 0,
-            stagger: 0.1,
-            ease: 'power2.out'
+            y: 40,
+            scale: 0.95
+        }, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8, // 더 길고 부드럽게
+            stagger: 0.1, // 적절한 간격
+            ease: "back.out(1.4)", // 부드러운 back easing
+            onComplete: () => {
+                cards.forEach(card => {
+                    if (card) {
+                        card.classList.add('animated');
+                        gsap.set(card, { clearProps: 'transform,opacity' });
+                    }
+                });
+            }
         });
+
+        console.log('🎨 Search results animated with smooth easing');
     }
 
+    // ============ 필터 변경 애니메이션 - 자연스럽게 개선 ============
     animateFilterChange() {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized || this.isDestroyed) return;
 
         const container = document.querySelector('.missing-grid, .missing-list-view');
         if (!container) return;
 
+        // 기존 animated 클래스 제거
+        const existingCards = container.querySelectorAll('.animated');
+        existingCards.forEach(card => card.classList.remove('animated'));
+
+        // 부드러운 페이드 효과
         gsap.fromTo(container, 
-            { opacity: 0.3, y: 10 },
+            { opacity: 0.4, y: 15, scale: 0.98 },
             { 
                 opacity: 1, 
                 y: 0, 
-                duration: 0.4, 
-                ease: 'power2.out',
-                onComplete: () => this.animateSearchResults()
+                scale: 1,
+                duration: 0.5, 
+                ease: "power2.out",
+                onComplete: () => {
+                    // 약간의 지연 후 개별 카드 애니메이션
+                    setTimeout(() => {
+                        this.animateSearchResults();
+                    }, 100);
+                }
             }
         );
     }
 
+    // ============ UP 버튼 애니메이션 - 더 생동감 있게 개선 ============
     animateUpButton(button) {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized || this.isDestroyed) return;
 
-        gsap.timeline()
+        // index.js 스타일의 부드러운 버튼 애니메이션
+        const timeline = gsap.timeline();
+        
+        timeline
             .to(button, {
-                scale: 1.3,
-                rotation: 15,
+                scale: 1.15,
+                rotation: 8,
                 duration: 0.15,
                 ease: 'power2.out'
             })
             .to(button, {
                 scale: 1,
                 rotation: 0,
-                duration: 0.25,
-                ease: 'elastic.out(2, 0.3)'
+                duration: 0.4,
+                ease: 'elastic.out(1.2, 0.3)'
             });
 
-        // 파티클 효과
+        // 카운트 숫자 애니메이션
+        const countElement = button.querySelector('span');
+        if (countElement) {
+            gsap.fromTo(countElement, 
+                { scale: 1.3, color: '#22c55e' },
+                {
+                    scale: 1,
+                    color: 'inherit',
+                    duration: 0.5,
+                    ease: 'back.out(1.4)'
+                }
+            );
+        }
+
+        // 파티클 효과 (index.js에서 가져옴)
         this.createUpParticles(button);
     }
 
+    // ============ 파티클 효과 - index.js에서 가져옴 ============
     createUpParticles(button) {
         const rect = button.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -1180,7 +1242,7 @@ class SearchAnimations {
                 position: fixed;
                 width: 6px;
                 height: 6px;
-                background: #f97316;
+                background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
                 border-radius: 50%;
                 pointer-events: none;
                 z-index: 1000;
@@ -1209,20 +1271,72 @@ class SearchAnimations {
         }
     }
 
+    // ============ 뷰 전환 애니메이션 - 부드럽게 개선 ============
     animateViewToggle(viewMode) {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized || this.isDestroyed) return;
 
-        const container = document.querySelector('.missing-list');
+        const container = document.querySelector('.view-container');
+        if (!container) return;
+
+        // 부드러운 뷰 전환 애니메이션
         gsap.fromTo(container,
-            { opacity: 0, scale: 0.95 },
+            { opacity: 0, scale: 0.98, y: 10 },
             { 
                 opacity: 1, 
                 scale: 1, 
-                duration: 0.4, 
+                y: 0,
+                duration: 0.6, 
                 ease: 'power2.out',
-                onComplete: () => this.animateSearchResults()
+                onComplete: () => {
+                    setTimeout(() => {
+                        this.animateSearchResults();
+                    }, 100);
+                }
             }
         );
+
+        console.log(`🎨 View toggled to ${viewMode} with smooth animation`);
+    }
+
+    // ============ 폴백 애니메이션 (GSAP 없을 때) ============
+    fallbackAnimations() {
+        const elements = document.querySelectorAll(`
+            .search-title h1,
+            .search-title p,
+            .search-controls,
+            .search-results-info,
+            .missing-card,
+            .list-item
+        `);
+        
+        elements.forEach((element, index) => {
+            if (element && !this.isDestroyed) {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                    element.style.visibility = 'visible';
+                    element.style.transition = 'all 0.6s ease';
+                    element.classList.add('animate-complete');
+                }, index * 100);
+            }
+        });
+
+        console.log('🎨 Fallback animations applied');
+    }
+
+    // ============ 정리 함수 ============
+    destroy() {
+        this.isDestroyed = true;
+        
+        // ScrollTrigger 정리
+        this.scrollTriggers.forEach(trigger => {
+            if (trigger && trigger.kill) {
+                trigger.kill();
+            }
+        });
+        this.scrollTriggers = [];
+        
+        console.log('🧹 Search animations destroyed');
     }
 }
 
@@ -1271,13 +1385,13 @@ class FloatingButtons {
             gsap.to(mainBtn, {
                 rotation: 45,
                 duration: 0.3,
-                ease: 'power2.out'
+                ease: 'back.out(1.7)'
             });
             
             gsap.from(subBtns.children, {
                 scale: 0,
                 opacity: 0,
-                duration: 0.3,
+                duration: 0.4,
                 stagger: 0.1,
                 ease: 'back.out(1.7)'
             });
@@ -1375,7 +1489,7 @@ class MissingSearchPage {
         // 초기 활성 필터 업데이트
         this.filterPopupManager.updateActiveFilters();
         
-        console.log('Missing search page initialized successfully');
+        console.log('✅ Missing search page initialized with smooth animations');
     }
 
     // ============ 뷰 초기화 - 새로운 opacity/visibility 방식 ============
@@ -1516,7 +1630,12 @@ class MissingSearchPage {
                 gridView.classList.remove('view-hidden');
             }
             
-            // 4. React 컴포넌트 재렌더링 (약간의 지연 후)
+            // 4. 애니메이션 트리거 (부드러운 전환)
+            if (this.animations && !this.animations.isDestroyed) {
+                this.animations.animateViewToggle(targetViewMode);
+            }
+            
+            // 5. React 컴포넌트 재렌더링 (약간의 지연 후)
             await this.delayedReactRender();
             
             console.log(`✅ Successfully switched to ${targetViewMode} view`);
@@ -1529,9 +1648,6 @@ class MissingSearchPage {
         }
     }
 
-    // CSS 스타일 동기적 적용 - 제거 (더 이상 필요 없음)
-    // applyViewStyles 메서드 삭제
-
     // 지연된 React 재렌더링
     async delayedReactRender() {
         return new Promise((resolve) => {
@@ -1541,12 +1657,9 @@ class MissingSearchPage {
                     this.renderResults(this.currentPageData);
                 }
                 resolve();
-            }, 100); // 100ms로 약간 늘려서 CSS 전환 완료 대기
+            }, 150); // 애니메이션과 조화롭게
         });
     }
-
-    // 최종 검증 및 수정 - 제거 (더 이상 필요 없음)
-    // validateAndFixView 메서드 삭제
 
     // 뷰 버튼 상태 업데이트
     updateViewButtons(activeViewMode) {
@@ -1584,6 +1697,11 @@ class MissingSearchPage {
         if (this.filterPopupManager) {
             this.filterPopupManager.updateActiveFilters();
         }
+
+        // 애니메이션 트리거
+        if (this.animations && !this.animations.isDestroyed) {
+            this.animations.animateFilterChange();
+        }
     }
 
     handlePaginationChange(paginationInfo) {
@@ -1615,10 +1733,12 @@ class MissingSearchPage {
             this.renderWithVanilla(data);
         }
 
-        // 애니메이션 트리거
+        // 애니메이션 트리거 (약간의 지연 후)
         setTimeout(() => {
-            this.animations.animateSearchResults();
-        }, 100);
+            if (this.animations && !this.animations.isDestroyed) {
+                this.animations.animateSearchResults();
+            }
+        }, 200);
     }
 
     renderWithReact(data, gridContainer, listContainer) {
@@ -1626,7 +1746,7 @@ class MissingSearchPage {
             console.log(`UP clicked for card ${cardId}`);
             
             const button = document.querySelector(`[data-id="${cardId}"] .up-btn`);
-            if (button) {
+            if (button && this.animations && !this.animations.isDestroyed) {
                 this.animations.animateUpButton(button);
             }
             
@@ -1709,7 +1829,9 @@ class MissingSearchPage {
         this.paginationManager.currentPage = 1;
         
         // 애니메이션
-        this.animations.animateFilterChange();
+        if (this.animations && !this.animations.isDestroyed) {
+            this.animations.animateFilterChange();
+        }
         
         // 활성 필터 업데이트
         if (this.filterPopupManager) {
@@ -1743,10 +1865,18 @@ class MissingSearchPage {
         });
         this.reactRoots.clear();
         
+        // 애니메이션 정리
+        if (this.animations) {
+            this.animations.destroy();
+            this.animations = null;
+        }
+        
         // 타이머 정리
         if (this.searchDebouncer) {
             this.searchDebouncer.cancel();
         }
+        
+        console.log('🧹 Missing search page destroyed');
     }
 }
 
@@ -1801,53 +1931,37 @@ if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         instance: missingSearchPage,
         sampleData: sampleMissingData,
+        animations: missingSearchPage.animations,
         
-        testListView: async () => {
-            console.log('🧪 Testing list view...');
-            await missingSearchPage.switchToView('list');
-            
-            setTimeout(() => {
-                const listView = document.getElementById('missingList');
-                const gridView = document.getElementById('missingGrid');
-                
-                console.log('📊 View state after list activation:');
-                console.log('List view:', {
-                    hasActiveClass: listView.classList.contains('view-active'),
-                    opacity: window.getComputedStyle(listView).opacity,
-                    visibility: window.getComputedStyle(listView).visibility,
-                    zIndex: window.getComputedStyle(listView).zIndex
-                });
-                console.log('Grid view:', {
-                    hasHiddenClass: gridView.classList.contains('view-hidden'),
-                    opacity: window.getComputedStyle(gridView).opacity,
-                    visibility: window.getComputedStyle(gridView).visibility,
-                    zIndex: window.getComputedStyle(gridView).zIndex
-                });
-            }, 500);
+        testSmoothAnimations: () => {
+            console.log('🧪 Testing smooth animations...');
+            if (missingSearchPage.animations && !missingSearchPage.animations.isDestroyed) {
+                missingSearchPage.animations.animateSearchResults();
+            }
         },
         
-        testGridView: async () => {
-            console.log('🧪 Testing grid view...');
-            await missingSearchPage.switchToView('grid');
+        testUpAnimation: () => {
+            console.log('🧪 Testing UP button animation...');
+            const button = document.querySelector('.up-btn');
+            if (button && missingSearchPage.animations) {
+                missingSearchPage.animations.animateUpButton(button);
+            }
+        },
+        
+        testFilterAnimation: () => {
+            console.log('🧪 Testing filter change animation...');
+            if (missingSearchPage.animations) {
+                missingSearchPage.animations.animateFilterChange();
+            }
+        },
+        
+        testViewToggle: async () => {
+            console.log('🧪 Testing view toggle animation...');
+            await missingSearchPage.switchToView('list');
             
-            setTimeout(() => {
-                const listView = document.getElementById('missingList');
-                const gridView = document.getElementById('missingGrid');
-                
-                console.log('📊 View state after grid activation:');
-                console.log('Grid view:', {
-                    hasHiddenClass: gridView.classList.contains('view-hidden'),
-                    opacity: window.getComputedStyle(gridView).opacity,
-                    visibility: window.getComputedStyle(gridView).visibility,
-                    zIndex: window.getComputedStyle(gridView).zIndex
-                });
-                console.log('List view:', {
-                    hasActiveClass: listView.classList.contains('view-active'),
-                    opacity: window.getComputedStyle(listView).opacity,
-                    visibility: window.getComputedStyle(listView).visibility,
-                    zIndex: window.getComputedStyle(listView).zIndex
-                });
-            }, 500);
+            setTimeout(async () => {
+                await missingSearchPage.switchToView('grid');
+            }, 2000);
         },
         
         checkViewState: () => {
@@ -1870,74 +1984,36 @@ if (typeof window !== 'undefined') {
             });
         },
         
-        forceListView: () => {
-            console.log('🔧 Force activating list view...');
-            const listView = document.getElementById('missingList');
-            const gridView = document.getElementById('missingGrid');
+        testAllAnimations: async () => {
+            console.log('🚀 Running full animation test...');
             
-            // CSS 클래스로 강제 전환
-            listView.classList.add('view-active');
-            gridView.classList.add('view-hidden');
-            
-            // 뷰 모드 및 버튼 상태 업데이트
-            missingSearchPage.viewMode = 'list';
-            missingSearchPage.updateViewButtons('list');
-            
-            console.log('✅ List view force activated!');
-            
-            setTimeout(() => {
-                window.missingSearchDebug.checkViewState();
-            }, 100);
-        },
-        
-        runFullTest: async () => {
-            console.log('🚀 Running full view test sequence...');
-            
-            console.log('1. 초기 상태 확인...');
-            window.missingSearchDebug.checkViewState();
+            console.log('1. 기본 애니메이션 테스트...');
+            window.missingSearchDebug.testSmoothAnimations();
             
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('2. 리스트 뷰 테스트...');
-            await window.missingSearchDebug.testListView();
+            console.log('2. UP 버튼 애니메이션 테스트...');
+            window.missingSearchDebug.testUpAnimation();
             
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('3. 그리드 뷰 테스트...');
-            await window.missingSearchDebug.testGridView();
+            console.log('3. 필터 변경 애니메이션 테스트...');
+            window.missingSearchDebug.testFilterAnimation();
             
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('4. 다시 리스트 뷰 테스트...');
-            await window.missingSearchDebug.testListView();
+            console.log('4. 뷰 토글 애니메이션 테스트...');
+            await window.missingSearchDebug.testViewToggle();
             
-            console.log('✅ Full test completed!');
-        },
-        
-        // CSS 애니메이션 테스트
-        testTransitions: () => {
-            console.log('🎭 Testing CSS transitions...');
-            const listView = document.getElementById('missingList');
-            const gridView = document.getElementById('missingGrid');
-            
-            // 수동으로 클래스 토글해서 전환 효과 확인
-            console.log('Toggling to list view...');
-            listView.classList.add('view-active');
-            gridView.classList.add('view-hidden');
-            
-            setTimeout(() => {
-                console.log('Toggling back to grid view...');
-                listView.classList.remove('view-active');
-                gridView.classList.remove('view-hidden');
-            }, 2000);
+            console.log('✅ All animation tests completed!');
         }
     };
     
-    console.log('🛠️ Debug tools loaded! (New opacity/visibility system)');
+    console.log('🛠️ Debug tools loaded! (Smooth animations edition)');
     console.log('Quick tests:');
-    console.log('- window.missingSearchDebug.testListView() : 리스트 뷰 테스트');
-    console.log('- window.missingSearchDebug.forceListView() : 리스트 뷰 강제 활성화');
-    console.log('- window.missingSearchDebug.checkViewState() : 현재 뷰 상태 확인');
-    console.log('- window.missingSearchDebug.runFullTest() : 전체 테스트 실행');
-    console.log('- window.missingSearchDebug.testTransitions() : CSS 전환 효과 테스트');
+    console.log('- window.missingSearchDebug.testSmoothAnimations() : 부드러운 애니메이션 테스트');
+    console.log('- window.missingSearchDebug.testUpAnimation() : UP 버튼 애니메이션 테스트');
+    console.log('- window.missingSearchDebug.testFilterAnimation() : 필터 변경 애니메이션 테스트');
+    console.log('- window.missingSearchDebug.testAllAnimations() : 모든 애니메이션 테스트');
+    console.log('- window.missingSearchDebug.checkViewState() : 뷰 상태 확인');
 }
