@@ -2,6 +2,40 @@
 
 /* ===== 실종자 검색 페이지 전용 스타일 ===== */
 
+/* ============ 초기 애니메이션 준비 상태 - index.css와 동일한 방식 ============ */
+.search-title,
+.search-controls,
+.search-results-info,
+.missing-grid,
+.missing-list-view,
+.pagination {
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(30px);
+    visibility: hidden;
+}
+
+/* JavaScript 비활성화 시 모든 요소 강제 표시 - index.css와 동일 */
+.no-js .search-title,
+.no-js .search-controls,
+.no-js .search-results-info,
+.no-js .missing-grid,
+.no-js .missing-list-view,
+.no-js .missing-card,
+.no-js .list-item,
+.no-js .pagination {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+/* 애니메이션 완료 후 상태 - index.css와 동일 */
+.animate-complete {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
 /* CSS 변수 정의 (PDF 설계 문서와 일치) */
 :root {
     --primary-orange: #f97316;
@@ -742,6 +776,11 @@ body.modal-open {
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     position: relative;
+    /* 강제 표시 보장 - index.css 방식 */
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 .missing-card:hover {
@@ -921,6 +960,11 @@ body.modal-open {
     align-items: center;
     width: 100%;
     box-sizing: border-box;
+    /* 강제 표시 보장 - index.css 방식 */
+    display: grid !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 .list-item:hover {

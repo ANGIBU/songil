@@ -1099,10 +1099,12 @@ class SearchAnimations {
     startSequentialAnimations() {
         // 애니메이션할 요소들 순서대로 정의 (index.js와 동일한 방식)
         const animationSequence = [
-            { selector: '.search-title h1', delay: 0.1 },
-            { selector: '.search-title p', delay: 0.3 },
-            { selector: '.search-controls', delay: 0.5 },
-            { selector: '.search-results-info', delay: 0.7 }
+            { selector: '.search-title', delay: 0.1 },
+            { selector: '.search-controls', delay: 0.3 },
+            { selector: '.search-results-info', delay: 0.5 },
+            { selector: '.missing-grid', delay: 0.7 },
+            { selector: '.missing-list-view', delay: 0.7 },
+            { selector: '.pagination', delay: 0.9 }
         ];
 
         animationSequence.forEach(({ selector, delay }) => {
@@ -1313,12 +1315,14 @@ class SearchAnimations {
     // ============ 폴백 애니메이션 (GSAP 없을 때) - Index.js 스타일 ============
     fallbackAnimations() {
         const elements = document.querySelectorAll(`
-            .search-title h1,
-            .search-title p,
+            .search-title,
             .search-controls,
             .search-results-info,
+            .missing-grid,
+            .missing-list-view,
             .missing-card,
-            .list-item
+            .list-item,
+            .pagination
         `);
         
         elements.forEach((element, index) => {
@@ -1447,64 +1451,57 @@ class SearchDebouncer {
     }
 }
 
-// ============ 메인 검색 페이지 클래스 - 목록 버그 완전 해결 ============
+// ============ 메인 검색 페이지 클래스 - Index.js와 동일한 방식으로 완전 개선 ============
 class MissingSearchPage {
     constructor() {
         this.searchManager = new SearchManager();
         this.paginationManager = new PaginationManager(6);
         this.filterPopupManager = null;
-        this.animations = new SearchAnimations();
+        this.animations = null;
         this.floatingButtons = null;
         this.searchDebouncer = null;
         this.viewMode = 'grid';
         this.currentPageData = [];
         this.reactRoots = new Map(); // React 루트 관리
         this.isViewChanging = false; // 뷰 변경 중 플래그 추가
+        this.isDestroyed = false;
         this.init();
     }
 
     init() {
+        if (this.isDestroyed) return;
+        
+        // JavaScript 비활성화 감지 제거 - Index.js와 동일
+        document.documentElement.classList.remove('no-js');
+        
+        // DOM 준비 상태 확인 - Index.js와 동일한 방식
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setup());
+            document.addEventListener('DOMContentLoaded', () => this.handleDOMReady());
         } else {
-            this.setup();
+            this.handleDOMReady();
         }
     }
 
-    setup() {
-        // 뷰 초기화 (가장 먼저 실행)
+    handleDOMReady() {
+        if (this.isDestroyed) return;
+        
+        console.log('🚀 Starting missing search page initialization...');
+        
+        // 뷰 초기화 (가장 먼저 실행) - Index.js 방식
         this.initializeViews();
         
-        // 필터 팝업 초기화
-        this.filterPopupManager = new FilterPopupManager(this.searchManager);
+        // 즉시 React 컴포넌트 렌더링 - Index.js와 동일
+        this.renderComponents();
         
-        // 검색 관리자 콜백 등록
-        this.searchManager.addCallback((data) => this.handleDataChange(data));
-        
-        // 페이지네이션 콜백 등록
-        this.paginationManager.addCallback((paginationInfo) => this.handlePaginationChange(paginationInfo));
-        
-        // 검색 디바운서 설정
-        this.searchDebouncer = new SearchDebouncer((value) => {
-            this.searchManager.updateFilter('searchTerm', value);
-        });
-        
-        // 이벤트 리스너 설정
-        this.setupEventListeners();
-        
-        // 플로팅 버튼 초기화
-        this.floatingButtons = new FloatingButtons();
-        
-        // 초기 렌더링
-        this.handleDataChange(this.searchManager.filteredData);
-        
-        // 초기 활성 필터 업데이트
-        this.filterPopupManager.updateActiveFilters();
-        
-        console.log('✅ Missing search page initialized with smooth animations');
+        // 약간의 지연 후 애니메이션과 이벤트 리스너 시작 - Index.js와 동일
+        setTimeout(() => {
+            this.initializeAnimations();
+            this.setupManagers();
+            this.setupEventListeners();
+        }, 100);
     }
 
-    // ============ 뷰 초기화 - 새로운 opacity/visibility 방식 ============
+    // ============ 뷰 초기화 - Index.js와 동일한 안정성 보장 ============
     initializeViews() {
         const gridView = document.getElementById('missingGrid');
         const listView = document.getElementById('missingList');
@@ -1535,7 +1532,54 @@ class MissingSearchPage {
         }
     }
 
+    renderComponents() {
+        if (this.isDestroyed) return;
+        
+        try {
+            // 초기 데이터 렌더링 - Index.js와 동일한 방식
+            this.handleDataChange(this.searchManager.filteredData);
+            console.log('✅ React components rendered');
+        } catch (error) {
+            console.error('❌ React rendering failed:', error);
+        }
+    }
+
+    initializeAnimations() {
+        if (this.isDestroyed) return;
+        
+        try {
+            // Index.js와 동일한 애니메이션 관리자 사용
+            this.animations = new SearchAnimations();
+            console.log('✅ Animations initialized with Index.js style');
+        } catch (error) {
+            console.error('❌ Animation initialization failed:', error);
+        }
+    }
+
+    setupManagers() {
+        if (this.isDestroyed) return;
+        
+        // 필터 팝업 초기화
+        this.filterPopupManager = new FilterPopupManager(this.searchManager);
+        
+        // 검색 관리자 콜백 등록
+        this.searchManager.addCallback((data) => this.handleDataChange(data));
+        
+        // 페이지네이션 콜백 등록
+        this.paginationManager.addCallback((paginationInfo) => this.handlePaginationChange(paginationInfo));
+        
+        // 검색 디바운서 설정
+        this.searchDebouncer = new SearchDebouncer((value) => {
+            this.searchManager.updateFilter('searchTerm', value);
+        });
+        
+        // 플로팅 버튼 초기화
+        this.floatingButtons = new FloatingButtons();
+    }
+
     setupEventListeners() {
+        if (this.isDestroyed) return;
+        
         // 검색 입력
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
@@ -1552,7 +1596,7 @@ class MissingSearchPage {
             });
         }
 
-        // ============ 뷰 토글 - 완전히 재작성된 안정적인 로직 ============
+        // ============ 뷰 토글 - Index.js 스타일로 완전히 재작성된 안정적인 로직 ============
         document.addEventListener('click', (e) => {
             if (e.target.closest('.view-btn')) {
                 const btn = e.target.closest('.view-btn');
@@ -1597,7 +1641,7 @@ class MissingSearchPage {
             nextBtn.addEventListener('click', () => this.paginationManager.nextPage());
         }
 
-        // 리사이즈 핸들러
+        // 리사이즈 핸들러 - Index.js와 동일한 방식
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
@@ -1607,10 +1651,10 @@ class MissingSearchPage {
         });
     }
 
-    // ============ 뷰 전환 - 단순하고 안정적인 CSS 클래스 기반 로직 ============
+    // ============ 뷰 전환 - Index.js 스타일로 단순하고 안정적인 CSS 클래스 기반 로직 ============
     async switchToView(targetViewMode) {
         // 중복 실행 방지
-        if (this.isViewChanging) return;
+        if (this.isViewChanging || this.isDestroyed) return;
         this.isViewChanging = true;
         
         console.log(`🔄 Switching to ${targetViewMode} view...`);
@@ -1642,7 +1686,7 @@ class MissingSearchPage {
                 gridView.classList.remove('view-hidden');
             }
             
-            // 4. 애니메이션 트리거 (부드러운 전환)
+            // 4. 애니메이션 트리거 (Index.js 스타일)
             if (this.animations && !this.animations.isDestroyed) {
                 this.animations.animateViewToggle(targetViewMode);
             }
@@ -1660,7 +1704,7 @@ class MissingSearchPage {
         }
     }
 
-    // 지연된 React 재렌더링
+    // 지연된 React 재렌더링 - Index.js와 동일한 방식
     async delayedReactRender() {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -1690,6 +1734,8 @@ class MissingSearchPage {
     }
 
     handleDataChange(data) {
+        if (this.isDestroyed) return;
+        
         // 페이지네이션 업데이트
         this.paginationManager.setTotalItems(data.length);
         
@@ -1717,6 +1763,8 @@ class MissingSearchPage {
     }
 
     handlePaginationChange(paginationInfo) {
+        if (this.isDestroyed) return;
+        
         const { startIndex, endIndex } = paginationInfo;
         this.currentPageData = this.searchManager.filteredData.slice(startIndex, endIndex);
         this.renderResults(this.currentPageData);
@@ -1732,11 +1780,11 @@ class MissingSearchPage {
     }
 
     renderResults(data) {
+        if (this.isDestroyed || data.length === 0) return;
+
         const gridContainer = document.getElementById('missingGrid');
         const listContainer = document.getElementById('missingList');
         
-        if (data.length === 0) return;
-
         // React 렌더링
         if (typeof React !== 'undefined' && gridContainer) {
             this.renderWithReact(data, gridContainer, listContainer);
@@ -1755,6 +1803,8 @@ class MissingSearchPage {
 
     renderWithReact(data, gridContainer, listContainer) {
         const handleUpClick = (cardId) => {
+            if (this.isDestroyed) return;
+            
             console.log(`UP clicked for card ${cardId}`);
             
             const button = document.querySelector(`[data-id="${cardId}"] .up-btn`);
@@ -1830,6 +1880,8 @@ class MissingSearchPage {
     }
 
     resetFilters() {
+        if (this.isDestroyed) return;
+        
         // 폼 리셋
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.value = '';
@@ -1857,6 +1909,8 @@ class MissingSearchPage {
     }
 
     handleResize() {
+        if (this.isDestroyed) return;
+        
         // 반응형 조정
         if (window.innerWidth <= 768) {
             document.body.classList.add('mobile');
@@ -1865,8 +1919,10 @@ class MissingSearchPage {
         }
     }
 
-    // 정리 함수
+    // 정리 함수 - Index.js와 동일한 방식
     destroy() {
+        this.isDestroyed = true;
+        
         // React 루트 정리
         this.reactRoots.forEach(root => {
             try {
@@ -1892,20 +1948,25 @@ class MissingSearchPage {
     }
 }
 
-// 페이지 로드 시 자동 초기화
-const missingSearchPage = new MissingSearchPage();
+// 페이지 로드 시 자동 초기화 - Index.js와 동일한 방식
+let missingSearchPage = null;
 
-// 페이지 언로드 시 정리
+// 즉시 초기화 - Index.js와 동일
+document.documentElement.classList.add('no-js'); // JavaScript 비활성화 대비
+missingSearchPage = new MissingSearchPage();
+
+// 페이지 언로드 시 정리 - Index.js와 동일
 window.addEventListener('beforeunload', () => {
     if (missingSearchPage) {
         missingSearchPage.destroy();
+        missingSearchPage = null;
     }
 });
 
 // 전역 함수 (하위 호환성을 위해)
 window.performSearch = function() {
     const searchInput = document.getElementById('searchInput');
-    if (searchInput && missingSearchPage.searchManager) {
+    if (searchInput && missingSearchPage && missingSearchPage.searchManager) {
         missingSearchPage.searchManager.updateFilter('searchTerm', searchInput.value.trim());
     }
 };
@@ -1929,7 +1990,7 @@ window.handleUpClick = function(button, missingId) {
         countSpan.textContent = currentCount + 1;
     }
     
-    if (missingSearchPage.animations) {
+    if (missingSearchPage && missingSearchPage.animations) {
         missingSearchPage.animations.animateUpButton(button);
     }
     
@@ -1941,13 +2002,13 @@ window.handleUpClick = function(button, missingId) {
 // ============ 개발자 도구 - Index.js 스타일 애니메이션 테스트용 ============
 if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
-        instance: missingSearchPage,
+        get instance() { return missingSearchPage; },
         sampleData: sampleMissingData,
-        animations: missingSearchPage.animations,
+        get animations() { return missingSearchPage ? missingSearchPage.animations : null; },
         
         testSmoothAnimations: () => {
             console.log('🧪 Testing smooth animations...');
-            if (missingSearchPage.animations && !missingSearchPage.animations.isDestroyed) {
+            if (missingSearchPage && missingSearchPage.animations && !missingSearchPage.animations.isDestroyed) {
                 missingSearchPage.animations.animateSearchResults();
             }
         },
@@ -1955,25 +2016,27 @@ if (typeof window !== 'undefined') {
         testUpAnimation: () => {
             console.log('🧪 Testing UP button animation...');
             const button = document.querySelector('.up-btn');
-            if (button && missingSearchPage.animations) {
+            if (button && missingSearchPage && missingSearchPage.animations) {
                 missingSearchPage.animations.animateUpButton(button);
             }
         },
         
         testFilterAnimation: () => {
             console.log('🧪 Testing filter change animation...');
-            if (missingSearchPage.animations) {
+            if (missingSearchPage && missingSearchPage.animations) {
                 missingSearchPage.animations.animateFilterChange();
             }
         },
         
         testViewToggle: async () => {
             console.log('🧪 Testing view toggle animation...');
-            await missingSearchPage.switchToView('list');
-            
-            setTimeout(async () => {
-                await missingSearchPage.switchToView('grid');
-            }, 2000);
+            if (missingSearchPage) {
+                await missingSearchPage.switchToView('list');
+                
+                setTimeout(async () => {
+                    await missingSearchPage.switchToView('grid');
+                }, 2000);
+            }
         },
         
         checkViewState: () => {
@@ -1981,19 +2044,37 @@ if (typeof window !== 'undefined') {
             const listView = document.getElementById('missingList');
             
             console.log('=== 현재 뷰 상태 검사 ===');
-            console.log('Current view mode:', missingSearchPage.viewMode);
-            console.log('Grid view classes:', gridView.classList.toString());
-            console.log('List view classes:', listView.classList.toString());
-            console.log('Grid computed styles:', {
-                opacity: window.getComputedStyle(gridView).opacity,
-                visibility: window.getComputedStyle(gridView).visibility,
-                zIndex: window.getComputedStyle(gridView).zIndex
-            });
-            console.log('List computed styles:', {
-                opacity: window.getComputedStyle(listView).opacity,
-                visibility: window.getComputedStyle(listView).visibility,
-                zIndex: window.getComputedStyle(listView).zIndex
-            });
+            console.log('Current view mode:', missingSearchPage ? missingSearchPage.viewMode : 'N/A');
+            console.log('Grid view classes:', gridView ? gridView.classList.toString() : 'N/A');
+            console.log('List view classes:', listView ? listView.classList.toString() : 'N/A');
+            if (gridView) {
+                console.log('Grid computed styles:', {
+                    opacity: window.getComputedStyle(gridView).opacity,
+                    visibility: window.getComputedStyle(gridView).visibility,
+                    zIndex: window.getComputedStyle(gridView).zIndex
+                });
+            }
+            if (listView) {
+                console.log('List computed styles:', {
+                    opacity: window.getComputedStyle(listView).opacity,
+                    visibility: window.getComputedStyle(listView).visibility,
+                    zIndex: window.getComputedStyle(listView).zIndex
+                });
+            }
+        },
+        
+        destroyInstance: () => {
+            if (missingSearchPage) {
+                missingSearchPage.destroy();
+                missingSearchPage = null;
+            }
+        },
+        
+        reinitialize: () => {
+            if (missingSearchPage) {
+                missingSearchPage.destroy();
+            }
+            missingSearchPage = new MissingSearchPage();
         },
         
         testAllAnimations: async () => {
