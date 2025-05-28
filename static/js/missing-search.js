@@ -1068,7 +1068,7 @@ class SearchManager {
     }
 }
 
-// ============ 개선된 애니메이션 관리자 - index.js 스타일 적용 ============
+// ============ 개선된 애니메이션 관리자 - Index.js 스타일 적용 ============
 class SearchAnimations {
     constructor() {
         this.isInitialized = false;
@@ -1088,13 +1088,16 @@ class SearchAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        this.setupInitialAnimations();
+        // Index.js 스타일의 부드러운 순차 애니메이션 적용
+        this.startSequentialAnimations();
         this.isInitialized = true;
+        
+        console.log('✨ Smooth sequential animations started for search page');
     }
 
-    // ============ index.js 스타일의 부드러운 순차 애니메이션 ============
-    setupInitialAnimations() {
-        // 애니메이션할 요소들 순서대로 정의 (index.js 참고)
+    // ============ Index.js 스타일의 순차 애니메이션 ============
+    startSequentialAnimations() {
+        // 애니메이션할 요소들 순서대로 정의 (index.js와 동일한 방식)
         const animationSequence = [
             { selector: '.search-title h1', delay: 0.1 },
             { selector: '.search-title p', delay: 0.3 },
@@ -1119,6 +1122,7 @@ class SearchAnimations {
                     onComplete: () => {
                         if (element) {
                             element.classList.add('animate-complete');
+                            // Index.js처럼 transform 정리
                             gsap.set(element, { clearProps: 'transform,opacity' });
                         }
                     }
@@ -1129,14 +1133,14 @@ class SearchAnimations {
         console.log('🎨 Smooth initial animations setup completed');
     }
 
-    // ============ 검색 결과 애니메이션 - 더 부드럽게 개선 ============
+    // ============ 검색 결과 애니메이션 - Index.js 스타일로 개선 ============
     animateSearchResults() {
         if (!this.isInitialized || this.isDestroyed) return;
 
         const cards = document.querySelectorAll('.missing-card:not(.animated), .list-item:not(.animated)');
         if (cards.length === 0) return;
 
-        // index.js 스타일의 부드러운 애니메이션
+        // Index.js 스타일의 부드러운 애니메이션
         gsap.fromTo(cards, {
             opacity: 0,
             y: 40,
@@ -1147,11 +1151,12 @@ class SearchAnimations {
             scale: 1,
             duration: 0.8, // 더 길고 부드럽게
             stagger: 0.1, // 적절한 간격
-            ease: "back.out(1.4)", // 부드러운 back easing
+            ease: "back.out(1.4)", // Index.js와 같은 부드러운 back easing
             onComplete: () => {
                 cards.forEach(card => {
                     if (card) {
                         card.classList.add('animated');
+                        // Index.js처럼 transform 정리
                         gsap.set(card, { clearProps: 'transform,opacity' });
                     }
                 });
@@ -1161,7 +1166,7 @@ class SearchAnimations {
         console.log('🎨 Search results animated with smooth easing');
     }
 
-    // ============ 필터 변경 애니메이션 - 자연스럽게 개선 ============
+    // ============ 필터 변경 애니메이션 - Index.js 스타일로 자연스럽게 개선 ============
     animateFilterChange() {
         if (!this.isInitialized || this.isDestroyed) return;
 
@@ -1172,30 +1177,30 @@ class SearchAnimations {
         const existingCards = container.querySelectorAll('.animated');
         existingCards.forEach(card => card.classList.remove('animated'));
 
-        // 부드러운 페이드 효과
+        // Index.js 스타일의 부드러운 페이드 효과
         gsap.fromTo(container, 
-            { opacity: 0.4, y: 15, scale: 0.98 },
+            { opacity: 0.4, y: 20, scale: 0.97 },
             { 
                 opacity: 1, 
                 y: 0, 
                 scale: 1,
-                duration: 0.5, 
-                ease: "power2.out",
+                duration: 0.6, // 조금 더 길게
+                ease: "power2.out", // 부드러운 easing
                 onComplete: () => {
                     // 약간의 지연 후 개별 카드 애니메이션
                     setTimeout(() => {
                         this.animateSearchResults();
-                    }, 100);
+                    }, 150);
                 }
             }
         );
     }
 
-    // ============ UP 버튼 애니메이션 - 더 생동감 있게 개선 ============
+    // ============ UP 버튼 애니메이션 - Index.js 스타일로 더 생동감 있게 ============
     animateUpButton(button) {
         if (!this.isInitialized || this.isDestroyed) return;
 
-        // index.js 스타일의 부드러운 버튼 애니메이션
+        // Index.js 스타일의 부드러운 버튼 애니메이션
         const timeline = gsap.timeline();
         
         timeline
@@ -1209,10 +1214,14 @@ class SearchAnimations {
                 scale: 1,
                 rotation: 0,
                 duration: 0.4,
-                ease: 'elastic.out(1.2, 0.3)'
+                ease: 'elastic.out(1.2, 0.3)', // 부드러운 elastic easing
+                onComplete: () => {
+                    // Index.js처럼 transform 정리
+                    gsap.set(button, { clearProps: 'transform' });
+                }
             });
 
-        // 카운트 숫자 애니메이션
+        // 카운트 숫자 애니메이션 (Index.js 스타일)
         const countElement = button.querySelector('span');
         if (countElement) {
             gsap.fromTo(countElement, 
@@ -1221,16 +1230,19 @@ class SearchAnimations {
                     scale: 1,
                     color: 'inherit',
                     duration: 0.5,
-                    ease: 'back.out(1.4)'
+                    ease: 'back.out(1.4)', // 부드러운 back easing
+                    onComplete: () => {
+                        gsap.set(countElement, { clearProps: 'transform' });
+                    }
                 }
             );
         }
 
-        // 파티클 효과 (index.js에서 가져옴)
+        // Index.js에서 가져온 파티클 효과
         this.createUpParticles(button);
     }
 
-    // ============ 파티클 효과 - index.js에서 가져옴 ============
+    // ============ 파티클 효과 - Index.js에서 가져옴 ============
     createUpParticles(button) {
         const rect = button.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -1271,21 +1283,21 @@ class SearchAnimations {
         }
     }
 
-    // ============ 뷰 전환 애니메이션 - 부드럽게 개선 ============
+    // ============ 뷰 전환 애니메이션 - Index.js 스타일로 부드럽게 ============
     animateViewToggle(viewMode) {
         if (!this.isInitialized || this.isDestroyed) return;
 
         const container = document.querySelector('.view-container');
         if (!container) return;
 
-        // 부드러운 뷰 전환 애니메이션
+        // Index.js 스타일의 부드러운 뷰 전환 애니메이션
         gsap.fromTo(container,
-            { opacity: 0, scale: 0.98, y: 10 },
+            { opacity: 0, scale: 0.96, y: 15 },
             { 
                 opacity: 1, 
                 scale: 1, 
                 y: 0,
-                duration: 0.6, 
+                duration: 0.7, // 더 부드럽게
                 ease: 'power2.out',
                 onComplete: () => {
                     setTimeout(() => {
@@ -1298,7 +1310,7 @@ class SearchAnimations {
         console.log(`🎨 View toggled to ${viewMode} with smooth animation`);
     }
 
-    // ============ 폴백 애니메이션 (GSAP 없을 때) ============
+    // ============ 폴백 애니메이션 (GSAP 없을 때) - Index.js 스타일 ============
     fallbackAnimations() {
         const elements = document.querySelectorAll(`
             .search-title h1,
@@ -1315,13 +1327,13 @@ class SearchAnimations {
                     element.style.opacity = '1';
                     element.style.transform = 'translateY(0)';
                     element.style.visibility = 'visible';
-                    element.style.transition = 'all 0.6s ease';
+                    element.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; // 부드러운 cubic-bezier
                     element.classList.add('animate-complete');
-                }, index * 100);
+                }, index * 150); // 조금 더 빠른 간격
             }
         });
 
-        console.log('🎨 Fallback animations applied');
+        console.log('🎨 Fallback animations applied with smooth transitions');
     }
 
     // ============ 정리 함수 ============
@@ -1657,7 +1669,7 @@ class MissingSearchPage {
                     this.renderResults(this.currentPageData);
                 }
                 resolve();
-            }, 150); // 애니메이션과 조화롭게
+            }, 200); // 애니메이션과 조화롭게
         });
     }
 
@@ -1698,7 +1710,7 @@ class MissingSearchPage {
             this.filterPopupManager.updateActiveFilters();
         }
 
-        // 애니메이션 트리거
+        // 애니메이션 트리거 (Index.js 스타일)
         if (this.animations && !this.animations.isDestroyed) {
             this.animations.animateFilterChange();
         }
@@ -1733,12 +1745,12 @@ class MissingSearchPage {
             this.renderWithVanilla(data);
         }
 
-        // 애니메이션 트리거 (약간의 지연 후)
+        // 애니메이션 트리거 (약간의 지연 후) - Index.js 스타일
         setTimeout(() => {
             if (this.animations && !this.animations.isDestroyed) {
                 this.animations.animateSearchResults();
             }
-        }, 200);
+        }, 250);
     }
 
     renderWithReact(data, gridContainer, listContainer) {
@@ -1828,7 +1840,7 @@ class MissingSearchPage {
         // 페이지네이션 리셋
         this.paginationManager.currentPage = 1;
         
-        // 애니메이션
+        // 애니메이션 (Index.js 스타일)
         if (this.animations && !this.animations.isDestroyed) {
             this.animations.animateFilterChange();
         }
@@ -1926,7 +1938,7 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// ============ 개발자 도구 - 새로운 CSS 구조 테스트용 ============
+// ============ 개발자 도구 - Index.js 스타일 애니메이션 테스트용 ============
 if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         instance: missingSearchPage,
@@ -1985,35 +1997,35 @@ if (typeof window !== 'undefined') {
         },
         
         testAllAnimations: async () => {
-            console.log('🚀 Running full animation test...');
+            console.log('🚀 Running full animation test (Index.js style)...');
             
-            console.log('1. 기본 애니메이션 테스트...');
+            console.log('1. 부드러운 기본 애니메이션 테스트...');
             window.missingSearchDebug.testSmoothAnimations();
             
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('2. UP 버튼 애니메이션 테스트...');
+            console.log('2. 향상된 UP 버튼 애니메이션 테스트...');
             window.missingSearchDebug.testUpAnimation();
             
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('3. 필터 변경 애니메이션 테스트...');
+            console.log('3. 부드러운 필터 변경 애니메이션 테스트...');
             window.missingSearchDebug.testFilterAnimation();
             
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('4. 뷰 토글 애니메이션 테스트...');
+            console.log('4. 자연스러운 뷰 토글 애니메이션 테스트...');
             await window.missingSearchDebug.testViewToggle();
             
-            console.log('✅ All animation tests completed!');
+            console.log('✅ All animations tested with Index.js style smoothness!');
         }
     };
     
-    console.log('🛠️ Debug tools loaded! (Smooth animations edition)');
+    console.log('🛠️ Debug tools loaded! (Index.js style smooth animations)');
     console.log('Quick tests:');
     console.log('- window.missingSearchDebug.testSmoothAnimations() : 부드러운 애니메이션 테스트');
-    console.log('- window.missingSearchDebug.testUpAnimation() : UP 버튼 애니메이션 테스트');
-    console.log('- window.missingSearchDebug.testFilterAnimation() : 필터 변경 애니메이션 테스트');
-    console.log('- window.missingSearchDebug.testAllAnimations() : 모든 애니메이션 테스트');
+    console.log('- window.missingSearchDebug.testUpAnimation() : 향상된 UP 버튼 애니메이션');
+    console.log('- window.missingSearchDebug.testFilterAnimation() : 자연스러운 필터 변경 애니메이션');
+    console.log('- window.missingSearchDebug.testAllAnimations() : 모든 애니메이션 테스트 (Index.js 스타일)');
     console.log('- window.missingSearchDebug.checkViewState() : 뷰 상태 확인');
 }
