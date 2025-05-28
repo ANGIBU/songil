@@ -1,5 +1,5 @@
 {# templates/base.html #}
-<!-- 페이지 로드 최적화 및 자연스러운 상단 이동 -->
+<!-- 깔끔한 페이지 로드 및 자연스러운 상단 이동 -->
 <!DOCTYPE html>
 <html lang="ko" class="no-js">
 
@@ -29,7 +29,7 @@
         document.documentElement.classList.add('js-enabled');
     </script>
 
-    <!-- 페이지 로드 최적화 스크립트 -->
+    <!-- 페이지 스크롤 최적화 -->
     <script>
         // 페이지 로드 시 자연스럽게 상단으로 이동
         (function() {
@@ -45,6 +45,9 @@
                     behavior: 'instant'
                 });
             }
+            
+            // 즉시 상단으로
+            scrollToTop();
             
             // 페이지 언로드 시 상단으로
             window.addEventListener('beforeunload', scrollToTop);
@@ -65,9 +68,6 @@
             window.addEventListener('popstate', function() {
                 setTimeout(scrollToTop, 0);
             });
-            
-            // 페이지 진입 시 즉시 상단으로
-            scrollToTop();
         })();
     </script>
 

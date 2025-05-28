@@ -2,7 +2,7 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 초기 애니메이션 준비 상태 */
+/* 초기 애니메이션 준비 상태 - 모든 요소 숨김 */
 .hero-title,
 .hero-description,
 .hero-buttons,
@@ -15,21 +15,13 @@
 .stats-grid,
 .stat-item,
 .section-header {
-    /* 초기 상태 - 애니메이션 대기 */
+    /* GSAP 애니메이션을 위한 초기 상태 */
     opacity: 0;
     transform: translateY(30px);
     visibility: hidden;
-    transition: none; /* GSAP가 제어하므로 CSS 전환 제거 */
 }
 
-/* 애니메이션 완료 상태 */
-.animated {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
-}
-
-/* JavaScript 비활성화 시 모든 요소 표시 보장 */
+/* JavaScript 비활성화 시 모든 요소 강제 표시 */
 .no-js .hero-title,
 .no-js .hero-description,
 .no-js .hero-buttons,
@@ -45,10 +37,16 @@
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
-    transition: none !important;
 }
 
-/* 히어로 섹션 - 헤더와의 여백 대폭 축소 */
+/* 애니메이션 완료 후 상태 */
+.animate-complete {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+/* 히어로 섹션 */
 .hero-section {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 40px 0 60px;
@@ -179,9 +177,9 @@
     gap: 10px;
 }
 
-/* 순위 아이템 */
+/* 순위 아이템 - 안정적인 표시 보장 */
 .ranking-item {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
@@ -193,6 +191,10 @@
     overflow: hidden;
     min-height: 45px;
     height: 45px;
+    /* 강제 표시 보장 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 .ranking-item:hover {
@@ -358,7 +360,7 @@
     margin: 0 auto;
 }
 
-/* 긴급 실종자 카드 컨테이너 */
+/* 긴급 실종자 카드 컨테이너 - 안정적인 표시 보장 */
 .urgent-cards-container {
     width: 100%;
     max-width: 1200px;
@@ -369,28 +371,32 @@
 }
 
 .urgent-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, minmax(300px, auto));
-    gap: 25px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(2, minmax(300px, auto)) !important;
+    gap: 25px !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    /* 강제 표시 보장 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 .urgent-cards > * {
-    display: block;
-    position: relative;
-    transition: all 0.3s ease;
+    display: block !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
 }
 
 .urgent-cards .missing-card:nth-child(n+9) {
-    display: none;
+    display: none !important;
 }
 
-/* 실종자 카드 */
+/* 실종자 카드 - 안정적인 표시 보장 */
 .missing-card {
-    background: white;
+    background: white !important;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
@@ -398,9 +404,12 @@
     transition: all 0.3s ease;
     position: relative;
     height: 300px;
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
+    /* 강제 표시 보장 */
+    display: block !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 .missing-card:hover {
@@ -865,9 +874,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, minmax(280px, auto));
-        gap: 20px;
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(3, minmax(280px, auto)) !important;
+        gap: 20px !important;
     }
     
     .intro-section {
@@ -939,9 +948,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(4, minmax(270px, auto));
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(4, minmax(270px, auto)) !important;
+        gap: 15px !important;
     }
     
     .missing-card {
@@ -1008,9 +1017,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(8, minmax(250px, auto));
-        gap: 12px;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(8, minmax(250px, auto)) !important;
+        gap: 12px !important;
     }
     
     .missing-card {

@@ -3,7 +3,7 @@
 // React 컴포넌트 활용
 const { useState, useEffect, useCallback, useMemo } = React;
 
-// 실종자 검색 페이지의 데이터를 가져와서 긴급 실종자용으로 활용
+// 실종자 데이터
 const allMissingData = [
     {
         id: 1,
@@ -128,12 +128,8 @@ const rankingData = [
     { rank: 5, name: "정협력", points: 1543, region: "광주시", reports: 29, witnesses: 14 }
 ];
 
-// 정확히 8개의 긴급 실종자 데이터 선택
-function getUrgentMissingData() {
-    return allMissingData.slice(0, 8);
-}
-
-const urgentMissingData = getUrgentMissingData();
+// 정확히 8개의 긴급 실종자 데이터
+const urgentMissingData = allMissingData.slice(0, 8);
 
 // 순위 React 컴포넌트
 const RankingDisplay = React.memo(function RankingDisplay({ rankings }) {
@@ -238,12 +234,7 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
 
     return React.createElement('div', {
         className: `missing-card urgent ${isAnimating ? 'animating' : ''}`,
-        'data-id': data.id,
-        style: {
-            display: 'block',
-            width: '100%',
-            height: '300px'
-        }
+        'data-id': data.id
     }, [
         React.createElement('div', { className: 'card-image', key: 'image' }, [
             React.createElement('img', {
@@ -354,14 +345,11 @@ class StatCounter {
     }
 }
 
-// GSAP 애니메이션 관리자 - 완전히 개선됨
-class IndexAnimations {
+// 단순화된 애니메이션 관리자
+class SimpleAnimations {
     constructor() {
-        this.isInitialized = false;
-        this.timeline = null;
-        this.scrollTriggers = [];
         this.isDestroyed = false;
-        this.animationQueue = [];
+        this.scrollTriggers = [];
         this.init();
     }
 
@@ -378,143 +366,84 @@ class IndexAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        this.cleanup();
-        this.setupAnimations();
-        this.isInitialized = true;
+        // 간단한 순차 애니메이션
+        this.startSequentialAnimations();
+        this.setupScrollAnimations();
         
-        console.log('✨ Index animations initialized with GSAP');
+        console.log('✨ Simple sequential animations started');
     }
 
-    cleanup() {
-        if (this.timeline) {
-            this.timeline.kill();
-            this.timeline = null;
-        }
-        
-        this.scrollTriggers.forEach(trigger => {
-            if (trigger) trigger.kill();
-        });
-        this.scrollTriggers = [];
-    }
+    startSequentialAnimations() {
+        // 애니메이션할 요소들 순서대로 정의
+        const animationSequence = [
+            { selector: '.hero-title', delay: 0.1 },
+            { selector: '.hero-description', delay: 0.3 },
+            { selector: '.hero-buttons', delay: 0.5 },
+            { selector: '.ranking-display', delay: 0.7 },
+            { selector: '.section-header', delay: 1.0 },
+            { selector: '.urgent-cards', delay: 1.2 },
+            { selector: '.intro-text h2', delay: 1.6 },
+            { selector: '.intro-steps', delay: 1.8 }
+        ];
 
-    setupAnimations() {
-        // 메인 타임라인 생성
-        this.timeline = gsap.timeline({
-            onComplete: () => {
-                console.log('🎬 All entrance animations completed');
-                this.removeLoadingScreen();
+        animationSequence.forEach(({ selector, delay }) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                gsap.fromTo(element, {
+                    opacity: 0,
+                    y: 30,
+                    visibility: 'hidden'
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    visibility: 'visible',
+                    duration: 0.8,
+                    delay: delay,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        element.classList.add('animate-complete');
+                    }
+                });
             }
         });
 
-        // 순차적 애니메이션 설정
-        this.animateHeroSection();
-        this.animateUrgentSection();
-        this.animateIntroSection();
-        this.setupScrollAnimations();
-    }
-
-    animateHeroSection() {
-        const heroElements = [
-            '.hero-title',
-            '.hero-description', 
-            '.hero-buttons',
-            '.ranking-display'
-        ];
-
-        heroElements.forEach((selector, index) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                this.timeline.fromTo(element, {
+        // 개별 카드들 애니메이션
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.missing-card');
+            if (cards.length > 0) {
+                gsap.fromTo(cards, {
                     opacity: 0,
-                    y: 50,
+                    y: 30,
+                    scale: 0.95
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.6,
+                    stagger: 0.1,
+                    ease: "back.out(1.7)"
+                });
+            }
+        }, 1400);
+
+        // 소개 스텝들 애니메이션
+        setTimeout(() => {
+            const steps = document.querySelectorAll('.step');
+            if (steps.length > 0) {
+                gsap.fromTo(steps, {
+                    opacity: 0,
+                    y: 40,
                     scale: 0.95
                 }, {
                     opacity: 1,
                     y: 0,
                     scale: 1,
                     duration: 0.8,
-                    ease: "power2.out"
-                }, index * 0.2);
+                    stagger: 0.15,
+                    ease: "back.out(1.7)"
+                });
             }
-        });
-
-        // 랭킹 아이템들 개별 애니메이션
-        const rankingItems = document.querySelectorAll('.ranking-item');
-        if (rankingItems.length > 0) {
-            this.timeline.fromTo(rankingItems, {
-                opacity: 0,
-                x: 30
-            }, {
-                opacity: 1,
-                x: 0,
-                duration: 0.6,
-                stagger: 0.1,
-                ease: "power2.out"
-            }, 0.6);
-        }
-    }
-
-    animateUrgentSection() {
-        const sectionHeader = document.querySelector('.urgent-section .section-header');
-        if (sectionHeader) {
-            this.timeline.fromTo(sectionHeader, {
-                opacity: 0,
-                y: 30
-            }, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "power2.out"
-            }, 1.2);
-        }
-
-        // 긴급 카드들 애니메이션
-        const urgentCards = document.querySelectorAll('.missing-card');
-        if (urgentCards.length > 0) {
-            this.timeline.fromTo(urgentCards, {
-                opacity: 0,
-                y: 40,
-                scale: 0.9
-            }, {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: "back.out(1.7)"
-            }, 1.5);
-        }
-    }
-
-    animateIntroSection() {
-        const introTitle = document.querySelector('.intro-text h2');
-        if (introTitle) {
-            this.timeline.fromTo(introTitle, {
-                opacity: 0,
-                y: 30
-            }, {
-                opacity: 1,
-                y: 0,
-                duration: 0.8,
-                ease: "power2.out"
-            }, 2.2);
-        }
-
-        const steps = document.querySelectorAll('.step');
-        if (steps.length > 0) {
-            this.timeline.fromTo(steps, {
-                opacity: 0,
-                y: 50,
-                scale: 0.9
-            }, {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                duration: 0.8,
-                stagger: 0.15,
-                ease: "back.out(1.7)"
-            }, 2.5);
-        }
+        }, 2000);
     }
 
     setupScrollAnimations() {
@@ -585,27 +514,8 @@ class IndexAnimations {
         }
     }
 
-    removeLoadingScreen() {
-        const loadingScreen = document.getElementById('pageLoading');
-        if (loadingScreen) {
-            gsap.to(loadingScreen, {
-                opacity: 0,
-                duration: 0.5,
-                ease: "power2.out",
-                onComplete: () => {
-                    loadingScreen.classList.add('fade-out');
-                    setTimeout(() => {
-                        if (loadingScreen.parentNode) {
-                            loadingScreen.parentNode.removeChild(loadingScreen);
-                        }
-                    }, 100);
-                }
-            });
-        }
-    }
-
     fallbackAnimations() {
-        // GSAP 없을 때 기본 CSS 애니메이션으로 대체
+        // GSAP 없을 때 CSS 애니메이션 대체
         const elements = document.querySelectorAll(`
             .hero-title,
             .hero-description,
@@ -624,17 +534,14 @@ class IndexAnimations {
                     element.style.transform = 'translateY(0)';
                     element.style.visibility = 'visible';
                     element.style.transition = 'all 0.6s ease';
-                    element.classList.add('animated');
-                }, index * 100);
+                    element.classList.add('animate-complete');
+                }, index * 200);
             }
         });
-
-        // 로딩 화면 제거
-        setTimeout(() => this.removeLoadingScreen(), 1000);
     }
 
     animateUpButton(button) {
-        if (!this.isInitialized || this.isDestroyed || typeof gsap === 'undefined') return;
+        if (this.isDestroyed || typeof gsap === 'undefined') return;
         
         const timeline = gsap.timeline();
         
@@ -665,8 +572,10 @@ class IndexAnimations {
 
     destroy() {
         this.isDestroyed = true;
-        this.cleanup();
-        this.isInitialized = false;
+        this.scrollTriggers.forEach(trigger => {
+            if (trigger) trigger.kill();
+        });
+        this.scrollTriggers = [];
     }
 }
 
@@ -677,7 +586,6 @@ class IndexPage {
         this.isDestroyed = false;
         this.eventCleanup = null;
         this.resizeTimeout = null;
-        this.initTimeout = null;
         this.init();
     }
 
@@ -698,60 +606,35 @@ class IndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        // 안전한 초기화를 위한 지연
-        this.initTimeout = setTimeout(() => {
-            this.initializeComponents();
+        console.log('🚀 Starting index page initialization...');
+        
+        // 즉시 React 컴포넌트 렌더링
+        this.renderComponents();
+        
+        // 약간의 지연 후 애니메이션 시작
+        setTimeout(() => {
+            this.initializeAnimations();
+            this.setupEventListeners();
         }, 100);
     }
 
-    async initializeComponents() {
-        if (this.isDestroyed) return;
-        
+    renderComponents() {
         try {
-            console.log('🚀 Starting index page initialization...');
-            
-            // 1. React 컴포넌트 렌더링
-            await this.renderComponents();
-            
-            // 2. 애니메이션 시스템 초기화
-            await this.initializeAnimations();
-            
-            // 3. 이벤트 리스너 설정
-            this.setupEventListeners();
-            
-            console.log('✅ Index page initialized successfully');
-            
+            this.renderRankings();
+            this.renderUrgentCards();
+            console.log('✅ React components rendered');
         } catch (error) {
-            console.error('❌ Component initialization error:', error);
-            // 에러 시 로딩 화면 제거
-            this.removeLoadingScreen();
+            console.error('❌ React rendering failed:', error);
         }
     }
 
-    async renderComponents() {
-        return new Promise((resolve) => {
-            try {
-                this.renderRankings();
-                this.renderUrgentCards();
-                setTimeout(resolve, 100);
-            } catch (error) {
-                console.error('React rendering failed:', error);
-                resolve();
-            }
-        });
-    }
-
-    async initializeAnimations() {
-        return new Promise((resolve) => {
-            try {
-                this.animations = new IndexAnimations();
-                setTimeout(resolve, 200);
-            } catch (error) {
-                console.error('Animation initialization failed:', error);
-                this.removeLoadingScreen();
-                resolve();
-            }
-        });
+    initializeAnimations() {
+        try {
+            this.animations = new SimpleAnimations();
+            console.log('✅ Animations initialized');
+        } catch (error) {
+            console.error('❌ Animation initialization failed:', error);
+        }
     }
 
     renderRankings() {
@@ -806,8 +689,9 @@ class IndexPage {
                     )
                 )
             );
+            console.log('✅ Urgent cards rendered');
         } catch (error) {
-            console.error('React rendering failed:', error);
+            console.error('❌ React rendering failed:', error);
         }
     }
 
@@ -859,25 +743,8 @@ class IndexPage {
         };
     }
 
-    removeLoadingScreen() {
-        const loadingScreen = document.getElementById('pageLoading');
-        if (loadingScreen) {
-            loadingScreen.classList.add('fade-out');
-            setTimeout(() => {
-                if (loadingScreen.parentNode) {
-                    loadingScreen.parentNode.removeChild(loadingScreen);
-                }
-            }, 500);
-        }
-    }
-
     destroy() {
         this.isDestroyed = true;
-        
-        if (this.initTimeout) {
-            clearTimeout(this.initTimeout);
-            this.initTimeout = null;
-        }
         
         if (this.animations) {
             this.animations.destroy();

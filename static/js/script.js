@@ -63,21 +63,6 @@ function initializeApp() {
 
 // ===== 페이지 로딩 최적화 처리 =====
 function handlePageLoadOptimization() {
-    // 페이지 로딩 상태 관리
-    const loadingScreen = document.getElementById('pageLoading');
-    
-    if (loadingScreen && window.APP.currentPage !== 'home') {
-        // 홈페이지가 아닌 경우 즉시 로딩 화면 제거
-        setTimeout(() => {
-            loadingScreen.classList.add('fade-out');
-            setTimeout(() => {
-                if (loadingScreen.parentNode) {
-                    loadingScreen.parentNode.removeChild(loadingScreen);
-                }
-            }, 500);
-        }, 100);
-    }
-    
     // 페이지 스크롤 위치 최적화
     optimizePageScroll();
 }
@@ -809,20 +794,20 @@ function markNotificationsAsRead() {
     }
 }
 
-// ===== 로딩 인디케이터 - 개선된 버전 =====
-function showLoading(target = 'body', message = '로딩 중...') {
+// ===== 로딩 인디케이터 - 단순화됨 (필요시에만 사용) =====
+function showLoading(target = 'body', message = '처리 중...') {
     const targetEl = typeof target === 'string' ? document.querySelector(target) : target;
     
     if (!targetEl) return null;
     
     // 기존 로딩 제거
-    const existingLoader = targetEl.querySelector('.loading-overlay');
+    const existingLoader = targetEl.querySelector('.simple-loading');
     if (existingLoader) {
         existingLoader.remove();
     }
     
     const loader = document.createElement('div');
-    loader.className = 'loading-overlay';
+    loader.className = 'simple-loading';
     loader.setAttribute('role', 'status');
     loader.setAttribute('aria-live', 'polite');
     loader.innerHTML = `
