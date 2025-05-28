@@ -292,16 +292,26 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
     ]);
 });
 
-// 통계 카운터 애니메이션 클래스
+// 통계 카운터 애니메이션 클래스 - 개선된 버전
 class StatCounter {
     constructor(element, target, duration = 2000) {
         this.element = element;
+        
+        // 원본 텍스트에서 %가 있는지 확인
+        const originalText = element.textContent || target.toString();
+        this.hasPercent = originalText.includes('%');
+        
+        // 숫자만 추출
         this.target = parseInt(target.toString().replace(/[,%]/g, ''));
         this.duration = duration;
-        this.hasPercent = target.toString().includes('%');
         this.current = 0;
         this.isAnimating = false;
         this.animationId = null;
+        
+        // 시작 시 0으로 설정
+        if (this.element) {
+            this.element.textContent = '0' + (this.hasPercent ? '%' : '');
+        }
     }
 
     start() {
@@ -330,6 +340,12 @@ class StatCounter {
             } else {
                 this.isAnimating = false;
                 this.animationId = null;
+                
+                // 애니메이션 완료 후 최종 값 확실히 설정
+                if (this.element) {
+                    this.element.textContent = this.target.toLocaleString() + 
+                        (this.hasPercent ? '%' : '');
+                }
             }
         };
         
@@ -481,10 +497,10 @@ class SimpleAnimations {
             return;
         }
 
-        // 통계 섹션 애니메이션
+        // 통계 섹션 애니메이션 - 매우 빠른 반응
         const statsTrigger = ScrollTrigger.create({
             trigger: '.stats-section',
-            start: 'top 80%',
+            start: 'top 95%', // 거의 보이자마자 트리거
             end: 'bottom 20%',
             onEnter: () => {
                 this.animateStatsSection();
@@ -497,38 +513,59 @@ class SimpleAnimations {
     animateStatsSection() {
         const statsItems = document.querySelectorAll('.stat-item');
         
-        gsap.fromTo(statsItems, {
+        if (statsItems.length === 0) return;
+        
+        // 각 아이템을 초기 상태로 설정
+        gsap.set(statsItems, {
             opacity: 0,
-            y: 50,
-            scale: 0.9
-        }, {
+            y: -50, // 위에서 내려오는 효과
+            scale: 0.8
+        });
+        
+        // 왼쪽부터 순차적으로 애니메이션
+        gsap.to(statsItems, {
             opacity: 1,
             y: 0,
             scale: 1,
             duration: 0.8,
-            stagger: 0.2,
-            ease: "back.out(1.7)",
+            stagger: {
+                amount: 1.2, // 전체 1.2초에 걸쳐 순차 실행
+                from: "start", // 왼쪽부터 시작
+                ease: "power2.out"
+            },
+            ease: "back.out(1.4)",
+            onStart: () => {
+                // 애니메이션 시작과 동시에 모든 카운터 시작
+                this.startAllCounters();
+            },
             onComplete: () => {
-                // 통계 카운터 시작
-                const statNumbers = document.querySelectorAll('.stat-number');
-                statNumbers.forEach(number => {
-                    if (!number.dataset.animated) {
-                        number.dataset.animated = 'true';
-                        const counter = new StatCounter(number, number.dataset.count);
-                        counter.start();
-                    }
-                });
-                
                 // 애니메이션 완료 후 transform 정리
                 gsap.set(statsItems, { clearProps: 'transform' });
+            }
+        });
+    }
+    
+    startAllCounters() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
+        statNumbers.forEach((number, index) => {
+            if (!number.dataset.animated) {
+                number.dataset.animated = 'true';
+                
+                // 각 카운터마다 약간의 지연 추가 (순차적 효과)
+                setTimeout(() => {
+                    const targetValue = number.dataset.count || number.textContent;
+                    const counter = new StatCounter(number, targetValue, 1800); // 조금 더 빠른 카운팅
+                    counter.start();
+                }, index * 300); // 0.3초씩 지연
             }
         });
     }
 
     setupIntersectionObserver() {
         const observerOptions = {
-            threshold: 0.2,
-            rootMargin: '0px 0px -100px 0px'
+            threshold: 0.05, // 매우 빠른 반응
+            rootMargin: '0px 0px -20px 0px' // 매우 빠른 반응
         };
 
         const observer = new IntersectionObserver((entries) => {
