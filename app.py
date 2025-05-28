@@ -265,4 +265,13 @@ def handle_exception(error):
 # ==================== 개발 설정 ====================
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Docker 환경 체크
+    is_docker = os.getenv('IS_DOCKER', 'false').lower() == 'true'
+    port = 5004
+    
+    if is_docker:
+        # Docker 환경에서는 모든 인터페이스에서 접근 가능하도록 설정
+        app.run(debug=False, host='0.0.0.0', port=port)
+    else:
+        # 로컬 개발 환경
+        app.run(debug=True, host='0.0.0.0', port=port)
