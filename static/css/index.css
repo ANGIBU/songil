@@ -2,23 +2,37 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 초기 애니메이션 준비 상태 - 모든 요소 숨김 */
+/* 초기 애니메이션 준비 상태 - 주요 요소만 숨김 */
 .hero-title,
 .hero-description,
 .hero-buttons,
 .ranking-display,
-.ranking-item,
 .urgent-cards,
-.missing-card,
-.intro-steps,
-.step,
-.stats-grid,
-.stat-item,
 .section-header {
     /* GSAP 애니메이션을 위한 초기 상태 */
     opacity: 0;
     transform: translateY(30px);
     visibility: hidden;
+}
+
+/* 통계와 단계는 기본 표시 후 애니메이션 */
+.intro-steps,
+.step,
+.stats-grid,
+.stat-item,
+.intro-text h2 {
+    /* 기본적으로 표시되지만 애니메이션 대기 */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
+    transition: all 0.6s ease;
+}
+
+/* 강제 표시 보장 */
+.stats-section .container,
+.intro-section .container {
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* JavaScript 비활성화 시 모든 요소 강제 표시 */
@@ -33,7 +47,8 @@
 .no-js .step,
 .no-js .stats-grid,
 .no-js .stat-item,
-.no-js .section-header {
+.no-js .section-header,
+.no-js .intro-text h2 {
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
