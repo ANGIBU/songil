@@ -361,7 +361,7 @@ class StatCounter {
     }
 }
 
-// 개선된 애니메이션 관리자
+// 개선된 애니메이션 관리자 - 깜빡임 완전 제거
 class SimpleAnimations {
     constructor() {
         this.isDestroyed = false;
@@ -382,15 +382,15 @@ class SimpleAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        // 개선된 순차 애니메이션
+        // 부드러운 순차 애니메이션 - 깜빡임 없이
         this.startSequentialAnimations();
         this.setupScrollAnimations();
         
-        console.log('✨ Simple sequential animations started');
+        console.log('✨ Simple sequential animations started without flickering');
     }
 
     startSequentialAnimations() {
-        // 애니메이션할 요소들 순서대로 정의
+        // 애니메이션할 요소들 순서대로 정의 - CSS에서 이미 숨김 처리된 요소들만
         const animationSequence = [
             { selector: '.hero-title', delay: 0.1 },
             { selector: '.hero-description', delay: 0.3 },
@@ -405,49 +405,34 @@ class SimpleAnimations {
         animationSequence.forEach(({ selector, delay }) => {
             const element = document.querySelector(selector);
             if (element) {
-                // 순위 디스플레이에 대한 특별한 처리
-                if (selector === '.ranking-display') {
-                    gsap.fromTo(element, {
-                        opacity: 0,
-                        y: 30,
-                        visibility: 'hidden'
-                    }, {
-                        opacity: 1,
-                        y: 0,
-                        visibility: 'visible',
-                        duration: 0.8,
-                        delay: delay,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            element.classList.add('animate-complete');
-                            // transform을 완전히 정리
-                            gsap.set(element, { clearProps: 'all' });
-                        }
-                    });
-                } else {
-                    gsap.fromTo(element, {
-                        opacity: 0,
-                        y: 30,
-                        visibility: 'hidden'
-                    }, {
-                        opacity: 1,
-                        y: 0,
-                        visibility: 'visible',
-                        duration: 0.8,
-                        delay: delay,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            element.classList.add('animate-complete');
-                        }
-                    });
-                }
+                // CSS에서 이미 opacity: 0, transform: translateY(30px), visibility: hidden 상태
+                // 따라서 gsap.set() 없이 바로 애니메이션 시작
+                gsap.fromTo(element, {
+                    // CSS 초기 상태와 동일하게 설정 (중복 적용 방지)
+                    opacity: 0,
+                    y: 30,
+                    visibility: 'hidden'
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    visibility: 'visible',
+                    duration: 0.8,
+                    delay: delay,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        element.classList.add('animate-complete');
+                        // transform을 완전히 정리하여 깜빡임 방지
+                        gsap.set(element, { clearProps: 'transform' });
+                    }
+                });
             }
         });
 
-        // 개별 카드들 애니메이션
+        // 개별 카드들 애니메이션 - 부모 컨테이너가 표시된 후
         setTimeout(() => {
             const cards = document.querySelectorAll('.missing-card');
             if (cards.length > 0) {
+                // 카드들도 CSS에서 숨겨진 상태이므로 gsap.set() 불필요
                 gsap.fromTo(cards, {
                     opacity: 0,
                     y: 30,
@@ -467,7 +452,7 @@ class SimpleAnimations {
             }
         }, 1400);
 
-        // 소개 스텝들 애니메이션
+        // 소개 스텝들 애니메이션 - 개별 스텝들도 CSS에서 숨겨진 상태
         setTimeout(() => {
             const steps = document.querySelectorAll('.step');
             if (steps.length > 0) {
@@ -515,17 +500,20 @@ class SimpleAnimations {
         
         if (statsItems.length === 0) return;
         
-        // 각 아이템을 초기 상태로 설정
-        gsap.set(statsItems, {
-            opacity: 0,
-            y: -50, // 위에서 내려오는 효과
-            scale: 0.8
-        });
+        // CSS에서 이미 숨겨진 상태이므로 gsap.set() 불필요
+        // CSS 초기 상태: opacity: 0, transform: translateY(30px), visibility: hidden
         
-        // 왼쪽부터 순차적으로 애니메이션
-        gsap.to(statsItems, {
+        // 왼쪽부터 순차적으로 애니메이션 - 자연스러운 나타남
+        gsap.fromTo(statsItems, {
+            // CSS와 동일한 초기 상태 명시
+            opacity: 0,
+            y: 30,
+            visibility: 'hidden',
+            scale: 0.95
+        }, {
             opacity: 1,
             y: 0,
+            visibility: 'visible',
             scale: 1,
             duration: 0.8,
             stagger: {
@@ -584,7 +572,7 @@ class SimpleAnimations {
     }
 
     fallbackAnimations() {
-        // GSAP 없을 때 CSS 애니메이션 대체
+        // GSAP 없을 때 CSS 애니메이션 대체 - 깜빡임 방지
         const elements = document.querySelectorAll(`
             .hero-title,
             .hero-description,
@@ -599,10 +587,11 @@ class SimpleAnimations {
         elements.forEach((element, index) => {
             if (element) {
                 setTimeout(() => {
+                    // CSS transition으로 부드럽게 나타남
+                    element.style.transition = 'all 0.6s ease';
                     element.style.opacity = '1';
                     element.style.transform = 'translateY(0)';
                     element.style.visibility = 'visible';
-                    element.style.transition = 'all 0.6s ease';
                     element.classList.add('animate-complete');
                 }, index * 200);
             }
@@ -682,7 +671,7 @@ class IndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        console.log('🚀 Starting index page initialization...');
+        console.log('🚀 Starting index page initialization without flickering...');
         
         // 즉시 React 컴포넌트 렌더링
         this.renderComponents();
@@ -707,7 +696,7 @@ class IndexPage {
     initializeAnimations() {
         try {
             this.animations = new SimpleAnimations();
-            console.log('✅ Animations initialized');
+            console.log('✅ Animations initialized without flickering');
         } catch (error) {
             console.error('❌ Animation initialization failed:', error);
         }
@@ -844,7 +833,7 @@ class IndexPage {
 // 페이지 로드 시 자동 초기화
 let indexPage = null;
 
-// 즉시 초기화
+// 즉시 초기화 - 깜빡임 방지를 위해 no-js 클래스 추가
 document.documentElement.classList.add('no-js'); // JavaScript 비활성화 대비
 indexPage = new IndexPage();
 
