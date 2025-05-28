@@ -998,7 +998,7 @@ class SearchManager {
         if (!filterRegion) return true;
         
         // 세부 지역 필터인 경우 (예: seoul-강남구)
-        if (filterRegion.includes('-)) {
+        if (filterRegion.includes('-')) {
             const [regionCode, district] = filterRegion.split('-');
             // 아이템의 지역이 해당 지역 코드와 매치되는지 확인
             // 실제로는 더 정교한 매칭 로직이 필요할 수 있음
