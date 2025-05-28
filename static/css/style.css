@@ -89,25 +89,7 @@
     --transition-fast: all 0.15s ease;
 }
 
-/* 기본 상태 - 모든 요소는 기본적으로 표시됨 */
-.hero-title,
-.hero-description,
-.hero-buttons,
-.ranking-display,
-.ranking-item,
-.missing-card,
-.stat-item,
-.step,
-.section-header,
-.intro-text h2,
-.urgent-cards {
-    /* 기본적으로는 모두 표시 */
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-}
-
-/* JavaScript 비활성화 시 모든 요소 표시 보장 */
+/* JavaScript 비활성화 시 기본 표시 */
 .no-js .hero-title,
 .no-js .hero-description,
 .no-js .hero-buttons,
@@ -122,12 +104,13 @@
     visibility: visible !important;
     transform: translateY(0) !important;
     transition: none !important;
-    will-change: auto !important;
 }
 
-/* 애니메이션 최적화를 위한 기본 설정 */
+/* 페이지 로딩 최적화 */
 html {
     scroll-behavior: smooth;
+    /* 스크롤 성능 향상 */
+    -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -136,22 +119,61 @@ body {
     line-height: 1.6;
     color: var(--gray-800);
     background-color: var(--white);
-    /* 깜빡임 방지 */
+    /* 폰트 렌더링 최적화 */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* 애니메이션 최적화 */
+    /* 하드웨어 가속 */
     transform: translateZ(0);
     backface-visibility: hidden;
+    /* 스크롤 최적화 */
+    overflow-x: hidden;
 }
 
-/* GSAP 애니메이션 중인 요소들 */
-.animating {
-    will-change: transform, opacity;
+/* 페이지 로딩 상태 */
+.page-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease;
 }
 
-/* 애니메이션 완료 후 최적화 */
-.animated {
-    will-change: auto;
+.page-loading.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+    color: var(--gray-700);
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid var(--primary-orange);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--gray-600);
 }
 
 .container {
@@ -235,7 +257,7 @@ body {
     font-size: var(--font-size-base);
 }
 
-/* 헤더 - 애니메이션 제거됨 */
+/* 헤더 - 최적화됨 */
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--gray-200);
@@ -527,20 +549,16 @@ body {
 
 /* 긴급 카드 컨테이너 - 레이아웃 안정화 */
 .urgent-cards {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    grid-template-rows: repeat(2, minmax(300px, auto)) !important;
-    gap: var(--spacing-6) !important;
-    margin-bottom: var(--spacing-12) !important;
-    position: relative !important;
-    z-index: 1 !important;
-    /* 강제 스타일 유지 */
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, minmax(300px, auto));
+    gap: var(--spacing-6);
+    margin-bottom: var(--spacing-12);
+    position: relative;
+    z-index: 1;
 }
 
-/* 실종자 카드 - 안정성 대폭 강화 */
+/* 실종자 카드 - 안정성 강화 */
 .missing-card {
     background-color: var(--white);
     border-radius: var(--radius-xl);
@@ -550,11 +568,8 @@ body {
     border: 1px solid var(--gray-200);
     position: relative;
     /* 레이아웃 안정화 */
-    display: block !important;
-    width: 100% !important;
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
+    display: block;
+    width: 100%;
     /* 성능 최적화 */
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -618,11 +633,6 @@ body {
     50% { 
         box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); 
     }
-}
-
-/* 실종 기간 표시 완전 제거 */
-.missing-period {
-    display: none !important;
 }
 
 .card-content {
@@ -735,10 +745,6 @@ body {
     background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
     border: 1px solid var(--gray-200);
     transition: var(--transition-all);
-    /* 안정적인 기본 상태 */
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
     /* 성능 최적화 */
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -807,10 +813,6 @@ body {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: var(--transition-all);
-    /* 안정적인 기본 상태 */
-    opacity: 1 !important;
-    transform: scale(1) !important;
-    visibility: visible !important;
     /* 성능 최적화 */
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -928,48 +930,6 @@ body {
     width: 16px;
 }
 
-/* 플로팅 파티클 - 성능 최적화 */
-.floating-particle {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-    /* 성능 최적화 */
-    will-change: transform, opacity;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-}
-
-/* 드롭다운 메뉴 - 개선된 애니메이션 */
-.dropdown-menu,
-.user-dropdown,
-.notification-dropdown {
-    position: absolute;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    padding: var(--spacing-2);
-    min-width: 200px;
-    z-index: 1000;
-    /* 초기 상태 */
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-    visibility: hidden;
-    transition: var(--transition-fast);
-    /* 성능 최적화 */
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-}
-
-.dropdown-menu.show,
-.user-dropdown.show,
-.notification-dropdown.show {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    visibility: visible;
-}
-
 /* 반응형 디자인 - 개선된 브레이크포인트 */
 @media (max-width: 1024px) {
     .hero-content {
@@ -979,9 +939,9 @@ body {
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(3, 1fr) !important;
-        grid-template-rows: repeat(3, minmax(280px, auto)) !important;
-        gap: var(--spacing-4) !important;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, minmax(280px, auto));
+        gap: var(--spacing-4);
     }
 }
 
@@ -1009,9 +969,9 @@ body {
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(2, 1fr) !important;
-        grid-template-rows: repeat(4, minmax(270px, auto)) !important;
-        gap: var(--spacing-3) !important;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, minmax(270px, auto));
+        gap: var(--spacing-3);
     }
     
     .stats-grid {
@@ -1042,9 +1002,9 @@ body {
     }
     
     .urgent-cards {
-        grid-template-columns: 1fr !important;
-        grid-template-rows: repeat(8, minmax(250px, auto)) !important;
-        gap: var(--spacing-2) !important;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(8, minmax(250px, auto));
+        gap: var(--spacing-2);
     }
 }
 
@@ -1100,12 +1060,6 @@ body {
     contain: layout style paint;
 }
 
-/* 프리로드 상태 최적화 */
-.preload * {
-    transition: none !important;
-    animation: none !important;
-}
-
 /* 모션 감소 설정 사용자 고려 */
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -1115,9 +1069,5 @@ body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
-    }
-    
-    .floating-particle {
-        display: none;
     }
 }

@@ -2,7 +2,7 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 기본 상태 - 모든 요소는 기본적으로 표시 */
+/* 초기 애니메이션 준비 상태 */
 .hero-title,
 .hero-description,
 .hero-buttons,
@@ -15,17 +15,18 @@
 .stats-grid,
 .stat-item,
 .section-header {
-    /* 기본 상태에서는 모든 요소가 보임 */
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    transition: all 0.3s ease;
+    /* 초기 상태 - 애니메이션 대기 */
+    opacity: 0;
+    transform: translateY(30px);
+    visibility: hidden;
+    transition: none; /* GSAP가 제어하므로 CSS 전환 제거 */
 }
 
-/* 애니메이션 클래스 추가 시 부드러운 전환 */
-.animate-in {
+/* 애니메이션 완료 상태 */
+.animated {
     opacity: 1 !important;
     transform: translateY(0) !important;
+    visibility: visible !important;
 }
 
 /* JavaScript 비활성화 시 모든 요소 표시 보장 */
@@ -45,7 +46,6 @@
     visibility: visible !important;
     transform: translateY(0) !important;
     transition: none !important;
-    will-change: auto !important;
 }
 
 /* 히어로 섹션 - 헤더와의 여백 대폭 축소 */
@@ -87,7 +87,6 @@
 
 .hero-text {
     padding-right: 20px;
-    will-change: transform, opacity;
 }
 
 .hero-title {
@@ -132,7 +131,7 @@
     padding-left: 40px;
 }
 
-/* 순위 디스플레이 - 크기 조정 (650px → 520px) */
+/* 순위 디스플레이 */
 .ranking-display {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 20px;
@@ -143,7 +142,6 @@
     max-width: 100%;
     position: relative;
     overflow: hidden;
-    will-change: transform, opacity;
     margin-left: auto;
     transform: translateX(30px) translateY(50px);
 }
@@ -181,7 +179,7 @@
     gap: 10px;
 }
 
-/* 순위 아이템 - 축소된 컨테이너에 맞게 조정 */
+/* 순위 아이템 */
 .ranking-item {
     display: flex;
     align-items: center;
@@ -195,11 +193,6 @@
     overflow: hidden;
     min-height: 45px;
     height: 45px;
-    will-change: transform;
-    /* 기본 상태에서 보임 */
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
 }
 
 .ranking-item:hover {
@@ -311,7 +304,7 @@
     color: var(--secondary-green);
 }
 
-/* 긴급 실종자 섹션 - 상단 여백 조정 */
+/* 긴급 실종자 섹션 */
 .urgent-section {
     padding: 80px 0;
     background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
@@ -376,32 +369,26 @@
 }
 
 .urgent-cards {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    grid-template-rows: repeat(2, minmax(300px, auto)) !important;
-    gap: 25px !important;
-    width: 100% !important;
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    grid-auto-flow: row !important;
-    grid-auto-rows: minmax(300px, auto) !important;
-    /* 기본 상태에서 보임 */
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, minmax(300px, auto));
+    gap: 25px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .urgent-cards > * {
-    display: block !important;
-    position: relative !important;
-    transition: all 0.3s ease !important;
+    display: block;
+    position: relative;
+    transition: all 0.3s ease;
 }
 
 .urgent-cards .missing-card:nth-child(n+9) {
-    display: none !important;
+    display: none;
 }
 
-/* 실종자 카드 - missing-search.css와 일치하도록 개선 */
+/* 실종자 카드 */
 .missing-card {
     background: white;
     border-radius: 20px;
@@ -411,14 +398,9 @@
     transition: all 0.3s ease;
     position: relative;
     height: 300px;
-    display: block !important;
+    display: block;
     width: 100%;
     box-sizing: border-box;
-    will-change: transform, box-shadow;
-    /* 기본 상태에서 보임 */
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
 }
 
 .missing-card:hover {
@@ -496,11 +478,6 @@
     50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
 }
 
-/* 실종 기간 표시 완전 제거 */
-.missing-period {
-    display: none !important;
-}
-
 .card-content {
     padding: 25px;
     height: calc(100% - 150px);
@@ -529,11 +506,6 @@
     align-items: center;
     gap: 8px;
     font-size: 0.9rem;
-}
-
-.missing-info span {
-    display: block;
-    margin-bottom: 3px;
 }
 
 .missing-info i {
@@ -601,7 +573,7 @@
     z-index: 1;
 }
 
-/* 소개 섹션 - 여백 조정 */
+/* 소개 섹션 */
 .intro-section {
     padding: 80px 0;
     background: white;
@@ -635,7 +607,7 @@
     border-radius: 2px;
 }
 
-/* 수정된 intro-steps 레이아웃 - 모든 스텝 균등 크기 */
+/* 수정된 intro-steps 레이아웃 */
 .intro-steps {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -654,14 +626,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    will-change: transform, box-shadow;
     width: 100%;
     max-width: 260px;
     min-height: 320px;
-    /* 기본 상태에서 보임 */
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
 }
 
 .step::before {
@@ -749,7 +716,7 @@
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 - 여백 조정 */
+/* 희망 메시지 섹션 */
 .stats-section {
     padding: 80px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -827,11 +794,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    will-change: transform, box-shadow;
-    /* 기본 상태에서 보임 */
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
 }
 
 .stat-item::before {
@@ -869,35 +831,7 @@
     font-weight: 500;
 }
 
-/* 버튼 호버 효과 개선 */
-.btn {
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    will-change: transform, box-shadow;
-}
-
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.btn:hover::before {
-    left: 100%;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* 반응형 디자인 강화 */
+/* 반응형 디자인 */
 @media (max-width: 1024px) {
     .hero-section {
         margin-top: -40px;
@@ -931,9 +865,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(3, 1fr) !important;
-        grid-template-rows: repeat(3, minmax(280px, auto)) !important;
-        gap: 20px !important;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, minmax(280px, auto));
+        gap: 20px;
     }
     
     .intro-section {
@@ -1005,9 +939,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(2, 1fr) !important;
-        grid-template-rows: repeat(4, minmax(270px, auto)) !important;
-        gap: 15px !important;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, minmax(270px, auto));
+        gap: 15px;
     }
     
     .missing-card {
@@ -1074,9 +1008,9 @@
     }
     
     .urgent-cards {
-        grid-template-columns: 1fr !important;
-        grid-template-rows: repeat(8, minmax(250px, auto)) !important;
-        gap: 12px !important;
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(8, minmax(250px, auto));
+        gap: 12px;
     }
     
     .missing-card {
@@ -1111,24 +1045,4 @@
     .stats-section {
         padding: 40px 0;
     }
-}
-
-/* GPU 가속화 및 성능 최적화 */
-.hero-section,
-.urgent-cards,
-.ranking-display,
-.missing-card,
-.stat-item,
-.step {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-}
-
-/* 애니메이션 완료 후 최적화 */
-.animate-in {
-    will-change: auto;
-}
-
-.animate-on-scroll {
-    will-change: transform, opacity;
 }

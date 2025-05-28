@@ -1,7 +1,7 @@
 {# templates/base.html #}
-<!-- 헤더 애니메이션 제거 및 페이지 상단 로드 기능 추가 -->
+<!-- 페이지 로드 최적화 및 자연스러운 상단 이동 -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="no-js">
 
 <head>
     <meta charset="UTF-8">
@@ -22,41 +22,60 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <!-- 페이지 상단 로드 스크립트 -->
+    <!-- JavaScript 활성화 감지 -->
     <script>
-        // 페이지 로드 시 스크롤을 맨 위로 이동
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-        
-        window.addEventListener('beforeunload', function() {
-            window.scrollTo(0, 0);
-        });
-        
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-        });
-        
-        // 페이지 진입 시 즉시 상단으로
-        document.addEventListener('DOMContentLoaded', function() {
-            window.scrollTo(0, 0);
-        });
-        
-        // 뒤로가기/앞으로가기 시에도 상단으로
-        window.addEventListener('popstate', function() {
-            setTimeout(function() {
-                window.scrollTo(0, 0);
-            }, 0);
-        });
+        // JavaScript 활성화 즉시 감지
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js-enabled');
+    </script>
+
+    <!-- 페이지 로드 최적화 스크립트 -->
+    <script>
+        // 페이지 로드 시 자연스럽게 상단으로 이동
+        (function() {
+            // 브라우저 스크롤 복원 비활성화
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: 'instant'
+                });
+            }
+            
+            // 페이지 언로드 시 상단으로
+            window.addEventListener('beforeunload', scrollToTop);
+            
+            // 페이지 로드 완료 시 상단으로
+            window.addEventListener('load', function() {
+                setTimeout(scrollToTop, 0);
+            });
+            
+            // DOM 로드 완료 시 상단으로
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', scrollToTop);
+            } else {
+                scrollToTop();
+            }
+            
+            // 뒤로가기/앞으로가기 시 상단으로
+            window.addEventListener('popstate', function() {
+                setTimeout(scrollToTop, 0);
+            });
+            
+            // 페이지 진입 시 즉시 상단으로
+            scrollToTop();
+        })();
     </script>
 
     {% block extra_head %}{% endblock %}
 </head>
 
 <body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %}">
-    <!-- 헤더 - 애니메이션 제거 -->
+    <!-- 헤더 -->
     <header class="header">
         <div class="container">
             <div class="header-content">

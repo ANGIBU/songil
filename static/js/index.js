@@ -119,7 +119,7 @@ const allMissingData = [
     }
 ];
 
-// 순위 데이터 (제보와 해결 건수 바꿈)
+// 순위 데이터
 const rankingData = [
     { rank: 1, name: "김희망", points: 2847, region: "서울시", reports: 45, witnesses: 23 },
     { rank: 2, name: "박도움", points: 2134, region: "부산시", reports: 38, witnesses: 18 },
@@ -133,21 +133,15 @@ function getUrgentMissingData() {
     return allMissingData.slice(0, 8);
 }
 
-// 긴급 실종자 데이터 (정확히 8개)
 const urgentMissingData = getUrgentMissingData();
 
-// 순위 React 컴포넌트 - 메모화로 성능 최적화
+// 순위 React 컴포넌트
 const RankingDisplay = React.memo(function RankingDisplay({ rankings }) {
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) =>
             React.createElement('div', {
                 key: `ranking-${rank.rank}`,
-                className: 'ranking-item',
-                style: {
-                    opacity: 1,
-                    transform: 'translateY(0)',
-                    visibility: 'visible'
-                }
+                className: 'ranking-item'
             }, [
                 React.createElement('div', {
                     className: 'ranking-position',
@@ -204,7 +198,7 @@ const RankingDisplay = React.memo(function RankingDisplay({ rankings }) {
     );
 });
 
-// 실종자 카드 React 컴포넌트 - 최적화 및 버그 수정
+// 실종자 카드 React 컴포넌트
 const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
     const [upCount, setUpCount] = useState(data.upCount);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -248,10 +242,7 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
         style: {
             display: 'block',
             width: '100%',
-            height: '300px',
-            opacity: 1,
-            transform: 'translateY(0)',
-            visibility: 'visible'
+            height: '300px'
         }
     }, [
         React.createElement('div', { className: 'card-image', key: 'image' }, [
@@ -310,7 +301,7 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
     ]);
 });
 
-// 통계 카운터 애니메이션 클래스 - 개선된 버전
+// 통계 카운터 애니메이션 클래스
 class StatCounter {
     constructor(element, target, duration = 2000) {
         this.element = element;
@@ -363,25 +354,23 @@ class StatCounter {
     }
 }
 
-// GSAP 애니메이션 관리자 - 모든 요소가 즉시 표시되도록 수정
+// GSAP 애니메이션 관리자 - 완전히 개선됨
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
         this.timeline = null;
         this.scrollTriggers = [];
         this.isDestroyed = false;
+        this.animationQueue = [];
         this.init();
     }
 
     init() {
         if (this.isDestroyed) return;
 
-        // 모든 요소를 즉시 표시
-        this.showAllElementsImmediately();
-        
         if (typeof gsap === 'undefined') {
-            console.log('GSAP not loaded, elements shown immediately');
-            this.isInitialized = true;
+            console.warn('GSAP not loaded, using fallback animations');
+            this.fallbackAnimations();
             return;
         }
 
@@ -390,45 +379,10 @@ class IndexAnimations {
         }
 
         this.cleanup();
-        this.setupScrollAnimations();
+        this.setupAnimations();
         this.isInitialized = true;
         
-        console.log('✨ Index animations initialized with immediate visibility');
-    }
-
-    // 모든 요소를 즉시 표시
-    showAllElementsImmediately() {
-        const elements = document.querySelectorAll(`
-            .hero-title,
-            .hero-description,
-            .hero-buttons,
-            .ranking-display,
-            .ranking-item,
-            .urgent-cards,
-            .missing-card,
-            .intro-steps,
-            .step,
-            .stats-grid,
-            .stat-item,
-            .section-header
-        `);
-        
-        elements.forEach(element => {
-            if (element) {
-                element.style.opacity = '1';
-                element.style.visibility = 'visible';
-                element.style.transform = 'translateY(0)';
-            }
-        });
-        
-        // 특별히 urgent-cards 컨테이너 확실히 표시
-        const urgentCards = document.querySelector('.urgent-cards');
-        if (urgentCards) {
-            urgentCards.style.display = 'grid';
-            urgentCards.style.opacity = '1';
-            urgentCards.style.visibility = 'visible';
-            urgentCards.style.transform = 'translateY(0)';
-        }
+        console.log('✨ Index animations initialized with GSAP');
     }
 
     cleanup() {
@@ -443,35 +397,173 @@ class IndexAnimations {
         this.scrollTriggers = [];
     }
 
-    // 스크롤 애니메이션만 설정 (옵션)
+    setupAnimations() {
+        // 메인 타임라인 생성
+        this.timeline = gsap.timeline({
+            onComplete: () => {
+                console.log('🎬 All entrance animations completed');
+                this.removeLoadingScreen();
+            }
+        });
+
+        // 순차적 애니메이션 설정
+        this.animateHeroSection();
+        this.animateUrgentSection();
+        this.animateIntroSection();
+        this.setupScrollAnimations();
+    }
+
+    animateHeroSection() {
+        const heroElements = [
+            '.hero-title',
+            '.hero-description', 
+            '.hero-buttons',
+            '.ranking-display'
+        ];
+
+        heroElements.forEach((selector, index) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                this.timeline.fromTo(element, {
+                    opacity: 0,
+                    y: 50,
+                    scale: 0.95
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: "power2.out"
+                }, index * 0.2);
+            }
+        });
+
+        // 랭킹 아이템들 개별 애니메이션
+        const rankingItems = document.querySelectorAll('.ranking-item');
+        if (rankingItems.length > 0) {
+            this.timeline.fromTo(rankingItems, {
+                opacity: 0,
+                x: 30
+            }, {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out"
+            }, 0.6);
+        }
+    }
+
+    animateUrgentSection() {
+        const sectionHeader = document.querySelector('.urgent-section .section-header');
+        if (sectionHeader) {
+            this.timeline.fromTo(sectionHeader, {
+                opacity: 0,
+                y: 30
+            }, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power2.out"
+            }, 1.2);
+        }
+
+        // 긴급 카드들 애니메이션
+        const urgentCards = document.querySelectorAll('.missing-card');
+        if (urgentCards.length > 0) {
+            this.timeline.fromTo(urgentCards, {
+                opacity: 0,
+                y: 40,
+                scale: 0.9
+            }, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "back.out(1.7)"
+            }, 1.5);
+        }
+    }
+
+    animateIntroSection() {
+        const introTitle = document.querySelector('.intro-text h2');
+        if (introTitle) {
+            this.timeline.fromTo(introTitle, {
+                opacity: 0,
+                y: 30
+            }, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power2.out"
+            }, 2.2);
+        }
+
+        const steps = document.querySelectorAll('.step');
+        if (steps.length > 0) {
+            this.timeline.fromTo(steps, {
+                opacity: 0,
+                y: 50,
+                scale: 0.9
+            }, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "back.out(1.7)"
+            }, 2.5);
+        }
+    }
+
     setupScrollAnimations() {
         if (typeof ScrollTrigger === 'undefined') {
             this.setupIntersectionObserver();
             return;
         }
 
-        // 통계 섹션만 스크롤 애니메이션 적용 (선택사항)
+        // 통계 섹션 애니메이션
         const statsTrigger = ScrollTrigger.create({
             trigger: '.stats-section',
             start: 'top 80%',
             end: 'bottom 20%',
             onEnter: () => {
-                // 통계 카운터 시작
-                const statNumbers = document.querySelectorAll('.stat-number');
-                statNumbers.forEach(number => {
-                    if (!number.dataset.animated) {
-                        number.dataset.animated = 'true';
-                        const counter = new StatCounter(number, number.textContent);
-                        counter.start();
-                    }
-                });
+                this.animateStatsSection();
             },
             once: true
         });
         this.scrollTriggers.push(statsTrigger);
     }
 
-    // Intersection Observer 폴백
+    animateStatsSection() {
+        const statsItems = document.querySelectorAll('.stat-item');
+        
+        gsap.fromTo(statsItems, {
+            opacity: 0,
+            y: 50,
+            scale: 0.9
+        }, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: "back.out(1.7)",
+            onComplete: () => {
+                // 통계 카운터 시작
+                const statNumbers = document.querySelectorAll('.stat-number');
+                statNumbers.forEach(number => {
+                    if (!number.dataset.animated) {
+                        number.dataset.animated = 'true';
+                        const counter = new StatCounter(number, number.dataset.count);
+                        counter.start();
+                    }
+                });
+            }
+        });
+    }
+
     setupIntersectionObserver() {
         const observerOptions = {
             threshold: 0.2,
@@ -481,14 +573,7 @@ class IndexAnimations {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && entry.target.classList.contains('stats-section')) {
-                    const statNumbers = entry.target.querySelectorAll('.stat-number');
-                    statNumbers.forEach(number => {
-                        if (!number.dataset.animated) {
-                            number.dataset.animated = 'true';
-                            const counter = new StatCounter(number, number.textContent);
-                            counter.start();
-                        }
-                    });
+                    this.animateStatsSection();
                     observer.unobserve(entry.target);
                 }
             });
@@ -500,35 +585,81 @@ class IndexAnimations {
         }
     }
 
-    animateUpButton(button) {
-        if (!this.isInitialized || this.isDestroyed) return;
+    removeLoadingScreen() {
+        const loadingScreen = document.getElementById('pageLoading');
+        if (loadingScreen) {
+            gsap.to(loadingScreen, {
+                opacity: 0,
+                duration: 0.5,
+                ease: "power2.out",
+                onComplete: () => {
+                    loadingScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (loadingScreen.parentNode) {
+                            loadingScreen.parentNode.removeChild(loadingScreen);
+                        }
+                    }, 100);
+                }
+            });
+        }
+    }
+
+    fallbackAnimations() {
+        // GSAP 없을 때 기본 CSS 애니메이션으로 대체
+        const elements = document.querySelectorAll(`
+            .hero-title,
+            .hero-description,
+            .hero-buttons,
+            .ranking-display,
+            .urgent-cards,
+            .intro-steps,
+            .stats-grid,
+            .section-header
+        `);
         
-        if (typeof gsap !== 'undefined') {
-            const timeline = gsap.timeline();
-            
-            timeline
-                .to(button, {
-                    scale: 1.1,
-                    duration: 0.15,
-                    ease: 'power2.out'
-                })
-                .to(button, {
-                    scale: 1,
-                    duration: 0.3,
-                    ease: 'elastic.out(1.5, 0.3)'
-                });
-                
-            const countElement = button.querySelector('span');
-            if (countElement) {
-                gsap.fromTo(countElement, 
-                    { scale: 1.3 },
-                    {
-                        scale: 1,
-                        duration: 0.4,
-                        ease: 'back.out(1.4)'
-                    }
-                );
+        elements.forEach((element, index) => {
+            if (element) {
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                    element.style.visibility = 'visible';
+                    element.style.transition = 'all 0.6s ease';
+                    element.classList.add('animated');
+                }, index * 100);
             }
+        });
+
+        // 로딩 화면 제거
+        setTimeout(() => this.removeLoadingScreen(), 1000);
+    }
+
+    animateUpButton(button) {
+        if (!this.isInitialized || this.isDestroyed || typeof gsap === 'undefined') return;
+        
+        const timeline = gsap.timeline();
+        
+        timeline
+            .to(button, {
+                scale: 1.1,
+                duration: 0.15,
+                ease: 'power2.out'
+            })
+            .to(button, {
+                scale: 1,
+                duration: 0.3,
+                ease: 'elastic.out(1.5, 0.3)'
+            });
+            
+        const countElement = button.querySelector('span');
+        if (countElement) {
+            gsap.fromTo(countElement, 
+                { scale: 1.3 },
+                {
+                    scale: 1,
+                    duration: 0.4,
+                    ease: 'back.out(1.4)'
+                }
+            );
         }
     }
 
@@ -539,87 +670,22 @@ class IndexAnimations {
     }
 }
 
-// Intersection Observer를 활용한 스크롤 트리거
-class ScrollObserver {
-    constructor() {
-        this.counters = new Map();
-        this.observer = null;
-        this.isDestroyed = false;
-        this.init();
-    }
-
-    init() {
-        if (this.isDestroyed) return;
-        this.setupIntersectionObserver();
-        this.observeElements();
-    }
-
-    setupIntersectionObserver() {
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !this.isDestroyed) {
-                    entry.target.classList.add('in-view');
-                    
-                    if (entry.target.classList.contains('stat-item')) {
-                        this.startStatCounter(entry.target);
-                    }
-                }
-            });
-        }, {
-            threshold: 0.3,
-            rootMargin: '0px 0px -50px 0px'
-        });
-    }
-
-    observeElements() {
-        if (this.isDestroyed) return;
-        const elements = document.querySelectorAll('.stat-item');
-        elements.forEach(el => {
-            if (this.observer) {
-                this.observer.observe(el);
-            }
-        });
-    }
-
-    startStatCounter(statItem) {
-        if (this.isDestroyed) return;
-        
-        const numberElement = statItem.querySelector('.stat-number');
-        if (numberElement && !this.counters.has(numberElement)) {
-            const counter = new StatCounter(numberElement, numberElement.textContent);
-            this.counters.set(numberElement, counter);
-            counter.start();
-        }
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-        
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
-        }
-        
-        this.counters.forEach(counter => {
-            counter.stop();
-        });
-        this.counters.clear();
-    }
-}
-
 // 메인 홈페이지 관리 클래스
 class IndexPage {
     constructor() {
         this.animations = null;
-        this.scrollObserver = null;
         this.isDestroyed = false;
         this.eventCleanup = null;
         this.resizeTimeout = null;
+        this.initTimeout = null;
         this.init();
     }
 
     init() {
         if (this.isDestroyed) return;
+        
+        // JavaScript 비활성화 감지 제거
+        document.documentElement.classList.remove('no-js');
         
         // DOM 준비 상태 확인
         if (document.readyState === 'loading') {
@@ -632,44 +698,18 @@ class IndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        // JavaScript 비활성화 감지 제거
-        document.documentElement.classList.remove('no-js');
-        
-        // 모든 요소를 즉시 표시
-        this.showAllElements();
-        
-        // 단계별 초기화
-        setTimeout(() => this.initializeComponents(), 50);
-    }
-
-    // 모든 요소를 즉시 표시하는 함수
-    showAllElements() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .hero-title,
-            .hero-description,
-            .hero-buttons,
-            .ranking-display,
-            .ranking-item,
-            .urgent-cards,
-            .missing-card,
-            .intro-steps,
-            .step,
-            .stats-grid,
-            .stat-item,
-            .section-header {
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: translateY(0) !important;
-            }
-        `;
-        document.head.appendChild(style);
+        // 안전한 초기화를 위한 지연
+        this.initTimeout = setTimeout(() => {
+            this.initializeComponents();
+        }, 100);
     }
 
     async initializeComponents() {
         if (this.isDestroyed) return;
         
         try {
+            console.log('🚀 Starting index page initialization...');
+            
             // 1. React 컴포넌트 렌더링
             await this.renderComponents();
             
@@ -679,10 +719,12 @@ class IndexPage {
             // 3. 이벤트 리스너 설정
             this.setupEventListeners();
             
-            console.log('✨ Index page loaded - all elements visible immediately');
+            console.log('✅ Index page initialized successfully');
             
         } catch (error) {
-            console.error('Component initialization error:', error);
+            console.error('❌ Component initialization error:', error);
+            // 에러 시 로딩 화면 제거
+            this.removeLoadingScreen();
         }
     }
 
@@ -691,7 +733,7 @@ class IndexPage {
             try {
                 this.renderRankings();
                 this.renderUrgentCards();
-                setTimeout(resolve, 50);
+                setTimeout(resolve, 100);
             } catch (error) {
                 console.error('React rendering failed:', error);
                 resolve();
@@ -703,10 +745,10 @@ class IndexPage {
         return new Promise((resolve) => {
             try {
                 this.animations = new IndexAnimations();
-                this.scrollObserver = new ScrollObserver();
-                setTimeout(resolve, 100);
+                setTimeout(resolve, 200);
             } catch (error) {
                 console.error('Animation initialization failed:', error);
+                this.removeLoadingScreen();
                 resolve();
             }
         });
@@ -715,6 +757,7 @@ class IndexPage {
     renderRankings() {
         const rankingContainer = document.getElementById('topRankings');
         if (!rankingContainer || typeof React === 'undefined' || this.isDestroyed) {
+            console.warn('Ranking container not found or React not available');
             return;
         }
 
@@ -749,18 +792,6 @@ class IndexPage {
                 window.showNotification('소중한 참여에 감사합니다! 함께라면 찾을 수 있어요.', 'success');
             }
         };
-
-        // 컨테이너 강제 스타일 설정
-        urgentContainer.style.display = 'grid';
-        urgentContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
-        urgentContainer.style.gridTemplateRows = 'repeat(2, minmax(300px, auto))';
-        urgentContainer.style.gap = '25px';
-        urgentContainer.style.width = '100%';
-        urgentContainer.style.maxWidth = '1200px';
-        urgentContainer.style.margin = '0 auto';
-        urgentContainer.style.opacity = '1';
-        urgentContainer.style.visibility = 'visible';
-        urgentContainer.style.transform = 'translateY(0)';
 
         try {
             const root = ReactDOM.createRoot(urgentContainer);
@@ -828,17 +859,29 @@ class IndexPage {
         };
     }
 
+    removeLoadingScreen() {
+        const loadingScreen = document.getElementById('pageLoading');
+        if (loadingScreen) {
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                if (loadingScreen.parentNode) {
+                    loadingScreen.parentNode.removeChild(loadingScreen);
+                }
+            }, 500);
+        }
+    }
+
     destroy() {
         this.isDestroyed = true;
+        
+        if (this.initTimeout) {
+            clearTimeout(this.initTimeout);
+            this.initTimeout = null;
+        }
         
         if (this.animations) {
             this.animations.destroy();
             this.animations = null;
-        }
-        
-        if (this.scrollObserver) {
-            this.scrollObserver.destroy();
-            this.scrollObserver = null;
         }
         
         if (this.eventCleanup) {
@@ -851,7 +894,7 @@ class IndexPage {
             this.resizeTimeout = null;
         }
         
-        console.log('Index page destroyed');
+        console.log('🧹 Index page destroyed');
     }
 }
 
@@ -916,32 +959,6 @@ if (typeof window !== 'undefined') {
                 indexPage.destroy();
             }
             indexPage = new IndexPage();
-        },
-        showAllElements: () => {
-            const elements = document.querySelectorAll(`
-                .hero-title,
-                .hero-description,
-                .hero-buttons,
-                .ranking-display,
-                .ranking-item,
-                .urgent-cards,
-                .missing-card,
-                .intro-steps,
-                .step,
-                .stats-grid,
-                .stat-item,
-                .section-header
-            `);
-            
-            elements.forEach(element => {
-                if (element) {
-                    element.style.opacity = '1';
-                    element.style.visibility = 'visible';
-                    element.style.transform = 'translateY(0)';
-                }
-            });
-            
-            console.log('All elements forced to show');
         }
     };
 }
