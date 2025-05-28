@@ -998,7 +998,7 @@ class SearchManager {
         if (!filterRegion) return true;
         
         // 세부 지역 필터인 경우 (예: seoul-강남구)
-        if (filterRegion.includes('-')) {
+        if (filterRegion.includes('-)) {
             const [regionCode, district] = filterRegion.split('-');
             // 아이템의 지역이 해당 지역 코드와 매치되는지 확인
             // 실제로는 더 정교한 매칭 로직이 필요할 수 있음
@@ -1321,7 +1321,7 @@ class SearchDebouncer {
     }
 }
 
-// ============ 메인 검색 페이지 클래스 - 리스트 뷰 버그 완전 해결 ============
+// ============ 메인 검색 페이지 클래스 - 목록 버그 완전 해결 ============
 class MissingSearchPage {
     constructor() {
         this.searchManager = new SearchManager();
@@ -1333,6 +1333,7 @@ class MissingSearchPage {
         this.viewMode = 'grid';
         this.currentPageData = [];
         this.reactRoots = new Map(); // React 루트 관리
+        this.isViewChanging = false; // 뷰 변경 중 플래그 추가
         this.init();
     }
 
@@ -1374,9 +1375,6 @@ class MissingSearchPage {
         // 초기 활성 필터 업데이트
         this.filterPopupManager.updateActiveFilters();
         
-        // 뷰 상태 자동 복구 시스템 시작
-        this.startViewHealthCheck();
-        
         console.log('Missing search page initialized successfully');
     }
 
@@ -1410,14 +1408,6 @@ class MissingSearchPage {
             this.viewMode = 'grid';
             
             console.log('Views initialized - Grid: visible, List: hidden');
-            
-            // 초기화 확인
-            setTimeout(() => {
-                console.log('Post-initialization check:');
-                console.log('Grid display:', gridView.style.display);
-                console.log('List display:', listView.style.display);
-                console.log('List classes:', listView.classList.toString());
-            }, 100);
         }
     }
 
@@ -1438,14 +1428,14 @@ class MissingSearchPage {
             });
         }
 
-        // ============ 뷰 토글 - 완전히 재작성된 강력한 로직 ============
+        // ============ 뷰 토글 - 완전히 재작성된 안정적인 로직 ============
         document.addEventListener('click', (e) => {
             if (e.target.closest('.view-btn')) {
                 const btn = e.target.closest('.view-btn');
                 const viewMode = btn.dataset.view;
                 
-                // 현재 뷰와 같으면 무시
-                if (viewMode === this.viewMode) return;
+                // 현재 뷰와 같거나 변경 중이면 무시
+                if (viewMode === this.viewMode || this.isViewChanging) return;
                 
                 console.log(`=== VIEW TOGGLE START: ${this.viewMode} -> ${viewMode} ===`);
                 this.switchToView(viewMode);
@@ -1493,94 +1483,122 @@ class MissingSearchPage {
         });
     }
 
-    // ============ 뷰 전환 - 강력하고 안정적인 새로운 로직 ============
-    switchToView(targetViewMode) {
-        console.log(`Switching to ${targetViewMode} view...`);
+    // ============ 뷰 전환 - 완전히 새로운 안정적인 로직 ============
+    async switchToView(targetViewMode) {
+        // 중복 실행 방지
+        if (this.isViewChanging) return;
+        this.isViewChanging = true;
         
-        // DOM 요소 가져오기
-        const gridView = document.getElementById('missingGrid');
-        const listView = document.getElementById('missingList');
+        console.log(`🔄 Switching to ${targetViewMode} view...`);
         
-        if (!gridView || !listView) {
-            console.error('View containers not found!');
-            return;
-        }
-        
-        // 현재 뷰 모드 업데이트
-        this.viewMode = targetViewMode;
-        
-        // 버튼 상태 업데이트
-        this.updateViewButtons(targetViewMode);
-        
-        // 뷰 전환 실행
-        if (targetViewMode === 'grid') {
-            this.activateGridView(gridView, listView);
-        } else if (targetViewMode === 'list') {
-            this.activateListView(gridView, listView);
-        }
-        
-        // React 컴포넌트 강제 재렌더링
-        setTimeout(() => {
-            console.log('Forcing React re-render...');
-            this.forceReactRerender();
-        }, 100);
-        
-        // 애니메이션
-        this.animations.animateViewToggle(targetViewMode);
-        
-        // 상태 검증 (디버깅용)
-        setTimeout(() => {
-            this.validateViewState(targetViewMode);
-        }, 200);
-    }
-
-    // 그리드 뷰 활성화
-    activateGridView(gridView, listView) {
-        console.log('Activating grid view...');
-        
-        // 그리드 뷰 활성화 - 강제 적용
-        gridView.style.display = 'grid';
-        gridView.style.setProperty('display', 'grid', 'important');
-        gridView.classList.remove('view-hidden');
-        
-        // 리스트 뷰 비활성화 - 모든 방법 동원
-        listView.style.display = 'none';
-        listView.style.setProperty('display', 'none', 'important');
-        listView.classList.remove('view-active', 'active');
-        
-        console.log('Grid view activated');
-    }
-
-    // 리스트 뷰 활성화 - 가장 강력한 방법
-    activateListView(gridView, listView) {
-        console.log('Activating list view...');
-        
-        // 리스트 뷰 활성화 - 모든 방법 총동원
-        listView.style.display = 'flex';
-        listView.style.setProperty('display', 'flex', 'important');
-        listView.style.flexDirection = 'column';
-        listView.classList.add('view-active');
-        
-        // 그리드 뷰 비활성화 - 강제 적용
-        gridView.style.display = 'none';
-        gridView.style.setProperty('display', 'none', 'important');
-        gridView.classList.add('view-hidden');
-        
-        console.log('List view activated');
-        
-        // 추가 확인: 리스트 뷰가 보이지 않으면 강제 표시
-        setTimeout(() => {
-            if (listView.offsetHeight === 0) {
-                console.warn('List view still not visible, applying emergency fix...');
-                listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important;';
-                listView.classList.add('view-active');
+        try {
+            // DOM 요소 가져오기
+            const gridView = document.getElementById('missingGrid');
+            const listView = document.getElementById('missingList');
+            
+            if (!gridView || !listView) {
+                console.error('❌ View containers not found!');
+                return;
             }
-        }, 50);
+            
+            // 1. 버튼 상태 즉시 업데이트
+            this.updateViewButtons(targetViewMode);
+            
+            // 2. 뷰 모드 업데이트
+            this.viewMode = targetViewMode;
+            
+            // 3. CSS 스타일 적용 (동기적으로)
+            this.applyViewStyles(targetViewMode, gridView, listView);
+            
+            // 4. React 컴포넌트 재렌더링 (약간의 지연 후)
+            await this.delayedReactRender();
+            
+            // 5. 최종 검증 및 수정
+            await this.validateAndFixView(targetViewMode, gridView, listView);
+            
+            console.log(`✅ Successfully switched to ${targetViewMode} view`);
+            
+        } catch (error) {
+            console.error('❌ Error during view switch:', error);
+        } finally {
+            // 항상 플래그 해제
+            this.isViewChanging = false;
+        }
     }
 
-    // 뷰 버튼 상태 업데이트 - 강화된 버전
+    // CSS 스타일 동기적 적용
+    applyViewStyles(targetViewMode, gridView, listView) {
+        console.log(`🎨 Applying ${targetViewMode} styles...`);
+        
+        if (targetViewMode === 'list') {
+            // 리스트 뷰 활성화 - 강력한 스타일 적용
+            listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important; margin-bottom: 40px !important;';
+            listView.classList.add('view-active');
+            
+            // 그리드 뷰 비활성화
+            gridView.style.cssText = 'display: none !important;';
+            gridView.classList.add('view-hidden');
+            
+        } else if (targetViewMode === 'grid') {
+            // 그리드 뷰 활성화 - 강력한 스타일 적용
+            gridView.style.cssText = 'display: grid !important; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important; gap: 30px !important; margin-bottom: 40px !important;';
+            gridView.classList.remove('view-hidden');
+            
+            // 리스트 뷰 비활성화
+            listView.style.cssText = 'display: none !important;';
+            listView.classList.remove('view-active', 'active');
+        }
+    }
+
+    // 지연된 React 재렌더링
+    async delayedReactRender() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                console.log('🔄 Re-rendering React components...');
+                if (this.currentPageData && this.currentPageData.length > 0) {
+                    this.renderResults(this.currentPageData);
+                }
+                resolve();
+            }, 50);
+        });
+    }
+
+    // 최종 검증 및 수정
+    async validateAndFixView(targetViewMode, gridView, listView) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                console.log('🔍 Validating view state...');
+                
+                const gridVisible = gridView.offsetHeight > 0;
+                const listVisible = listView.offsetHeight > 0;
+                
+                // 문제 감지 및 수정
+                if (targetViewMode === 'list' && !listVisible) {
+                    console.warn('🚨 List view not visible, applying emergency fix...');
+                    listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important; margin-bottom: 40px !important; opacity: 1 !important; visibility: visible !important;';
+                    listView.classList.add('view-active');
+                    
+                } else if (targetViewMode === 'grid' && !gridVisible) {
+                    console.warn('🚨 Grid view not visible, applying emergency fix...');
+                    gridView.style.cssText = 'display: grid !important; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important; gap: 30px !important; margin-bottom: 40px !important; opacity: 1 !important; visibility: visible !important;';
+                    gridView.classList.remove('view-hidden');
+                }
+                
+                // 최종 상태 로그
+                console.log('📊 Final view state:', {
+                    viewMode: this.viewMode,
+                    gridVisible: gridView.offsetHeight > 0,
+                    listVisible: listView.offsetHeight > 0
+                });
+                
+                resolve();
+            }, 100);
+        });
+    }
+
+    // 뷰 버튼 상태 업데이트
     updateViewButtons(activeViewMode) {
-        console.log(`Updating view buttons for: ${activeViewMode}`);
+        console.log(`🔘 Updating view buttons for: ${activeViewMode}`);
         
         // 모든 버튼에서 active 클래스 제거
         document.querySelectorAll('.view-btn').forEach(btn => {
@@ -1591,65 +1609,6 @@ class MissingSearchPage {
         const activeBtn = document.querySelector(`[data-view="${activeViewMode}"]`);
         if (activeBtn) {
             activeBtn.classList.add('active');
-            console.log(`Active button set for: ${activeViewMode}`);
-        } else {
-            console.error(`Button not found for view: ${activeViewMode}`);
-        }
-        
-        // ID 기반 백업 방법
-        if (activeViewMode === 'grid') {
-            const gridBtn = document.getElementById('gridViewBtn');
-            if (gridBtn) gridBtn.classList.add('active');
-        } else if (activeViewMode === 'list') {
-            const listBtn = document.getElementById('listViewBtn');
-            if (listBtn) listBtn.classList.add('active');
-        }
-    }
-
-    // React 컴포넌트 강제 재렌더링
-    forceReactRerender() {
-        if (this.currentPageData && this.currentPageData.length > 0) {
-            console.log('Re-rendering React components...');
-            this.renderResults(this.currentPageData);
-        }
-    }
-
-    // 뷰 상태 검증 (디버깅용)
-    validateViewState(expectedViewMode) {
-        const gridView = document.getElementById('missingGrid');
-        const listView = document.getElementById('missingList');
-        
-        console.log('=== VIEW STATE VALIDATION ===');
-        console.log('Expected view mode:', expectedViewMode);
-        console.log('Actual view mode:', this.viewMode);
-        console.log('Grid view:', {
-            display: gridView.style.display,
-            visible: gridView.offsetHeight > 0,
-            classes: gridView.classList.toString()
-        });
-        console.log('List view:', {
-            display: listView.style.display,
-            visible: listView.offsetHeight > 0,
-            classes: listView.classList.toString()
-        });
-        
-        // 문제 발견 시 경고
-        if (expectedViewMode === 'list' && listView.offsetHeight === 0) {
-            console.error('❌ LIST VIEW NOT VISIBLE!');
-            console.log('Attempting emergency fix...');
-            
-            // 비상 수정
-            listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important; margin-bottom: 40px !important;';
-            listView.classList.add('view-active');
-            
-            setTimeout(() => {
-                console.log('Emergency fix applied. Checking again...');
-                console.log('List view visible:', listView.offsetHeight > 0);
-            }, 100);
-        } else if (expectedViewMode === 'grid' && gridView.offsetHeight === 0) {
-            console.error('❌ GRID VIEW NOT VISIBLE!');
-        } else {
-            console.log('✅ View state is correct');
         }
     }
 
@@ -1726,20 +1685,28 @@ class MissingSearchPage {
 
         // 기존 React 루트 정리
         if (this.reactRoots.has('grid')) {
-            this.reactRoots.get('grid').unmount();
+            try {
+                this.reactRoots.get('grid').unmount();
+            } catch (e) {
+                console.warn('Error unmounting grid root:', e);
+            }
         }
         if (this.reactRoots.has('list')) {
-            this.reactRoots.get('list').unmount();
+            try {
+                this.reactRoots.get('list').unmount();
+            } catch (e) {
+                console.warn('Error unmounting list root:', e);
+            }
         }
 
-        // 그리드 뷰 렌더링 (항상 렌더링하되 CSS로 제어)
+        // 그리드 뷰 렌더링
         if (gridContainer) {
             gridContainer.innerHTML = '';
             const gridRoot = ReactDOM.createRoot(gridContainer);
             this.reactRoots.set('grid', gridRoot);
             
             gridRoot.render(
-                React.createElement('div', { style: { display: 'contents' } },
+                React.createElement(React.Fragment, null,
                     data.map(item =>
                         React.createElement(MissingCard, {
                             key: `grid-${item.id}`,
@@ -1752,14 +1719,14 @@ class MissingSearchPage {
             );
         }
 
-        // 리스트 뷰 렌더링 (항상 렌더링하되 CSS로 제어)
+        // 리스트 뷰 렌더링
         if (listContainer) {
             listContainer.innerHTML = '';
             const listRoot = ReactDOM.createRoot(listContainer);
             this.reactRoots.set('list', listRoot);
             
             listRoot.render(
-                React.createElement('div', { style: { display: 'contents' } },
+                React.createElement(React.Fragment, null,
                     data.map(item =>
                         React.createElement(MissingCard, {
                             key: `list-${item.id}`,
@@ -1800,61 +1767,6 @@ class MissingSearchPage {
         // 알림
         if (window.showNotification) {
             window.showNotification('필터가 초기화되었습니다.', 'info');
-        }
-    }
-
-    // 뷰 상태 자동 복구 시스템
-    startViewHealthCheck() {
-        console.log('🏥 Starting view health check system...');
-        
-        // 5초 후 첫 검사
-        setTimeout(() => {
-            this.performViewHealthCheck();
-        }, 5000);
-        
-        // 이후 30초마다 검사
-        setInterval(() => {
-            this.performViewHealthCheck();
-        }, 30000);
-    }
-    
-    performViewHealthCheck() {
-        const gridView = document.getElementById('missingGrid');
-        const listView = document.getElementById('missingList');
-        
-        if (!gridView || !listView) return;
-        
-        const gridVisible = gridView.offsetHeight > 0;
-        const listVisible = listView.offsetHeight > 0;
-        const expectedView = this.viewMode;
-        
-        // 문제 감지 및 자동 복구
-        if (expectedView === 'list' && !listVisible) {
-            console.warn('🚨 Auto-fixing list view display issue');
-            this.activateListView(gridView, listView);
-            this.forceReactRerender();
-        } else if (expectedView === 'grid' && !gridVisible) {
-            console.warn('🚨 Auto-fixing grid view display issue');
-            this.activateGridView(gridView, listView);
-            this.forceReactRerender();
-        }
-        
-        // 둘 다 보이거나 둘 다 안 보이는 경우
-        if (gridVisible && listVisible) {
-            console.warn('🚨 Both views visible - fixing...');
-            if (expectedView === 'list') {
-                gridView.style.display = 'none';
-            } else {
-                listView.style.display = 'none';
-            }
-        } else if (!gridVisible && !listVisible) {
-            console.warn('🚨 No views visible - fixing...');
-            if (expectedView === 'list') {
-                this.activateListView(gridView, listView);
-            } else {
-                this.activateGridView(gridView, listView);
-            }
-            this.forceReactRerender();
         }
     }
 
@@ -1932,140 +1844,58 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// ============ 강화된 개발자 도구 ============
+// ============ 개발자 도구 (디버깅용) ============
 if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         instance: missingSearchPage,
         sampleData: sampleMissingData,
         
-        // 기본 테스트
-        testSearch: (term) => {
-            missingSearchPage.searchManager.updateFilter('searchTerm', term);
-        },
-        testPagination: () => {
-            console.log('Current page:', missingSearchPage.paginationManager.currentPage);
-            console.log('Total pages:', missingSearchPage.paginationManager.getTotalPages());
-            console.log('Page data:', missingSearchPage.currentPageData);
-        },
-        testAnimations: () => {
-            if (typeof gsap !== 'undefined') {
-                gsap.to('.missing-card', {
-                    duration: 0.5,
-                    scale: 1.05,
-                    stagger: 0.1,
-                    yoyo: true,
-                    repeat: 1
-                });
-            }
-        },
-        
-        // 뷰 관련 강화된 테스트
-        forceListView: () => {
-            console.log('🔧 Forcing list view...');
-            missingSearchPage.switchToView('list');
-        },
-        forceGridView: () => {
-            console.log('🔧 Forcing grid view...');
-            missingSearchPage.switchToView('grid');
-        },
-        checkViewState: () => {
-            missingSearchPage.validateViewState(missingSearchPage.viewMode);
-        },
-        
-        // 리스트 뷰 긴급 수리
-        emergencyListViewFix: () => {
-            console.log('🚨 Emergency list view fix...');
-            const listView = document.getElementById('missingList');
-            if (listView) {
-                listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important; margin-bottom: 40px !important;';
-                listView.classList.add('view-active');
-                
-                const gridView = document.getElementById('missingGrid');
-                if (gridView) {
-                    gridView.style.display = 'none';
-                    gridView.classList.add('view-hidden');
-                }
-                
-                // 뷰 모드 및 버튼 상태 업데이트
-                missingSearchPage.viewMode = 'list';
-                missingSearchPage.updateViewButtons('list');
-                
-                console.log('Emergency fix applied!');
-                setTimeout(() => {
-                    window.missingSearchDebug.checkViewState();
-                }, 100);
-            }
-        },
-        
-        // 팝업 스크롤 테스트
-        testPopupScroll: () => {
-            console.log('🔧 Testing popup scroll...');
-            // 페이지를 아래로 스크롤
-            window.scrollTo(0, 1000);
+        testListView: async () => {
+            console.log('🧪 Testing list view...');
+            await missingSearchPage.switchToView('list');
+            
             setTimeout(() => {
-                console.log('Scroll position:', window.scrollY);
-                missingSearchPage.filterPopupManager.openPopup();
-                console.log('Popup opened at scroll position:', window.scrollY);
+                const listView = document.getElementById('missingList');
+                console.log('List view visible:', listView.offsetHeight > 0);
+                console.log('List view display:', listView.style.display);
+                console.log('List view classes:', listView.classList.toString());
             }, 500);
         },
         
-        // 강화된 개발자 도구 - 실시간 모니터링 추가
-        startViewMonitoring: () => {
-            console.log('🔍 Starting view monitoring...');
-            
-            const monitor = () => {
-                const gridView = document.getElementById('missingGrid');
-                const listView = document.getElementById('missingList');
-                
-                const gridVisible = gridView && gridView.offsetHeight > 0;
-                const listVisible = listView && listView.offsetHeight > 0;
-                
-                if (missingSearchPage.viewMode === 'list' && !listVisible) {
-                    console.warn('⚠️ List view should be visible but is not!');
-                    window.missingSearchDebug.emergencyListViewFix();
-                } else if (missingSearchPage.viewMode === 'grid' && !gridVisible) {
-                    console.warn('⚠️ Grid view should be visible but is not!');
-                    missingSearchPage.switchToView('grid');
-                }
-            };
-            
-            // 2초마다 모니터링
-            setInterval(monitor, 2000);
-            console.log('✅ View monitoring started (checking every 2 seconds)');
-        },
-        
-        stopViewMonitoring: () => {
-            console.log('🛑 View monitoring stopped');
-        },
-        runAllTests: () => {
-            console.log('🧪 Running all tests...');
-            
-            console.log('1. Testing grid view...');
-            window.missingSearchDebug.forceGridView();
+        testGridView: async () => {
+            console.log('🧪 Testing grid view...');
+            await missingSearchPage.switchToView('grid');
             
             setTimeout(() => {
-                console.log('2. Testing list view...');
-                window.missingSearchDebug.forceListView();
-                
-                setTimeout(() => {
-                    console.log('3. Testing popup scroll...');
-                    window.missingSearchDebug.testPopupScroll();
-                    
-                    setTimeout(() => {
-                        console.log('4. Final state check...');
-                        window.missingSearchDebug.checkViewState();
-                        console.log('✅ All tests completed!');
-                    }, 2000);
-                }, 1000);
-            }, 1000);
+                const gridView = document.getElementById('missingGrid');
+                console.log('Grid view visible:', gridView.offsetHeight > 0);
+                console.log('Grid view display:', gridView.style.display);
+                console.log('Grid view classes:', gridView.classList.toString());
+            }, 500);
+        },
+        
+        runFullTest: async () => {
+            console.log('🚀 Running full view test sequence...');
+            
+            console.log('1. Testing grid view...');
+            await window.missingSearchDebug.testGridView();
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            console.log('2. Testing list view...');
+            await window.missingSearchDebug.testListView();
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            console.log('3. Back to grid view...');
+            await window.missingSearchDebug.testGridView();
+            
+            console.log('✅ Full test completed!');
         }
     };
     
-    console.log('🛠️ Debug tools loaded! Use window.missingSearchDebug');
-    console.log('Quick tests:');
-    console.log('- window.missingSearchDebug.forceListView() : 리스트 뷰 강제 전환');
-    console.log('- window.missingSearchDebug.emergencyListViewFix() : 리스트 뷰 긴급 수리');
-    console.log('- window.missingSearchDebug.testPopupScroll() : 팝업 스크롤 테스트');
-    console.log('- window.missingSearchDebug.runAllTests() : 모든 기능 테스트');
-    console.log('- window.missingSearchDebug.startViewMonitoring() : 실시간 뷰 모니터링 시작');
+    console.log('🛠️ Debug tools loaded!');
+    console.log('- window.missingSearchDebug.testListView() : 리스트 뷰 테스트');
+    console.log('- window.missingSearchDebug.testGridView() : 그리드 뷰 테스트');
+    console.log('- window.missingSearchDebug.runFullTest() : 전체 테스트');
 }

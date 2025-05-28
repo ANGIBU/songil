@@ -355,7 +355,7 @@ class StatCounter {
     }
 }
 
-// GSAP 애니메이션 관리자 - 부드러운 애니메이션으로 대폭 개선
+// GSAP 애니메이션 관리자 - 매우 부드럽고 자연스러운 물흐르는 애니메이션
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
@@ -367,7 +367,8 @@ class IndexAnimations {
 
     init() {
         if (typeof gsap === 'undefined' || this.isDestroyed) {
-            console.warn('GSAP not loaded, skipping animations');
+            console.warn('GSAP not loaded, using CSS animations');
+            this.initializeCSSAnimations();
             return;
         }
 
@@ -376,7 +377,7 @@ class IndexAnimations {
         }
 
         this.cleanup();
-        this.setupAnimations();
+        this.setupGSAPAnimations();
         this.isInitialized = true;
     }
 
@@ -392,223 +393,355 @@ class IndexAnimations {
         this.scrollTriggers = [];
     }
 
-    setupAnimations() {
-        // 페이지가 준비되지 않았다면 대기
-        if (!document.body.classList.contains('page-ready')) {
-            setTimeout(() => this.setupAnimations(), 100);
-            return;
-        }
+    // CSS 애니메이션 폴백 - 부드러운 스태거 효과
+    initializeCSSAnimations() {
+        setTimeout(() => {
+            // 순차적으로 요소들 애니메이션
+            const animateElement = (selector, delay = 0) => {
+                setTimeout(() => {
+                    const elements = document.querySelectorAll(selector);
+                    elements.forEach((el, index) => {
+                        setTimeout(() => {
+                            el.classList.add('animate-in');
+                        }, index * 100); // 100ms 간격으로 순차 애니메이션
+                    });
+                }, delay);
+            };
 
-        // 히어로 섹션 애니메이션 - 훨씬 부드럽고 자연스럽게 개선
+            // 히어로 섹션부터 순차적으로
+            animateElement('.hero-title', 200);
+            animateElement('.hero-description', 600);
+            animateElement('.hero-buttons', 1000);
+            animateElement('.ranking-display', 800);
+            animateElement('.ranking-item', 1200);
+            
+            // 스크롤 애니메이션도 설정
+            this.setupScrollAnimations();
+        }, 300);
+    }
+
+    // GSAP 애니메이션 - 매우 부드럽고 자연스럽게
+    setupGSAPAnimations() {
+        // 페이지가 준비되지 않았다면 대기
+        setTimeout(() => {
+            this.startHeroAnimations();
+        }, 100);
+    }
+
+    startHeroAnimations() {
+        // 메인 타임라인 - 매우 부드럽고 연속적인 흐름
         this.timeline = gsap.timeline({ 
-            delay: 0.2, // 0.3에서 0.2로 단축
+            delay: 0.1,
             onComplete: () => {
-                // 애니메이션 완료 후 성능 최적화
                 document.body.classList.add('animations-complete');
+                console.log('✨ Smooth animations completed');
             }
         });
         
-        // 부드러운 easing과 더 긴 duration으로 개선
+        // 히어로 제목 - 부드럽게 아래에서 위로
         this.timeline
             .fromTo('.hero-title', {
-                y: 50, // 60에서 50으로 축소
+                y: 80,
                 opacity: 0,
-                scale: 0.95 // 살짝 작게 시작해서 더 자연스럽게
+                scale: 0.9
             }, {
-                duration: 1.4, // 1.0에서 1.4로 연장
+                duration: 1.8,
                 y: 0,
                 opacity: 1,
                 scale: 1,
-                ease: 'power1.out' // power2.out에서 power1.out으로 부드럽게
+                ease: 'power2.out'
             })
+            // 설명 텍스트 - 제목과 자연스럽게 연결
             .fromTo('.hero-description', {
-                y: 30, // 40에서 30으로 축소
+                y: 60,
                 opacity: 0
             }, {
-                duration: 1.2, // 0.8에서 1.2로 연장
+                duration: 1.6,
                 y: 0,
                 opacity: 1,
-                ease: 'power1.out'
-            }, '-=0.8') // -=0.5에서 -=0.8로 더 많이 겹치게
+                ease: 'power2.out'
+            }, '-=1.2') // 제목 애니메이션과 많이 겹치게
+            // 버튼들 - 살짝 바운스 효과
             .fromTo('.hero-buttons .btn', {
-                y: 25, // 30에서 25로 축소
+                y: 50,
                 opacity: 0,
-                scale: 0.9
+                scale: 0.8
             }, {
-                duration: 1.0, // 0.6에서 1.0으로 연장
+                duration: 1.4,
                 y: 0,
                 opacity: 1,
                 scale: 1,
-                stagger: 0.1, // 0.15에서 0.1로 단축해서 연속성 향상
-                ease: 'back.out(1.2)' // 살짝 튀는 효과로 생동감 추가
-            }, '-=0.6') // -=0.4에서 -=0.6로 더 많이 겹치게
+                stagger: 0.15,
+                ease: 'back.out(1.3)'
+            }, '-=1.0')
+            // 순위 디스플레이 - 오른쪽에서 부드럽게
             .fromTo('.ranking-display', {
-                x: 60, // 40에서 60으로 확대 (오른쪽에서 나오는 효과 강화)
+                x: 100,
+                y: 80,
                 opacity: 0,
-                scale: 0.9
+                scale: 0.85
             }, {
-                duration: 1.3, // 1.0에서 1.3으로 연장
+                duration: 2.0,
                 x: 0,
-                opacity: 1,
-                scale: 1,
-                ease: 'power1.out'
-            }, '-=1.0') // -=0.7에서 -=1.0으로 더 많이 겹치게
-            .fromTo('.ranking-item', {
-                y: 15, // 20에서 15로 축소
-                opacity: 0,
-                scale: 0.95
-            }, {
-                duration: 0.8, // 0.5에서 0.8로 연장
                 y: 0,
                 opacity: 1,
                 scale: 1,
-                stagger: 0.06, // 0.1에서 0.06으로 단축해서 더 연속적으로
-                ease: 'power1.out'
-            }, '-=0.5'); // -=0.3에서 -=0.5로 더 많이 겹치게
+                ease: 'power2.out'
+            }, '-=1.4')
+            // 순위 아이템들 - 물흐르듯 순차적으로
+            .fromTo('.ranking-item', {
+                y: 40,
+                opacity: 0,
+                scale: 0.9
+            }, {
+                duration: 1.2,
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                stagger: 0.12,
+                ease: 'power2.out'
+            }, '-=1.0');
 
-        // ScrollTrigger 애니메이션들 - 모두 부드럽게 개선
+        // ScrollTrigger 애니메이션들 - 모두 부드럽게
         if (typeof ScrollTrigger !== 'undefined') {
-            // 긴급 실종자 섹션 - 부드러운 스태거 애니메이션
-            const urgentTrigger = ScrollTrigger.create({
-                trigger: '.urgent-section',
-                start: 'top 80%', // 75%에서 80%로 조정해서 더 일찍 시작
-                end: 'bottom 20%',
-                onEnter: () => {
-                    // 섹션 헤더 먼저 애니메이션
-                    gsap.fromTo('.urgent-section .section-header', {
-                        y: 40,
-                        opacity: 0
-                    }, {
-                        duration: 1.0,
-                        y: 0,
-                        opacity: 1,
-                        ease: 'power1.out'
-                    });
-                    
-                    // 카드들은 조금 늦게 시작해서 자연스럽게 연결
+            this.setupScrollTriggers();
+        } else {
+            // ScrollTrigger 없을 때 폴백
+            setTimeout(() => this.setupScrollAnimations(), 2000);
+        }
+    }
+
+    setupScrollTriggers() {
+        // 긴급 실종자 섹션 - 매우 부드러운 스태거
+        const urgentTrigger = ScrollTrigger.create({
+            trigger: '.urgent-section',
+            start: 'top 85%',
+            end: 'bottom 15%',
+            onEnter: () => {
+                // 헤더 먼저 부드럽게
+                gsap.fromTo('.urgent-section .section-header', {
+                    y: 60,
+                    opacity: 0
+                }, {
+                    duration: 1.5,
+                    y: 0,
+                    opacity: 1,
+                    ease: 'power2.out'
+                });
+                
+                // 카드들 - 파도처럼 연속적으로
+                setTimeout(() => {
                     const cards = document.querySelectorAll('.urgent-cards .missing-card');
                     gsap.fromTo(cards, {
-                        y: 40, // 50에서 40으로 축소
+                        y: 80,
                         opacity: 0,
-                        scale: 0.95
+                        scale: 0.85
                     }, {
-                        duration: 0.9, // 0.7에서 0.9로 연장
+                        duration: 1.4,
                         y: 0,
                         opacity: 1,
                         scale: 1,
-                        stagger: 0.08, // 0.12에서 0.08로 단축해서 더 연속적으로
-                        ease: 'power1.out',
-                        delay: 0.3 // 헤더 애니메이션 후 시작
+                        stagger: {
+                            amount: 1.2,
+                            from: "start",
+                            ease: "power2.out"
+                        },
+                        ease: 'power2.out'
                     });
-                },
-                once: true
-            });
-            this.scrollTriggers.push(urgentTrigger);
+                }, 400);
+            },
+            once: true
+        });
+        this.scrollTriggers.push(urgentTrigger);
 
-            // 소개 섹션 - 5개 스텝 부드러운 애니메이션
-            const introTrigger = ScrollTrigger.create({
-                trigger: '.intro-section',
-                start: 'top 85%', // 80%에서 85%로 조정
-                end: 'bottom 15%',
-                onEnter: () => {
-                    // 제목 먼저 애니메이션
-                    gsap.fromTo('.intro-text h2', {
-                        y: 30,
-                        opacity: 0
-                    }, {
-                        duration: 1.0,
-                        y: 0,
-                        opacity: 1,
-                        ease: 'power1.out'
-                    });
-                    
-                    // 스텝들은 파도 모양으로 애니메이션
+        // 소개 섹션 - 5개 스텝 물결 효과
+        const introTrigger = ScrollTrigger.create({
+            trigger: '.intro-section',
+            start: 'top 80%',
+            end: 'bottom 20%',
+            onEnter: () => {
+                // 제목 먼저
+                gsap.fromTo('.intro-text h2', {
+                    y: 50,
+                    opacity: 0
+                }, {
+                    duration: 1.6,
+                    y: 0,
+                    opacity: 1,
+                    ease: 'power2.out'
+                });
+                
+                // 스텝들 - 물결처럼 연속적으로
+                setTimeout(() => {
                     const steps = document.querySelectorAll('.intro-steps .step');
                     gsap.fromTo(steps, {
-                        y: 35, // 40에서 35로 축소
+                        y: 100,
                         opacity: 0,
-                        scale: 0.9
+                        scale: 0.8
                     }, {
-                        duration: 0.8, // 0.6에서 0.8로 연장
+                        duration: 1.6,
                         y: 0,
                         opacity: 1,
                         scale: 1,
-                        stagger: 0.06, // 0.08에서 0.06으로 단축
-                        ease: 'back.out(1.1)', // 살짝 튀는 효과
-                        delay: 0.4
+                        stagger: {
+                            amount: 1.0,
+                            from: "start",
+                            ease: "power2.out"
+                        },
+                        ease: 'back.out(1.2)'
                     });
-                },
-                once: true
-            });
-            this.scrollTriggers.push(introTrigger);
+                }, 600);
+            },
+            once: true
+        });
+        this.scrollTriggers.push(introTrigger);
 
-            // 통계 섹션 - 가장 임팩트 있게
-            const statsTrigger = ScrollTrigger.create({
-                trigger: '.stats-section',
-                start: 'top 85%',
-                end: 'bottom 15%',
-                onEnter: () => {
-                    // 제목과 메시지 먼저
-                    gsap.fromTo('.stats-section h2, .hope-message', {
-                        y: 30,
-                        opacity: 0
-                    }, {
-                        duration: 1.0,
-                        y: 0,
-                        opacity: 1,
-                        stagger: 0.2,
-                        ease: 'power1.out'
-                    });
-                    
-                    // 통계 아이템들은 스케일 효과로 임팩트 있게
+        // 통계 섹션 - 가장 임팩트 있게
+        const statsTrigger = ScrollTrigger.create({
+            trigger: '.stats-section',
+            start: 'top 80%',
+            end: 'bottom 20%',
+            onEnter: () => {
+                // 제목과 메시지
+                gsap.fromTo('.stats-section h2, .hope-message', {
+                    y: 60,
+                    opacity: 0
+                }, {
+                    duration: 1.8,
+                    y: 0,
+                    opacity: 1,
+                    stagger: 0.3,
+                    ease: 'power2.out'
+                });
+                
+                // 통계 아이템들 - 스케일과 함께 드라마틱하게
+                setTimeout(() => {
                     const statItems = document.querySelectorAll('.stats-grid .stat-item');
                     gsap.fromTo(statItems, {
-                        scale: 0.7, // 0.8에서 0.7로 더 작게 시작
+                        scale: 0.6,
                         opacity: 0,
-                        y: 30
+                        y: 80
                     }, {
-                        duration: 1.0, // 0.8에서 1.0으로 연장
+                        duration: 1.8,
                         scale: 1,
                         opacity: 1,
                         y: 0,
-                        stagger: 0.08, // 0.1에서 0.08로 단축
-                        ease: 'back.out(1.4)', // 더 강한 튀는 효과
-                        delay: 0.5
+                        stagger: {
+                            amount: 0.8,
+                            from: "start",
+                            ease: "power2.out"
+                        },
+                        ease: 'back.out(1.6)'
                     });
-                },
-                once: true
+                }, 800);
+            },
+            once: true
+        });
+        this.scrollTriggers.push(statsTrigger);
+    }
+
+    // 스크롤 애니메이션 폴백 (ScrollTrigger 없을 때)
+    setupScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target;
+                    
+                    if (target.classList.contains('urgent-section')) {
+                        this.animateUrgentSection();
+                    } else if (target.classList.contains('intro-section')) {
+                        this.animateIntroSection();
+                    } else if (target.classList.contains('stats-section')) {
+                        this.animateStatsSection();
+                    }
+                    
+                    observer.unobserve(target);
+                }
             });
-            this.scrollTriggers.push(statsTrigger);
-        }
+        }, observerOptions);
+
+        // 관찰 대상 등록
+        const sections = document.querySelectorAll('.urgent-section, .intro-section, .stats-section');
+        sections.forEach(section => observer.observe(section));
+    }
+
+    animateUrgentSection() {
+        setTimeout(() => {
+            document.querySelector('.urgent-section .section-header')?.classList.add('animate-in');
+        }, 200);
+        
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.urgent-cards .missing-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => card.classList.add('animate-in'), index * 150);
+            });
+        }, 800);
+    }
+
+    animateIntroSection() {
+        setTimeout(() => {
+            document.querySelector('.intro-text h2')?.classList.add('animate-in');
+        }, 200);
+        
+        setTimeout(() => {
+            const steps = document.querySelectorAll('.intro-steps .step');
+            steps.forEach((step, index) => {
+                setTimeout(() => step.classList.add('animate-in'), index * 200);
+            });
+        }, 800);
+    }
+
+    animateStatsSection() {
+        setTimeout(() => {
+            document.querySelector('.stats-section h2')?.classList.add('animate-in');
+        }, 200);
+        
+        setTimeout(() => {
+            document.querySelector('.hope-message')?.classList.add('animate-in');
+        }, 600);
+        
+        setTimeout(() => {
+            const items = document.querySelectorAll('.stats-grid .stat-item');
+            items.forEach((item, index) => {
+                setTimeout(() => item.classList.add('animate-in'), index * 200);
+            });
+        }, 1200);
     }
 
     animateUpButton(button) {
         if (!this.isInitialized || this.isDestroyed) return;
         
-        const timeline = gsap.timeline();
-        
-        timeline
-            .to(button, {
-                scale: 1.15, // 1.2에서 1.15로 살짝 축소
-                duration: 0.12, // 0.1에서 0.12로 약간 연장
-                ease: 'power1.out'
-            })
-            .to(button, {
-                scale: 1,
-                duration: 0.25, // 0.2에서 0.25로 연장
-                ease: 'elastic.out(1.8, 0.4)' // 더 부드러운 탄성 효과
-            });
+        if (typeof gsap !== 'undefined') {
+            const timeline = gsap.timeline();
             
-        const countElement = button.querySelector('span');
-        if (countElement) {
-            gsap.fromTo(countElement, 
-                { scale: 1.4 }, // 1.5에서 1.4로 축소
-                {
+            timeline
+                .to(button, {
+                    scale: 1.1,
+                    duration: 0.15,
+                    ease: 'power2.out'
+                })
+                .to(button, {
                     scale: 1,
-                    duration: 0.35, // 0.3에서 0.35로 연장
-                    ease: 'back.out(1.5)' // 1.7에서 1.5로 부드럽게
-                }
-            );
+                    duration: 0.3,
+                    ease: 'elastic.out(1.5, 0.3)'
+                });
+                
+            const countElement = button.querySelector('span');
+            if (countElement) {
+                gsap.fromTo(countElement, 
+                    { scale: 1.3 },
+                    {
+                        scale: 1,
+                        duration: 0.4,
+                        ease: 'back.out(1.4)'
+                    }
+                );
+            }
         }
     }
 
@@ -687,7 +820,7 @@ class ScrollObserver {
     }
 }
 
-// 메인 홈페이지 관리 클래스 - Three.js 제거
+// 메인 홈페이지 관리 클래스
 class IndexPage {
     constructor() {
         this.animations = null;
@@ -695,11 +828,6 @@ class IndexPage {
         this.isDestroyed = false;
         this.eventCleanup = null;
         this.resizeTimeout = null;
-        this.loadingSteps = {
-            domReady: false,
-            reactReady: false,
-            componentsReady: false
-        };
         this.init();
     }
 
@@ -717,34 +845,11 @@ class IndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        this.loadingSteps.domReady = true;
-        this.showLoadingOverlay();
-        
-        // JavaScript 비활성화 감지
+        // JavaScript 비활성화 감지 제거
         document.documentElement.classList.remove('no-js');
         
-        // 페이지 로딩 클래스 추가
-        document.body.classList.add('page-loading');
-        
         // 단계별 초기화
-        this.initializeComponents();
-    }
-
-    showLoadingOverlay() {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-        }
-    }
-
-    hideLoadingOverlay() {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.display = 'none';
-            }, 300);
-        }
+        setTimeout(() => this.initializeComponents(), 100);
     }
 
     async initializeComponents() {
@@ -753,30 +858,26 @@ class IndexPage {
         try {
             // 1. React 컴포넌트 렌더링
             await this.renderComponents();
-            this.loadingSteps.reactReady = true;
             
             // 2. 애니메이션 시스템 초기화
             await this.initializeAnimations();
-            this.loadingSteps.componentsReady = true;
             
-            // 3. 모든 준비 완료
-            this.finishLoading();
+            // 3. 이벤트 리스너 설정
+            this.setupEventListeners();
+            
+            console.log('✨ Index page loaded with smooth flowing animations');
             
         } catch (error) {
             console.error('Component initialization error:', error);
-            this.finishLoading(); // 오류 발생 시에도 페이지 표시
         }
     }
 
     async renderComponents() {
         return new Promise((resolve) => {
             try {
-                // React 컴포넌트 렌더링
                 this.renderRankings();
                 this.renderUrgentCards();
-                
-                // React 렌더링 완료 대기
-                setTimeout(resolve, 100);
+                setTimeout(resolve, 50);
             } catch (error) {
                 console.error('React rendering failed:', error);
                 resolve();
@@ -789,29 +890,12 @@ class IndexPage {
             try {
                 this.animations = new IndexAnimations();
                 this.scrollObserver = new ScrollObserver();
-                this.setupEventListeners();
-                
                 setTimeout(resolve, 100);
             } catch (error) {
                 console.error('Animation initialization failed:', error);
                 resolve();
             }
         });
-    }
-
-    finishLoading() {
-        if (this.isDestroyed) return;
-        
-        // 로딩 상태 제거
-        document.body.classList.remove('page-loading');
-        document.body.classList.add('page-ready');
-        
-        // 로딩 오버레이 숨기기
-        setTimeout(() => {
-            this.hideLoadingOverlay();
-        }, 400); // 500에서 400으로 단축
-        
-        console.log('Index page ready with smooth GSAP animations');
     }
 
     renderRankings() {
@@ -887,7 +971,7 @@ class IndexPage {
                 clearTimeout(this.resizeTimeout);
             }
             this.resizeTimeout = setTimeout(() => {
-                console.log('Window resized - gradients adjust automatically');
+                console.log('Window resized - animations adjusted');
             }, 250);
         };
         
@@ -990,15 +1074,15 @@ window.handleUpClick = function(button, missingId) {
 if (typeof window !== 'undefined') {
     window.indexPageDebug = {
         get instance() { return indexPage; },
-        get loadingSteps() { return indexPage?.loadingSteps; },
         testAnimations: () => {
             if (typeof gsap !== 'undefined' && indexPage && !indexPage.isDestroyed) {
                 gsap.to('.missing-card', {
-                    duration: 0.5,
-                    scale: 1.05,
+                    duration: 0.6,
+                    y: -10,
                     stagger: 0.1,
                     yoyo: true,
-                    repeat: 1
+                    repeat: 1,
+                    ease: 'power2.out'
                 });
             }
         },

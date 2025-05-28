@@ -2,8 +2,8 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 강화된 FOUC 방지 시스템 */
-/* 초기 상태에서 모든 애니메이션 요소 완전 숨김 */
+/* 부드러운 페이드인 애니메이션 시스템 */
+/* 모든 애니메이션 요소들의 초기 상태 - 아래에서 위로 부드럽게 */
 .hero-title,
 .hero-description,
 .hero-buttons,
@@ -16,32 +16,20 @@
 .stats-grid,
 .stat-item,
 .section-header {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(40px) !important;
-    transition: none !important;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: opacity, transform;
 }
 
-/* 페이지 준비 완료 후 기본 상태로 복원 */
-.page-ready .hero-title,
-.page-ready .hero-description,
-.page-ready .hero-buttons,
-.page-ready .ranking-display,
-.page-ready .ranking-item,
-.page-ready .urgent-cards,
-.page-ready .missing-card,
-.page-ready .intro-steps,
-.page-ready .step,
-.page-ready .stats-grid,
-.page-ready .stat-item,
-.page-ready .section-header {
+/* 애니메이션 활성화 시 부드럽게 나타남 */
+.animate-in {
     opacity: 1 !important;
-    visibility: visible !important;
     transform: translateY(0) !important;
-    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
 
-/* JavaScript 비활성화 시 모든 요소 강제 표시 */
+/* JavaScript 비활성화 시 모든 요소 즉시 표시 */
 .no-js .hero-title,
 .no-js .hero-description,
 .no-js .hero-buttons,
@@ -55,7 +43,6 @@
 .no-js .stat-item,
 .no-js .section-header {
     opacity: 1 !important;
-    visibility: visible !important;
     transform: translateY(0) !important;
     transition: none !important;
 }
@@ -63,14 +50,14 @@
 /* 히어로 섹션 - 헤더와의 여백 대폭 축소 */
 .hero-section {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-    padding: 40px 0 60px; /* 60px에서 40px로 축소 */
+    padding: 40px 0 60px;
     position: relative;
     overflow: hidden;
-    min-height: 85vh; /* 90vh에서 85vh로 축소 */
+    min-height: 85vh;
     display: flex;
     align-items: center;
-    margin-top: -60px; /* -20px에서 -60px로 대폭 축소 */
-    padding-top: 80px; /* 헤더 높이만큼 패딩 추가 */
+    margin-top: -60px;
+    padding-top: 80px;
 }
 
 .hero-section::before {
@@ -151,13 +138,13 @@
     padding: 35px 30px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--gray-200);
-    width: 520px; /* 650px에서 520px로 축소 */
+    width: 520px;
     max-width: 100%;
     position: relative;
     overflow: hidden;
     will-change: transform, opacity;
     margin-left: auto;
-    transform: translateX(30px);
+    transform: translateX(30px) translateY(50px);
 }
 
 .ranking-display::before {
@@ -208,10 +195,12 @@
     min-height: 45px;
     height: 45px;
     will-change: transform;
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 .ranking-item:hover {
-    transform: translateX(5px);
+    transform: translateX(5px) translateY(0);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
@@ -321,7 +310,7 @@
 
 /* 긴급 실종자 섹션 - 상단 여백 조정 */
 .urgent-section {
-    padding: 80px 0; /* 100px에서 80px로 축소 */
+    padding: 80px 0;
     background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
     position: relative;
     overflow: hidden;
@@ -340,7 +329,7 @@
 
 .section-header {
     text-align: center;
-    margin-bottom: 50px; /* 60px에서 50px로 축소 */
+    margin-bottom: 50px;
     position: relative;
     z-index: 1;
 }
@@ -377,7 +366,7 @@
 .urgent-cards-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto 40px; /* 50px에서 40px로 축소 */
+    margin: 0 auto 40px;
     position: relative;
     z-index: 1;
     padding: 0 16px;
@@ -419,6 +408,8 @@
     width: 100%;
     box-sizing: border-box;
     will-change: transform, box-shadow;
+    opacity: 0;
+    transform: translateY(40px);
 }
 
 .missing-card:hover {
@@ -603,7 +594,7 @@
 
 /* 소개 섹션 - 여백 조정 */
 .intro-section {
-    padding: 80px 0; /* 100px에서 80px로 축소 */
+    padding: 80px 0;
     background: white;
     position: relative;
 }
@@ -619,7 +610,7 @@
     font-size: 2.75rem;
     font-weight: 700;
     color: var(--gray-900);
-    margin-bottom: 50px; /* 60px에서 50px로 축소 */
+    margin-bottom: 50px;
     position: relative;
 }
 
@@ -658,6 +649,8 @@
     width: 100%;
     max-width: 260px;
     min-height: 320px;
+    opacity: 0;
+    transform: translateY(60px);
 }
 
 .step::before {
@@ -747,7 +740,7 @@
 
 /* 희망 메시지 섹션 - 여백 조정 */
 .stats-section {
-    padding: 80px 0; /* 100px에서 80px로 축소 */
+    padding: 80px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
     color: white;
     text-align: center;
@@ -797,7 +790,7 @@
     font-size: 1.4rem;
     line-height: 1.8;
     max-width: 800px;
-    margin: 0 auto 40px; /* 50px에서 40px로 축소 */
+    margin: 0 auto 40px;
     opacity: 0.95;
     position: relative;
     z-index: 1;
@@ -824,6 +817,8 @@
     position: relative;
     overflow: hidden;
     will-change: transform, box-shadow;
+    opacity: 0;
+    transform: translateY(50px);
 }
 
 .stat-item::before {
@@ -892,14 +887,14 @@
 /* 반응형 디자인 강화 */
 @media (max-width: 1024px) {
     .hero-section {
-        margin-top: -40px; /* 태블릿에서 여백 조정 */
+        margin-top: -40px;
         padding-top: 60px;
         min-height: 80vh;
     }
     
     .hero-content {
         grid-template-columns: 1fr;
-        gap: 40px; /* 50px에서 40px로 축소 */
+        gap: 40px;
         text-align: center;
     }
     
@@ -913,13 +908,13 @@
     }
     
     .ranking-display {
-        width: 460px; /* 모바일에서는 더 작게 */
+        width: 460px;
         margin: 0 auto;
-        transform: translateX(0);
+        transform: translateX(0) translateY(50px);
     }
     
     .urgent-section {
-        padding: 60px 0; /* 80px에서 60px로 축소 */
+        padding: 60px 0;
     }
     
     .urgent-cards {
@@ -929,7 +924,7 @@
     }
     
     .intro-section {
-        padding: 60px 0; /* 80px에서 60px로 축소 */
+        padding: 60px 0;
     }
     
     .intro-steps {
@@ -938,15 +933,15 @@
     }
     
     .stats-section {
-        padding: 60px 0; /* 80px에서 60px로 축소 */
+        padding: 60px 0;
     }
 }
 
 @media (max-width: 768px) {
     .hero-section {
-        padding: 30px 0 40px; /* 40px에서 30px로 축소 */
+        padding: 30px 0 40px;
         min-height: auto;
-        margin-top: -30px; /* -10px에서 -30px로 조정 */
+        margin-top: -30px;
         padding-top: 50px;
     }
     
@@ -974,7 +969,7 @@
         width: 380px;
         margin: 0 auto;
         padding: 25px 20px;
-        transform: translateX(0);
+        transform: translateX(0) translateY(50px);
     }
     
     .ranking-item {
@@ -993,7 +988,7 @@
     }
     
     .urgent-section {
-        padding: 50px 0; /* 60px에서 50px로 축소 */
+        padding: 50px 0;
     }
     
     .urgent-cards {
@@ -1011,7 +1006,7 @@
     }
     
     .intro-section {
-        padding: 50px 0; /* 60px에서 50px로 축소 */
+        padding: 50px 0;
     }
     
     .intro-steps {
@@ -1020,7 +1015,7 @@
     }
     
     .stats-section {
-        padding: 50px 0; /* 60px에서 50px로 축소 */
+        padding: 50px 0;
     }
     
     .stats-grid {
@@ -1062,7 +1057,7 @@
     }
     
     .urgent-section {
-        padding: 40px 0; /* 50px에서 40px로 축소 */
+        padding: 40px 0;
     }
     
     .urgent-cards {
@@ -1092,7 +1087,7 @@
     }
     
     .intro-section {
-        padding: 40px 0; /* 50px에서 40px로 축소 */
+        padding: 40px 0;
     }
     
     .intro-steps {
@@ -1101,7 +1096,7 @@
     }
     
     .stats-section {
-        padding: 40px 0; /* 50px에서 40px로 축소 */
+        padding: 40px 0;
     }
 }
 
@@ -1117,7 +1112,7 @@
 }
 
 /* 애니메이션 완료 후 최적화 */
-.animated {
+.animate-in {
     will-change: auto;
 }
 
