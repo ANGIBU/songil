@@ -673,36 +673,65 @@ body.modal-open {
     color: white !important;
 }
 
-/* ============ 실종자 목록 섹션 - 리스트 뷰 버그 완전 해결 ============ */
+/* ============ 실종자 목록 섹션 - 완전히 새로운 접근 방식 ============ */
 .missing-list {
     padding: 40px 0 80px;
     background: white;
 }
 
-/* 그리드 뷰 - 기본 표시 */
+/* 뷰 컨테이너 - 새로운 구조 */
+.view-container {
+    position: relative;
+    min-height: 400px;
+}
+
+/* 그리드 뷰 - 절대 위치 지정으로 완전 분리 */
 .missing-grid {
-    display: grid !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 30px;
     margin-bottom: 40px;
-    /* 그리드 뷰 숨김 시 */
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 2;
 }
 
+/* 그리드 뷰 숨김 */
 .missing-grid.view-hidden {
-    display: none !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 1;
 }
 
-/* 리스트 뷰 - 강력한 스타일 적용 */
+/* 리스트 뷰 - 절대 위치 지정으로 완전 분리 */
 .missing-list-view {
-    display: none !important;
-    flex-direction: column !important;
-    gap: 15px !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     margin-bottom: 40px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1;
 }
 
-/* 리스트 뷰 활성화 - 최고 우선순위 적용 */
+/* 리스트 뷰 활성화 */
 .missing-list-view.view-active {
-    display: flex !important;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    z-index: 2;
 }
 
 .missing-card {
@@ -878,21 +907,20 @@ body.modal-open {
     transform: translateY(-2px);
 }
 
-/* 리스트 뷰 아이템 스타일 - 강화 */
+/* 리스트 뷰 아이템 스타일 */
 .list-item {
-    display: grid !important;
-    grid-template-columns: 120px 1fr auto !important;
-    gap: 20px !important;
-    padding: 20px !important;
-    background: white !important;
-    border-radius: 15px !important;
-    margin-bottom: 15px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-    border: 1px solid var(--gray-200) !important;
-    transition: all 0.3s ease !important;
-    align-items: center !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--gray-200);
+    transition: all 0.3s ease;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .list-item:hover {
@@ -901,42 +929,42 @@ body.modal-open {
 }
 
 .list-image {
-    width: 120px !important;
-    height: 80px !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-    position: relative !important;
-    flex-shrink: 0 !important;
+    width: 120px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
 }
 
 .list-image img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .list-content {
-    flex: 1 !important;
-    min-width: 0 !important;
+    flex: 1;
+    min-width: 0;
 }
 
 .list-content h3 {
-    font-size: 1.2rem !important;
-    font-weight: 600 !important;
-    color: var(--gray-900) !important;
-    margin-bottom: 8px !important;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 8px;
 }
 
 .list-content .missing-info {
-    margin-bottom: 0 !important;
-    line-height: 1.6 !important;
+    margin-bottom: 0;
+    line-height: 1.6;
 }
 
 .list-actions {
-    display: flex !important;
-    gap: 10px !important;
-    align-items: center !important;
-    flex-shrink: 0 !important;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 /* 로딩 인디케이터 */
@@ -1271,13 +1299,13 @@ body.modal-open {
     }
     
     .list-item {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-        text-align: center !important;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        text-align: center;
     }
     
     .list-image {
-        justify-self: center !important;
+        justify-self: center;
     }
     
     .floating-report-btns {

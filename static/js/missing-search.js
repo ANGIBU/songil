@@ -1378,23 +1378,21 @@ class MissingSearchPage {
         console.log('Missing search page initialized successfully');
     }
 
-    // ============ 뷰 초기화 - 강력한 초기화 로직 ============
+    // ============ 뷰 초기화 - 새로운 opacity/visibility 방식 ============
     initializeViews() {
         const gridView = document.getElementById('missingGrid');
         const listView = document.getElementById('missingList');
         
         if (gridView && listView) {
-            console.log('Initializing views with strong CSS reset');
+            console.log('Initializing views with opacity/visibility approach');
             
-            // 그리드 뷰 강제 표시
-            gridView.style.display = 'grid';
+            // 그리드 뷰 표시 (기본값)
             gridView.classList.remove('view-hidden');
             
-            // 리스트 뷰 강제 숨김 - 모든 가능한 클래스 제거
-            listView.style.display = 'none';
-            listView.classList.remove('view-active', 'active');
+            // 리스트 뷰 숨김 (기본값)
+            listView.classList.remove('view-active');
             
-            // 뷰 버튼 상태 강제 초기화
+            // 뷰 버튼 상태 초기화
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -1483,7 +1481,7 @@ class MissingSearchPage {
         });
     }
 
-    // ============ 뷰 전환 - 완전히 새로운 안정적인 로직 ============
+    // ============ 뷰 전환 - 단순하고 안정적인 CSS 클래스 기반 로직 ============
     async switchToView(targetViewMode) {
         // 중복 실행 방지
         if (this.isViewChanging) return;
@@ -1501,20 +1499,25 @@ class MissingSearchPage {
                 return;
             }
             
-            // 1. 버튼 상태 즉시 업데이트
-            this.updateViewButtons(targetViewMode);
-            
-            // 2. 뷰 모드 업데이트
+            // 1. 뷰 모드 업데이트
             this.viewMode = targetViewMode;
             
-            // 3. CSS 스타일 적용 (동기적으로)
-            this.applyViewStyles(targetViewMode, gridView, listView);
+            // 2. 버튼 상태 업데이트
+            this.updateViewButtons(targetViewMode);
+            
+            // 3. CSS 클래스로 뷰 전환 (단순하고 안정적)
+            if (targetViewMode === 'list') {
+                console.log('📋 Activating list view...');
+                gridView.classList.add('view-hidden');
+                listView.classList.add('view-active');
+            } else {
+                console.log('📊 Activating grid view...');
+                listView.classList.remove('view-active');
+                gridView.classList.remove('view-hidden');
+            }
             
             // 4. React 컴포넌트 재렌더링 (약간의 지연 후)
             await this.delayedReactRender();
-            
-            // 5. 최종 검증 및 수정
-            await this.validateAndFixView(targetViewMode, gridView, listView);
             
             console.log(`✅ Successfully switched to ${targetViewMode} view`);
             
@@ -1526,29 +1529,8 @@ class MissingSearchPage {
         }
     }
 
-    // CSS 스타일 동기적 적용
-    applyViewStyles(targetViewMode, gridView, listView) {
-        console.log(`🎨 Applying ${targetViewMode} styles...`);
-        
-        if (targetViewMode === 'list') {
-            // 리스트 뷰 활성화 - 강력한 스타일 적용
-            listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important; margin-bottom: 40px !important;';
-            listView.classList.add('view-active');
-            
-            // 그리드 뷰 비활성화
-            gridView.style.cssText = 'display: none !important;';
-            gridView.classList.add('view-hidden');
-            
-        } else if (targetViewMode === 'grid') {
-            // 그리드 뷰 활성화 - 강력한 스타일 적용
-            gridView.style.cssText = 'display: grid !important; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important; gap: 30px !important; margin-bottom: 40px !important;';
-            gridView.classList.remove('view-hidden');
-            
-            // 리스트 뷰 비활성화
-            listView.style.cssText = 'display: none !important;';
-            listView.classList.remove('view-active', 'active');
-        }
-    }
+    // CSS 스타일 동기적 적용 - 제거 (더 이상 필요 없음)
+    // applyViewStyles 메서드 삭제
 
     // 지연된 React 재렌더링
     async delayedReactRender() {
@@ -1559,42 +1541,12 @@ class MissingSearchPage {
                     this.renderResults(this.currentPageData);
                 }
                 resolve();
-            }, 50);
+            }, 100); // 100ms로 약간 늘려서 CSS 전환 완료 대기
         });
     }
 
-    // 최종 검증 및 수정
-    async validateAndFixView(targetViewMode, gridView, listView) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                console.log('🔍 Validating view state...');
-                
-                const gridVisible = gridView.offsetHeight > 0;
-                const listVisible = listView.offsetHeight > 0;
-                
-                // 문제 감지 및 수정
-                if (targetViewMode === 'list' && !listVisible) {
-                    console.warn('🚨 List view not visible, applying emergency fix...');
-                    listView.style.cssText = 'display: flex !important; flex-direction: column !important; gap: 15px !important; margin-bottom: 40px !important; opacity: 1 !important; visibility: visible !important;';
-                    listView.classList.add('view-active');
-                    
-                } else if (targetViewMode === 'grid' && !gridVisible) {
-                    console.warn('🚨 Grid view not visible, applying emergency fix...');
-                    gridView.style.cssText = 'display: grid !important; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important; gap: 30px !important; margin-bottom: 40px !important; opacity: 1 !important; visibility: visible !important;';
-                    gridView.classList.remove('view-hidden');
-                }
-                
-                // 최종 상태 로그
-                console.log('📊 Final view state:', {
-                    viewMode: this.viewMode,
-                    gridVisible: gridView.offsetHeight > 0,
-                    listVisible: listView.offsetHeight > 0
-                });
-                
-                resolve();
-            }, 100);
-        });
-    }
+    // 최종 검증 및 수정 - 제거 (더 이상 필요 없음)
+    // validateAndFixView 메서드 삭제
 
     // 뷰 버튼 상태 업데이트
     updateViewButtons(activeViewMode) {
@@ -1844,7 +1796,7 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// ============ 개발자 도구 (디버깅용) ============
+// ============ 개발자 도구 - 새로운 CSS 구조 테스트용 ============
 if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         instance: missingSearchPage,
@@ -1856,9 +1808,21 @@ if (typeof window !== 'undefined') {
             
             setTimeout(() => {
                 const listView = document.getElementById('missingList');
-                console.log('List view visible:', listView.offsetHeight > 0);
-                console.log('List view display:', listView.style.display);
-                console.log('List view classes:', listView.classList.toString());
+                const gridView = document.getElementById('missingGrid');
+                
+                console.log('📊 View state after list activation:');
+                console.log('List view:', {
+                    hasActiveClass: listView.classList.contains('view-active'),
+                    opacity: window.getComputedStyle(listView).opacity,
+                    visibility: window.getComputedStyle(listView).visibility,
+                    zIndex: window.getComputedStyle(listView).zIndex
+                });
+                console.log('Grid view:', {
+                    hasHiddenClass: gridView.classList.contains('view-hidden'),
+                    opacity: window.getComputedStyle(gridView).opacity,
+                    visibility: window.getComputedStyle(gridView).visibility,
+                    zIndex: window.getComputedStyle(gridView).zIndex
+                });
             }, 500);
         },
         
@@ -1867,35 +1831,113 @@ if (typeof window !== 'undefined') {
             await missingSearchPage.switchToView('grid');
             
             setTimeout(() => {
+                const listView = document.getElementById('missingList');
                 const gridView = document.getElementById('missingGrid');
-                console.log('Grid view visible:', gridView.offsetHeight > 0);
-                console.log('Grid view display:', gridView.style.display);
-                console.log('Grid view classes:', gridView.classList.toString());
+                
+                console.log('📊 View state after grid activation:');
+                console.log('Grid view:', {
+                    hasHiddenClass: gridView.classList.contains('view-hidden'),
+                    opacity: window.getComputedStyle(gridView).opacity,
+                    visibility: window.getComputedStyle(gridView).visibility,
+                    zIndex: window.getComputedStyle(gridView).zIndex
+                });
+                console.log('List view:', {
+                    hasActiveClass: listView.classList.contains('view-active'),
+                    opacity: window.getComputedStyle(listView).opacity,
+                    visibility: window.getComputedStyle(listView).visibility,
+                    zIndex: window.getComputedStyle(listView).zIndex
+                });
             }, 500);
+        },
+        
+        checkViewState: () => {
+            const gridView = document.getElementById('missingGrid');
+            const listView = document.getElementById('missingList');
+            
+            console.log('=== 현재 뷰 상태 검사 ===');
+            console.log('Current view mode:', missingSearchPage.viewMode);
+            console.log('Grid view classes:', gridView.classList.toString());
+            console.log('List view classes:', listView.classList.toString());
+            console.log('Grid computed styles:', {
+                opacity: window.getComputedStyle(gridView).opacity,
+                visibility: window.getComputedStyle(gridView).visibility,
+                zIndex: window.getComputedStyle(gridView).zIndex
+            });
+            console.log('List computed styles:', {
+                opacity: window.getComputedStyle(listView).opacity,
+                visibility: window.getComputedStyle(listView).visibility,
+                zIndex: window.getComputedStyle(listView).zIndex
+            });
+        },
+        
+        forceListView: () => {
+            console.log('🔧 Force activating list view...');
+            const listView = document.getElementById('missingList');
+            const gridView = document.getElementById('missingGrid');
+            
+            // CSS 클래스로 강제 전환
+            listView.classList.add('view-active');
+            gridView.classList.add('view-hidden');
+            
+            // 뷰 모드 및 버튼 상태 업데이트
+            missingSearchPage.viewMode = 'list';
+            missingSearchPage.updateViewButtons('list');
+            
+            console.log('✅ List view force activated!');
+            
+            setTimeout(() => {
+                window.missingSearchDebug.checkViewState();
+            }, 100);
         },
         
         runFullTest: async () => {
             console.log('🚀 Running full view test sequence...');
             
-            console.log('1. Testing grid view...');
-            await window.missingSearchDebug.testGridView();
+            console.log('1. 초기 상태 확인...');
+            window.missingSearchDebug.checkViewState();
             
             await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('2. Testing list view...');
+            console.log('2. 리스트 뷰 테스트...');
             await window.missingSearchDebug.testListView();
             
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
-            console.log('3. Back to grid view...');
+            console.log('3. 그리드 뷰 테스트...');
             await window.missingSearchDebug.testGridView();
             
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            console.log('4. 다시 리스트 뷰 테스트...');
+            await window.missingSearchDebug.testListView();
+            
             console.log('✅ Full test completed!');
+        },
+        
+        // CSS 애니메이션 테스트
+        testTransitions: () => {
+            console.log('🎭 Testing CSS transitions...');
+            const listView = document.getElementById('missingList');
+            const gridView = document.getElementById('missingGrid');
+            
+            // 수동으로 클래스 토글해서 전환 효과 확인
+            console.log('Toggling to list view...');
+            listView.classList.add('view-active');
+            gridView.classList.add('view-hidden');
+            
+            setTimeout(() => {
+                console.log('Toggling back to grid view...');
+                listView.classList.remove('view-active');
+                gridView.classList.remove('view-hidden');
+            }, 2000);
         }
     };
     
-    console.log('🛠️ Debug tools loaded!');
+    console.log('🛠️ Debug tools loaded! (New opacity/visibility system)');
+    console.log('Quick tests:');
     console.log('- window.missingSearchDebug.testListView() : 리스트 뷰 테스트');
-    console.log('- window.missingSearchDebug.testGridView() : 그리드 뷰 테스트');
-    console.log('- window.missingSearchDebug.runFullTest() : 전체 테스트');
+    console.log('- window.missingSearchDebug.forceListView() : 리스트 뷰 강제 활성화');
+    console.log('- window.missingSearchDebug.checkViewState() : 현재 뷰 상태 확인');
+    console.log('- window.missingSearchDebug.runFullTest() : 전체 테스트 실행');
+    console.log('- window.missingSearchDebug.testTransitions() : CSS 전환 효과 테스트');
 }
