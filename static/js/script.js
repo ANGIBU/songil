@@ -41,14 +41,14 @@ function initializeApp() {
         // 사용자 인증 상태 확인
         checkAuthStatus();
         
-        // GSAP 애니메이션 초기화
+        // GSAP 애니메이션 초기화 (헤더 애니메이션 제거됨)
         initializeAnimations();
         
         // 반응형 처리
         handleResponsive();
         
         window.APP.initialized = true;
-        console.log('App initialized successfully');
+        console.log('App initialized successfully (header animation removed)');
     } catch (error) {
         console.error('App initialization error:', error);
     }
@@ -493,7 +493,7 @@ function handleResponsive() {
     }
 }
 
-// ===== GSAP 애니메이션 초기화 =====
+// ===== GSAP 애니메이션 초기화 (헤더 애니메이션 제거됨) =====
 function initializeAnimations() {
     if (typeof gsap === 'undefined') return;
     
@@ -502,19 +502,8 @@ function initializeAnimations() {
         gsap.registerPlugin(ScrollTrigger);
     }
     
-    // 페이지 로드 애니메이션 - 안전한 방식으로 수정
-    gsap.fromTo('.header', {
-        y: -100,
-        opacity: 0
-    }, {
-        duration: 0.6,
-        y: 0,
-        opacity: 1,
-        ease: "power2.out",
-        onComplete: () => {
-            gsap.set('.header', { clearProps: 'transform,opacity' });
-        }
-    });
+    // 헤더 애니메이션 제거됨 - 더 이상 헤더 애니메이션 없음
+    console.log('Header animation removed - clean page loads');
     
     // 페이지별 애니메이션 초기화
     setTimeout(() => initializePageAnimations(), 100);
@@ -1003,7 +992,7 @@ window.announceToScreenReader = announceToScreenReader;
 window.debounce = debounce;
 window.throttle = throttle;
 
-console.log('Script.js loaded successfully');
+console.log('Script.js loaded successfully (header animation removed)');
 
 // ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
 if (!document.querySelector('#dynamic-styles')) {

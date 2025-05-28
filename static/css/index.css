@@ -2,8 +2,7 @@
 
 /* ===== 홈페이지 전용 스타일 ===== */
 
-/* 부드러운 페이드인 애니메이션 시스템 */
-/* 모든 애니메이션 요소들의 초기 상태 - 아래에서 위로 부드럽게 */
+/* 기본 상태 - 모든 요소는 기본적으로 표시 */
 .hero-title,
 .hero-description,
 .hero-buttons,
@@ -16,20 +15,20 @@
 .stats-grid,
 .stat-item,
 .section-header {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: opacity, transform;
+    /* 기본 상태에서는 모든 요소가 보임 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    transition: all 0.3s ease;
 }
 
-/* 애니메이션 활성화 시 부드럽게 나타남 */
+/* 애니메이션 클래스 추가 시 부드러운 전환 */
 .animate-in {
     opacity: 1 !important;
     transform: translateY(0) !important;
 }
 
-/* JavaScript 비활성화 시 모든 요소 즉시 표시 */
+/* JavaScript 비활성화 시 모든 요소 표시 보장 */
 .no-js .hero-title,
 .no-js .hero-description,
 .no-js .hero-buttons,
@@ -43,8 +42,10 @@
 .no-js .stat-item,
 .no-js .section-header {
     opacity: 1 !important;
+    visibility: visible !important;
     transform: translateY(0) !important;
     transition: none !important;
+    will-change: auto !important;
 }
 
 /* 히어로 섹션 - 헤더와의 여백 대폭 축소 */
@@ -195,8 +196,10 @@
     min-height: 45px;
     height: 45px;
     will-change: transform;
-    opacity: 0;
-    transform: translateY(30px);
+    /* 기본 상태에서 보임 */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
 }
 
 .ranking-item:hover {
@@ -382,6 +385,10 @@
     margin: 0 auto !important;
     grid-auto-flow: row !important;
     grid-auto-rows: minmax(300px, auto) !important;
+    /* 기본 상태에서 보임 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 .urgent-cards > * {
@@ -408,8 +415,10 @@
     width: 100%;
     box-sizing: border-box;
     will-change: transform, box-shadow;
-    opacity: 0;
-    transform: translateY(40px);
+    /* 기본 상태에서 보임 */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
 }
 
 .missing-card:hover {
@@ -649,8 +658,10 @@
     width: 100%;
     max-width: 260px;
     min-height: 320px;
-    opacity: 0;
-    transform: translateY(60px);
+    /* 기본 상태에서 보임 */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
 }
 
 .step::before {
@@ -817,8 +828,10 @@
     position: relative;
     overflow: hidden;
     will-change: transform, box-shadow;
-    opacity: 0;
-    transform: translateY(50px);
+    /* 기본 상태에서 보임 */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
 }
 
 .stat-item::before {

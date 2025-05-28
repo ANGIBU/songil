@@ -89,42 +89,7 @@
     --transition-fast: all 0.15s ease;
 }
 
-/* 개선된 FOUC 방지 - 선별적 적용 */
-/* 핵심 콘텐츠는 항상 표시, 애니메이션 요소만 초기 숨김 */
-
-/* 페이지 로딩 중에만 애니메이션 요소들 숨김 */
-.page-loading .hero-title,
-.page-loading .hero-description,
-.page-loading .hero-buttons,
-.page-loading .ranking-display {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(30px) !important;
-    transition: none !important;
-    will-change: transform, opacity;
-}
-
-/* 페이지 준비 완료 후 부드럽게 표시 */
-.page-ready .hero-title,
-.page-ready .hero-description,
-.page-ready .hero-buttons,
-.page-ready .ranking-display {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease !important;
-    will-change: transform, opacity;
-}
-
-/* 애니메이션 완료 후 최적화 */
-.page-ready.animations-complete .hero-title,
-.page-ready.animations-complete .hero-description,
-.page-ready.animations-complete .hero-buttons,
-.page-ready.animations-complete .ranking-display {
-    will-change: auto;
-}
-
-/* 기본 상태 - 모든 요소는 기본적으로 표시 */
+/* 기본 상태 - 모든 요소는 기본적으로 표시됨 */
 .hero-title,
 .hero-description,
 .hero-buttons,
@@ -134,11 +99,12 @@
 .stat-item,
 .step,
 .section-header,
-.intro-text h2 {
+.intro-text h2,
+.urgent-cards {
     /* 기본적으로는 모두 표시 */
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
 }
 
 /* JavaScript 비활성화 시 모든 요소 표시 보장 */
@@ -157,17 +123,6 @@
     transform: translateY(0) !important;
     transition: none !important;
     will-change: auto !important;
-}
-
-/* 로딩 상태에서 전체 페이지 깜빡임 방지 */
-.page-loading {
-    /* 페이지 전체에 미세한 투명도 적용으로 부드러운 전환 */
-    opacity: 0.95;
-}
-
-.page-ready {
-    opacity: 1;
-    transition: opacity 0.2s ease;
 }
 
 /* 애니메이션 최적화를 위한 기본 설정 */
@@ -280,7 +235,7 @@ body {
     font-size: var(--font-size-base);
 }
 
-/* 헤더 - 안정적인 스크롤 효과 */
+/* 헤더 - 애니메이션 제거됨 */
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--gray-200);
@@ -572,13 +527,13 @@ body {
 
 /* 긴급 카드 컨테이너 - 레이아웃 안정화 */
 .urgent-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, minmax(300px, auto));
-    gap: var(--spacing-6);
-    margin-bottom: var(--spacing-12);
-    position: relative;
-    z-index: 1;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(2, minmax(300px, auto)) !important;
+    gap: var(--spacing-6) !important;
+    margin-bottom: var(--spacing-12) !important;
+    position: relative !important;
+    z-index: 1 !important;
     /* 강제 스타일 유지 */
     opacity: 1 !important;
     transform: translateY(0) !important;
@@ -781,9 +736,9 @@ body {
     border: 1px solid var(--gray-200);
     transition: var(--transition-all);
     /* 안정적인 기본 상태 */
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    visibility: visible !important;
     /* 성능 최적화 */
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -853,9 +808,9 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: var(--transition-all);
     /* 안정적인 기본 상태 */
-    opacity: 1;
-    transform: scale(1);
-    visibility: visible;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    visibility: visible !important;
     /* 성능 최적화 */
     transform: translateZ(0);
     backface-visibility: hidden;
@@ -1024,9 +979,9 @@ body {
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(3, minmax(280px, auto));
-        gap: var(--spacing-4);
+        grid-template-columns: repeat(3, 1fr) !important;
+        grid-template-rows: repeat(3, minmax(280px, auto)) !important;
+        gap: var(--spacing-4) !important;
     }
 }
 
@@ -1054,9 +1009,9 @@ body {
     }
     
     .urgent-cards {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(4, minmax(270px, auto));
-        gap: var(--spacing-3);
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(4, minmax(270px, auto)) !important;
+        gap: var(--spacing-3) !important;
     }
     
     .stats-grid {
@@ -1087,9 +1042,9 @@ body {
     }
     
     .urgent-cards {
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(8, minmax(250px, auto));
-        gap: var(--spacing-2);
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(8, minmax(250px, auto)) !important;
+        gap: var(--spacing-2) !important;
     }
 }
 

@@ -142,7 +142,12 @@ const RankingDisplay = React.memo(function RankingDisplay({ rankings }) {
         rankings.map((rank, index) =>
             React.createElement('div', {
                 key: `ranking-${rank.rank}`,
-                className: 'ranking-item'
+                className: 'ranking-item',
+                style: {
+                    opacity: 1,
+                    transform: 'translateY(0)',
+                    visibility: 'visible'
+                }
             }, [
                 React.createElement('div', {
                     className: 'ranking-position',
@@ -243,7 +248,10 @@ const MissingCard = React.memo(function MissingCard({ data, onUpClick }) {
         style: {
             display: 'block',
             width: '100%',
-            height: '300px'
+            height: '300px',
+            opacity: 1,
+            transform: 'translateY(0)',
+            visibility: 'visible'
         }
     }, [
         React.createElement('div', { className: 'card-image', key: 'image' }, [
@@ -355,7 +363,7 @@ class StatCounter {
     }
 }
 
-// GSAP 애니메이션 관리자 - 매우 부드럽고 자연스러운 물흐르는 애니메이션
+// GSAP 애니메이션 관리자 - 모든 요소가 즉시 표시되도록 수정
 class IndexAnimations {
     constructor() {
         this.isInitialized = false;
@@ -366,9 +374,14 @@ class IndexAnimations {
     }
 
     init() {
-        if (typeof gsap === 'undefined' || this.isDestroyed) {
-            console.warn('GSAP not loaded, using CSS animations');
-            this.initializeCSSAnimations();
+        if (this.isDestroyed) return;
+
+        // 모든 요소를 즉시 표시
+        this.showAllElementsImmediately();
+        
+        if (typeof gsap === 'undefined') {
+            console.log('GSAP not loaded, elements shown immediately');
+            this.isInitialized = true;
             return;
         }
 
@@ -377,8 +390,45 @@ class IndexAnimations {
         }
 
         this.cleanup();
-        this.setupGSAPAnimations();
+        this.setupScrollAnimations();
         this.isInitialized = true;
+        
+        console.log('✨ Index animations initialized with immediate visibility');
+    }
+
+    // 모든 요소를 즉시 표시
+    showAllElementsImmediately() {
+        const elements = document.querySelectorAll(`
+            .hero-title,
+            .hero-description,
+            .hero-buttons,
+            .ranking-display,
+            .ranking-item,
+            .urgent-cards,
+            .missing-card,
+            .intro-steps,
+            .step,
+            .stats-grid,
+            .stat-item,
+            .section-header
+        `);
+        
+        elements.forEach(element => {
+            if (element) {
+                element.style.opacity = '1';
+                element.style.visibility = 'visible';
+                element.style.transform = 'translateY(0)';
+            }
+        });
+        
+        // 특별히 urgent-cards 컨테이너 확실히 표시
+        const urgentCards = document.querySelector('.urgent-cards');
+        if (urgentCards) {
+            urgentCards.style.display = 'grid';
+            urgentCards.style.opacity = '1';
+            urgentCards.style.visibility = 'visible';
+            urgentCards.style.transform = 'translateY(0)';
+        }
     }
 
     cleanup() {
@@ -393,255 +443,36 @@ class IndexAnimations {
         this.scrollTriggers = [];
     }
 
-    // CSS 애니메이션 폴백 - 부드러운 스태거 효과
-    initializeCSSAnimations() {
-        setTimeout(() => {
-            // 순차적으로 요소들 애니메이션
-            const animateElement = (selector, delay = 0) => {
-                setTimeout(() => {
-                    const elements = document.querySelectorAll(selector);
-                    elements.forEach((el, index) => {
-                        setTimeout(() => {
-                            el.classList.add('animate-in');
-                        }, index * 100); // 100ms 간격으로 순차 애니메이션
-                    });
-                }, delay);
-            };
-
-            // 히어로 섹션부터 순차적으로
-            animateElement('.hero-title', 200);
-            animateElement('.hero-description', 600);
-            animateElement('.hero-buttons', 1000);
-            animateElement('.ranking-display', 800);
-            animateElement('.ranking-item', 1200);
-            
-            // 스크롤 애니메이션도 설정
-            this.setupScrollAnimations();
-        }, 300);
-    }
-
-    // GSAP 애니메이션 - 매우 부드럽고 자연스럽게
-    setupGSAPAnimations() {
-        // 페이지가 준비되지 않았다면 대기
-        setTimeout(() => {
-            this.startHeroAnimations();
-        }, 100);
-    }
-
-    startHeroAnimations() {
-        // 메인 타임라인 - 매우 부드럽고 연속적인 흐름
-        this.timeline = gsap.timeline({ 
-            delay: 0.1,
-            onComplete: () => {
-                document.body.classList.add('animations-complete');
-                console.log('✨ Smooth animations completed');
-            }
-        });
-        
-        // 히어로 제목 - 부드럽게 아래에서 위로
-        this.timeline
-            .fromTo('.hero-title', {
-                y: 80,
-                opacity: 0,
-                scale: 0.9
-            }, {
-                duration: 1.8,
-                y: 0,
-                opacity: 1,
-                scale: 1,
-                ease: 'power2.out'
-            })
-            // 설명 텍스트 - 제목과 자연스럽게 연결
-            .fromTo('.hero-description', {
-                y: 60,
-                opacity: 0
-            }, {
-                duration: 1.6,
-                y: 0,
-                opacity: 1,
-                ease: 'power2.out'
-            }, '-=1.2') // 제목 애니메이션과 많이 겹치게
-            // 버튼들 - 살짝 바운스 효과
-            .fromTo('.hero-buttons .btn', {
-                y: 50,
-                opacity: 0,
-                scale: 0.8
-            }, {
-                duration: 1.4,
-                y: 0,
-                opacity: 1,
-                scale: 1,
-                stagger: 0.15,
-                ease: 'back.out(1.3)'
-            }, '-=1.0')
-            // 순위 디스플레이 - 오른쪽에서 부드럽게
-            .fromTo('.ranking-display', {
-                x: 100,
-                y: 80,
-                opacity: 0,
-                scale: 0.85
-            }, {
-                duration: 2.0,
-                x: 0,
-                y: 0,
-                opacity: 1,
-                scale: 1,
-                ease: 'power2.out'
-            }, '-=1.4')
-            // 순위 아이템들 - 물흐르듯 순차적으로
-            .fromTo('.ranking-item', {
-                y: 40,
-                opacity: 0,
-                scale: 0.9
-            }, {
-                duration: 1.2,
-                y: 0,
-                opacity: 1,
-                scale: 1,
-                stagger: 0.12,
-                ease: 'power2.out'
-            }, '-=1.0');
-
-        // ScrollTrigger 애니메이션들 - 모두 부드럽게
-        if (typeof ScrollTrigger !== 'undefined') {
-            this.setupScrollTriggers();
-        } else {
-            // ScrollTrigger 없을 때 폴백
-            setTimeout(() => this.setupScrollAnimations(), 2000);
+    // 스크롤 애니메이션만 설정 (옵션)
+    setupScrollAnimations() {
+        if (typeof ScrollTrigger === 'undefined') {
+            this.setupIntersectionObserver();
+            return;
         }
-    }
 
-    setupScrollTriggers() {
-        // 긴급 실종자 섹션 - 매우 부드러운 스태거
-        const urgentTrigger = ScrollTrigger.create({
-            trigger: '.urgent-section',
-            start: 'top 85%',
-            end: 'bottom 15%',
-            onEnter: () => {
-                // 헤더 먼저 부드럽게
-                gsap.fromTo('.urgent-section .section-header', {
-                    y: 60,
-                    opacity: 0
-                }, {
-                    duration: 1.5,
-                    y: 0,
-                    opacity: 1,
-                    ease: 'power2.out'
-                });
-                
-                // 카드들 - 파도처럼 연속적으로
-                setTimeout(() => {
-                    const cards = document.querySelectorAll('.urgent-cards .missing-card');
-                    gsap.fromTo(cards, {
-                        y: 80,
-                        opacity: 0,
-                        scale: 0.85
-                    }, {
-                        duration: 1.4,
-                        y: 0,
-                        opacity: 1,
-                        scale: 1,
-                        stagger: {
-                            amount: 1.2,
-                            from: "start",
-                            ease: "power2.out"
-                        },
-                        ease: 'power2.out'
-                    });
-                }, 400);
-            },
-            once: true
-        });
-        this.scrollTriggers.push(urgentTrigger);
-
-        // 소개 섹션 - 5개 스텝 물결 효과
-        const introTrigger = ScrollTrigger.create({
-            trigger: '.intro-section',
-            start: 'top 80%',
-            end: 'bottom 20%',
-            onEnter: () => {
-                // 제목 먼저
-                gsap.fromTo('.intro-text h2', {
-                    y: 50,
-                    opacity: 0
-                }, {
-                    duration: 1.6,
-                    y: 0,
-                    opacity: 1,
-                    ease: 'power2.out'
-                });
-                
-                // 스텝들 - 물결처럼 연속적으로
-                setTimeout(() => {
-                    const steps = document.querySelectorAll('.intro-steps .step');
-                    gsap.fromTo(steps, {
-                        y: 100,
-                        opacity: 0,
-                        scale: 0.8
-                    }, {
-                        duration: 1.6,
-                        y: 0,
-                        opacity: 1,
-                        scale: 1,
-                        stagger: {
-                            amount: 1.0,
-                            from: "start",
-                            ease: "power2.out"
-                        },
-                        ease: 'back.out(1.2)'
-                    });
-                }, 600);
-            },
-            once: true
-        });
-        this.scrollTriggers.push(introTrigger);
-
-        // 통계 섹션 - 가장 임팩트 있게
+        // 통계 섹션만 스크롤 애니메이션 적용 (선택사항)
         const statsTrigger = ScrollTrigger.create({
             trigger: '.stats-section',
             start: 'top 80%',
             end: 'bottom 20%',
             onEnter: () => {
-                // 제목과 메시지
-                gsap.fromTo('.stats-section h2, .hope-message', {
-                    y: 60,
-                    opacity: 0
-                }, {
-                    duration: 1.8,
-                    y: 0,
-                    opacity: 1,
-                    stagger: 0.3,
-                    ease: 'power2.out'
+                // 통계 카운터 시작
+                const statNumbers = document.querySelectorAll('.stat-number');
+                statNumbers.forEach(number => {
+                    if (!number.dataset.animated) {
+                        number.dataset.animated = 'true';
+                        const counter = new StatCounter(number, number.textContent);
+                        counter.start();
+                    }
                 });
-                
-                // 통계 아이템들 - 스케일과 함께 드라마틱하게
-                setTimeout(() => {
-                    const statItems = document.querySelectorAll('.stats-grid .stat-item');
-                    gsap.fromTo(statItems, {
-                        scale: 0.6,
-                        opacity: 0,
-                        y: 80
-                    }, {
-                        duration: 1.8,
-                        scale: 1,
-                        opacity: 1,
-                        y: 0,
-                        stagger: {
-                            amount: 0.8,
-                            from: "start",
-                            ease: "power2.out"
-                        },
-                        ease: 'back.out(1.6)'
-                    });
-                }, 800);
             },
             once: true
         });
         this.scrollTriggers.push(statsTrigger);
     }
 
-    // 스크롤 애니메이션 폴백 (ScrollTrigger 없을 때)
-    setupScrollAnimations() {
+    // Intersection Observer 폴백
+    setupIntersectionObserver() {
         const observerOptions = {
             threshold: 0.2,
             rootMargin: '0px 0px -100px 0px'
@@ -649,68 +480,24 @@ class IndexAnimations {
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const target = entry.target;
-                    
-                    if (target.classList.contains('urgent-section')) {
-                        this.animateUrgentSection();
-                    } else if (target.classList.contains('intro-section')) {
-                        this.animateIntroSection();
-                    } else if (target.classList.contains('stats-section')) {
-                        this.animateStatsSection();
-                    }
-                    
-                    observer.unobserve(target);
+                if (entry.isIntersecting && entry.target.classList.contains('stats-section')) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(number => {
+                        if (!number.dataset.animated) {
+                            number.dataset.animated = 'true';
+                            const counter = new StatCounter(number, number.textContent);
+                            counter.start();
+                        }
+                    });
+                    observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
 
-        // 관찰 대상 등록
-        const sections = document.querySelectorAll('.urgent-section, .intro-section, .stats-section');
-        sections.forEach(section => observer.observe(section));
-    }
-
-    animateUrgentSection() {
-        setTimeout(() => {
-            document.querySelector('.urgent-section .section-header')?.classList.add('animate-in');
-        }, 200);
-        
-        setTimeout(() => {
-            const cards = document.querySelectorAll('.urgent-cards .missing-card');
-            cards.forEach((card, index) => {
-                setTimeout(() => card.classList.add('animate-in'), index * 150);
-            });
-        }, 800);
-    }
-
-    animateIntroSection() {
-        setTimeout(() => {
-            document.querySelector('.intro-text h2')?.classList.add('animate-in');
-        }, 200);
-        
-        setTimeout(() => {
-            const steps = document.querySelectorAll('.intro-steps .step');
-            steps.forEach((step, index) => {
-                setTimeout(() => step.classList.add('animate-in'), index * 200);
-            });
-        }, 800);
-    }
-
-    animateStatsSection() {
-        setTimeout(() => {
-            document.querySelector('.stats-section h2')?.classList.add('animate-in');
-        }, 200);
-        
-        setTimeout(() => {
-            document.querySelector('.hope-message')?.classList.add('animate-in');
-        }, 600);
-        
-        setTimeout(() => {
-            const items = document.querySelectorAll('.stats-grid .stat-item');
-            items.forEach((item, index) => {
-                setTimeout(() => item.classList.add('animate-in'), index * 200);
-            });
-        }, 1200);
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
     }
 
     animateUpButton(button) {
@@ -786,7 +573,7 @@ class ScrollObserver {
 
     observeElements() {
         if (this.isDestroyed) return;
-        const elements = document.querySelectorAll('.stat-item, .missing-card, .step');
+        const elements = document.querySelectorAll('.stat-item');
         elements.forEach(el => {
             if (this.observer) {
                 this.observer.observe(el);
@@ -848,8 +635,35 @@ class IndexPage {
         // JavaScript 비활성화 감지 제거
         document.documentElement.classList.remove('no-js');
         
+        // 모든 요소를 즉시 표시
+        this.showAllElements();
+        
         // 단계별 초기화
-        setTimeout(() => this.initializeComponents(), 100);
+        setTimeout(() => this.initializeComponents(), 50);
+    }
+
+    // 모든 요소를 즉시 표시하는 함수
+    showAllElements() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .hero-title,
+            .hero-description,
+            .hero-buttons,
+            .ranking-display,
+            .ranking-item,
+            .urgent-cards,
+            .missing-card,
+            .intro-steps,
+            .step,
+            .stats-grid,
+            .stat-item,
+            .section-header {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateY(0) !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     async initializeComponents() {
@@ -865,7 +679,7 @@ class IndexPage {
             // 3. 이벤트 리스너 설정
             this.setupEventListeners();
             
-            console.log('✨ Index page loaded with smooth flowing animations');
+            console.log('✨ Index page loaded - all elements visible immediately');
             
         } catch (error) {
             console.error('Component initialization error:', error);
@@ -944,6 +758,9 @@ class IndexPage {
         urgentContainer.style.width = '100%';
         urgentContainer.style.maxWidth = '1200px';
         urgentContainer.style.margin = '0 auto';
+        urgentContainer.style.opacity = '1';
+        urgentContainer.style.visibility = 'visible';
+        urgentContainer.style.transform = 'translateY(0)';
 
         try {
             const root = ReactDOM.createRoot(urgentContainer);
@@ -971,7 +788,7 @@ class IndexPage {
                 clearTimeout(this.resizeTimeout);
             }
             this.resizeTimeout = setTimeout(() => {
-                console.log('Window resized - animations adjusted');
+                console.log('Window resized - layout adjusted');
             }, 250);
         };
         
@@ -1099,6 +916,32 @@ if (typeof window !== 'undefined') {
                 indexPage.destroy();
             }
             indexPage = new IndexPage();
+        },
+        showAllElements: () => {
+            const elements = document.querySelectorAll(`
+                .hero-title,
+                .hero-description,
+                .hero-buttons,
+                .ranking-display,
+                .ranking-item,
+                .urgent-cards,
+                .missing-card,
+                .intro-steps,
+                .step,
+                .stats-grid,
+                .stat-item,
+                .section-header
+            `);
+            
+            elements.forEach(element => {
+                if (element) {
+                    element.style.opacity = '1';
+                    element.style.visibility = 'visible';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+            
+            console.log('All elements forced to show');
         }
     };
 }
