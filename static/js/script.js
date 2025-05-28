@@ -32,8 +32,13 @@ function initializeApp() {
     if (window.APP.initialized) return;
     
     try {
+        console.log('🚀 App initialization started...');
+        
         // 현재 페이지 식별
         identifyCurrentPage();
+        
+        // 페이지 로딩 최적화 처리
+        handlePageLoadOptimization();
         
         // 기본 이벤트 리스너 설정
         setupEventListeners();
@@ -41,17 +46,60 @@ function initializeApp() {
         // 사용자 인증 상태 확인
         checkAuthStatus();
         
-        // GSAP 애니메이션 초기화 (헤더 애니메이션 제거됨)
-        initializeAnimations();
+        // GSAP 애니메이션 초기화 (메인 페이지 제외)
+        if (window.APP.currentPage !== 'home') {
+            initializeAnimations();
+        }
         
         // 반응형 처리
         handleResponsive();
         
         window.APP.initialized = true;
-        console.log('App initialized successfully (header animation removed)');
+        console.log('✅ App initialized successfully');
     } catch (error) {
-        console.error('App initialization error:', error);
+        console.error('❌ App initialization error:', error);
     }
+}
+
+// ===== 페이지 로딩 최적화 처리 =====
+function handlePageLoadOptimization() {
+    // 페이지 로딩 상태 관리
+    const loadingScreen = document.getElementById('pageLoading');
+    
+    if (loadingScreen && window.APP.currentPage !== 'home') {
+        // 홈페이지가 아닌 경우 즉시 로딩 화면 제거
+        setTimeout(() => {
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                if (loadingScreen.parentNode) {
+                    loadingScreen.parentNode.removeChild(loadingScreen);
+                }
+            }, 500);
+        }, 100);
+    }
+    
+    // 페이지 스크롤 위치 최적화
+    optimizePageScroll();
+}
+
+// ===== 스크롤 위치 최적화 =====
+function optimizePageScroll() {
+    // 스크롤 복원 비활성화
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    
+    // 즉시 상단으로 스크롤
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+    });
+    
+    // 추가 안전장치
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+    }, 0);
 }
 
 // ===== 현재 페이지 식별 =====
@@ -76,6 +124,7 @@ function identifyCurrentPage() {
     
     // 페이지별 CSS 클래스 추가
     document.body.classList.add(`page-${window.APP.currentPage}`);
+    console.log(`📄 Current page: ${window.APP.currentPage}`);
 }
 
 // ===== 이벤트 리스너 설정 =====
@@ -124,6 +173,40 @@ function setupEventListeners() {
     
     // 키보드 접근성
     setupKeyboardNavigation();
+    
+    // 페이지 전환 시 스크롤 최적화
+    setupPageTransitionOptimization();
+}
+
+// ===== 페이지 전환 최적화 =====
+function setupPageTransitionOptimization() {
+    // 모든 내부 링크에 최적화 적용
+    const internalLinks = document.querySelectorAll('a[href^="/"], a[href^="./"], a[href^="../"]');
+    
+    internalLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // 페이지 전환 시 상단으로 스크롤 준비
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            
+            // 부드러운 페이드아웃 효과 (선택사항)
+            if (typeof gsap !== 'undefined') {
+                gsap.to('body', {
+                    opacity: 0.95,
+                    duration: 0.2,
+                    ease: 'power2.out'
+                });
+            }
+        });
+    });
+    
+    // popstate 이벤트에서 스크롤 최적화
+    window.addEventListener('popstate', function() {
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+        }, 0);
+    });
 }
 
 // ===== 키보드 접근성 설정 =====
@@ -442,8 +525,10 @@ function handleScroll() {
         }
     }
     
-    // 스크롤 기반 애니메이션 트리거
-    triggerScrollAnimations();
+    // 스크롤 기반 애니메이션 트리거 (홈페이지 제외)
+    if (window.APP.currentPage !== 'home') {
+        triggerScrollAnimations();
+    }
 }
 
 // ===== 리사이즈 처리 - 개선됨 =====
@@ -493,7 +578,7 @@ function handleResponsive() {
     }
 }
 
-// ===== GSAP 애니메이션 초기화 (헤더 애니메이션 제거됨) =====
+// ===== GSAP 애니메이션 초기화 (홈페이지 제외) =====
 function initializeAnimations() {
     if (typeof gsap === 'undefined') return;
     
@@ -502,19 +587,15 @@ function initializeAnimations() {
         gsap.registerPlugin(ScrollTrigger);
     }
     
-    // 헤더 애니메이션 제거됨 - 더 이상 헤더 애니메이션 없음
-    console.log('Header animation removed - clean page loads');
-    
     // 페이지별 애니메이션 초기화
     setTimeout(() => initializePageAnimations(), 100);
+    
+    console.log('🎨 Basic animations initialized');
 }
 
 // ===== 페이지별 애니메이션 초기화 =====
 function initializePageAnimations() {
     switch (window.APP.currentPage) {
-        case 'home':
-            initializeHomeAnimations();
-            break;
         case 'search':
             initializeSearchAnimations();
             break;
@@ -524,18 +605,21 @@ function initializePageAnimations() {
         case 'ranking':
             initializeRankingAnimations();
             break;
+        default:
+            initializeGenericAnimations();
+            break;
     }
 }
 
-// ===== 홈페이지 기본 애니메이션 =====
-function initializeHomeAnimations() {
+// ===== 일반 페이지 애니메이션 =====
+function initializeGenericAnimations() {
     if (typeof gsap === 'undefined') return;
     
-    // 기본 요소들 애니메이션 (index.js에서 더 상세한 애니메이션 처리됨)
+    // 기본 페이드인 애니메이션
     const fadeElements = document.querySelectorAll('.fade-in-up:not(.animated)');
     
-    fadeElements.forEach((element, index) => {
-        gsap.fromTo(element, {
+    if (fadeElements.length > 0) {
+        gsap.fromTo(fadeElements, {
             y: 30,
             opacity: 0
         }, {
@@ -543,13 +627,15 @@ function initializeHomeAnimations() {
             y: 0,
             opacity: 1,
             ease: "power2.out",
-            delay: index * 0.1,
+            stagger: 0.1,
             onComplete: () => {
-                element.classList.add('animated');
-                gsap.set(element, { clearProps: 'transform,opacity' });
+                fadeElements.forEach(element => {
+                    element.classList.add('animated');
+                    gsap.set(element, { clearProps: 'transform,opacity' });
+                });
             }
         });
-    });
+    }
 }
 
 // ===== 검색 페이지 애니메이션 =====
@@ -992,7 +1078,7 @@ window.announceToScreenReader = announceToScreenReader;
 window.debounce = debounce;
 window.throttle = throttle;
 
-console.log('Script.js loaded successfully (header animation removed)');
+console.log('📜 Script.js loaded successfully (optimized for page transitions)');
 
 // ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
 if (!document.querySelector('#dynamic-styles')) {
@@ -1057,6 +1143,16 @@ if (!document.querySelector('#dynamic-styles')) {
             clip: rect(0, 0, 0, 0) !important;
             white-space: nowrap !important;
             border: 0 !important;
+        }
+        
+        /* 페이지 전환 최적화 */
+        body {
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+        
+        .page-transition {
+            opacity: 0.95;
         }
     `;
     document.head.appendChild(style);
