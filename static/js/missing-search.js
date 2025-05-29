@@ -1034,316 +1034,49 @@ class SearchManager {
     }
 }
 
-// 애니메이션 관리자 (기존과 동일)
-class SearchAnimations {
+// 단순한 UP 버튼 애니메이션만 남김
+class SimpleAnimations {
     constructor() {
-        this.isInitialized = false;
-        this.scrollTriggers = [];
         this.isDestroyed = false;
-        this.animationReady = false;
-        this.init();
-    }
-
-    init() {
-        this.checkAnimationReady();
-        
-        if (typeof gsap === 'undefined') {
-            console.warn('GSAP not loaded, using fallback animations');
-            this.fallbackAnimations();
-            return;
-        }
-
-        if (typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-        }
-
-        if (this.animationReady) {
-            this.startSequentialAnimations();
-        }
-        
-        this.isInitialized = true;
-    }
-    
-    checkAnimationReady() {
-        const body = document.body;
-        const hasAnimationClass = body.classList.contains('js-animation-ready');
-        
-        if (!hasAnimationClass) {
-            this.animationReady = false;
-        } else {
-            this.animationReady = true;
-        }
-    }
-
-    startSequentialAnimations() {
-        if (!this.animationReady) return;
-        
-        const animationSequence = [
-            { selector: '.search-title', delay: 0.1 },
-            { selector: '.search-controls', delay: 0.3 },
-            { selector: '.search-results-info', delay: 0.5 },
-            { selector: '.pagination', delay: 0.9 }
-        ];
-
-        animationSequence.forEach(({ selector, delay }) => {
-            const element = document.querySelector(selector);
-            if (element && !this.isDestroyed) {
-                gsap.fromTo(element, {
-                    opacity: 0,
-                    y: 30,
-                    visibility: 'hidden'
-                }, {
-                    opacity: 1,
-                    y: 0,
-                    visibility: 'visible',
-                    duration: 0.8,
-                    delay: delay,
-                    ease: "power2.out",
-                    onComplete: () => {
-                        if (element) {
-                            element.classList.add('animate-complete');
-                            gsap.set(element, { clearProps: 'transform,opacity' });
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    animateSearchResults() {
-        if (!this.isInitialized || this.isDestroyed) return;
-
-        const cards = document.querySelectorAll('.missing-card:not(.animated), .list-item:not(.animated)');
-        if (cards.length === 0) return;
-
-        if (!this.animationReady) {
-            cards.forEach(card => {
-                if (card) {
-                    card.classList.add('animated');
-                    card.style.opacity = '1';
-                    card.style.visibility = 'visible';
-                    card.style.transform = 'translateY(0)';
-                }
-            });
-            return;
-        }
-
-        gsap.fromTo(cards, {
-            opacity: 0,
-            y: 40,
-            scale: 0.95
-        }, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "back.out(1.4)",
-            onComplete: () => {
-                cards.forEach(card => {
-                    if (card) {
-                        card.classList.add('animated');
-                        gsap.set(card, { clearProps: 'transform,opacity' });
-                    }
-                });
-            }
-        });
-    }
-
-    animateFilterChange() {
-        if (!this.isInitialized || this.isDestroyed) return;
-
-        const container = document.querySelector('.view-container');
-        if (!container) return;
-
-        const existingCards = container.querySelectorAll('.animated');
-        existingCards.forEach(card => card.classList.remove('animated'));
-
-        if (!this.animationReady) {
-            setTimeout(() => {
-                this.animateSearchResults();
-            }, 150);
-            return;
-        }
-
-        gsap.fromTo(container, 
-            { opacity: 0.4, y: 20, scale: 0.97 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                scale: 1,
-                duration: 0.6,
-                ease: "power2.out",
-                onComplete: () => {
-                    setTimeout(() => {
-                        this.animateSearchResults();
-                    }, 150);
-                }
-            }
-        );
     }
 
     animateUpButton(button) {
-        if (!this.isInitialized || this.isDestroyed) return;
+        if (this.isDestroyed) return;
 
-        if (!this.animationReady || typeof gsap === 'undefined') {
-            button.style.transform = 'scale(1.1)';
-            setTimeout(() => {
+        // 간단한 스케일 애니메이션만 적용
+        button.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            if (!this.isDestroyed && button.style) {
                 button.style.transform = 'scale(1)';
-            }, 200);
-            return;
-        }
+            }
+        }, 200);
 
-        const timeline = gsap.timeline();
-        
-        timeline
-            .to(button, {
-                scale: 1.15,
-                rotation: 8,
-                duration: 0.15,
-                ease: 'power2.out'
-            })
-            .to(button, {
-                scale: 1,
-                rotation: 0,
-                duration: 0.4,
-                ease: 'elastic.out(1.2, 0.3)',
-                onComplete: () => {
-                    gsap.set(button, { clearProps: 'transform' });
-                }
-            });
-
+        // 카운트 애니메이션
         const countElement = button.querySelector('span');
         if (countElement) {
-            gsap.fromTo(countElement, 
-                { scale: 1.3, color: '#22c55e' },
-                {
-                    scale: 1,
-                    color: 'inherit',
-                    duration: 0.5,
-                    ease: 'back.out(1.4)',
-                    onComplete: () => {
-                        gsap.set(countElement, { clearProps: 'transform' });
-                    }
-                }
-            );
-        }
-
-        this.createUpParticles(button);
-    }
-
-    createUpParticles(button) {
-        const rect = button.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-
-        for (let i = 0; i < 6; i++) {
-            const particle = document.createElement('div');
-            particle.style.cssText = `
-                position: fixed;
-                width: 6px;
-                height: 6px;
-                background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 1000;
-                left: ${centerX}px;
-                top: ${centerY}px;
-            `;
-            
-            document.body.appendChild(particle);
-            
-            const angle = (i / 6) * Math.PI * 2;
-            const distance = 50 + Math.random() * 30;
-            
-            if (typeof gsap !== 'undefined') {
-                gsap.to(particle, {
-                    x: Math.cos(angle) * distance,
-                    y: Math.sin(angle) * distance,
-                    opacity: 0,
-                    scale: 0,
-                    duration: 0.8,
-                    ease: 'power2.out',
-                    onComplete: () => {
-                        if (particle.parentNode) {
-                            particle.parentNode.removeChild(particle);
-                        }
-                    }
-                });
-            } else {
-                setTimeout(() => {
-                    if (particle.parentNode) {
-                        particle.parentNode.removeChild(particle);
-                    }
-                }, 800);
-            }
-        }
-    }
-
-    animateViewToggle(viewMode) {
-        if (!this.isInitialized || this.isDestroyed) return;
-
-        const container = document.querySelector('.view-container');
-        if (!container) return;
-
-        if (!this.animationReady) {
+            countElement.style.color = '#22c55e';
+            countElement.style.transform = 'scale(1.2)';
             setTimeout(() => {
-                this.animateSearchResults();
-            }, 100);
-            return;
-        }
-
-        gsap.fromTo(container,
-            { opacity: 0, scale: 0.96, y: 15 },
-            { 
-                opacity: 1, 
-                scale: 1, 
-                y: 0,
-                duration: 0.7,
-                ease: 'power2.out',
-                onComplete: () => {
-                    setTimeout(() => {
-                        this.animateSearchResults();
-                    }, 100);
+                if (!this.isDestroyed && countElement.style) {
+                    countElement.style.color = '';
+                    countElement.style.transform = 'scale(1)';
                 }
-            }
-        );
+            }, 300);
+        }
     }
 
-    fallbackAnimations() {
-        const elements = document.querySelectorAll(`
-            .search-title,
-            .search-controls,
-            .search-results-info,
-            .missing-grid,
-            .missing-list-view,
-            .missing-card,
-            .list-item,
-            .pagination
-        `);
+    handleResize() {
+        if (this.isDestroyed) return;
         
-        elements.forEach((element, index) => {
-            if (element && !this.isDestroyed) {
-                setTimeout(() => {
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                    element.style.visibility = 'visible';
-                    element.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                    element.classList.add('animate-complete');
-                }, index * 150);
-            }
-        });
+        if (window.innerWidth <= 768) {
+            document.body.classList.add('mobile');
+        } else {
+            document.body.classList.remove('mobile');
+        }
     }
 
     destroy() {
         this.isDestroyed = true;
-        
-        this.scrollTriggers.forEach(trigger => {
-            if (trigger && trigger.kill) {
-                trigger.kill();
-            }
-        });
-        this.scrollTriggers = [];
     }
 }
 
@@ -1487,11 +1220,10 @@ class MissingSearchPage {
         // 초기 데이터 로딩 (가장 중요!)
         this.loadInitialData();
         
-        // 애니메이션 초기화
-        setTimeout(() => {
-            this.initializeAnimations();
-            this.enableAnimations();
-        }, 500);
+        // 간단한 애니메이션만 초기화
+        this.animations = new SimpleAnimations();
+        
+        console.log('✅ Missing search page loaded fast!');
     }
 
     // ============ 중요: 초기 데이터 로딩 보장 ============
@@ -1696,13 +1428,8 @@ class MissingSearchPage {
                     this.renderResults(this.currentPageData);
                 }
                 
-                // 애니메이션 트리거
-                if (this.animations && !this.animations.isDestroyed) {
-                    this.animations.animateViewToggle(targetViewMode);
-                }
-                
                 console.log(`✅ Successfully switched to ${targetViewMode} view`);
-            }, 100);
+            }, 50);
             
         } catch (error) {
             console.error('❌ Error during view switch:', error);
@@ -1749,11 +1476,6 @@ class MissingSearchPage {
         // 활성 필터 업데이트
         if (this.filterPopupManager) {
             this.filterPopupManager.updateActiveFilters();
-        }
-
-        // 애니메이션 트리거
-        if (this.animations && !this.animations.isDestroyed) {
-            this.animations.animateFilterChange();
         }
     }
 
@@ -1818,13 +1540,6 @@ class MissingSearchPage {
             console.warn('⚠️ React not available, showing fallback');
             this.showFallbackContent();
         }
-
-        // 애니메이션 트리거
-        setTimeout(() => {
-            if (this.animations && !this.animations.isDestroyed) {
-                this.animations.animateSearchResults();
-            }
-        }, 300);
     }
 
     renderWithReact(data, gridContainer, listContainer) {
@@ -1955,10 +1670,6 @@ class MissingSearchPage {
         this.searchManager.resetFilters();
         this.paginationManager.currentPage = 1;
         
-        if (this.animations && !this.animations.isDestroyed) {
-            this.animations.animateFilterChange();
-        }
-        
         if (this.filterPopupManager) {
             this.filterPopupManager.updateActiveFilters();
         }
@@ -2059,7 +1770,6 @@ if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         get instance() { return missingSearchPage; },
         sampleData: sampleMissingData,
-        get animations() { return missingSearchPage ? missingSearchPage.animations : null; },
         
         // 뷰 상태 확인 - 수정됨
         checkViews: () => {
@@ -2151,7 +1861,7 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Enhanced debug tools loaded with LIST VIEW support!');
+    console.log('🛠️ Debug tools loaded - FAST LOADING optimized!');
     console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
     console.log('- window.missingSearchDebug.forceListView() : 목록 뷰로 강제 전환');
     console.log('- window.missingSearchDebug.forceGridView() : 그리드 뷰로 강제 전환');

@@ -2,9 +2,9 @@
 
 /* ===== 실종자 검색 페이지 전용 스타일 ===== */
 
-/* ============ 수정된 초기 애니메이션 준비 상태 - 안전한 방식 ============ */
+/* ============ 빠른 로딩을 위한 최적화 - 애니메이션 제거 ============ */
 
-/* 기본값: 모든 요소는 보임 (안전장치) */
+/* 모든 요소는 즉시 표시 (애니메이션 제거) */
 .search-title,
 .search-controls,
 .search-results-info,
@@ -13,36 +13,6 @@
 .missing-card,
 .list-item,
 .pagination {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-}
-
-/* JavaScript가 성공적으로 로드된 후에만 애니메이션을 위한 초기 숨김 */
-.js-animation-ready .search-title,
-.js-animation-ready .search-controls,
-.js-animation-ready .search-results-info,
-.js-animation-ready .pagination {
-    opacity: 0;
-    transform: translateY(30px);
-    visibility: hidden;
-    transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
-}
-
-/* 뷰 컨테이너는 애니메이션 준비와 관계없이 항상 표시 */
-.missing-grid,
-.missing-list-view,
-.missing-card,
-.list-item {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    display: block !important;
-}
-
-/* 애니메이션 완료 후 상태 */
-.animate-complete,
-.js-animation-ready .animate-complete {
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
@@ -277,18 +247,6 @@
     align-items: center;
     gap: 8px;
     border: 1px solid var(--primary-orange-light);
-    animation: filterTagSlideIn 0.3s ease-out;
-}
-
-@keyframes filterTagSlideIn {
-    0% {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.9);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
 }
 
 .filter-tag i {
@@ -745,8 +703,6 @@ body.modal-open {
     visibility: visible !important;
     /* absolute positioning 완전 제거 */
     position: static !important;
-    /* 전환 애니메이션 */
-    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 /* 그리드 뷰 숨김 상태 */
@@ -763,8 +719,6 @@ body.modal-open {
     width: 100%;
     /* absolute positioning 완전 제거 */
     position: static !important;
-    /* 전환 애니메이션 */
-    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 /* 리스트 뷰 활성화 */
@@ -843,7 +797,6 @@ body.modal-open {
 
 .danger-level.high {
     background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-    animation: dangerPulse 2s infinite;
 }
 
 .danger-level.medium {
@@ -852,11 +805,6 @@ body.modal-open {
 
 .danger-level.low {
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-}
-
-@keyframes dangerPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
 }
 
 .missing-period {
@@ -953,12 +901,12 @@ body.modal-open {
     transform: translateY(-2px);
 }
 
-/* 리스트 뷰 아이템 스타일 */
+/* ============ 완전히 수정된 리스트 뷰 아이템 스타일 - 가로 공간 최적화 ============ */
 .list-item {
     display: grid;
-    grid-template-columns: 120px 1fr auto;
+    grid-template-columns: 140px 1fr auto auto;
     gap: 20px;
-    padding: 20px;
+    padding: 20px 25px;
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -967,54 +915,198 @@ body.modal-open {
     align-items: center;
     width: 100%;
     box-sizing: border-box;
+    min-height: 120px;
     /* 강제 표시 보장 */
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
+    /* 가로 레이아웃 강화 */
+    position: relative;
 }
 
 .list-item:hover {
     transform: translateX(8px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-orange-light);
+}
+
+.list-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    border-radius: 0 2px 2px 0;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.list-item:hover::before {
+    transform: scaleY(1);
 }
 
 .list-image {
-    width: 120px;
-    height: 80px;
-    border-radius: 10px;
+    width: 140px;
+    height: 100px;
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .list-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
+.list-item:hover .list-image img {
+    transform: scale(1.05);
+}
+
+/* 위험도 배지를 이미지 위에 표시 */
+.list-image::after {
+    content: attr(data-danger-level);
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+}
+
+.list-image[data-danger-level="긴급"]::after {
+    content: "긴급";
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+}
+
+.list-image[data-danger-level="주의"]::after {
+    content: "주의";
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+}
+
+.list-image[data-danger-level="관심"]::after {
+    content: "관심";
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+}
+
+/* ============ 수정된 리스트 콘텐츠 - 가로 공간 최적화 ============ */
 .list-content {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .list-content h3 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 600;
     color: var(--gray-900);
     margin-bottom: 8px;
+    line-height: 1.2;
+    /* 텍스트 오버플로우 방지 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .list-content .missing-info {
     margin-bottom: 0;
-    line-height: 1.6;
+    line-height: 1.5;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 15px;
+    font-size: 0.85rem;
 }
 
+.list-content .missing-info p {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.list-content .missing-info i {
+    color: var(--primary-orange);
+    width: 14px;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+/* ============ 수정된 리스트 상태 정보 - 컴팩트한 디스플레이 ============ */
+.list-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+    flex-shrink: 0;
+}
+
+.list-period {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid var(--gray-200);
+}
+
+.list-up-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--secondary-green-dark);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.list-up-count i {
+    color: var(--secondary-green);
+    font-size: 0.7rem;
+}
+
+/* ============ 수정된 리스트 액션 버튼 - 세로 배치로 컴팩트하게 ============ */
 .list-actions {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
     align-items: center;
     flex-shrink: 0;
+    min-width: 100px;
+}
+
+.list-actions .up-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    min-width: 70px;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.list-actions .detail-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    min-width: 70px;
+    justify-content: center;
+    border-radius: 8px;
+    text-align: center;
 }
 
 /* 로딩 인디케이터 */
@@ -1224,12 +1316,6 @@ body.modal-open {
     background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
     color: white;
     border-color: var(--danger-red);
-    animation: emergencyPulse 2s infinite;
-}
-
-@keyframes emergencyPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
 }
 
 .sub-btn span {
@@ -1269,7 +1355,7 @@ body.modal-open {
     opacity: 1;
 }
 
-/* 반응형 디자인 (PDF 가이드라인: Mobile First) */
+/* ============ 반응형 디자인 (PDF 가이드라인: Mobile First) - 리스트 뷰 최적화 ============ */
 @media (max-width: 1024px) {
     .search-controls {
         padding: 25px;
@@ -1291,6 +1377,30 @@ body.modal-open {
     
     .filter-options {
         grid-template-columns: 1fr 1fr;
+    }
+
+    /* 리스트 뷰 태블릿 최적화 */
+    .list-item {
+        grid-template-columns: 120px 1fr auto;
+        gap: 15px;
+        padding: 18px 20px;
+        min-height: 110px;
+    }
+
+    .list-image {
+        width: 120px;
+        height: 90px;
+    }
+
+    .list-actions {
+        flex-direction: row;
+        gap: 6px;
+        min-width: 140px;
+    }
+
+    .list-content .missing-info {
+        grid-template-columns: 1fr;
+        gap: 4px;
     }
 }
 
@@ -1351,14 +1461,68 @@ body.modal-open {
         gap: 20px;
     }
     
+    /* ============ 모바일 리스트 뷰 최적화 - 세로 레이아웃 ============ */
     .list-item {
         grid-template-columns: 1fr;
         gap: 15px;
-        text-align: center;
+        text-align: left;
+        padding: 20px;
+        min-height: auto;
     }
     
     .list-image {
+        width: 100%;
+        height: 180px;
         justify-self: center;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .list-content {
+        text-align: left;
+    }
+
+    .list-content h3 {
+        text-align: center;
+        font-size: 1.4rem;
+        white-space: normal;
+        margin-bottom: 15px;
+    }
+
+    .list-content .missing-info {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .list-content .missing-info p {
+        white-space: normal;
+    }
+
+    /* 모바일에서 상태와 액션을 가로로 배치 */
+    .list-status,
+    .list-actions {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 15px;
+    }
+
+    .list-status {
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .list-actions {
+        justify-content: center;
+    }
+
+    .list-actions .up-btn,
+    .list-actions .detail-btn {
+        flex: 1;
+        max-width: 120px;
+        min-width: 100px;
     }
     
     .floating-report-btns {
@@ -1511,6 +1675,30 @@ body.modal-open {
     .filter-reset-btn {
         width: 100%;
     }
+
+    /* 소형 모바일 리스트 뷰 최적화 */
+    .list-item {
+        padding: 18px;
+    }
+
+    .list-image {
+        height: 160px;
+    }
+
+    .list-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .list-content .missing-info p {
+        font-size: 0.8rem;
+    }
+
+    .list-actions .up-btn,
+    .list-actions .detail-btn {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+        min-width: 80px;
+    }
     
     /* 소형 모바일 필터 팝업 */
     .filter-popup-modal {
@@ -1580,24 +1768,11 @@ body.modal-open {
     }
 }
 
-/* GPU 가속화를 위한 최적화 */
-.search-header,
+/* 성능 최적화 - 빠른 로딩을 위한 최소한의 최적화 */
 .missing-grid,
 .missing-list-view,
-.filter-popup-modal,
 .missing-card,
-.page-num,
-.floating-btn {
+.list-item {
     transform: translateZ(0);
     backface-visibility: hidden;
-}
-
-/* 애니메이션 최적화 및 안정성 향상 */
-.animated {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-}
-
-.animate-on-scroll {
-    will-change: transform, opacity;
 }
