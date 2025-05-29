@@ -461,12 +461,264 @@ class StatCounter {
     }
 }
 
-// 드라마틱한 애니메이션 관리자 - 원래 스타일 복원
+// 스크롤 감지를 위한 IntersectionObserver 클래스
+class ScrollTriggerObserver {
+    constructor() {
+        this.observers = new Map();
+        this.isDestroyed = false;
+        this.init();
+    }
+
+    init() {
+        if (this.isDestroyed) return;
+        
+        // 통계 섹션 스크롤 감지 - 더 정확한 감지
+        this.observeStatsSection();
+        
+        console.log('📊 Scroll trigger observer initialized for stats section');
+    }
+
+    observeStatsSection() {
+        const statsSection = document.querySelector('.stats-section');
+        if (!statsSection) {
+            console.warn('Stats section not found for scroll detection');
+            return;
+        }
+
+        // 옵션 설정 - 섹션이 30% 보일 때 트리거
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -20% 0px', // 하단 20% 마진으로 더 정확한 감지
+            threshold: [0.3] // 30% 보일 때 트리거
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    console.log('📊 Stats section is in view - triggering animation!');
+                    this.triggerStatsAnimation(entry.target);
+                    // 한 번만 실행되도록 관찰 중지
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        observer.observe(statsSection);
+        this.observers.set('stats', observer);
+        
+        console.log('👁️ Stats section observer started');
+    }
+
+    triggerStatsAnimation(statsSection) {
+        if (this.isDestroyed) return;
+        
+        try {
+            // CSS 클래스로 즉시 표시
+            statsSection.classList.add('in-view');
+            
+            // GSAP 애니메이션 (있을 경우)
+            if (typeof gsap !== 'undefined') {
+                this.animateStatsWithGSAP(statsSection);
+            } else {
+                // CSS만으로 애니메이션 처리
+                this.animateStatsWithCSS(statsSection);
+            }
+            
+            // 통계 카운터 애니메이션 시작 (1초 지연)
+            setTimeout(() => {
+                this.startStatsCounters();
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Stats animation failed:', error);
+            // 에러 시에도 표시는 보장
+            statsSection.style.opacity = '1';
+            statsSection.style.visibility = 'visible';
+            statsSection.style.transform = 'translateY(0)';
+        }
+    }
+
+    animateStatsWithGSAP(statsSection) {
+        const container = statsSection.querySelector('.container');
+        const title = statsSection.querySelector('h2');
+        const message = statsSection.querySelector('.hope-message');
+        const statsGrid = statsSection.querySelector('.stats-grid');
+        const statItems = statsSection.querySelectorAll('.stat-item');
+
+        // 순차적 애니메이션
+        const timeline = gsap.timeline();
+
+        // 섹션 전체 페이드인
+        timeline.fromTo(statsSection, {
+            opacity: 0,
+            y: 50
+        }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out"
+        });
+
+        // 컨테이너 애니메이션
+        timeline.fromTo(container, {
+            opacity: 0,
+            y: 30
+        }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out"
+        }, "-=0.4");
+
+        // 제목 애니메이션
+        timeline.fromTo(title, {
+            opacity: 0,
+            y: 20
+        }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out"
+        }, "-=0.3");
+
+        // 메시지 애니메이션
+        timeline.fromTo(message, {
+            opacity: 0,
+            y: 20
+        }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out"
+        }, "-=0.2");
+
+        // 통계 그리드 애니메이션
+        timeline.fromTo(statsGrid, {
+            opacity: 0,
+            y: 40
+        }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out"
+        }, "-=0.1");
+
+        // 개별 통계 아이템 애니메이션
+        timeline.fromTo(statItems, {
+            opacity: 0,
+            y: 30,
+            scale: 0.9
+        }, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.6,
+            stagger: 0.15,
+            ease: "back.out(1.4)"
+        }, "-=0.4");
+
+        console.log('✨ GSAP stats animation started');
+    }
+
+    animateStatsWithCSS(statsSection) {
+        const container = statsSection.querySelector('.container');
+        const title = statsSection.querySelector('h2');
+        const message = statsSection.querySelector('.hope-message');
+        const statsGrid = statsSection.querySelector('.stats-grid');
+        const statItems = statsSection.querySelectorAll('.stat-item');
+
+        // CSS 트랜지션으로 순차 애니메이션
+        setTimeout(() => {
+            if (container) {
+                container.style.opacity = '1';
+                container.style.visibility = 'visible';
+                container.style.transform = 'translateY(0)';
+            }
+        }, 200);
+
+        setTimeout(() => {
+            if (title) {
+                title.style.opacity = '1';
+                title.style.visibility = 'visible';
+                title.style.transform = 'translateY(0)';
+            }
+        }, 400);
+
+        setTimeout(() => {
+            if (message) {
+                message.style.opacity = '1';
+                message.style.visibility = 'visible';
+                message.style.transform = 'translateY(0)';
+            }
+        }, 600);
+
+        setTimeout(() => {
+            if (statsGrid) {
+                statsGrid.style.opacity = '1';
+                statsGrid.style.visibility = 'visible';
+                statsGrid.style.transform = 'translateY(0)';
+            }
+        }, 800);
+
+        // 개별 아이템 순차 애니메이션
+        statItems.forEach((item, index) => {
+            setTimeout(() => {
+                if (item) {
+                    item.style.opacity = '1';
+                    item.style.visibility = 'visible';
+                    item.style.transform = 'translateY(0) scale(1)';
+                }
+            }, 1000 + (index * 150));
+        });
+
+        console.log('🎨 CSS stats animation started');
+    }
+
+    startStatsCounters() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
+        statNumbers.forEach((number, index) => {
+            if (!number.dataset.animated) {
+                number.dataset.animated = 'true';
+                
+                setTimeout(() => {
+                    // 숫자 표시 먼저
+                    number.style.opacity = '1';
+                    number.style.visibility = 'visible';
+                    number.style.transform = 'scale(1)';
+                    
+                    // 카운터 애니메이션 시작
+                    const targetValue = number.dataset.count || number.textContent;
+                    const counter = new StatCounter(number, targetValue, 2500);
+                    counter.start();
+                    
+                    console.log(`🔢 Started counter for: ${targetValue}`);
+                }, index * 200);
+            }
+        });
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+        
+        this.observers.forEach(observer => {
+            if (observer && observer.disconnect) {
+                observer.disconnect();
+            }
+        });
+        this.observers.clear();
+        
+        console.log('🧹 Scroll trigger observer destroyed');
+    }
+}
+
+// 드라마틱한 애니메이션 관리자 - 스크롤 감지 강화
 class DramaticAnimations {
     constructor() {
         this.isDestroyed = false;
         this.scrollTriggers = [];
         this.counters = [];
+        this.scrollObserver = null;
         this.init();
     }
 
@@ -506,8 +758,6 @@ class DramaticAnimations {
             .urgent-cards,
             .intro-steps,
             .step,
-            .stats-grid,
-            .stat-item,
             .section-header
         `);
         
@@ -519,14 +769,12 @@ class DramaticAnimations {
                     element.style.transform = 'translateY(0)';
                     element.style.visibility = 'visible';
                     element.classList.add('animate-complete');
-                }, index * 150); // 더 긴 지연으로 드라마틱 효과
+                }, index * 150);
             }
         });
 
-        // 통계 카운터도 CSS 모드로 시작
-        setTimeout(() => {
-            this.startAllCounters();
-        }, 2500);
+        // 스크롤 감지 ObserverList 시작 (CSS 모드에서도)
+        this.initializeScrollObserver();
     }
 
     startDramaticSequence() {
@@ -575,6 +823,40 @@ class DramaticAnimations {
         // 개별 요소들 - 더 드라마틱하게
         setTimeout(() => this.animateCards(), 1600);
         setTimeout(() => this.animateSteps(), 2200);
+        
+        // 스크롤 감지 Observer 초기화
+        setTimeout(() => this.initializeScrollObserver(), 500);
+    }
+
+    initializeScrollObserver() {
+        try {
+            this.scrollObserver = new ScrollTriggerObserver();
+            console.log('👁️ Scroll observer initialized for stats section');
+        } catch (error) {
+            console.error('Scroll observer initialization failed:', error);
+            // 폴백으로 6초 후 통계 표시
+            setTimeout(() => {
+                this.fallbackStatsDisplay();
+            }, 6000);
+        }
+    }
+
+    fallbackStatsDisplay() {
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            console.log('⚠️ Fallback stats display activated');
+            statsSection.classList.add('in-view');
+            statsSection.style.opacity = '1';
+            statsSection.style.visibility = 'visible';
+            statsSection.style.transform = 'translateY(0)';
+            
+            // 카운터도 시작
+            setTimeout(() => {
+                if (this.scrollObserver) {
+                    this.scrollObserver.startStatsCounters();
+                }
+            }, 1000);
+        }
     }
 
     animateCards() {
@@ -639,113 +921,8 @@ class DramaticAnimations {
     }
 
     setupScrollAnimations() {
-        if (typeof ScrollTrigger === 'undefined') {
-            this.setupIntersectionObserver();
-            return;
-        }
-
-        try {
-            const statsTrigger = ScrollTrigger.create({
-                trigger: '.stats-section',
-                start: 'top 95%',
-                end: 'bottom 20%',
-                onEnter: () => {
-                    this.animateStatsSection();
-                },
-                once: true
-            });
-            this.scrollTriggers.push(statsTrigger);
-        } catch (error) {
-            console.warn('ScrollTrigger setup failed:', error);
-            this.setupIntersectionObserver();
-        }
-    }
-
-    animateStatsSection() {
-        const statsItems = document.querySelectorAll('.stat-item');
-        
-        if (statsItems.length === 0) return;
-        
-        try {
-            // 완전히 숨겨진 상태에서 시작 - 드라마틱한 등장
-            gsap.fromTo(statsItems, {
-                opacity: 0,
-                y: 50,
-                visibility: 'hidden',
-                scale: 0.8
-            }, {
-                opacity: 1,
-                y: 0,
-                visibility: 'visible',
-                scale: 1,
-                duration: 1.0,
-                stagger: {
-                    amount: 1.5,
-                    from: "start",
-                    ease: "power2.out"
-                },
-                ease: "back.out(1.4)",
-                onStart: () => {
-                    this.startAllCounters();
-                },
-                onComplete: () => {
-                    gsap.set(statsItems, { clearProps: 'transform' });
-                }
-            });
-        } catch (error) {
-            console.warn('Stats animation failed:', error);
-            // 폴백 처리
-            statsItems.forEach(item => {
-                item.style.opacity = '1';
-                item.style.transform = 'translateY(0) scale(1)';
-                item.style.visibility = 'visible';
-            });
-            this.startAllCounters();
-        }
-    }
-    
-    startAllCounters() {
-        const statNumbers = document.querySelectorAll('.stat-number');
-        
-        statNumbers.forEach((number, index) => {
-            if (!number.dataset.animated) {
-                number.dataset.animated = 'true';
-                
-                setTimeout(() => {
-                    const targetValue = number.dataset.count || number.textContent;
-                    const counter = new StatCounter(number, targetValue, 2000); // 더 긴 카운팅 시간
-                    this.counters.push(counter);
-                    counter.start();
-                }, index * 400); // 더 긴 지연으로 드라마틱 효과
-            }
-        });
-    }
-
-    setupIntersectionObserver() {
-        try {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && entry.target.classList.contains('stats-section')) {
-                        this.animateStatsSection();
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            const statsSection = document.querySelector('.stats-section');
-            if (statsSection) {
-                observer.observe(statsSection);
-            }
-        } catch (error) {
-            console.warn('IntersectionObserver setup failed:', error);
-            // 즉시 통계 애니메이션 실행
-            setTimeout(() => this.animateStatsSection(), 3500);
-        }
+        // ScrollTrigger는 통계 섹션에 사용하지 않음 (IntersectionObserver 사용)
+        console.log('📜 Scroll animations setup completed');
     }
 
     animateUpButton(button) {
@@ -800,10 +977,15 @@ class DramaticAnimations {
             if (counter && counter.stop) counter.stop();
         });
         this.counters = [];
+
+        if (this.scrollObserver) {
+            this.scrollObserver.destroy();
+            this.scrollObserver = null;
+        }
     }
 }
 
-// 메인 홈페이지 관리 클래스 - 드라마틱 애니메이션 복원
+// 메인 홈페이지 관리 클래스 - 스크롤 감지 강화
 class DramaticIndexPage {
     constructor() {
         this.animations = null;
@@ -831,7 +1013,7 @@ class DramaticIndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        console.log('🚀 Starting dramatic index page initialization...');
+        console.log('🚀 Starting dramatic index page initialization with enhanced scroll detection...');
         
         // 즉시 폴백 콘텐츠 표시 (안전장치)
         this.renderFallbackContent();
@@ -841,16 +1023,16 @@ class DramaticIndexPage {
             this.attemptReactRender();
         }, 100);
         
-        // 드라마틱 애니메이션 초기화
+        // 드라마틱 애니메이션 초기화 (스크롤 감지 포함)
         setTimeout(() => {
             this.initializeAnimations();
             this.setupEventListeners();
         }, 200);
 
-        // 강제 표시 타이머 (4초 후) - 애니메이션 완료 대기
+        // 강제 표시 타이머 (10초 후) - 통계 섹션은 제외
         setTimeout(() => {
             this.forceShowContent();
-        }, 4000);
+        }, 10000);
     }
 
     renderFallbackContent() {
@@ -968,13 +1150,11 @@ class DramaticIndexPage {
     }
 
     forceShowContent() {
-        console.log('🔄 Force showing content after 4 seconds (emergency fallback)...');
+        console.log('🔄 Force showing content after 10 seconds (emergency fallback, excluding stats)...');
         
         const hiddenElements = document.querySelectorAll(`
             .intro-steps,
             .step,
-            .stats-grid,
-            .stat-item,
             .hero-title,
             .hero-description,
             .section-header
@@ -992,12 +1172,15 @@ class DramaticIndexPage {
                 }
             }
         });
+        
+        // 통계 섹션은 스크롤 감지에서만 처리
+        console.log('📊 Stats section will only show on scroll detection');
     }
 
     initializeAnimations() {
         try {
             this.animations = new DramaticAnimations();
-            console.log('✅ Dramatic animations initialized - prepare for spectacular entrance!');
+            console.log('✅ Dramatic animations initialized with enhanced scroll detection!');
         } catch (error) {
             console.error('❌ Animation initialization failed:', error);
         }
@@ -1138,6 +1321,20 @@ if (typeof window !== 'undefined') {
                 indexPage.renderFallbackContent();
             }
         },
+        forceShowStats: () => {
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                statsSection.classList.add('in-view');
+                console.log('🔧 Force showing stats section');
+            }
+        },
+        testScrollDetection: () => {
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                statsSection.scrollIntoView({ behavior: 'smooth' });
+                console.log('📜 Scrolling to stats section for testing');
+            }
+        },
         testDramaticAnimations: () => {
             if (typeof gsap !== 'undefined' && indexPage && !indexPage.isDestroyed) {
                 try {
@@ -1177,4 +1374,4 @@ if (typeof window !== 'undefined') {
     };
 }
 
-console.log('📜 Dramatic index.js loaded successfully - ready for spectacular entrance!');
+console.log('📜 Enhanced index.js loaded successfully - ready for spectacular entrance with scroll detection!');
