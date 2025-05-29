@@ -1,9 +1,9 @@
-# app.py
+# /home/livon/projects/songil/app.py
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'
+app.secret_key = 'songil_secret_key_2024'
 
 # ==================== PUBLIC 페이지 (비로그인도 접근 가능) ====================
 
@@ -203,6 +203,16 @@ def api_missing_up(missing_id):
         print(f"API missing up error: {e}")
         return jsonify({"status": "error", "message": "처리 중 오류가 발생했습니다."}), 500
 
+# 헬스체크 엔드포인트
+@app.route('/health')
+def health_check():
+    """서버 상태 확인"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': '2024-01-01T00:00:00',
+        'version': '1.0.0'
+    })
+
 # ==================== 템플릿 테스트 라우트 (개발용) ====================
 
 @app.route('/test/templates')
@@ -267,7 +277,7 @@ def handle_exception(error):
 if __name__ == '__main__':
     # Docker 환경 체크
     is_docker = os.getenv('IS_DOCKER', 'false').lower() == 'true'
-    port = 5004
+    port = int(os.getenv('PORT', 5004))
     
     if is_docker:
         # Docker 환경에서는 모든 인터페이스에서 접근 가능하도록 설정
