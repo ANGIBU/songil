@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- 검색 헤더 섹션 -->
+<!-- 검색 헤더 섹션 - 사이드바 없는 전체 너비 레이아웃 -->
 <section class="search-header">
     <div class="container">
         <div class="search-title">
@@ -21,7 +21,7 @@
             <p>실종자 정보를 검색하고 목격 정보를 제보해주세요</p>
         </div>
         
-        <!-- 검색 및 필터 -->
+        <!-- 검색 및 필터 - 전체 너비 활용 -->
         <div class="search-controls">
             <div class="search-section">
                 <div class="search-input-container">
@@ -53,7 +53,7 @@
             </div>
         </div>
         
-        <!-- 검색 결과 정보 -->
+        <!-- 검색 결과 정보 - 전체 너비 -->
         <div class="search-results-info">
             <div class="results-count">
                 총 <span id="totalCount">127</span>건의 실종자 정보가 있습니다
@@ -72,53 +72,56 @@
     </div>
 </section>
 
-<!-- 실종자 목록 섹션 -->
+<!-- 실종자 목록 섹션 - 사이드바 없는 전체 너비 메인 콘텐츠 -->
 <section class="missing-list">
     <div class="container">
-        <!-- 뷰 컨테이너 - 새로운 구조 -->
-        <div class="view-container">
-            <!-- 그리드 뷰 -->
-            <div class="missing-grid" id="missingGrid">
-                <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+        <!-- 메인 콘텐츠 - 사이드바 제거로 전체 너비 활용 -->
+        <div class="main-content-area">
+            <!-- 뷰 컨테이너 - 사이드바 없이 전체 너비 사용 -->
+            <div class="view-container">
+                <!-- 그리드 뷰 -->
+                <div class="missing-grid" id="missingGrid">
+                    <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                </div>
+                
+                <!-- 리스트 뷰 -->
+                <div class="missing-list-view" id="missingList">
+                    <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                </div>
             </div>
             
-            <!-- 리스트 뷰 -->
-            <div class="missing-list-view" id="missingList">
-                <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+            <!-- 로딩 인디케이터 -->
+            <div class="loading-indicator" id="loadingIndicator">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>실종자 정보를 불러오는 중...</span>
             </div>
-        </div>
-        
-        <!-- 로딩 인디케이터 -->
-        <div class="loading-indicator" id="loadingIndicator">
-            <i class="fas fa-spinner fa-spin"></i>
-            <span>실종자 정보를 불러오는 중...</span>
-        </div>
-        
-        <!-- 결과 없음 메시지 -->
-        <div class="no-results" id="noResults">
-            <i class="fas fa-search"></i>
-            <h3>검색 결과가 없습니다</h3>
-            <p>다른 검색어나 필터 조건을 시도해보세요</p>
-        </div>
-        
-        <!-- 페이지네이션 -->
-        <div class="pagination" id="pagination">
-            <button class="page-btn prev" id="prevBtn">
-                <i class="fas fa-chevron-left"></i>
-                이전
-            </button>
-            <div class="page-numbers" id="pageNumbers">
-                <!-- 페이지 번호들이 동적으로 생성됩니다 -->
+            
+            <!-- 결과 없음 메시지 -->
+            <div class="no-results" id="noResults">
+                <i class="fas fa-search"></i>
+                <h3>검색 결과가 없습니다</h3>
+                <p>다른 검색어나 필터 조건을 시도해보세요</p>
             </div>
-            <button class="page-btn next" id="nextBtn">
-                다음
-                <i class="fas fa-chevron-right"></i>
-            </button>
+            
+            <!-- 페이지네이션 -->
+            <div class="pagination" id="pagination">
+                <button class="page-btn prev" id="prevBtn">
+                    <i class="fas fa-chevron-left"></i>
+                    이전
+                </button>
+                <div class="page-numbers" id="pageNumbers">
+                    <!-- 페이지 번호들이 동적으로 생성됩니다 -->
+                </div>
+                <button class="page-btn next" id="nextBtn">
+                    다음
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- 필터 팝업 모달 - 스크롤 버그 해결을 위한 구조 개선 -->
+<!-- 상세 조회 팝업 모달 - 뷰포트 중앙 정렬 보장 -->
 <div class="filter-popup-overlay" id="filterPopupOverlay">
     <div class="filter-popup-modal">
         <div class="filter-popup-header">

@@ -24,12 +24,49 @@
 중복 정의를 피하기 위해 style.css를 먼저 로드해야 합니다.
 */
 
+/* ============ 사이드바 제거 - 전체 너비 레이아웃 보장 ============ */
+
+/* 메인 콘텐츠 영역 - 사이드바 없이 전체 너비 사용 */
+.main-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 컨테이너 - 적절한 크기로 조정 */
+.missing-list .container {
+    max-width: 1200px !important; /* 기존 크기로 복원 */
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 20px !important;
+}
+
+/* 검색 헤더도 동일한 크기 */
+.search-header .container {
+    max-width: 1200px !important; /* 기존 크기로 복원 */
+    width: 100% !important;
+}
+
+/* 사이드바 관련 요소 완전 제거 */
+.sidebar,
+.side-nav,
+.side-menu,
+.side-panel {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
 /* 검색 헤더 섹션 */
 .search-header {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 60px 0 40px;
     position: relative;
     overflow: hidden;
+    width: 100% !important; /* 전체 너비 보장 */
 }
 
 .search-header::before {
@@ -45,7 +82,7 @@
 
 .search-title {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 25px; /* 기존 40px에서 줄임 */
     position: relative;
     z-index: 1;
 }
@@ -73,16 +110,16 @@
     margin: 0 auto;
 }
 
-/* 검색 컨트롤 */
+/* 검색 컨트롤 - 간격 조정 */
 .search-controls {
     background: white;
     border-radius: 20px;
-    padding: 30px;
+    padding: 25px; /* 기존 30px에서 줄임 */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--gray-200);
     position: relative;
     z-index: 1;
-    margin-bottom: 30px;
+    margin-bottom: 20px; /* 기존 30px에서 줄임 */
 }
 
 .search-section {
@@ -235,15 +272,18 @@
     color: var(--danger-red);
 }
 
-/* ============ 완전히 수정된 팝업 모달 - 뷰포트 중앙 정렬 보장 ============ */
+/* ============ 완전히 수정된 팝업 모달 - 뷰포트 중앙 정렬 절대 보장 ============ */
 
-/* 모달 오픈 시 body 스크롤 방지 - FIXED POSITIONING 제거 */
+/* 모달 오픈 시 body 완전 고정 - 스크롤 방지 강화 */
 body.modal-open {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
     overflow: hidden !important;
-    /* position: fixed 제거 - 이것이 문제의 원인이었음 */
-    /* top, left, right, width, height 속성도 모두 제거 */
-    /* 스크롤 방지만 유지 */
-    padding-right: var(--scrollbar-width, 0); /* 스크롤바 공간 보상 */
+    padding-right: var(--scrollbar-width, 0) !important;
+    margin: 0 !important;
 }
 
 /* 스크롤바 너비 계산을 위한 CSS 변수 */
@@ -251,9 +291,9 @@ html {
     --scrollbar-width: 0px;
 }
 
-/* 완전히 새로운 모달 오버레이 - 뷰포트 기준 고정 */
+/* ============ 절대적 뷰포트 중앙 정렬 모달 오버레이 ============ */
 .filter-popup-overlay {
-    /* 뷰포트 전체를 덮는 고정 위치 */
+    /* 최우선 고정 위치 - 뷰포트 전체 덮기 */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -261,29 +301,34 @@ html {
     bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
     
     /* 배경 및 시각적 효과 */
-    background: rgba(0, 0, 0, 0.5) !important;
-    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
     
-    /* Flexbox 중앙 정렬 */
+    /* Flexbox 완전 중앙 정렬 */
     display: none !important;
     align-items: center !important;
     justify-content: center !important;
+    align-content: center !important;
     
-    /* 통일된 z-index 체계 사용 */
-    z-index: var(--z-index-modal, 10000) !important;
+    /* 최고 우선순위 z-index */
+    z-index: 999999 !important;
     
-    /* 스크롤 방지 */
+    /* 스크롤 완전 방지 */
     overflow: hidden !important;
-    overscroll-behavior: contain !important;
+    overscroll-behavior: none !important;
     
-    /* 터치 디바이스 최적화 */
+    /* 터치 및 모바일 최적화 */
     -webkit-overflow-scrolling: touch !important;
+    touch-action: none !important;
     
     /* 렌더링 최적화 */
     transform: translateZ(0) !important;
-    will-change: transform !important;
+    will-change: opacity, visibility !important;
     -webkit-backface-visibility: hidden !important;
     backface-visibility: hidden !important;
     
@@ -292,38 +337,55 @@ html {
     -moz-transform: translateZ(0) !important;
     -ms-transform: translateZ(0) !important;
     -o-transform: translateZ(0) !important;
+    
+    /* 포인터 이벤트 */
+    pointer-events: auto !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
 }
 
 .filter-popup-overlay.active {
     display: flex !important;
 }
 
-/* 모달 컨테이너 - 중앙 정렬 최적화 */
+/* ============ 모달 컨테이너 - 절대적 중앙 정렬 ============ */
 .filter-popup-modal {
-    /* 기본 스타일 */
+    /* 기본 레이아웃 */
     background: white !important;
     border-radius: 20px !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4) !important;
     
     /* 크기 설정 */
     width: 90% !important;
     max-width: 450px !important;
     max-height: 80vh !important;
+    min-height: 400px !important;
     
-    /* 레이아웃 */
+    /* Flexbox 레이아웃 */
     display: flex !important;
     flex-direction: column !important;
-    overflow: hidden !important;
     
-    /* 위치 설정 - 중앙 정렬 보장 */
+    /* 위치 - 중앙 정렬 절대 보장 */
     position: relative !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
+    
+    /* 스크롤 */
+    overflow: hidden !important;
     
     /* 렌더링 최적화 */
     transform: translateZ(0) !important;
-    will-change: transform !important;
+    will-change: transform, opacity !important;
     -webkit-backface-visibility: hidden !important;
     backface-visibility: hidden !important;
+    
+    /* 포인터 이벤트 */
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
     
     /* 브라우저별 호환성 */
     -webkit-transform: translateZ(0) !important;
@@ -332,21 +394,23 @@ html {
     -o-transform: translateZ(0) !important;
 }
 
-/* 모바일 환경에서 모달 최적화 */
+/* ============ 모바일 환경 모달 최적화 ============ */
 @media (max-width: 768px) {
     .filter-popup-overlay {
-        /* 모바일에서 더 안전한 뷰포트 단위 사용 */
+        /* 모바일에서 더 안전한 뷰포트 단위 */
         width: 100vw !important;
         height: 100vh !important;
-        /* iOS Safari 주소창 고려 */
+        height: 100dvh !important; /* Dynamic Viewport Height for mobile */
         min-height: -webkit-fill-available !important;
         min-height: fill-available !important;
+        padding: 10px !important;
     }
     
     .filter-popup-modal {
-        width: 95% !important;
+        width: calc(100% - 20px) !important;
         max-width: 400px !important;
-        max-height: 85vh !important;
+        max-height: calc(100vh - 40px) !important;
+        max-height: calc(100dvh - 40px) !important;
         /* iOS Safari 안전 영역 고려 */
         max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px) !important;
     }
@@ -354,15 +418,20 @@ html {
 
 /* 초소형 모바일 (480px 이하) */
 @media (max-width: 480px) {
+    .filter-popup-overlay {
+        padding: 5px !important;
+    }
+    
     .filter-popup-modal {
-        width: 98% !important;
+        width: calc(100% - 10px) !important;
         max-width: 350px !important;
-        max-height: 90vh !important;
-        /* 더 작은 화면에서 더 많은 공간 활용 */
         max-height: calc(100vh - 20px) !important;
+        max-height: calc(100dvh - 20px) !important;
+        border-radius: 15px !important;
     }
 }
 
+/* ============ 모달 헤더 ============ */
 .filter-popup-header {
     display: flex;
     justify-content: space-between;
@@ -370,6 +439,8 @@ html {
     padding: 20px 25px;
     border-bottom: 1px solid var(--gray-200);
     flex-shrink: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
 }
 
 .filter-popup-header h3 {
@@ -379,6 +450,7 @@ html {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin: 0;
 }
 
 .filter-popup-header h3 i {
@@ -397,10 +469,12 @@ html {
     align-items: center;
     justify-content: center;
     color: var(--gray-600);
+    font-size: 14px;
 }
 
 .filter-popup-close:hover {
     background: var(--gray-200);
+    color: var(--gray-800);
 }
 
 /* 필터 탭 버튼들 */
@@ -462,6 +536,7 @@ html {
     /* 내부 스크롤 최적화 */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    background: white;
 }
 
 /* 지역 선택 관련 스타일 - 완전 재작성으로 버그 해결 */
@@ -638,6 +713,8 @@ html {
     padding: 20px 25px;
     border-top: 1px solid var(--gray-200);
     flex-shrink: 0;
+    background: white;
+    border-radius: 0 0 20px 20px;
 }
 
 .filter-apply-btn {
@@ -723,9 +800,9 @@ html {
     color: white !important;
 }
 
-/* ============ 실종자 목록 섹션 - 완전 수정된 뷰 구조 ============ */
+/* ============ 실종자 목록 섹션 - 위치 조정 ============ */
 .missing-list {
-    padding: 40px 0 80px;
+    padding: 20px 0 60px; /* 기존 40px 0 80px에서 줄임 */
     background: white;
 }
 
@@ -742,8 +819,8 @@ html {
 .missing-grid {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
-    margin-bottom: 40px;
+    gap: 25px; /* 기존 30px에서 줄임 */
+    margin-bottom: 30px; /* 기존 40px에서 줄임 */
     width: 100%;
     opacity: 1 !important;
     visibility: visible !important;
@@ -761,7 +838,7 @@ html {
     display: none !important;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 40px;
+    margin-bottom: 30px; /* 기존 40px에서 줄임 */
     width: 100%;
     /* absolute positioning 완전 제거 */
     position: static !important;
@@ -1209,7 +1286,7 @@ html {
     justify-content: center;
     align-items: center;
     gap: 12px;
-    margin-top: 40px;
+    margin-top: 30px; /* 기존 40px에서 줄임 */
     /* 페이지네이션도 항상 표시 보장 */
     opacity: 1 !important;
     visibility: visible !important;
@@ -1404,12 +1481,12 @@ html {
 /* ============ 반응형 디자인 (PDF 가이드라인: Mobile First) - 리스트 뷰 최적화 ============ */
 @media (max-width: 1024px) {
     .search-controls {
-        padding: 25px;
+        padding: 20px; /* 기존 25px에서 줄임 */
     }
     
     .missing-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
+        gap: 22px; /* 기존 25px에서 줄임 */
     }
     
     .search-results-info {
@@ -1504,7 +1581,7 @@ html {
     
     .missing-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 18px; /* 기존 20px에서 줄임 */
     }
     
     /* ============ 모바일 리스트 뷰 최적화 - 세로 레이아웃 ============ */
@@ -1638,7 +1715,7 @@ html {
 
 @media (max-width: 480px) {
     .search-header {
-        padding: 40px 0 30px;
+        padding: 30px 0 20px; /* 기존 40px 0 30px에서 줄임 */
     }
     
     .search-title h1 {
@@ -1646,8 +1723,8 @@ html {
     }
     
     .search-controls {
-        padding: 20px;
-        margin: 0 -10px 20px;
+        padding: 18px; /* 기존 20px에서 줄임 */
+        margin: 0 -10px 15px; /* 기존 margin-bottom 20px에서 줄임 */
         border-radius: 15px;
     }
     

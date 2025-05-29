@@ -304,7 +304,7 @@ class PaginationManager {
     }
 }
 
-// ============ 완전히 수정된 필터 팝업 관리자 - 뷰포트 중앙 정렬 보장 ============
+// ============ 완전히 수정된 필터 팝업 관리자 - 뷰포트 중앙 정렬 절대 보장 ============
 class FilterPopupManager {
     constructor(searchManager) {
         this.searchManager = searchManager;
@@ -318,7 +318,9 @@ class FilterPopupManager {
         };
         this.regionData = this.initRegionData();
         this.scrollY = 0;
+        this.scrollX = 0;
         this.scrollbarWidth = 0;
+        this.originalBodyStyles = {};
         this.init();
     }
 
@@ -380,16 +382,24 @@ class FilterPopupManager {
         this.loadCurrentFilters();
     }
 
-    // ============ 스크롤바 너비 계산 함수 추가 ============
+    // ============ 스크롤바 너비 계산 함수 ============
     calculateScrollbarWidth() {
         // 스크롤바 너비 계산
         const outer = document.createElement('div');
-        outer.style.visibility = 'hidden';
-        outer.style.overflow = 'scroll';
-        outer.style.msOverflowStyle = 'scrollbar';
+        outer.style.cssText = `
+            visibility: hidden;
+            overflow: scroll;
+            msOverflowStyle: scrollbar;
+            position: absolute;
+            top: -9999px;
+            width: 100px;
+            height: 100px;
+        `;
         document.body.appendChild(outer);
         
         const inner = document.createElement('div');
+        inner.style.width = '100%';
+        inner.style.height = '200px';
         outer.appendChild(inner);
         
         this.scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
@@ -556,7 +566,7 @@ class FilterPopupManager {
         }
     }
 
-    // ============ 완전히 수정된 팝업 열기 - 뷰포트 중앙 고정 보장 ============
+    // ============ 완전히 수정된 팝업 열기 - 뷰포트 중앙 절대 보장 ============
     openPopup() {
         if (!this.overlay) return;
         
@@ -564,60 +574,99 @@ class FilterPopupManager {
         
         this.loadCurrentFilters();
         
-        // 현재 스크롤 위치 저장
-        this.scrollY = window.pageYOffset || document.documentElement.scrollTop;
-        console.log('💾 Saved scroll position:', this.scrollY);
+        // ============ 현재 스크롤 위치 정확히 저장 ============
+        this.scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        this.scrollX = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
         
-        // 스크롤바 너비 재계산 (동적 콘텐츠 대응)
+        console.log('💾 Saved scroll position:', { x: this.scrollX, y: this.scrollY });
+        
+        // ============ body 원본 스타일 저장 ============
+        const bodyStyle = document.body.style;
+        this.originalBodyStyles = {
+            position: bodyStyle.position || '',
+            top: bodyStyle.top || '',
+            left: bodyStyle.left || '',
+            width: bodyStyle.width || '',
+            height: bodyStyle.height || '',
+            overflow: bodyStyle.overflow || '',
+            paddingRight: bodyStyle.paddingRight || '',
+            margin: bodyStyle.margin || ''
+        };
+        
+        // ============ 스크롤바 너비 재계산 (동적 콘텐츠 대응) ============
         this.calculateScrollbarWidth();
         
-        // body 스크롤 방지 (position: fixed 없이)
+        // ============ body 완전 고정 - 뷰포트 기준 위치 고정 ============
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${this.scrollY}px`;
+        document.body.style.left = `-${this.scrollX}px`;
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = `${this.scrollbarWidth}px`;
+        document.body.style.margin = '0';
+        
+        // ============ 모달 오픈 클래스 추가 ============
         document.body.classList.add('modal-open');
         
-        // 팝업 활성화
+        // ============ 팝업 활성화 ============
         this.overlay.classList.add('active');
         
-        // 지역 선택 초기화
+        // ============ 지역 선택 초기화 ============
         this.showRegionLevel1();
         
-        // 포커스를 모달로 이동 (접근성)
+        // ============ 포커스를 모달로 이동 (접근성) ============
         const firstFocusable = this.modal.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
         if (firstFocusable) {
-            setTimeout(() => firstFocusable.focus(), 100);
+            setTimeout(() => {
+                firstFocusable.focus();
+            }, 100);
         }
         
-        console.log('✅ Filter popup opened successfully');
+        console.log('✅ Filter popup opened successfully - viewport centered');
     }
 
-    // ============ 완전히 수정된 팝업 닫기 - 스크롤 위치 복원 ============
+    // ============ 완전히 수정된 팝업 닫기 - 스크롤 위치 정확 복원 ============
     closePopup() {
         if (!this.overlay) return;
         
         console.log('🔒 Closing filter popup...');
         
-        // 팝업 비활성화
+        // ============ 팝업 비활성화 ============
         this.overlay.classList.remove('active');
         
-        // body 스크롤 방지 해제
+        // ============ 모달 오픈 클래스 제거 ============
         document.body.classList.remove('modal-open');
         
-        // 스크롤 위치 복원
-        if (this.scrollY > 0) {
+        // ============ body 원본 스타일 완전 복원 ============
+        const bodyStyle = document.body.style;
+        Object.keys(this.originalBodyStyles).forEach(prop => {
+            if (this.originalBodyStyles[prop] === '') {
+                bodyStyle.removeProperty(prop);
+            } else {
+                bodyStyle[prop] = this.originalBodyStyles[prop];
+            }
+        });
+        
+        // ============ 스크롤 위치 정확 복원 ============
+        setTimeout(() => {
             window.scrollTo({
                 top: this.scrollY,
-                left: 0,
+                left: this.scrollX,
                 behavior: 'instant'
             });
-            console.log('🔄 Restored scroll position:', this.scrollY);
-        }
+            console.log('🔄 Restored scroll position:', { x: this.scrollX, y: this.scrollY });
+        }, 0);
         
-        // 포커스를 팝업 열기 버튼으로 복원 (접근성)
+        // ============ 포커스를 팝업 열기 버튼으로 복원 (접근성) ============
         const openBtn = document.getElementById('filterPopupBtn');
         if (openBtn) {
-            openBtn.focus();
+            setTimeout(() => {
+                openBtn.focus();
+            }, 100);
         }
         
-        console.log('✅ Filter popup closed successfully');
+        console.log('✅ Filter popup closed successfully - scroll restored');
     }
 
     loadCurrentFilters() {
@@ -1893,6 +1942,9 @@ if (typeof window !== 'undefined') {
             console.log('Overlay position:', overlay ? window.getComputedStyle(overlay).position : 'N/A');
             console.log('Overlay z-index:', overlay ? window.getComputedStyle(overlay).zIndex : 'N/A');
             console.log('Body classes:', Array.from(body.classList));
+            console.log('Body position:', window.getComputedStyle(body).position);
+            console.log('Body top:', window.getComputedStyle(body).top);
+            console.log('Body left:', window.getComputedStyle(body).left);
             console.log('Overlay classes:', overlay ? Array.from(overlay.classList) : 'N/A');
             console.log('Modal classes:', modal ? Array.from(modal.classList) : 'N/A');
             console.log('Viewport size:', {
@@ -1975,7 +2027,7 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Debug tools loaded - POPUP CENTERING FIXED!');
+    console.log('🛠️ Debug tools loaded - VIEWPORT CENTERING FIXED!');
     console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
     console.log('- window.missingSearchDebug.checkPopup() : 팝업 상태 확인');
     console.log('- window.missingSearchDebug.forceOpenPopup() : 강제 팝업 열기');
