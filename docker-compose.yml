@@ -1,0 +1,146 @@
+# docker/docker-compose.yml
+
+version: '3.8'
+
+services:
+  # 데이터베이스 서비스
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: dks12345
+      MYSQL_DATABASE: today_talk
+      MYSQL_USER: livon
+      MYSQL_PASSWORD: dks12345
+    ports:
+      - "0.0.0.0:3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      smartlivon_network:
+        aliases:
+          - mysql-server
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --secure-file-priv="" --bind-address=0.0.0.0
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pdks12345"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 포트폴리오 프로젝트
+  portfolio:
+    build: 
+      context: /home/livon/projects/portfolio
+    container_name: portfolio
+    restart: always
+    volumes:
+      - /home/livon/projects/portfolio:/app
+    ports:
+      - "5002:5002"
+    networks:
+      - smartlivon_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SECRET_KEY=your_secret_key_here
+      - IS_DOCKER=true
+
+  # Haru 프로젝트 (기존 Today Talk)
+  haru:
+    build: 
+      context: /home/livon/projects/haru
+    container_name: haru
+    restart: always
+    volumes:
+      - /home/livon/projects/haru:/app
+    ports:
+      - "5003:5003"
+    networks:
+      - smartlivon_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://livon:dks12345@mysql:3306/haru?charset=utf8mb4
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SECRET_KEY=your_secret_key_here
+      - IS_DOCKER=true
+
+  # Tutu 프로젝트 (기존 Today Todo)
+  tutu:
+    build: 
+      context: /home/livon/projects/tutu
+    container_name: tutu
+    restart: always
+    volumes:
+      - /home/livon/projects/tutu:/app
+    ports:
+      - "5005:5005"
+    networks:
+      - smartlivon_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://livon:dks12345@mysql:3306/tutu?charset=utf8mb4
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SECRET_KEY=your_secret_key_here
+      - IS_DOCKER=true
+
+  # Songil 프로젝트 (새 프로젝트)
+  songil:
+    build: 
+      context: /home/livon/projects/songil
+    container_name: songil
+    restart: always
+    volumes:
+      - /home/livon/projects/songil:/app
+    ports:
+      - "5004:5004"
+    networks:
+      - smartlivon_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://livon:dks12345@mysql:3306/songil?charset=utf8mb4
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - SECRET_KEY=your_secret_key_here
+      - IS_DOCKER=true
+
+  # Nginx 리버스 프록시
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/log:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt
+    networks:
+      - smartlivon_network
+    depends_on:
+      - portfolio
+      - haru
+      - tutu
+      - songil
+
+networks:
+  smartlivon_network:
+    name: smartlivon_network
+    driver: bridge
+
+volumes:
+  mysql_data:
