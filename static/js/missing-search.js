@@ -304,7 +304,7 @@ class PaginationManager {
     }
 }
 
-// 필터 팝업 관리자 (기존과 동일)
+// ============ 완전히 수정된 필터 팝업 관리자 - 뷰포트 중앙 정렬 보장 ============
 class FilterPopupManager {
     constructor(searchManager) {
         this.searchManager = searchManager;
@@ -318,6 +318,7 @@ class FilterPopupManager {
         };
         this.regionData = this.initRegionData();
         this.scrollY = 0;
+        this.scrollbarWidth = 0;
         this.init();
     }
 
@@ -372,8 +373,32 @@ class FilterPopupManager {
             return;
         }
 
+        // 스크롤바 너비 계산
+        this.calculateScrollbarWidth();
+        
         this.setupEventListeners();
         this.loadCurrentFilters();
+    }
+
+    // ============ 스크롤바 너비 계산 함수 추가 ============
+    calculateScrollbarWidth() {
+        // 스크롤바 너비 계산
+        const outer = document.createElement('div');
+        outer.style.visibility = 'hidden';
+        outer.style.overflow = 'scroll';
+        outer.style.msOverflowStyle = 'scrollbar';
+        document.body.appendChild(outer);
+        
+        const inner = document.createElement('div');
+        outer.appendChild(inner);
+        
+        this.scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+        document.body.removeChild(outer);
+        
+        // CSS 변수로 설정
+        document.documentElement.style.setProperty('--scrollbar-width', `${this.scrollbarWidth}px`);
+        
+        console.log('📏 Scrollbar width calculated:', this.scrollbarWidth + 'px');
     }
 
     setupEventListeners() {
@@ -531,24 +556,68 @@ class FilterPopupManager {
         }
     }
 
+    // ============ 완전히 수정된 팝업 열기 - 뷰포트 중앙 고정 보장 ============
     openPopup() {
         if (!this.overlay) return;
         
+        console.log('🔓 Opening filter popup...');
+        
         this.loadCurrentFilters();
-        this.scrollY = window.scrollY;
-        document.documentElement.style.setProperty('--scroll-y', `-${this.scrollY}px`);
+        
+        // 현재 스크롤 위치 저장
+        this.scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        console.log('💾 Saved scroll position:', this.scrollY);
+        
+        // 스크롤바 너비 재계산 (동적 콘텐츠 대응)
+        this.calculateScrollbarWidth();
+        
+        // body 스크롤 방지 (position: fixed 없이)
         document.body.classList.add('modal-open');
+        
+        // 팝업 활성화
         this.overlay.classList.add('active');
+        
+        // 지역 선택 초기화
         this.showRegionLevel1();
+        
+        // 포커스를 모달로 이동 (접근성)
+        const firstFocusable = this.modal.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) {
+            setTimeout(() => firstFocusable.focus(), 100);
+        }
+        
+        console.log('✅ Filter popup opened successfully');
     }
 
+    // ============ 완전히 수정된 팝업 닫기 - 스크롤 위치 복원 ============
     closePopup() {
         if (!this.overlay) return;
         
+        console.log('🔒 Closing filter popup...');
+        
+        // 팝업 비활성화
         this.overlay.classList.remove('active');
+        
+        // body 스크롤 방지 해제
         document.body.classList.remove('modal-open');
-        window.scrollTo(0, this.scrollY);
-        document.documentElement.style.removeProperty('--scroll-y');
+        
+        // 스크롤 위치 복원
+        if (this.scrollY > 0) {
+            window.scrollTo({
+                top: this.scrollY,
+                left: 0,
+                behavior: 'instant'
+            });
+            console.log('🔄 Restored scroll position:', this.scrollY);
+        }
+        
+        // 포커스를 팝업 열기 버튼으로 복원 (접근성)
+        const openBtn = document.getElementById('filterPopupBtn');
+        if (openBtn) {
+            openBtn.focus();
+        }
+        
+        console.log('✅ Filter popup closed successfully');
     }
 
     loadCurrentFilters() {
@@ -1811,6 +1880,51 @@ if (typeof window !== 'undefined') {
             }
         },
         
+        // 팝업 상태 확인
+        checkPopup: () => {
+            const overlay = document.getElementById('filterPopupOverlay');
+            const modal = overlay ? overlay.querySelector('.filter-popup-modal') : null;
+            const body = document.body;
+            
+            console.log('=== 팝업 상태 ===');
+            console.log('Overlay element:', overlay ? 'Found' : 'Not found');
+            console.log('Modal element:', modal ? 'Found' : 'Not found');
+            console.log('Overlay display:', overlay ? window.getComputedStyle(overlay).display : 'N/A');
+            console.log('Overlay position:', overlay ? window.getComputedStyle(overlay).position : 'N/A');
+            console.log('Overlay z-index:', overlay ? window.getComputedStyle(overlay).zIndex : 'N/A');
+            console.log('Body classes:', Array.from(body.classList));
+            console.log('Overlay classes:', overlay ? Array.from(overlay.classList) : 'N/A');
+            console.log('Modal classes:', modal ? Array.from(modal.classList) : 'N/A');
+            console.log('Viewport size:', {
+                width: window.innerWidth,
+                height: window.innerHeight
+            });
+            console.log('Document size:', {
+                width: document.documentElement.scrollWidth,
+                height: document.documentElement.scrollHeight
+            });
+            console.log('Current scroll position:', {
+                x: window.pageXOffset || document.documentElement.scrollLeft,
+                y: window.pageYOffset || document.documentElement.scrollTop
+            });
+        },
+        
+        // 강제 팝업 열기
+        forceOpenPopup: () => {
+            console.log('🔧 Forcing popup open...');
+            if (missingSearchPage?.filterPopupManager) {
+                missingSearchPage.filterPopupManager.openPopup();
+            }
+        },
+        
+        // 강제 팝업 닫기
+        forceClosePopup: () => {
+            console.log('🔧 Forcing popup close...');
+            if (missingSearchPage?.filterPopupManager) {
+                missingSearchPage.filterPopupManager.closePopup();
+            }
+        },
+        
         // 페이지네이션 상태 확인
         checkPagination: () => {
             const pagination = missingSearchPage?.paginationManager;
@@ -1861,8 +1975,11 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Debug tools loaded - FAST LOADING optimized!');
+    console.log('🛠️ Debug tools loaded - POPUP CENTERING FIXED!');
     console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
+    console.log('- window.missingSearchDebug.checkPopup() : 팝업 상태 확인');
+    console.log('- window.missingSearchDebug.forceOpenPopup() : 강제 팝업 열기');
+    console.log('- window.missingSearchDebug.forceClosePopup() : 강제 팝업 닫기');
     console.log('- window.missingSearchDebug.forceListView() : 목록 뷰로 강제 전환');
     console.log('- window.missingSearchDebug.forceGridView() : 그리드 뷰로 강제 전환');
     console.log('- window.missingSearchDebug.checkPagination() : 페이지네이션 상태 확인');

@@ -18,35 +18,11 @@
     transform: translateY(0) !important;
 }
 
-/* CSS 변수 정의 (PDF 설계 문서와 일치) */
-:root {
-    --primary-orange: #f97316;
-    --primary-orange-light: #fb923c;
-    --primary-orange-dark: #ea580c;
-    --primary-orange-soft: #fed7aa;
-    --secondary-green: #22c55e;
-    --secondary-green-light: #4ade80;
-    --secondary-green-dark: #16a34a;
-    --secondary-green-soft: #bbf7d0;
-    --danger-red: #ef4444;
-    --danger-red-light: #f87171;
-    --danger-red-dark: #dc2626;
-    --danger-red-soft: #fecaca;
-    --accent-coral: #ff6b6b;
-    --accent-coral-light: #ff8e8e;
-    --warning-amber: #f59e0b;
-    --warning-amber-light: #fbbf24;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
-}
+/* CSS 변수 정의 - style.css와 통합됨 */
+/* 
+이 파일은 style.css의 CSS 변수를 사용합니다.
+중복 정의를 피하기 위해 style.css를 먼저 로드해야 합니다.
+*/
 
 /* 검색 헤더 섹션 */
 .search-header {
@@ -259,62 +235,132 @@
     color: var(--danger-red);
 }
 
-/* ============ 팝업 모달 - 스크롤 버그 완전 해결 ============ */
+/* ============ 완전히 수정된 팝업 모달 - 뷰포트 중앙 정렬 보장 ============ */
 
-/* 모달 오픈 시 body 스크롤 방지 - 스크롤 위치 보존 */
+/* 모달 오픈 시 body 스크롤 방지 - FIXED POSITIONING 제거 */
 body.modal-open {
     overflow: hidden !important;
-    position: fixed !important;
-    top: var(--scroll-y, 0);
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    /* position: fixed 제거 - 이것이 문제의 원인이었음 */
+    /* top, left, right, width, height 속성도 모두 제거 */
+    /* 스크롤 방지만 유지 */
+    padding-right: var(--scrollbar-width, 0); /* 스크롤바 공간 보상 */
 }
 
+/* 스크롤바 너비 계산을 위한 CSS 변수 */
+html {
+    --scrollbar-width: 0px;
+}
+
+/* 완전히 새로운 모달 오버레이 - 뷰포트 기준 고정 */
 .filter-popup-overlay {
+    /* 뷰포트 전체를 덮는 고정 위치 */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    z-index: 9999 !important;
+    
+    /* 배경 및 시각적 효과 */
+    background: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(5px);
-    /* 중앙 정렬 강제 적용 */
+    
+    /* Flexbox 중앙 정렬 */
+    display: none !important;
     align-items: center !important;
     justify-content: center !important;
+    
+    /* 통일된 z-index 체계 사용 */
+    z-index: var(--z-index-modal, 10000) !important;
+    
     /* 스크롤 방지 */
     overflow: hidden !important;
-    /* iOS Safari 터치 스크롤 방지 */
-    -webkit-overflow-scrolling: auto !important;
-    overscroll-behavior: contain;
+    overscroll-behavior: contain !important;
+    
+    /* 터치 디바이스 최적화 */
+    -webkit-overflow-scrolling: touch !important;
+    
+    /* 렌더링 최적화 */
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    
+    /* 브라우저별 호환성 강화 */
+    -webkit-transform: translateZ(0) !important;
+    -moz-transform: translateZ(0) !important;
+    -ms-transform: translateZ(0) !important;
+    -o-transform: translateZ(0) !important;
 }
 
 .filter-popup-overlay.active {
     display: flex !important;
 }
 
+/* 모달 컨테이너 - 중앙 정렬 최적화 */
 .filter-popup-modal {
-    background: white;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 450px;
+    /* 기본 스타일 */
+    background: white !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+    
+    /* 크기 설정 */
+    width: 90% !important;
+    max-width: 450px !important;
     max-height: 80vh !important;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    /* 스크롤과 무관하게 중앙 정렬 보장 */
-    margin: 0 !important;
-    /* GPU 가속화 */
-    transform: translateZ(0);
-    will-change: transform;
-    /* iOS Safari 지원 */
-    -webkit-transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
+    
+    /* 레이아웃 */
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    
+    /* 위치 설정 - 중앙 정렬 보장 */
+    position: relative !important;
+    margin: 0 auto !important;
+    
+    /* 렌더링 최적화 */
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    
+    /* 브라우저별 호환성 */
+    -webkit-transform: translateZ(0) !important;
+    -moz-transform: translateZ(0) !important;
+    -ms-transform: translateZ(0) !important;
+    -o-transform: translateZ(0) !important;
+}
+
+/* 모바일 환경에서 모달 최적화 */
+@media (max-width: 768px) {
+    .filter-popup-overlay {
+        /* 모바일에서 더 안전한 뷰포트 단위 사용 */
+        width: 100vw !important;
+        height: 100vh !important;
+        /* iOS Safari 주소창 고려 */
+        min-height: -webkit-fill-available !important;
+        min-height: fill-available !important;
+    }
+    
+    .filter-popup-modal {
+        width: 95% !important;
+        max-width: 400px !important;
+        max-height: 85vh !important;
+        /* iOS Safari 안전 영역 고려 */
+        max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px) !important;
+    }
+}
+
+/* 초소형 모바일 (480px 이하) */
+@media (max-width: 480px) {
+    .filter-popup-modal {
+        width: 98% !important;
+        max-width: 350px !important;
+        max-height: 90vh !important;
+        /* 더 작은 화면에서 더 많은 공간 활용 */
+        max-height: calc(100vh - 20px) !important;
+    }
 }
 
 .filter-popup-header {
@@ -1251,7 +1297,7 @@ body.modal-open {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    z-index: 1000;
+    z-index: var(--z-index-header, 1000);
 }
 
 .floating-btn {
