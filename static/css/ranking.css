@@ -49,18 +49,6 @@
 .ranking-title h1 i {
     color: #fbbf24;
     font-size: 2.8rem;
-    animation: trophyGlow 3s infinite alternate;
-}
-
-@keyframes trophyGlow {
-    0% { 
-        color: #fbbf24;
-        text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-    }
-    100% { 
-        color: #f59e0b;
-        text-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
-    }
 }
 
 .ranking-title p {
@@ -122,23 +110,6 @@
     justify-content: center;
     margin: 0 auto 20px;
     position: relative;
-}
-
-.stat-icon::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: inherit;
-    border-radius: inherit;
-    opacity: 0.3;
-    transform: scale(1.2);
-    animation: iconPulse 3s infinite;
-}
-
-@keyframes iconPulse {
-    0%, 100% { transform: scale(1.2); opacity: 0.3; }
-    50% { transform: scale(1.4); opacity: 0.1; }
 }
 
 .stat-icon i {
@@ -285,7 +256,6 @@
 
 .rank-1 .rank-number i {
     color: #FFD700;
-    animation: crownSpin 4s infinite linear;
 }
 
 .rank-2 .rank-number i {
@@ -294,14 +264,6 @@
 
 .rank-3 .rank-number i {
     color: #CD7F32;
-}
-
-@keyframes crownSpin {
-    0% { transform: rotate(0deg) scale(1); }
-    25% { transform: rotate(5deg) scale(1.1); }
-    50% { transform: rotate(0deg) scale(1); }
-    75% { transform: rotate(-5deg) scale(1.1); }
-    100% { transform: rotate(0deg) scale(1); }
 }
 
 .rank-number span {
@@ -461,12 +423,6 @@
 .change.new {
     color: var(--primary-orange);
     background: var(--primary-orange-soft);
-    animation: newBadgePulse 2s infinite;
-}
-
-@keyframes newBadgePulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
 }
 
 /* 개인 순위 CTA */
@@ -479,22 +435,6 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-}
-
-.personal-ranking-cta::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    animation: float 20s infinite linear;
-}
-
-@keyframes float {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 .cta-content {
@@ -680,12 +620,6 @@
     font-size: 2rem;
     margin-bottom: 15px;
     color: var(--primary-orange);
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 /* 반응형 디자인 */

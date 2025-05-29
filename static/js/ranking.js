@@ -176,109 +176,23 @@ function RankingPanel({ data }) {
     ]);
 }
 
-// 통계 카운터 애니메이션 클래스
+// 통계 카운터 클래스 (애니메이션 제거됨)
 class StatCounter {
-    constructor(element, target, duration = 2000) {
+    constructor(element, target, duration = 0) {
         this.element = element;
         this.target = parseInt(target.toString().replace(/[,%]/g, ''));
         this.duration = duration;
-        this.current = 0;
+        this.current = this.target;
         this.isAnimating = false;
     }
 
     start() {
-        if (this.isAnimating) return;
-        this.isAnimating = true;
-        
-        const startTime = performance.now();
-        
-        const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / this.duration, 1);
-            
-            // Easing function (ease-out cubic)
-            const easeOut = 1 - Math.pow(1 - progress, 3);
-            this.current = Math.floor(this.target * easeOut);
-            
-            this.element.textContent = this.current.toLocaleString();
-            
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                this.isAnimating = false;
-            }
-        };
-        
-        requestAnimationFrame(animate);
+        // 애니메이션 없이 즉시 표시
+        this.element.textContent = this.target.toLocaleString();
     }
 }
 
-// GSAP 애니메이션 관리자
-class RankingAnimations {
-    constructor() {
-        this.isInitialized = false;
-        this.init();
-    }
-
-    init() {
-        if (typeof gsap === 'undefined') {
-            console.warn('GSAP not loaded, skipping animations');
-            return;
-        }
-
-        if (typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-        }
-
-        this.setupAnimations();
-        this.isInitialized = true;
-    }
-
-    setupAnimations() {
-        // 헤더 애니메이션 - visible-on-load 클래스가 있어도 애니메이션 적용
-        gsap.timeline({ delay: 0.3 })
-            .from('.ranking-title h1', {
-                duration: 1,
-                y: 30,
-                opacity: 0,
-                ease: 'power2.out'
-            })
-            .from('.ranking-title p', {
-                duration: 0.8,
-                y: 20,
-                opacity: 0,
-                ease: 'power2.out'
-            }, '-=0.5')
-            .from('.ranking-stats .stat-card', {
-                duration: 0.6,
-                y: 40,
-                opacity: 0,
-                stagger: 0.1,
-                ease: 'back.out(1.7)'
-            }, '-=0.4');
-
-        // 순위 아이템 초기 애니메이션
-        this.animateRankingItems();
-    }
-
-    animateRankingItems() {
-        if (!this.isInitialized) return;
-
-        const items = document.querySelectorAll('.ranking-item');
-        if (items.length === 0) return;
-
-        gsap.from(items, {
-            duration: 0.8,
-            y: 50,
-            opacity: 0,
-            stagger: 0.1,
-            ease: 'power2.out',
-            delay: 0.3
-        });
-    }
-}
-
-// Intersection Observer를 활용한 스크롤 트리거
+// Intersection Observer를 활용한 스크롤 트리거 (애니메이션 제거)
 class RankingScrollObserver {
     constructor() {
         this.counters = new Map();
@@ -296,7 +210,7 @@ class RankingScrollObserver {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
                     
-                    // 통계 카운터 시작
+                    // 통계 카운터 시작 (애니메이션 없음)
                     if (entry.target.classList.contains('stat-card')) {
                         this.startStatCounter(entry.target);
                     }
@@ -323,10 +237,9 @@ class RankingScrollObserver {
     }
 }
 
-// 메인 순위 페이지 클래스
+// 메인 순위 페이지 클래스 (애니메이션 제거)
 class RankingPage {
     constructor() {
-        this.animations = null;
         this.scrollObserver = null;
         this.init();
     }
@@ -340,9 +253,6 @@ class RankingPage {
     }
 
     setup() {
-        // 애니메이션 시스템 초기화
-        this.animations = new RankingAnimations();
-        
         // 스크롤 관찰자 초기화
         this.scrollObserver = new RankingScrollObserver();
         
@@ -352,7 +262,7 @@ class RankingPage {
         // 초기 렌더링
         this.renderRankingPanel();
         
-        console.log('Ranking page initialized successfully');
+        console.log('Ranking page initialized successfully (no animations)');
     }
 
     setupEventListeners() {
@@ -466,17 +376,6 @@ const rankingPage = new RankingPage();
 if (typeof window !== 'undefined') {
     window.rankingPageDebug = {
         instance: rankingPage,
-        data: rankingData,
-        testAnimations: () => {
-            if (typeof gsap !== 'undefined') {
-                gsap.to('.ranking-item', {
-                    duration: 0.5,
-                    scale: 1.05,
-                    stagger: 0.1,
-                    yoyo: true,
-                    repeat: 1
-                });
-            }
-        }
+        data: rankingData
     };
 }
