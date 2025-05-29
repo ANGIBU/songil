@@ -1441,7 +1441,7 @@ class SearchDebouncer {
     }
 }
 
-// ============ 수정된 메인 검색 페이지 클래스 - 뷰 전환 및 페이지네이션 버그 해결 ============
+// ============ 완전히 수정된 메인 검색 페이지 클래스 - 목록 뷰 기능 수정 ============
 class MissingSearchPage {
     constructor() {
         this.searchManager = new SearchManager();
@@ -1515,9 +1515,14 @@ class MissingSearchPage {
         if (gridView && listView) {
             console.log('🖼️ Initializing views...');
             
-            // 뷰 상태 초기화 - 단순한 display 방식
+            // ============ 뷰 상태 초기화 - 올바른 CSS 클래스 적용 ============
+            // 그리드 뷰 활성화 (기본)
             gridView.style.display = 'grid';
+            gridView.classList.remove('view-hidden');
+            
+            // 리스트 뷰 비활성화
             listView.style.display = 'none';
+            listView.classList.remove('view-active');
             
             // 뷰 버튼 상태 초기화
             document.querySelectorAll('.view-btn').forEach(btn => {
@@ -1575,18 +1580,25 @@ class MissingSearchPage {
             });
         }
 
-        // ============ 수정된 뷰 토글 - 단순한 display 방식 ============
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.view-btn')) {
-                const btn = e.target.closest('.view-btn');
-                const viewMode = btn.dataset.view;
-                
-                if (viewMode === this.viewMode || this.isViewChanging) return;
-                
-                console.log(`🔄 VIEW TOGGLE: ${this.viewMode} -> ${viewMode}`);
-                this.switchToView(viewMode);
-            }
-        });
+        // ============ 완전히 수정된 뷰 토글 이벤트 리스너 ============
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const listViewBtn = document.getElementById('listViewBtn');
+        
+        if (gridViewBtn) {
+            gridViewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('🔘 Grid view button clicked');
+                this.switchToView('grid');
+            });
+        }
+        
+        if (listViewBtn) {
+            listViewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('🔘 List view button clicked');
+                this.switchToView('list');
+            });
+        }
 
         // 검색 버튼
         const searchBtn = document.querySelector('.search-btn');
@@ -1628,12 +1640,17 @@ class MissingSearchPage {
         });
     }
 
-    // ============ 완전히 수정된 뷰 전환 - 단순한 display 방식 ============
+    // ============ 완전히 수정된 뷰 전환 함수 - 목록 뷰 기능 수정 ============
     switchToView(targetViewMode) {
         if (this.isViewChanging || this.isDestroyed) return;
+        if (targetViewMode === this.viewMode) {
+            console.log(`⚠️ Already in ${targetViewMode} view`);
+            return;
+        }
+        
         this.isViewChanging = true;
         
-        console.log(`🔄 Switching to ${targetViewMode} view...`);
+        console.log(`🔄 Switching from ${this.viewMode} to ${targetViewMode} view...`);
         
         try {
             const gridView = document.getElementById('missingGrid');
@@ -1644,26 +1661,38 @@ class MissingSearchPage {
                 return;
             }
             
-            // 뷰 모드 업데이트
-            this.viewMode = targetViewMode;
-            
-            // 버튼 상태 업데이트
-            this.updateViewButtons(targetViewMode);
-            
-            // ============ 단순한 display 전환 ============
-            if (targetViewMode === 'list') {
-                console.log('📋 Activating list view...');
+            // ============ 이전 뷰 비활성화 ============
+            if (this.viewMode === 'grid') {
                 gridView.style.display = 'none';
-                listView.style.display = 'flex';
+                gridView.classList.add('view-hidden');
+                gridView.classList.remove('view-active');
             } else {
-                console.log('📊 Activating grid view...');
                 listView.style.display = 'none';
-                gridView.style.display = 'grid';
+                listView.classList.remove('view-active');
             }
             
-            // React 컴포넌트 재렌더링
+            // ============ 새 뷰 모드 설정 ============
+            this.viewMode = targetViewMode;
+            
+            // ============ 새 뷰 활성화 ============
+            if (targetViewMode === 'list') {
+                console.log('📋 Activating list view...');
+                listView.style.display = 'flex';
+                listView.classList.add('view-active');
+            } else {
+                console.log('📊 Activating grid view...');
+                gridView.style.display = 'grid';
+                gridView.classList.remove('view-hidden');
+                gridView.classList.add('view-active');
+            }
+            
+            // ============ 버튼 상태 업데이트 ============
+            this.updateViewButtons(targetViewMode);
+            
+            // ============ React 컴포넌트 재렌더링 ============
             setTimeout(() => {
                 if (this.currentPageData && this.currentPageData.length > 0) {
+                    console.log(`🎨 Re-rendering ${this.currentPageData.length} items for ${targetViewMode} view`);
                     this.renderResults(this.currentPageData);
                 }
                 
@@ -1683,13 +1712,16 @@ class MissingSearchPage {
     }
 
     updateViewButtons(activeViewMode) {
+        // 모든 뷰 버튼에서 active 클래스 제거
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         
+        // 활성 뷰 버튼에 active 클래스 추가
         const activeBtn = document.querySelector(`[data-view="${activeViewMode}"]`);
         if (activeBtn) {
             activeBtn.classList.add('active');
+            console.log(`🔘 Updated button state: ${activeViewMode} is now active`);
         }
     }
 
@@ -1758,11 +1790,11 @@ class MissingSearchPage {
         }
     }
 
-    // ============ 안정적인 결과 렌더링 ============
+    // ============ 수정된 결과 렌더링 - 뷰 모드별 최적화 ============
     renderResults(data) {
         if (this.isDestroyed) return;
         
-        console.log('🎨 Rendering results:', data.length, 'items for', this.viewMode, 'view');
+        console.log(`🎨 Rendering ${data.length} items for ${this.viewMode} view`);
 
         const gridContainer = document.getElementById('missingGrid');
         const listContainer = document.getElementById('missingList');
@@ -1774,8 +1806,8 @@ class MissingSearchPage {
         
         if (data.length === 0) {
             console.log('📭 No data to render');
-            gridContainer.innerHTML = '<p>표시할 데이터가 없습니다.</p>';
-            listContainer.innerHTML = '<p>표시할 데이터가 없습니다.</p>';
+            gridContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">표시할 데이터가 없습니다.</p>';
+            listContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">표시할 데이터가 없습니다.</p>';
             return;
         }
 
@@ -1844,7 +1876,7 @@ class MissingSearchPage {
             console.log('✅ Grid view rendered successfully');
         } catch (error) {
             console.error('❌ Grid rendering failed:', error);
-            gridContainer.innerHTML = '<p>그리드 뷰를 불러올 수 없습니다.</p>';
+            gridContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">그리드 뷰를 불러올 수 없습니다.</p>';
         }
 
         // 리스트 뷰 렌더링
@@ -1869,7 +1901,7 @@ class MissingSearchPage {
             console.log('✅ List view rendered successfully');
         } catch (error) {
             console.error('❌ List rendering failed:', error);
-            listContainer.innerHTML = '<p>리스트 뷰를 불러올 수 없습니다.</p>';
+            listContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">리스트 뷰를 불러올 수 없습니다.</p>';
         }
     }
 
@@ -1878,10 +1910,10 @@ class MissingSearchPage {
         const listContainer = document.getElementById('missingList');
         
         if (gridContainer) {
-            gridContainer.innerHTML = '<p>실종자 목록을 불러오는 중입니다...</p>';
+            gridContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">실종자 목록을 불러오는 중입니다...</p>';
         }
         if (listContainer) {
-            listContainer.innerHTML = '<p>실종자 목록을 불러오는 중입니다...</p>';
+            listContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">실종자 목록을 불러오는 중입니다...</p>';
         }
     }
 
@@ -2000,6 +2032,7 @@ window.resetFilters = function() {
 };
 
 window.toggleView = function(viewMode) {
+    console.log(`🔧 toggleView called with: ${viewMode}`);
     if (missingSearchPage) {
         missingSearchPage.switchToView(viewMode);
     }
@@ -2028,6 +2061,46 @@ if (typeof window !== 'undefined') {
         sampleData: sampleMissingData,
         get animations() { return missingSearchPage ? missingSearchPage.animations : null; },
         
+        // 뷰 상태 확인 - 수정됨
+        checkViews: () => {
+            const gridView = document.getElementById('missingGrid');
+            const listView = document.getElementById('missingList');
+            
+            console.log('=== 뷰 상태 ===');
+            console.log('Current view mode:', missingSearchPage?.viewMode);
+            console.log('Grid view display:', gridView ? window.getComputedStyle(gridView).display : 'Not found');
+            console.log('List view display:', listView ? window.getComputedStyle(listView).display : 'Not found');
+            console.log('Grid view classes:', gridView ? Array.from(gridView.classList) : 'Not found');
+            console.log('List view classes:', listView ? Array.from(listView.classList) : 'Not found');
+            
+            const cards = document.querySelectorAll('.missing-card');
+            const listItems = document.querySelectorAll('.list-item');
+            console.log('Grid cards count:', cards.length);
+            console.log('List items count:', listItems.length);
+            
+            // 버튼 상태 확인
+            const gridBtn = document.querySelector('[data-view="grid"]');
+            const listBtn = document.querySelector('[data-view="list"]');
+            console.log('Grid button active:', gridBtn ? gridBtn.classList.contains('active') : 'Not found');
+            console.log('List button active:', listBtn ? listBtn.classList.contains('active') : 'Not found');
+        },
+        
+        // 목록 뷰로 강제 전환
+        forceListView: () => {
+            console.log('🔧 Forcing list view...');
+            if (missingSearchPage) {
+                missingSearchPage.switchToView('list');
+            }
+        },
+        
+        // 그리드 뷰로 강제 전환
+        forceGridView: () => {
+            console.log('🔧 Forcing grid view...');
+            if (missingSearchPage) {
+                missingSearchPage.switchToView('grid');
+            }
+        },
+        
         // 페이지네이션 상태 확인
         checkPagination: () => {
             const pagination = missingSearchPage?.paginationManager;
@@ -2049,22 +2122,6 @@ if (typeof window !== 'undefined') {
                 console.log('Available data:', data.length, 'items');
                 console.log('Current page data:', data.slice(pagination.getStartIndex(), pagination.getEndIndex()));
             }
-        },
-        
-        // 뷰 상태 확인
-        checkViews: () => {
-            const gridView = document.getElementById('missingGrid');
-            const listView = document.getElementById('missingList');
-            
-            console.log('=== 뷰 상태 ===');
-            console.log('Current view mode:', missingSearchPage?.viewMode);
-            console.log('Grid view display:', gridView ? window.getComputedStyle(gridView).display : 'Not found');
-            console.log('List view display:', listView ? window.getComputedStyle(listView).display : 'Not found');
-            
-            const cards = document.querySelectorAll('.missing-card');
-            const listItems = document.querySelectorAll('.list-item');
-            console.log('Grid cards count:', cards.length);
-            console.log('List items count:', listItems.length);
         },
         
         // 강제 1페이지 로드
@@ -2094,9 +2151,11 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Enhanced debug tools loaded!');
-    console.log('- window.missingSearchDebug.checkPagination() : 페이지네이션 상태 확인');
+    console.log('🛠️ Enhanced debug tools loaded with LIST VIEW support!');
     console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
+    console.log('- window.missingSearchDebug.forceListView() : 목록 뷰로 강제 전환');
+    console.log('- window.missingSearchDebug.forceGridView() : 그리드 뷰로 강제 전환');
+    console.log('- window.missingSearchDebug.checkPagination() : 페이지네이션 상태 확인');
     console.log('- window.missingSearchDebug.forceFirstPage() : 강제로 1페이지 로드');
     console.log('- window.missingSearchDebug.reloadData() : 데이터 재로드');
 }
