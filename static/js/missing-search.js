@@ -566,7 +566,7 @@ class FilterPopupManager {
         }
     }
 
-    // ============ 완전히 수정된 팝업 열기 - 뷰포트 중앙 절대 보장 ============
+    // ============ 완전히 수정된 팝업 열기 - 배경 상단 이동 버그 해결 ============
     openPopup() {
         if (!this.overlay) return;
         
@@ -596,10 +596,10 @@ class FilterPopupManager {
         // ============ 스크롤바 너비 재계산 (동적 콘텐츠 대응) ============
         this.calculateScrollbarWidth();
         
-        // ============ body 완전 고정 - 뷰포트 기준 위치 고정 ============
+        // ============ body 고정 - 배경 상단 이동 방지 (수정된 방식) ============
         document.body.style.position = 'fixed';
-        document.body.style.top = `-${this.scrollY}px`;
-        document.body.style.left = `-${this.scrollX}px`;
+        document.body.style.top = '0px'; // 상단 이동 방지: 항상 0으로 설정
+        document.body.style.left = '0px'; // 좌측 이동 방지: 항상 0으로 설정
         document.body.style.width = '100%';
         document.body.style.height = '100%';
         document.body.style.overflow = 'hidden';
@@ -623,7 +623,7 @@ class FilterPopupManager {
             }, 100);
         }
         
-        console.log('✅ Filter popup opened successfully - viewport centered (40px above center)');
+        console.log('✅ Filter popup opened successfully - background fixed without movement');
     }
 
     // ============ 완전히 수정된 팝업 닫기 - 스크롤 위치 정확 복원 ============
@@ -666,7 +666,7 @@ class FilterPopupManager {
             }, 100);
         }
         
-        console.log('✅ Filter popup closed successfully - scroll restored');
+        console.log('✅ Filter popup closed successfully - scroll restored, no background movement');
     }
 
     loadCurrentFilters() {
@@ -1945,6 +1945,8 @@ if (typeof window !== 'undefined') {
             console.log('Body position:', window.getComputedStyle(body).position);
             console.log('Body top:', window.getComputedStyle(body).top);
             console.log('Body left:', window.getComputedStyle(body).left);
+            console.log('Body computed top (should be 0 when modal open):', window.getComputedStyle(body).top);
+            console.log('Body computed left (should be 0 when modal open):', window.getComputedStyle(body).left);
             console.log('Overlay classes:', overlay ? Array.from(overlay.classList) : 'N/A');
             console.log('Modal classes:', modal ? Array.from(modal.classList) : 'N/A');
             console.log('Viewport size:', {
@@ -2027,9 +2029,9 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Debug tools loaded - VIEWPORT CENTERING FIXED (40px above center)!');
+    console.log('🛠️ Debug tools loaded - BACKGROUND MOVEMENT BUG FIXED!');
     console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
-    console.log('- window.missingSearchDebug.checkPopup() : 팝업 상태 확인');
+    console.log('- window.missingSearchDebug.checkPopup() : 팝업 상태 확인 (배경 이동 버그 해결됨)');
     console.log('- window.missingSearchDebug.forceOpenPopup() : 강제 팝업 열기');
     console.log('- window.missingSearchDebug.forceClosePopup() : 강제 팝업 닫기');
     console.log('- window.missingSearchDebug.forceListView() : 목록 뷰로 강제 전환');
