@@ -50,28 +50,6 @@ services:
       - SECRET_KEY=your_secret_key_here
       - IS_DOCKER=true
 
-  # Haru 프로젝트 (기존 Today Talk)
-  haru:
-    build: 
-      context: /home/livon/projects/haru
-    container_name: haru
-    restart: always
-    volumes:
-      - /home/livon/projects/haru:/app
-    ports:
-      - "5003:5003"
-    networks:
-      - smartlivon_network
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://livon:dks12345@mysql:3306/haru?charset=utf8mb4
-      - FLASK_APP=app.py
-      - FLASK_ENV=production
-      - SECRET_KEY=your_secret_key_here
-      - IS_DOCKER=true
-
   # Tutu 프로젝트 (기존 Today Todo)
   tutu:
     build: 
@@ -133,7 +111,6 @@ services:
       - smartlivon_network
     depends_on:
       - portfolio
-      - haru
       - tutu
       - songil
 
