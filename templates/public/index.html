@@ -8,7 +8,7 @@
 <!-- React -->
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<!-- GSAP ScrollTrigger -->
+<!-- GSAPI ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 {% endblock %}
 
@@ -38,7 +38,102 @@
                         전체 순위
                     </h3>
                     <div class="top-rankings" id="topRankings">
-                        <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                        <!-- React 컴포넌트가 렌더링되거나 폴백 콘텐츠 표시 -->
+                        <div class="ranking-item">
+                            <div class="ranking-position">1</div>
+                            <div class="ranking-info">
+                                <div class="ranking-left">
+                                    <div class="ranking-name">김희망</div>
+                                    <div class="ranking-points">
+                                        <i class="fas fa-coins"></i>
+                                        2,847P
+                                    </div>
+                                </div>
+                                <div class="ranking-stats">
+                                    <span class="stats-text">
+                                        <span class="stat-reports">제보 45건</span>
+                                        <span class="stats-separator"> / </span>
+                                        <span class="stat-witnesses">해결 23건</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">2</div>
+                            <div class="ranking-info">
+                                <div class="ranking-left">
+                                    <div class="ranking-name">박도움</div>
+                                    <div class="ranking-points">
+                                        <i class="fas fa-coins"></i>
+                                        2,134P
+                                    </div>
+                                </div>
+                                <div class="ranking-stats">
+                                    <span class="stats-text">
+                                        <span class="stat-reports">제보 38건</span>
+                                        <span class="stats-separator"> / </span>
+                                        <span class="stat-witnesses">해결 18건</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">3</div>
+                            <div class="ranking-info">
+                                <div class="ranking-left">
+                                    <div class="ranking-name">이나눔</div>
+                                    <div class="ranking-points">
+                                        <i class="fas fa-coins"></i>
+                                        1,895P
+                                    </div>
+                                </div>
+                                <div class="ranking-stats">
+                                    <span class="stats-text">
+                                        <span class="stat-reports">제보 42건</span>
+                                        <span class="stats-separator"> / </span>
+                                        <span class="stat-witnesses">해결 15건</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">4</div>
+                            <div class="ranking-info">
+                                <div class="ranking-left">
+                                    <div class="ranking-name">최참여</div>
+                                    <div class="ranking-points">
+                                        <i class="fas fa-coins"></i>
+                                        1,672P
+                                    </div>
+                                </div>
+                                <div class="ranking-stats">
+                                    <span class="stats-text">
+                                        <span class="stat-reports">제보 36건</span>
+                                        <span class="stats-separator"> / </span>
+                                        <span class="stat-witnesses">해결 12건</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">5</div>
+                            <div class="ranking-info">
+                                <div class="ranking-left">
+                                    <div class="ranking-name">정협력</div>
+                                    <div class="ranking-points">
+                                        <i class="fas fa-coins"></i>
+                                        1,543P
+                                    </div>
+                                </div>
+                                <div class="ranking-stats">
+                                    <span class="stats-text">
+                                        <span class="stat-reports">제보 29건</span>
+                                        <span class="stats-separator"> / </span>
+                                        <span class="stat-witnesses">해결 14건</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,7 +150,199 @@
         </div>
         <div class="urgent-cards-container">
             <div class="urgent-cards" id="urgentCardsGrid">
-                <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                <!-- React 컴포넌트가 렌더링되거나 폴백 콘텐츠 표시 -->
+                <div class="missing-card urgent" data-id="1">
+                    <div class="card-image">
+                        <img src="/static/images/sample-missing-1.jpg" alt="실종자 사진" onerror="this.src='/static/images/placeholder.jpg'">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>김○○ (32세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.20 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 서울시 강남구 역삼동</p>
+                            <p><i class="fas fa-tshirt"></i> 검은색 정장, 갈색 구두</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 1)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>246</span>
+                            </button>
+                            <a href="/missing/1" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="2">
+                    <div class="card-image">
+                        <img src="/static/images/sample-missing-2.jpg" alt="실종자 사진" onerror="this.src='/static/images/placeholder.jpg'">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>박○○ (8세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.21 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 부산시 해운대구 중동</p>
+                            <p><i class="fas fa-tshirt"></i> 파란색 티셔츠, 검은색 반바지</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 2)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>189</span>
+                            </button>
+                            <a href="/missing/2" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="3">
+                    <div class="card-image">
+                        <img src="/static/images/sample-missing-3.jpg" alt="실종자 사진" onerror="this.src='/static/images/placeholder.jpg'">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>최○○ (67세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.22 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 대구시 중구 삼덕동</p>
+                            <p><i class="fas fa-tshirt"></i> 흰색 블라우스, 검은색 바지</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 3)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>134</span>
+                            </button>
+                            <a href="/missing/3" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="4">
+                    <div class="card-image">
+                        <img src="/static/images/placeholder.jpg" alt="실종자 사진">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>이○○ (45세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.19 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 인천시 남동구 구월동</p>
+                            <p><i class="fas fa-tshirt"></i> 회색 후드티, 청바지</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 4)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>87</span>
+                            </button>
+                            <a href="/missing/4" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="5">
+                    <div class="card-image">
+                        <img src="/static/images/placeholder.jpg" alt="실종자 사진">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>정○○ (23세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.18 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 광주시 서구 상무동</p>
+                            <p><i class="fas fa-tshirt"></i> 분홍색 원피스, 흰색 운동화</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 5)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>156</span>
+                            </button>
+                            <a href="/missing/5" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="6">
+                    <div class="card-image">
+                        <img src="/static/images/placeholder.jpg" alt="실종자 사진">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>홍○○ (14세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.23 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 대전시 유성구 봉명동</p>
+                            <p><i class="fas fa-tshirt"></i> 교복, 검은색 가방</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 6)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>23</span>
+                            </button>
+                            <a href="/missing/6" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="7">
+                    <div class="card-image">
+                        <img src="/static/images/placeholder.jpg" alt="실종자 사진">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>강○○ (28세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.17 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 울산시 남구 삼산동</p>
+                            <p><i class="fas fa-tshirt"></i> 빨간색 코트, 검은색 부츠</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 7)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>98</span>
+                            </button>
+                            <a href="/missing/7" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="missing-card urgent" data-id="8">
+                    <div class="card-image">
+                        <img src="/static/images/placeholder.jpg" alt="실종자 사진">
+                        <div class="danger-level high">긴급</div>
+                    </div>
+                    <div class="card-content">
+                        <h3>윤○○ (52세)</h3>
+                        <div class="missing-info">
+                            <p><i class="fas fa-calendar"></i> 2024.05.16 실종</p>
+                            <p><i class="fas fa-map-marker-alt"></i> 경기도 성남시 분당구</p>
+                            <p><i class="fas fa-tshirt"></i> 네이비 셔츠, 베이지 바지</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="up-btn" onclick="handleUpClick(this, 8)">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>143</span>
+                            </button>
+                            <a href="/missing/8" class="detail-btn">
+                                <i class="fas fa-eye"></i>
+                                상세보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="section-footer">
@@ -126,24 +413,27 @@
         </p>
         <div class="stats-grid">
             <div class="stat-item">
-                <div class="stat-number" data-count="1847">0</div>
+                <div class="stat-number" data-count="1847">1,847</div>
                 <div class="stat-label">함께한 신고</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" data-count="1203">0</div>
+                <div class="stat-number" data-count="1203">1,203</div>
                 <div class="stat-label">이루어진 상봉</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" data-count="15429">0</div>
+                <div class="stat-number" data-count="15429">15,429</div>
                 <div class="stat-label">희망을 나눈 분들</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number" data-count="94">0%</div>
+                <div class="stat-number" data-count="94%">94%</div>
                 <div class="stat-label">포기하지 않는 마음</div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- 접근성을 위한 실시간 업데이트 영역 -->
+<div aria-live="polite" aria-atomic="true" class="sr-only" id="liveRegion"></div>
 {% endblock %}
 
 {% block extra_js %}

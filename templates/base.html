@@ -29,30 +29,44 @@
         document.documentElement.classList.add('js-enabled');
     </script>
 
-    <!-- 페이지 스크롤 최적화 -->
+    <!-- 페이지 스크롤 최적화 (안전한 버전) -->
     <script>
-        // 페이지 로드 시 자연스럽게 상단으로 이동
+        // 페이지 로드 시 자연스럽게 상단으로 이동 - 안전한 방식
         (function() {
+            let scrollOptimized = false;
+            
             // 브라우저 스크롤 복원 비활성화
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
             }
             
             function scrollToTop() {
-                window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: 'instant'
-                });
+                if (scrollOptimized) return;
+                
+                try {
+                    window.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: 'instant'
+                    });
+                    scrollOptimized = true;
+                } catch (error) {
+                    // 폴백 스크롤
+                    window.scrollTo(0, 0);
+                    scrollOptimized = true;
+                }
             }
             
-            // 즉시 상단으로
+            // 즉시 상단으로 (한 번만)
             scrollToTop();
             
             // 페이지 언로드 시 상단으로
-            window.addEventListener('beforeunload', scrollToTop);
+            window.addEventListener('beforeunload', function() {
+                scrollOptimized = false;
+                window.scrollTo(0, 0);
+            });
             
-            // 페이지 로드 완료 시 상단으로
+            // 페이지 로드 완료 시 상단으로 (확실히 하기 위해)
             window.addEventListener('load', function() {
                 setTimeout(scrollToTop, 0);
             });
@@ -66,6 +80,7 @@
             
             // 뒤로가기/앞으로가기 시 상단으로
             window.addEventListener('popstate', function() {
+                scrollOptimized = false;
                 setTimeout(scrollToTop, 0);
             });
         })();

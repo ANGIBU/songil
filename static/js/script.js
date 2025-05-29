@@ -46,19 +46,60 @@ function initializeApp() {
         // 사용자 인증 상태 확인
         checkAuthStatus();
         
-        // GSAP 애니메이션 초기화 (메인 페이지 제외)
+        // GSAP 애니메이션 초기화 (메인 페이지 제외 - 충돌 방지)
         if (window.APP.currentPage !== 'home') {
             initializeAnimations();
+        } else {
+            console.log('🏠 Home page detected - skipping global animations to prevent conflicts');
         }
         
         // 반응형 처리
         handleResponsive();
+        
+        // 콘텐츠 표시 보장 (홈페이지)
+        if (window.APP.currentPage === 'home') {
+            ensureHomeContentVisible();
+        }
         
         window.APP.initialized = true;
         console.log('✅ App initialized successfully');
     } catch (error) {
         console.error('❌ App initialization error:', error);
     }
+}
+
+// ===== 홈페이지 콘텐츠 표시 보장 =====
+function ensureHomeContentVisible() {
+    // 3초 후 강제로 모든 콘텐츠 표시 (폴백)
+    setTimeout(() => {
+        const importantElements = document.querySelectorAll(`
+            .intro-steps,
+            .step,
+            .stats-grid,
+            .stat-item,
+            .section-header,
+            .hero-title,
+            .hero-description
+        `);
+        
+        let hiddenCount = 0;
+        importantElements.forEach(element => {
+            if (element) {
+                const computed = window.getComputedStyle(element);
+                if (computed.opacity === '0' || computed.visibility === 'hidden') {
+                    hiddenCount++;
+                    element.style.opacity = '1';
+                    element.style.visibility = 'visible';
+                    element.style.transform = 'translateY(0)';
+                    element.classList.add('animate-complete');
+                }
+            }
+        });
+        
+        if (hiddenCount > 0) {
+            console.log(`🔧 Ensured visibility for ${hiddenCount} hidden elements`);
+        }
+    }, 3000);
 }
 
 // ===== 페이지 로딩 최적화 처리 =====
@@ -176,7 +217,7 @@ function setupPageTransitionOptimization() {
             }
             
             // 부드러운 페이드아웃 효과 (선택사항)
-            if (typeof gsap !== 'undefined') {
+            if (typeof gsap !== 'undefined' && window.APP.currentPage !== 'home') {
                 gsap.to('body', {
                     opacity: 0.95,
                     duration: 0.2,
@@ -232,8 +273,8 @@ function initializeNavigation() {
     // 네비게이션 링크 클릭 애니메이션
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // GSAP 애니메이션
-            if (typeof gsap !== 'undefined') {
+            // GSAP 애니메이션 (홈페이지 제외)
+            if (typeof gsap !== 'undefined' && window.APP.currentPage !== 'home') {
                 gsap.to(this, {
                     duration: 0.1,
                     scale: 0.95,
@@ -572,10 +613,10 @@ function initializeAnimations() {
         gsap.registerPlugin(ScrollTrigger);
     }
     
-    // 페이지별 애니메이션 초기화
+    // 페이지별 애니메이션 초기화 (홈페이지 제외)
     setTimeout(() => initializePageAnimations(), 100);
     
-    console.log('🎨 Basic animations initialized');
+    console.log('🎨 Basic animations initialized (non-home pages)');
 }
 
 // ===== 페이지별 애니메이션 초기화 =====
@@ -1063,7 +1104,7 @@ window.announceToScreenReader = announceToScreenReader;
 window.debounce = debounce;
 window.throttle = throttle;
 
-console.log('📜 Script.js loaded successfully (optimized for page transitions)');
+console.log('📜 Script.js loaded successfully (conflict-free for home page)');
 
 // ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
 if (!document.querySelector('#dynamic-styles')) {
