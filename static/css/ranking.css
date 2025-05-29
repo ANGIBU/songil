@@ -2,6 +2,13 @@
 
 /* ===== 순위 페이지 전용 스타일 ===== */
 
+/* 페이지 로드 시 즉시 표시 */
+.visible-on-load {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
 /* 순위 헤더 섹션 */
 .ranking-header {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -166,121 +173,8 @@
     background: white;
 }
 
-/* 순위 탭 네비게이션 */
-.ranking-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 40px;
-    background: var(--gray-100);
-    padding: 8px;
-    border-radius: 20px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 40px;
-}
-
-.tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 16px 24px;
-    background: transparent;
-    border: none;
-    border-radius: 15px;
-    color: var(--gray-600);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    min-width: 150px;
-}
-
-.tab-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.1), transparent);
-    transition: left 0.5s;
-}
-
-.tab-btn:hover::before {
-    left: 100%;
-}
-
-.tab-btn:hover {
-    background: var(--gray-200);
-    color: var(--primary-orange);
-}
-
-.tab-btn.active {
-    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
-}
-
-.tab-btn i {
-    font-size: 1.1rem;
-}
-
-/* 기간 선택 */
-.period-selector {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 50px;
-    padding: 20px;
-    background: var(--gray-50);
-    border-radius: 15px;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 50px;
-}
-
-.period-selector label {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--gray-700);
-}
-
-.period-selector select {
-    padding: 12px 16px;
-    border: 2px solid var(--gray-300);
-    border-radius: 10px;
-    font-size: 14px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 120px;
-}
-
-.period-selector select:focus {
-    outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-}
-
-.period-info {
-    font-size: 14px;
-    color: var(--gray-500);
-    font-weight: 500;
-}
-
 /* 순위 패널 */
 .ranking-panel {
-    display: none;
-}
-
-.ranking-panel.active {
     display: block;
 }
 
@@ -343,37 +237,35 @@
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 }
 
-.ranking-item:hover::before {
-    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-}
-
-/* 상위 3위 특별 스타일 */
+/* 금/은/동 메달 색상 */
 .ranking-item.rank-1::before {
-    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(90deg, #FFD700 0%, #FFED4E 100%);
 }
 
 .ranking-item.rank-2::before {
-    background: linear-gradient(90deg, #9ca3af 0%, #6b7280 100%);
+    background: linear-gradient(90deg, #C0C0C0 0%, #E8E8E8 100%);
 }
 
 .ranking-item.rank-3::before {
-    background: linear-gradient(90deg, var(--accent-coral) 0%, var(--accent-coral-light) 100%);
+    background: linear-gradient(90deg, #CD7F32 0%, #E5A572 100%);
 }
 
 .ranking-item.rank-1 {
-    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
-    border-color: #fbbf24;
-    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.15);
+    background: linear-gradient(135deg, #FFFEF5 0%, #ffffff 100%);
+    border-color: #FFD700;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.15);
 }
 
 .ranking-item.rank-2 {
-    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-    border-color: #9ca3af;
+    background: linear-gradient(135deg, #FAFAFA 0%, #ffffff 100%);
+    border-color: #C0C0C0;
+    box-shadow: 0 8px 25px rgba(192, 192, 192, 0.15);
 }
 
 .ranking-item.rank-3 {
-    background: linear-gradient(135deg, #fef7f7 0%, #ffffff 100%);
-    border-color: var(--accent-coral);
+    background: linear-gradient(135deg, #FFF9F5 0%, #ffffff 100%);
+    border-color: #CD7F32;
+    box-shadow: 0 8px 25px rgba(205, 127, 50, 0.15);
 }
 
 /* 순위 번호 */
@@ -392,12 +284,16 @@
 }
 
 .rank-1 .rank-number i {
-    color: #fbbf24;
+    color: #FFD700;
     animation: crownSpin 4s infinite linear;
 }
 
-.rank-2 .rank-number i, .rank-3 .rank-number i {
-    color: #9ca3af;
+.rank-2 .rank-number i {
+    color: #C0C0C0;
+}
+
+.rank-3 .rank-number i {
+    color: #CD7F32;
 }
 
 @keyframes crownSpin {
@@ -415,7 +311,15 @@
 }
 
 .rank-1 .rank-number span {
-    color: #f59e0b;
+    color: #FFD700;
+}
+
+.rank-2 .rank-number span {
+    color: #909090;
+}
+
+.rank-3 .rank-number span {
+    color: #CD7F32;
 }
 
 /* 사용자 정보 */
@@ -438,8 +342,18 @@
 }
 
 .rank-1 .user-avatar {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+    background: linear-gradient(135deg, #FFD700 0%, #FFED4E 100%);
+    box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+}
+
+.rank-2 .user-avatar {
+    background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%);
+    box-shadow: 0 0 0 4px rgba(192, 192, 192, 0.2);
+}
+
+.rank-3 .user-avatar {
+    background: linear-gradient(135deg, #CD7F32 0%, #E5A572 100%);
+    box-shadow: 0 0 0 4px rgba(205, 127, 50, 0.2);
 }
 
 .user-details {
@@ -455,7 +369,15 @@
 }
 
 .rank-1 .username {
-    color: #f59e0b;
+    color: #B8860B;
+}
+
+.rank-2 .username {
+    color: #808080;
+}
+
+.rank-3 .username {
+    color: #A0522D;
 }
 
 .user-stats {
@@ -497,8 +419,18 @@
 }
 
 .rank-1 .points {
-    color: #f59e0b;
+    color: #B8860B;
     font-size: 2rem;
+}
+
+.rank-2 .points {
+    color: #808080;
+    font-size: 1.9rem;
+}
+
+.rank-3 .points {
+    color: #A0522D;
+    font-size: 1.9rem;
 }
 
 .change {
@@ -568,24 +500,14 @@
 .cta-content {
     position: relative;
     z-index: 1;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 30px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    text-align: left;
+    gap: 25px;
 }
 
-.cta-icon {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    color: white;
-    backdrop-filter: blur(10px);
+.cta-text {
+    text-align: center;
 }
 
 .cta-text h3 {
@@ -680,21 +602,20 @@
 }
 
 .benefit-item:first-child::before {
-    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(90deg, #FFD700 0%, #FFED4E 100%);
 }
 
 .benefit-item:nth-child(2)::before {
-    background: linear-gradient(90deg, #9ca3af 0%, #6b7280 100%);
+    background: linear-gradient(90deg, #C0C0C0 0%, #E8E8E8 100%);
 }
 
 .benefit-item:nth-child(3)::before {
-    background: linear-gradient(90deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    background: linear-gradient(90deg, #CD7F32 0%, #E5A572 100%);
 }
 
 .benefit-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--secondary-green) 100%);
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -704,16 +625,19 @@
     font-size: 2rem;
 }
 
-.benefit-item:first-child .benefit-icon {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+.benefit-icon.gold {
+    background: linear-gradient(135deg, #FFD700 0%, #FFED4E 100%);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
 }
 
-.benefit-item:nth-child(2) .benefit-icon {
-    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+.benefit-icon.silver {
+    background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%);
+    box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
 }
 
-.benefit-item:nth-child(3) .benefit-icon {
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+.benefit-icon.bronze {
+    background: linear-gradient(135deg, #CD7F32 0%, #E5A572 100%);
+    box-shadow: 0 4px 15px rgba(205, 127, 50, 0.3);
 }
 
 .benefit-item h4 {
@@ -771,18 +695,6 @@
         gap: 25px;
     }
     
-    .ranking-tabs {
-        max-width: none;
-        margin: 0 -20px 40px;
-        border-radius: 0;
-    }
-    
-    .cta-content {
-        grid-template-columns: 1fr;
-        gap: 25px;
-        text-align: center;
-    }
-    
     .benefits-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 25px;
@@ -803,23 +715,6 @@
     .ranking-stats {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
-    }
-    
-    .ranking-tabs {
-        flex-direction: column;
-        gap: 6px;
-        padding: 6px;
-    }
-    
-    .tab-btn {
-        min-width: auto;
-        padding: 14px 20px;
-    }
-    
-    .period-selector {
-        flex-direction: column;
-        gap: 10px;
-        padding: 15px;
     }
     
     .ranking-item {

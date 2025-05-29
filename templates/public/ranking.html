@@ -18,14 +18,14 @@
 <!-- 순위 헤더 섹션 -->
 <section class="ranking-header">
     <div class="container">
-        <div class="ranking-title">
+        <div class="ranking-title visible-on-load">
             <h1><i class="fas fa-trophy"></i> 실종자 찾기 순위</h1>
             <p>실종자 찾기에 기여한 시민들의 순위를 확인하세요</p>
         </div>
         
         <!-- 순위 통계 -->
         <div class="ranking-stats">
-            <div class="stat-card">
+            <div class="stat-card visible-on-load">
                 <div class="stat-icon">
                     <i class="fas fa-users"></i>
                 </div>
@@ -34,7 +34,7 @@
                     <div class="stat-label">총 참여자</div>
                 </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card visible-on-load">
                 <div class="stat-icon">
                     <i class="fas fa-eye"></i>
                 </div>
@@ -43,16 +43,7 @@
                     <div class="stat-label">목격 신고</div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-coins"></i>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number">1,245,680</div>
-                    <div class="stat-label">총 지급 포인트</div>
-                </div>
-            </div>
-            <div class="stat-card">
+            <div class="stat-card visible-on-load">
                 <div class="stat-icon">
                     <i class="fas fa-heart"></i>
                 </div>
@@ -65,42 +56,11 @@
     </div>
 </section>
 
-<!-- 순위 탭 섹션 -->
+<!-- 순위 콘텐츠 섹션 -->
 <section class="ranking-content">
     <div class="container">
-        <!-- 순위 카테고리 탭 -->
-        <div class="ranking-tabs">
-            <button class="tab-btn active" data-tab="total">
-                <i class="fas fa-star"></i>
-                종합 랭킹
-            </button>
-            <button class="tab-btn" data-tab="witness">
-                <i class="fas fa-eye"></i>
-                목격 신고
-            </button>
-            <button class="tab-btn" data-tab="report">
-                <i class="fas fa-plus-circle"></i>
-                실종자 신고
-            </button>
-            <button class="tab-btn" data-tab="points">
-                <i class="fas fa-coins"></i>
-                포인트
-            </button>
-        </div>
-        
-        <!-- 기간 선택 -->
-        <div class="period-selector">
-            <label>기간:</label>
-            <select id="periodSelect">
-                <option value="monthly">이번 달</option>
-                <option value="weekly">이번 주</option>
-                <option value="all">전체</option>
-            </select>
-            <span class="period-info">2024년 5월 기준</span>
-        </div>
-        
         <!-- 순위 패널 (React 컴포넌트가 렌더링됩니다) -->
-        <div class="ranking-panel active" id="totalRanking">
+        <div class="ranking-panel active visible-on-load" id="totalRanking">
             <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
             
             <!-- 폴백용 로딩 메시지 -->
@@ -113,9 +73,6 @@
         <!-- 개인 순위 안내 -->
         <div class="personal-ranking-cta">
             <div class="cta-content">
-                <div class="cta-icon">
-                    <i class="fas fa-user-crown"></i>
-                </div>
                 <div class="cta-text">
                     <h3>나의 순위가 궁금하신가요?</h3>
                     <p>로그인 후 개인 순위와 상세한 활동 내역을 확인하세요</p>
@@ -138,39 +95,36 @@
             <h3>랭킹 혜택</h3>
             <div class="benefits-grid">
                 <div class="benefit-item">
-                    <div class="benefit-icon">
+                    <div class="benefit-icon gold">
                         <i class="fas fa-crown"></i>
                     </div>
                     <h4>1위 혜택</h4>
                     <ul>
-                        <li>월간 50,000원 상품권</li>
                         <li>명예의 전당 등록</li>
                         <li>특별 배지 지급</li>
-                        <li>우선 알림 서비스</li>
+                        <li>50,000P 계정당 1회 지급</li>
                     </ul>
                 </div>
                 <div class="benefit-item">
-                    <div class="benefit-icon">
+                    <div class="benefit-icon silver">
                         <i class="fas fa-medal"></i>
                     </div>
-                    <h4>2-3위 혜택</h4>
+                    <h4>2위 혜택</h4>
                     <ul>
-                        <li>월간 30,000원 상품권</li>
-                        <li>명예 배지 지급</li>
-                        <li>우선 알림 서비스</li>
-                        <li>포인트 보너스</li>
+                        <li>명예의 전당 등록</li>
+                        <li>특별 배지 지급</li>
+                        <li>30,000P 계정당 1회 지급</li>
                     </ul>
                 </div>
                 <div class="benefit-item">
-                    <div class="benefit-icon">
-                        <i class="fas fa-gift"></i>
+                    <div class="benefit-icon bronze">
+                        <i class="fas fa-medal"></i>
                     </div>
-                    <h4>4-10위 혜택</h4>
+                    <h4>3위 혜택</h4>
                     <ul>
-                        <li>월간 10,000원 상품권</li>
-                        <li>참여 배지 지급</li>
-                        <li>포인트 보너스</li>
-                        <li>특별 이벤트 참여</li>
+                        <li>명예의 전당 등록</li>
+                        <li>특별 배지 지급</li>
+                        <li>10,000P 계정당 1회 지급</li>
                     </ul>
                 </div>
             </div>
