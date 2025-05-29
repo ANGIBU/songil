@@ -22,8 +22,6 @@
 .js-animation-ready .search-title,
 .js-animation-ready .search-controls,
 .js-animation-ready .search-results-info,
-.js-animation-ready .missing-grid,
-.js-animation-ready .missing-list-view,
 .js-animation-ready .pagination {
     opacity: 0;
     transform: translateY(30px);
@@ -31,7 +29,9 @@
     transition: opacity 0.8s ease, transform 0.8s ease, visibility 0.8s ease;
 }
 
-/* 개별 카드와 아이템은 항상 보임 보장 */
+/* 뷰 컨테이너는 애니메이션 준비와 관계없이 항상 표시 */
+.missing-grid,
+.missing-list-view,
 .missing-card,
 .list-item {
     opacity: 1 !important;
@@ -719,67 +719,62 @@ body.modal-open {
     color: white !important;
 }
 
-/* ============ 실종자 목록 섹션 - 강제 표시 보장 ============ */
+/* ============ 실종자 목록 섹션 - 완전 수정된 뷰 구조 ============ */
 .missing-list {
     padding: 40px 0 80px;
     background: white;
 }
 
-/* 뷰 컨테이너 - 새로운 구조 */
+/* 수정된 뷰 컨테이너 - absolute positioning 제거 */
 .view-container {
     position: relative;
     min-height: 400px;
+    width: 100%;
 }
 
-/* 그리드 뷰 - 기본적으로 표시 보장 */
+/* ============ 단순한 뷰 전환 구조 ============ */
+
+/* 그리드 뷰 - 기본 표시 */
 .missing-grid {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 30px;
     margin-bottom: 40px;
+    width: 100%;
     opacity: 1 !important;
     visibility: visible !important;
-    z-index: 2;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    /* absolute positioning 완전 제거 */
+    position: static !important;
+    /* 전환 애니메이션 */
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* 그리드 뷰 숨김 */
+/* 그리드 뷰 숨김 상태 */
 .missing-grid.view-hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 1;
+    display: none !important;
 }
 
-/* 리스트 뷰 - 기본적으로 숨김 */
+/* 리스트 뷰 - 기본 숨김 */
 .missing-list-view {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex !important;
+    display: none !important;
     flex-direction: column;
     gap: 15px;
     margin-bottom: 40px;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    z-index: 1;
+    width: 100%;
+    /* absolute positioning 완전 제거 */
+    position: static !important;
+    /* 전환 애니메이션 */
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 /* 리스트 뷰 활성화 */
 .missing-list-view.view-active {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: all;
-    z-index: 2;
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
+/* 실종자 카드 스타일 */
 .missing-card {
     background: white;
     border-radius: 20px;
@@ -973,7 +968,6 @@ body.modal-open {
     width: 100%;
     box-sizing: border-box;
     /* 강제 표시 보장 */
-    display: grid !important;
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
@@ -1078,6 +1072,9 @@ body.modal-open {
     align-items: center;
     gap: 12px;
     margin-top: 40px;
+    /* 페이지네이션도 항상 표시 보장 */
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .page-btn {

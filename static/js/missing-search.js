@@ -128,7 +128,7 @@ const sampleMissingData = [
     }
 ];
 
-// 페이지네이션 관리자 클래스
+// ============ 수정된 페이지네이션 관리자 - 1페이지 문제 해결 ============
 class PaginationManager {
     constructor(itemsPerPage = 6) {
         this.itemsPerPage = itemsPerPage;
@@ -136,6 +136,11 @@ class PaginationManager {
         this.totalItems = 0;
         this.maxVisiblePages = 5;
         this.callbacks = [];
+        
+        console.log('🔧 PaginationManager initialized:', {
+            itemsPerPage: this.itemsPerPage,
+            currentPage: this.currentPage
+        });
     }
 
     addCallback(callback) {
@@ -143,20 +148,41 @@ class PaginationManager {
     }
 
     notify() {
-        this.callbacks.forEach(callback => callback({
+        const paginationInfo = {
             currentPage: this.currentPage,
             totalPages: this.getTotalPages(),
             startIndex: this.getStartIndex(),
-            endIndex: this.getEndIndex()
-        }));
+            endIndex: this.getEndIndex(),
+            totalItems: this.totalItems
+        };
+        
+        console.log('📢 Pagination notify:', paginationInfo);
+        
+        this.callbacks.forEach(callback => {
+            try {
+                callback(paginationInfo);
+            } catch (error) {
+                console.error('Pagination callback error:', error);
+            }
+        });
     }
 
     setTotalItems(count) {
+        console.log(`📊 Total items updated: ${this.totalItems} -> ${count}`);
+        
         this.totalItems = count;
-        if (this.currentPage > this.getTotalPages()) {
-            this.currentPage = Math.max(1, this.getTotalPages());
+        
+        // 현재 페이지가 총 페이지 수를 초과하는 경우 조정
+        const totalPages = this.getTotalPages();
+        if (this.currentPage > totalPages && totalPages > 0) {
+            console.log(`📄 Current page ${this.currentPage} exceeds total pages ${totalPages}, adjusting to page 1`);
+            this.currentPage = 1;
         }
+        
+        // 페이지네이션 UI 업데이트
         this.renderPagination();
+        
+        // 콜백 호출
         this.notify();
     }
 
@@ -174,11 +200,16 @@ class PaginationManager {
 
     goToPage(page) {
         const totalPages = this.getTotalPages();
+        
+        console.log(`🚀 Going to page: ${page} (current: ${this.currentPage}, total: ${totalPages})`);
+        
         if (page >= 1 && page <= totalPages && page !== this.currentPage) {
             this.currentPage = page;
             this.renderPagination();
             this.notify();
             this.scrollToTop();
+        } else {
+            console.warn(`⚠️ Invalid page number: ${page}`);
         }
     }
 
@@ -206,9 +237,14 @@ class PaginationManager {
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         
-        if (!pageNumbersContainer) return;
+        if (!pageNumbersContainer) {
+            console.warn('⚠️ Page numbers container not found');
+            return;
+        }
 
         const totalPages = this.getTotalPages();
+        
+        console.log(`🎨 Rendering pagination: page ${this.currentPage}/${totalPages}`);
         
         // 이전/다음 버튼 상태 업데이트
         if (prevBtn) {
@@ -221,7 +257,10 @@ class PaginationManager {
         // 페이지 번호 생성
         pageNumbersContainer.innerHTML = '';
         
-        if (totalPages <= 1) return;
+        if (totalPages <= 1) {
+            console.log('📄 Only one page, hiding pagination');
+            return;
+        }
 
         const startPage = Math.max(1, this.currentPage - Math.floor(this.maxVisiblePages / 2));
         const endPage = Math.min(totalPages, startPage + this.maxVisiblePages - 1);
@@ -265,7 +304,7 @@ class PaginationManager {
     }
 }
 
-// ============ 필터 팝업 관리자 - 스크롤 버그 완전 해결 ============
+// 필터 팝업 관리자 (기존과 동일)
 class FilterPopupManager {
     constructor(searchManager) {
         this.searchManager = searchManager;
@@ -278,7 +317,7 @@ class FilterPopupManager {
             period: ''
         };
         this.regionData = this.initRegionData();
-        this.scrollY = 0; // 스크롤 위치 저장
+        this.scrollY = 0;
         this.init();
     }
 
@@ -297,48 +336,29 @@ class FilterPopupManager {
                           '양주시', '여주시', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', 
                           '평택시', '포천시', '하남시', '화성시']
             },
-            gangwon: {
-                name: '강원특별자치도',
-                districts: ['춘천시', '원주시', '강릉시', '동해시', '태백시', '속초시', '삼척시', '홍천군', 
-                          '횡성군', '영월군', '평창군', '정선군', '철원군', '화천군', '양구군', '인제군', 
-                          '고성군', '양양군']
+            busan: {
+                name: '부산광역시',
+                districts: ['중구', '서구', '동구', '영도구', '부산진구', '동래구', '남구', '북구', '해운대구', '사하구', '금정구', '강서구', '연제구', '수영구', '사상구', '기장군']
             },
-            chungbuk: {
-                name: '충청북도',
-                districts: ['청주시', '충주시', '제천시', '보은군', '옥천군', '영동군', '진천군', '괴산군', 
-                          '음성군', '단양군', '증평군']
+            daegu: {
+                name: '대구광역시',
+                districts: ['중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군']
             },
-            chungnam: {
-                name: '충청남도',
-                districts: ['천안시', '공주시', '보령시', '아산시', '서산시', '논산시', '계룡시', '당진시', 
-                          '금산군', '부여군', '서천군', '청양군', '홍성군', '예산군', '태안군']
+            incheon: {
+                name: '인천광역시',
+                districts: ['중구', '동구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서구', '강화군', '옹진군']
             },
-            jeonbuk: {
-                name: '전라북도',
-                districts: ['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', '완주군', '진안군', 
-                          '무주군', '장수군', '임실군', '순창군', '고창군', '부안군']
+            gwangju: {
+                name: '광주광역시',
+                districts: ['동구', '서구', '남구', '북구', '광산구']
             },
-            jeonnam: {
-                name: '전라남도',
-                districts: ['목포시', '여수시', '순천시', '나주시', '광양시', '담양군', '곡성군', '구례군', 
-                          '고흥군', '보성군', '화순군', '장흥군', '강진군', '해남군', '영암군', '무안군', 
-                          '함평군', '영광군', '장성군', '완도군', '진도군', '신안군']
+            daejeon: {
+                name: '대전광역시',
+                districts: ['동구', '중구', '서구', '유성구', '대덕구']
             },
-            gyeongbuk: {
-                name: '경상북도',
-                districts: ['포항시', '경주시', '김천시', '안동시', '구미시', '영주시', '영천시', '상주시', 
-                          '문경시', '경산시', '군위군', '의성군', '청송군', '영양군', '영덕군', '청도군', 
-                          '고령군', '성주군', '칠곡군', '예천군', '봉화군', '울진군', '울릉군']
-            },
-            gyeongnam: {
-                name: '경상남도',
-                districts: ['창원시', '진주시', '통영시', '사천시', '김해시', '밀양시', '거제시', '양산시', 
-                          '의령군', '함안군', '창녕군', '고성군', '남해군', '하동군', '산청군', '함양군', 
-                          '거창군', '합천군']
-            },
-            jeju: {
-                name: '제주특별자치도',
-                districts: ['제주시', '서귀포시']
+            ulsan: {
+                name: '울산광역시',
+                districts: ['중구', '남구', '동구', '북구', '울주군']
             }
         };
     }
@@ -402,7 +422,6 @@ class FilterPopupManager {
         // 지역 뒤로가기 버튼
         document.addEventListener('click', (e) => {
             if (e.target.closest('#regionBackBtn')) {
-                console.log('Region back button clicked');
                 this.showRegionLevel1();
             }
         });
@@ -422,7 +441,6 @@ class FilterPopupManager {
         const regionLevel2Title = document.getElementById('regionLevel2Title');
         
         if (!regionCode) {
-            // 전체 지역 선택시 2단계 숨김
             this.showRegionLevel1();
             return;
         }
@@ -433,16 +451,13 @@ class FilterPopupManager {
             return;
         }
         
-        // 2단계 제목 업데이트
         if (regionLevel2Title) {
             regionLevel2Title.textContent = `${regionInfo.name} 세부 지역`;
         }
         
-        // 2단계 지역 옵션 생성
         if (regionLevel2Options) {
             regionLevel2Options.innerHTML = '';
             
-            // 전체 옵션 추가
             const allOption = document.createElement('label');
             allOption.className = 'filter-option';
             allOption.innerHTML = `
@@ -452,7 +467,6 @@ class FilterPopupManager {
             `;
             regionLevel2Options.appendChild(allOption);
             
-            // 세부 지역 옵션들 추가
             regionInfo.districts.forEach(district => {
                 const option = document.createElement('label');
                 option.className = 'filter-option';
@@ -465,16 +479,12 @@ class FilterPopupManager {
             });
         }
         
-        // 2단계로 전환 (단순한 show/hide)
         this.showRegionLevel2();
     }
 
-    // 단순한 표시/숨김 함수들
     showRegionLevel2() {
         const regionLevel1 = document.getElementById('regionLevel1');
         const regionLevel2 = document.getElementById('regionLevel2');
-        
-        console.log('Showing region level 2');
         
         if (regionLevel1) {
             regionLevel1.classList.add('hide');
@@ -489,8 +499,6 @@ class FilterPopupManager {
         const regionLevel1 = document.getElementById('regionLevel1');
         const regionLevel2 = document.getElementById('regionLevel2');
         
-        console.log('Showing region level 1');
-        
         if (regionLevel2) {
             regionLevel2.classList.remove('show');
         }
@@ -501,7 +509,6 @@ class FilterPopupManager {
     }
 
     switchTab(tabName) {
-        // 모든 탭 비활성화
         document.querySelectorAll('.filter-tab').forEach(tab => {
             tab.classList.remove('active');
         });
@@ -509,7 +516,6 @@ class FilterPopupManager {
             content.classList.remove('active');
         });
 
-        // 선택된 탭 활성화
         const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
         const selectedContent = document.getElementById(`tab-${tabName}`);
         
@@ -517,9 +523,7 @@ class FilterPopupManager {
             selectedTab.classList.add('active');
             selectedContent.classList.add('active');
             
-            // 지역 탭 선택 시 초기 상태로 리셋
             if (tabName === 'region') {
-                console.log('Region tab selected, resetting state');
                 setTimeout(() => {
                     this.showRegionLevel1();
                 }, 50);
@@ -527,120 +531,75 @@ class FilterPopupManager {
         }
     }
 
-    // ============ 팝업 열기 - 스크롤 위치 보존 적용 ============
     openPopup() {
         if (!this.overlay) return;
         
         this.loadCurrentFilters();
-        
-        // 현재 스크롤 위치 저장
         this.scrollY = window.scrollY;
-        
-        // CSS 변수로 스크롤 위치 설정
         document.documentElement.style.setProperty('--scroll-y', `-${this.scrollY}px`);
-        
-        // body에 modal-open 클래스 추가 (스크롤 방지)
         document.body.classList.add('modal-open');
-        
-        // 팝업 표시
         this.overlay.classList.add('active');
-        
-        // 지역 탭 초기 상태 보장
         this.showRegionLevel1();
-        
-        console.log('Modal opened - scroll position preserved:', this.scrollY);
     }
 
-    // ============ 팝업 닫기 - 스크롤 위치 복원 ============
     closePopup() {
         if (!this.overlay) return;
         
-        // 팝업 숨김
         this.overlay.classList.remove('active');
-        
-        // body 클래스 제거
         document.body.classList.remove('modal-open');
-        
-        // 스크롤 위치 복원
         window.scrollTo(0, this.scrollY);
-        
-        // CSS 변수 초기화
         document.documentElement.style.removeProperty('--scroll-y');
-        
-        console.log('Modal closed - scroll position restored:', this.scrollY);
     }
 
     loadCurrentFilters() {
         const filters = this.searchManager.filters;
         
-        // 정렬 라디오 버튼
         const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
         if (sortRadio) sortRadio.checked = true;
 
-        // 지역 필터 로딩
         this.loadRegionFilter(filters.region);
 
-        // 연령대 라디오 버튼
         const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
         if (ageRadio) ageRadio.checked = true;
 
-        // 실종기간 라디오 버튼
         const periodRadio = document.querySelector(`input[name="period"][value="${filters.period}"]`);
         if (periodRadio) periodRadio.checked = true;
     }
 
     loadRegionFilter(regionValue) {
-        console.log('Loading region filter:', regionValue);
-        
-        // 먼저 초기 상태로 리셋
         this.showRegionLevel1();
         
         if (!regionValue) {
-            // 전체 지역 선택
             const allRegionRadio = document.querySelector('input[name="region-level1"][value=""]');
             if (allRegionRadio) allRegionRadio.checked = true;
             return;
         }
         
-        // 세부 지역인 경우
         if (regionValue.includes('-')) {
             const [regionCode, district] = regionValue.split('-');
             
-            // 1단계 지역 선택
             const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionCode}"]`);
             if (level1Radio) {
                 level1Radio.checked = true;
-                
-                // 2단계 지역 데이터 생성
                 this.handleRegionLevel1Change(regionCode);
                 
-                // 2단계 지역 선택 (약간의 지연 후)
                 setTimeout(() => {
                     const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
                     if (level2Radio) {
                         level2Radio.checked = true;
-                        console.log('Selected detail region:', regionValue);
-                    } else {
-                        console.error('Detail region radio not found:', regionValue);
                     }
                 }, 100);
             }
         } else {
-            // 도/시 전체인 경우
             const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionValue}"]`);
             if (level1Radio) {
                 level1Radio.checked = true;
-                
-                // 2단계 데이터 생성 후 전체 옵션 선택
                 this.handleRegionLevel1Change(regionValue);
                 
                 setTimeout(() => {
                     const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
                     if (level2Radio) {
                         level2Radio.checked = true;
-                        console.log('Selected region:', regionValue);
-                    } else {
-                        console.error('Region radio not found:', regionValue);
                     }
                 }, 100);
             }
@@ -648,10 +607,8 @@ class FilterPopupManager {
     }
 
     applyFilters() {
-        // 정렬
         const sortValue = document.querySelector('input[name="sort"]:checked')?.value || 'danger';
         
-        // 지역 - 2단계 지역 선택 확인
         let regionValue = '';
         const regionLevel2Input = document.querySelector('input[name="region-level2"]:checked');
         if (regionLevel2Input) {
@@ -663,27 +620,17 @@ class FilterPopupManager {
             }
         }
         
-        // 연령대
         const ageValue = document.querySelector('input[name="age"]:checked')?.value || '';
-        
-        // 실종기간
         const periodValue = document.querySelector('input[name="period"]:checked')?.value || '';
 
-        console.log('Applying filters:', { sort: sortValue, region: regionValue, age: ageValue, period: periodValue });
-
-        // 필터 적용
         this.searchManager.updateFilter('sort', sortValue);
         this.searchManager.updateFilter('region', regionValue);
         this.searchManager.updateFilter('age', ageValue);
         this.searchManager.updateFilter('period', periodValue);
 
-        // 활성 필터 업데이트
         this.updateActiveFilters();
-        
-        // 팝업 닫기
         this.closePopup();
         
-        // 성공 알림
         if (window.showNotification) {
             window.showNotification('필터가 적용되었습니다.', 'success');
         }
@@ -718,7 +665,6 @@ class FilterPopupManager {
             }
         };
 
-        // 기본값이 아닌 필터들만 표시
         Object.keys(filters).forEach(key => {
             const value = filters[key];
             if (value && value !== 'danger' && key !== 'searchTerm') {
@@ -736,7 +682,6 @@ class FilterPopupManager {
             }
         });
 
-        // 활성 필터가 있을 때만 컨테이너 표시
         if (container.children.length > 0) {
             container.style.display = 'flex';
         } else {
@@ -747,7 +692,6 @@ class FilterPopupManager {
     getRegionLabel(regionValue) {
         if (!regionValue) return '';
         
-        // 세부 지역인 경우 (예: seoul-강남구)
         if (regionValue.includes('-')) {
             const [regionCode, district] = regionValue.split('-');
             const regionInfo = this.regionData[regionCode];
@@ -755,7 +699,6 @@ class FilterPopupManager {
                 return `${regionInfo.name} ${district}`;
             }
         } else {
-            // 도/시 전체인 경우
             const regionInfo = this.regionData[regionValue];
             if (regionInfo) {
                 return regionInfo.name;
@@ -773,7 +716,6 @@ class FilterPopupManager {
             <i class="fas fa-times" data-filter="${filterKey}" title="필터 제거"></i>
         `;
         
-        // 태그 제거 이벤트
         const removeIcon = tag.querySelector('i');
         removeIcon.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -788,14 +730,13 @@ class FilterPopupManager {
         this.searchManager.updateFilter(filterKey, defaultValue);
         this.updateActiveFilters();
         
-        // 성공 알림
         if (window.showNotification) {
             window.showNotification('필터가 제거되었습니다.', 'info');
         }
     }
 }
 
-// 실종자 카드 React 컴포넌트 - React key prop 경고 수정
+// 실종자 카드 React 컴포넌트
 function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
     const [upCount, setUpCount] = useState(data.upCount);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -875,7 +816,6 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
         ]);
     }
 
-    // 그리드 뷰
     return React.createElement('div', {
         className: `missing-card ${isAnimating ? 'animating' : ''}`,
         'data-id': data.id,
@@ -957,6 +897,8 @@ class SearchManager {
         this.data = [...sampleMissingData];
         this.filteredData = [...this.data];
         this.callbacks = [];
+        
+        console.log('🔍 SearchManager initialized with', this.data.length, 'items');
     }
 
     addCallback(callback) {
@@ -964,10 +906,18 @@ class SearchManager {
     }
 
     notify() {
-        this.callbacks.forEach(callback => callback(this.filteredData));
+        console.log('📢 SearchManager notify: filtered data count =', this.filteredData.length);
+        this.callbacks.forEach(callback => {
+            try {
+                callback(this.filteredData);
+            } catch (error) {
+                console.error('SearchManager callback error:', error);
+            }
+        });
     }
 
     updateFilter(key, value) {
+        console.log(`🔧 Filter updated: ${key} = "${value}"`);
         this.filters[key] = value;
         this.applyFilters();
     }
@@ -1004,20 +954,23 @@ class SearchManager {
         filtered = this.sortData(filtered, this.filters.sort);
 
         this.filteredData = filtered;
+        
+        console.log('🎯 Filters applied:', {
+            original: this.data.length,
+            filtered: this.filteredData.length,
+            filters: this.filters
+        });
+        
         this.notify();
     }
 
     matchesRegion(itemRegion, filterRegion) {
         if (!filterRegion) return true;
         
-        // 세부 지역 필터인 경우 (예: seoul-강남구)
         if (filterRegion.includes('-')) {
             const [regionCode, district] = filterRegion.split('-');
-            // 아이템의 지역이 해당 지역 코드와 매치되는지 확인
-            // 실제로는 더 정교한 매칭 로직이 필요할 수 있음
             return itemRegion === regionCode;
         } else {
-            // 도/시 전체 필터인 경우
             return itemRegion === filterRegion;
         }
     }
@@ -1081,7 +1034,7 @@ class SearchManager {
     }
 }
 
-// ============ 수정된 애니메이션 관리자 - 안전한 방식 ============
+// 애니메이션 관리자 (기존과 동일)
 class SearchAnimations {
     constructor() {
         this.isInitialized = false;
@@ -1092,7 +1045,6 @@ class SearchAnimations {
     }
 
     init() {
-        // 애니메이션 준비 클래스 추가 확인
         this.checkAnimationReady();
         
         if (typeof gsap === 'undefined') {
@@ -1105,43 +1057,31 @@ class SearchAnimations {
             gsap.registerPlugin(ScrollTrigger);
         }
 
-        // 애니메이션 준비가 되었을 때만 시작
         if (this.animationReady) {
             this.startSequentialAnimations();
         }
         
         this.isInitialized = true;
-        console.log('✨ Search animations initialized safely');
     }
     
-    // 애니메이션 준비 상태 확인
     checkAnimationReady() {
         const body = document.body;
         const hasAnimationClass = body.classList.contains('js-animation-ready');
         
         if (!hasAnimationClass) {
-            console.log('⚠️ Animation not ready - elements will remain visible for safety');
             this.animationReady = false;
         } else {
-            console.log('✅ Animation ready - will start sequential animations');
             this.animationReady = true;
         }
     }
 
-    // 안전한 순차 애니메이션
     startSequentialAnimations() {
-        if (!this.animationReady) {
-            console.log('Skipping animations - not ready');
-            return;
-        }
+        if (!this.animationReady) return;
         
-        // 애니메이션할 요소들 순서대로 정의
         const animationSequence = [
             { selector: '.search-title', delay: 0.1 },
             { selector: '.search-controls', delay: 0.3 },
             { selector: '.search-results-info', delay: 0.5 },
-            { selector: '.missing-grid', delay: 0.7 },
-            { selector: '.missing-list-view', delay: 0.7 },
             { selector: '.pagination', delay: 0.9 }
         ];
 
@@ -1168,18 +1108,14 @@ class SearchAnimations {
                 });
             }
         });
-
-        console.log('🎨 Safe sequential animations started');
     }
 
-    // 검색 결과 애니메이션
     animateSearchResults() {
         if (!this.isInitialized || this.isDestroyed) return;
 
         const cards = document.querySelectorAll('.missing-card:not(.animated), .list-item:not(.animated)');
         if (cards.length === 0) return;
 
-        // 애니메이션이 준비되지 않았다면 바로 표시
         if (!this.animationReady) {
             cards.forEach(card => {
                 if (card) {
@@ -1192,7 +1128,6 @@ class SearchAnimations {
             return;
         }
 
-        // GSAP 애니메이션
         gsap.fromTo(cards, {
             opacity: 0,
             y: 40,
@@ -1213,22 +1148,17 @@ class SearchAnimations {
                 });
             }
         });
-
-        console.log('🎨 Search results animated');
     }
 
-    // 필터 변경 애니메이션
     animateFilterChange() {
         if (!this.isInitialized || this.isDestroyed) return;
 
-        const container = document.querySelector('.missing-grid, .missing-list-view');
+        const container = document.querySelector('.view-container');
         if (!container) return;
 
-        // 기존 animated 클래스 제거
         const existingCards = container.querySelectorAll('.animated');
         existingCards.forEach(card => card.classList.remove('animated'));
 
-        // 애니메이션이 준비되지 않았다면 바로 표시
         if (!this.animationReady) {
             setTimeout(() => {
                 this.animateSearchResults();
@@ -1236,7 +1166,6 @@ class SearchAnimations {
             return;
         }
 
-        // GSAP 애니메이션
         gsap.fromTo(container, 
             { opacity: 0.4, y: 20, scale: 0.97 },
             { 
@@ -1254,11 +1183,9 @@ class SearchAnimations {
         );
     }
 
-    // UP 버튼 애니메이션
     animateUpButton(button) {
         if (!this.isInitialized || this.isDestroyed) return;
 
-        // 애니메이션이 준비되지 않았다면 간단한 효과만
         if (!this.animationReady || typeof gsap === 'undefined') {
             button.style.transform = 'scale(1.1)';
             setTimeout(() => {
@@ -1267,7 +1194,6 @@ class SearchAnimations {
             return;
         }
 
-        // GSAP 애니메이션
         const timeline = gsap.timeline();
         
         timeline
@@ -1306,7 +1232,6 @@ class SearchAnimations {
         this.createUpParticles(button);
     }
 
-    // 파티클 효과
     createUpParticles(button) {
         const rect = button.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -1355,14 +1280,12 @@ class SearchAnimations {
         }
     }
 
-    // 뷰 전환 애니메이션
     animateViewToggle(viewMode) {
         if (!this.isInitialized || this.isDestroyed) return;
 
         const container = document.querySelector('.view-container');
         if (!container) return;
 
-        // 애니메이션이 준비되지 않았다면 바로 표시
         if (!this.animationReady) {
             setTimeout(() => {
                 this.animateSearchResults();
@@ -1370,7 +1293,6 @@ class SearchAnimations {
             return;
         }
 
-        // GSAP 애니메이션
         gsap.fromTo(container,
             { opacity: 0, scale: 0.96, y: 15 },
             { 
@@ -1386,11 +1308,8 @@ class SearchAnimations {
                 }
             }
         );
-
-        console.log(`🎨 View toggled to ${viewMode}`);
     }
 
-    // 폴백 애니메이션
     fallbackAnimations() {
         const elements = document.querySelectorAll(`
             .search-title,
@@ -1414,11 +1333,8 @@ class SearchAnimations {
                 }, index * 150);
             }
         });
-
-        console.log('🎨 Fallback animations applied');
     }
 
-    // 정리 함수
     destroy() {
         this.isDestroyed = true;
         
@@ -1428,12 +1344,10 @@ class SearchAnimations {
             }
         });
         this.scrollTriggers = [];
-        
-        console.log('🧹 Search animations destroyed');
     }
 }
 
-// 플로팅 버튼 관리자
+// 플로팅 버튼 관리자 (기존과 동일)
 class FloatingButtons {
     constructor() {
         this.isOpen = false;
@@ -1451,7 +1365,6 @@ class FloatingButtons {
             this.toggle();
         });
 
-        // 외부 클릭시 닫기
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.floating-report-btns') && this.isOpen) {
                 this.close();
@@ -1508,7 +1421,7 @@ class FloatingButtons {
     }
 }
 
-// 검색 입력 디바운서
+// 검색 입력 디바운서 (기존과 동일)
 class SearchDebouncer {
     constructor(callback, delay = 500) {
         this.callback = callback;
@@ -1528,7 +1441,7 @@ class SearchDebouncer {
     }
 }
 
-// ============ 메인 검색 페이지 클래스 - 안전한 방식으로 수정 ============
+// ============ 수정된 메인 검색 페이지 클래스 - 뷰 전환 및 페이지네이션 버그 해결 ============
 class MissingSearchPage {
     constructor() {
         this.searchManager = new SearchManager();
@@ -1548,10 +1461,8 @@ class MissingSearchPage {
     init() {
         if (this.isDestroyed) return;
         
-        // 안전한 초기화 - 애니메이션 준비 클래스는 나중에 추가
         console.log('🚀 Starting missing search page initialization...');
         
-        // DOM 준비 상태 확인
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.handleDOMReady());
         } else {
@@ -1562,43 +1473,39 @@ class MissingSearchPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        // 뷰 초기화 (가장 먼저 실행)
+        console.log('📄 DOM ready - initializing components...');
+        
+        // 뷰 초기화
         this.initializeViews();
         
-        // 즉시 React 컴포넌트 렌더링 (콘텐츠가 보이도록)
-        this.renderComponents();
+        // 관리자들 설정
+        this.setupManagers();
         
-        // 애니메이션과 이벤트 리스너 설정
+        // 이벤트 리스너 설정
+        this.setupEventListeners();
+        
+        // 초기 데이터 로딩 (가장 중요!)
+        this.loadInitialData();
+        
+        // 애니메이션 초기화
         setTimeout(() => {
             this.initializeAnimations();
-            this.setupManagers();
-            this.setupEventListeners();
-            
-            // 모든 준비가 완료된 후에만 애니메이션 클래스 추가
             this.enableAnimations();
-        }, 500); // 충분한 시간을 두고 활성화
+        }, 500);
     }
 
-    // 애니메이션 활성화 (모든 준비 완료 후)
-    enableAnimations() {
-        // JavaScript와 모든 라이브러리가 로드된 것을 확인
-        const hasReact = typeof React !== 'undefined';
-        const hasGSAP = typeof gsap !== 'undefined';
+    // ============ 중요: 초기 데이터 로딩 보장 ============
+    loadInitialData() {
+        console.log('🔄 Loading initial data...');
         
-        console.log('🎨 Checking animation readiness:', { hasReact, hasGSAP });
+        // 검색 관리자 초기 필터링 실행
+        this.searchManager.applyFilters();
         
-        if (hasReact) {
-            // 애니메이션 준비 클래스 추가
-            document.body.classList.add('js-animation-ready');
-            console.log('✅ Animations enabled - smooth transitions will start');
-            
-            // 애니메이션 시작
-            if (this.animations) {
-                this.animations.startSequentialAnimations();
-            }
-        } else {
-            console.log('⚠️ Keeping elements visible - React not ready');
-        }
+        // 강제로 데이터 변경 이벤트 발생
+        setTimeout(() => {
+            console.log('🔄 Triggering initial data load...');
+            this.handleDataChange(this.searchManager.filteredData);
+        }, 100);
     }
 
     initializeViews() {
@@ -1606,11 +1513,11 @@ class MissingSearchPage {
         const listView = document.getElementById('missingList');
         
         if (gridView && listView) {
-            console.log('Initializing views - ensuring visibility');
+            console.log('🖼️ Initializing views...');
             
-            // 뷰 상태 초기화 (안전하게)
-            gridView.classList.remove('view-hidden');
-            listView.classList.remove('view-active');
+            // 뷰 상태 초기화 - 단순한 display 방식
+            gridView.style.display = 'grid';
+            listView.style.display = 'none';
             
             // 뷰 버튼 상태 초기화
             document.querySelectorAll('.view-btn').forEach(btn => {
@@ -1623,40 +1530,8 @@ class MissingSearchPage {
             }
             
             this.viewMode = 'grid';
-            console.log('Views initialized safely');
-        }
-    }
-
-    renderComponents() {
-        if (this.isDestroyed) return;
-        
-        try {
-            // 초기 데이터 렌더링
-            this.handleDataChange(this.searchManager.filteredData);
-            console.log('✅ React components rendered successfully');
-        } catch (error) {
-            console.error('❌ React rendering failed:', error);
-            // 폴백으로 기본 HTML 표시
-            this.showFallbackContent();
-        }
-    }
-
-    // React 렌더링 실패 시 폴백
-    showFallbackContent() {
-        const gridContainer = document.getElementById('missingGrid');
-        if (gridContainer) {
-            gridContainer.innerHTML = '<p>실종자 목록을 불러오는 중입니다...</p>';
-        }
-    }
-
-    initializeAnimations() {
-        if (this.isDestroyed) return;
-        
-        try {
-            this.animations = new SearchAnimations();
-            console.log('✅ Animations initialized');
-        } catch (error) {
-            console.error('❌ Animation initialization failed:', error);
+            
+            console.log('✅ Views initialized - grid active');
         }
     }
 
@@ -1700,7 +1575,7 @@ class MissingSearchPage {
             });
         }
 
-        // 뷰 토글
+        // ============ 수정된 뷰 토글 - 단순한 display 방식 ============
         document.addEventListener('click', (e) => {
             if (e.target.closest('.view-btn')) {
                 const btn = e.target.closest('.view-btn');
@@ -1708,7 +1583,7 @@ class MissingSearchPage {
                 
                 if (viewMode === this.viewMode || this.isViewChanging) return;
                 
-                console.log(`=== VIEW TOGGLE: ${this.viewMode} -> ${viewMode} ===`);
+                console.log(`🔄 VIEW TOGGLE: ${this.viewMode} -> ${viewMode}`);
                 this.switchToView(viewMode);
             }
         });
@@ -1744,7 +1619,6 @@ class MissingSearchPage {
             nextBtn.addEventListener('click', () => this.paginationManager.nextPage());
         }
 
-        // 리사이즈 핸들러
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
@@ -1754,8 +1628,8 @@ class MissingSearchPage {
         });
     }
 
-    // 안전한 뷰 전환
-    async switchToView(targetViewMode) {
+    // ============ 완전히 수정된 뷰 전환 - 단순한 display 방식 ============
+    switchToView(targetViewMode) {
         if (this.isViewChanging || this.isDestroyed) return;
         this.isViewChanging = true;
         
@@ -1776,26 +1650,30 @@ class MissingSearchPage {
             // 버튼 상태 업데이트
             this.updateViewButtons(targetViewMode);
             
-            // CSS 클래스로 뷰 전환
+            // ============ 단순한 display 전환 ============
             if (targetViewMode === 'list') {
                 console.log('📋 Activating list view...');
-                gridView.classList.add('view-hidden');
-                listView.classList.add('view-active');
+                gridView.style.display = 'none';
+                listView.style.display = 'flex';
             } else {
                 console.log('📊 Activating grid view...');
-                listView.classList.remove('view-active');
-                gridView.classList.remove('view-hidden');
-            }
-            
-            // 애니메이션 트리거
-            if (this.animations && !this.animations.isDestroyed) {
-                this.animations.animateViewToggle(targetViewMode);
+                listView.style.display = 'none';
+                gridView.style.display = 'grid';
             }
             
             // React 컴포넌트 재렌더링
-            await this.delayedReactRender();
-            
-            console.log(`✅ Successfully switched to ${targetViewMode} view`);
+            setTimeout(() => {
+                if (this.currentPageData && this.currentPageData.length > 0) {
+                    this.renderResults(this.currentPageData);
+                }
+                
+                // 애니메이션 트리거
+                if (this.animations && !this.animations.isDestroyed) {
+                    this.animations.animateViewToggle(targetViewMode);
+                }
+                
+                console.log(`✅ Successfully switched to ${targetViewMode} view`);
+            }, 100);
             
         } catch (error) {
             console.error('❌ Error during view switch:', error);
@@ -1804,21 +1682,7 @@ class MissingSearchPage {
         }
     }
 
-    async delayedReactRender() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                console.log('🔄 Re-rendering React components...');
-                if (this.currentPageData && this.currentPageData.length > 0) {
-                    this.renderResults(this.currentPageData);
-                }
-                resolve();
-            }, 200);
-        });
-    }
-
     updateViewButtons(activeViewMode) {
-        console.log(`🔘 Updating view buttons for: ${activeViewMode}`);
-        
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -1829,10 +1693,13 @@ class MissingSearchPage {
         }
     }
 
+    // ============ 수정된 데이터 변경 핸들러 ============
     handleDataChange(data) {
         if (this.isDestroyed) return;
         
-        // 페이지네이션 업데이트
+        console.log('📊 Data changed:', data.length, 'items');
+        
+        // 페이지네이션 업데이트 (이게 핵심!)
         this.paginationManager.setTotalItems(data.length);
         
         // 총 개수 업데이트
@@ -1858,11 +1725,25 @@ class MissingSearchPage {
         }
     }
 
+    // ============ 수정된 페이지네이션 변경 핸들러 ============
     handlePaginationChange(paginationInfo) {
         if (this.isDestroyed) return;
         
         const { startIndex, endIndex } = paginationInfo;
+        
+        console.log('📄 Pagination changed:', {
+            page: paginationInfo.currentPage,
+            startIndex,
+            endIndex,
+            total: paginationInfo.totalItems
+        });
+        
+        // 현재 페이지 데이터 추출
         this.currentPageData = this.searchManager.filteredData.slice(startIndex, endIndex);
+        
+        console.log('📦 Current page data:', this.currentPageData.length, 'items');
+        
+        // 결과 렌더링
         this.renderResults(this.currentPageData);
     }
 
@@ -1877,17 +1758,32 @@ class MissingSearchPage {
         }
     }
 
+    // ============ 안정적인 결과 렌더링 ============
     renderResults(data) {
-        if (this.isDestroyed || data.length === 0) return;
+        if (this.isDestroyed) return;
+        
+        console.log('🎨 Rendering results:', data.length, 'items for', this.viewMode, 'view');
 
         const gridContainer = document.getElementById('missingGrid');
         const listContainer = document.getElementById('missingList');
         
+        if (!gridContainer || !listContainer) {
+            console.error('❌ Containers not found!');
+            return;
+        }
+        
+        if (data.length === 0) {
+            console.log('📭 No data to render');
+            gridContainer.innerHTML = '<p>표시할 데이터가 없습니다.</p>';
+            listContainer.innerHTML = '<p>표시할 데이터가 없습니다.</p>';
+            return;
+        }
+
         // React 렌더링
-        if (typeof React !== 'undefined' && gridContainer) {
+        if (typeof React !== 'undefined') {
             this.renderWithReact(data, gridContainer, listContainer);
         } else {
-            console.warn('React not available, showing fallback');
+            console.warn('⚠️ React not available, showing fallback');
             this.showFallbackContent();
         }
 
@@ -1896,14 +1792,14 @@ class MissingSearchPage {
             if (this.animations && !this.animations.isDestroyed) {
                 this.animations.animateSearchResults();
             }
-        }, 250);
+        }, 300);
     }
 
     renderWithReact(data, gridContainer, listContainer) {
         const handleUpClick = (cardId) => {
             if (this.isDestroyed) return;
             
-            console.log(`UP clicked for card ${cardId}`);
+            console.log(`👍 UP clicked for card ${cardId}`);
             
             const button = document.querySelector(`[data-id="${cardId}"] .up-btn`);
             if (button && this.animations && !this.animations.isDestroyed) {
@@ -1921,86 +1817,120 @@ class MissingSearchPage {
                 try {
                     this.reactRoots.get(key).unmount();
                 } catch (e) {
-                    console.warn(`Error unmounting ${key} root:`, e);
+                    console.warn(`⚠️ Error unmounting ${key} root:`, e);
                 }
             }
         });
 
         // 그리드 뷰 렌더링
-        if (gridContainer) {
+        try {
             gridContainer.innerHTML = '';
-            try {
-                const gridRoot = ReactDOM.createRoot(gridContainer);
-                this.reactRoots.set('grid', gridRoot);
-                
-                gridRoot.render(
-                    React.createElement(React.Fragment, null,
-                        data.map(item =>
-                            React.createElement(MissingCard, {
-                                key: `grid-${item.id}`,
-                                data: item,
-                                onUpClick: handleUpClick,
-                                viewMode: 'grid'
-                            })
-                        )
+            const gridRoot = ReactDOM.createRoot(gridContainer);
+            this.reactRoots.set('grid', gridRoot);
+            
+            gridRoot.render(
+                React.createElement(React.Fragment, null,
+                    data.map(item =>
+                        React.createElement(MissingCard, {
+                            key: `grid-${item.id}`,
+                            data: item,
+                            onUpClick: handleUpClick,
+                            viewMode: 'grid'
+                        })
                     )
-                );
-            } catch (error) {
-                console.error('Grid rendering failed:', error);
-                gridContainer.innerHTML = '<p>그리드 뷰를 불러올 수 없습니다.</p>';
-            }
+                )
+            );
+            
+            console.log('✅ Grid view rendered successfully');
+        } catch (error) {
+            console.error('❌ Grid rendering failed:', error);
+            gridContainer.innerHTML = '<p>그리드 뷰를 불러올 수 없습니다.</p>';
         }
 
         // 리스트 뷰 렌더링
-        if (listContainer) {
+        try {
             listContainer.innerHTML = '';
-            try {
-                const listRoot = ReactDOM.createRoot(listContainer);
-                this.reactRoots.set('list', listRoot);
-                
-                listRoot.render(
-                    React.createElement(React.Fragment, null,
-                        data.map(item =>
-                            React.createElement(MissingCard, {
-                                key: `list-${item.id}`,
-                                data: item,
-                                onUpClick: handleUpClick,
-                                viewMode: 'list'
-                            })
-                        )
+            const listRoot = ReactDOM.createRoot(listContainer);
+            this.reactRoots.set('list', listRoot);
+            
+            listRoot.render(
+                React.createElement(React.Fragment, null,
+                    data.map(item =>
+                        React.createElement(MissingCard, {
+                            key: `list-${item.id}`,
+                            data: item,
+                            onUpClick: handleUpClick,
+                            viewMode: 'list'
+                        })
                     )
-                );
-            } catch (error) {
-                console.error('List rendering failed:', error);
-                listContainer.innerHTML = '<p>리스트 뷰를 불러올 수 없습니다.</p>';
+                )
+            );
+            
+            console.log('✅ List view rendered successfully');
+        } catch (error) {
+            console.error('❌ List rendering failed:', error);
+            listContainer.innerHTML = '<p>리스트 뷰를 불러올 수 없습니다.</p>';
+        }
+    }
+
+    showFallbackContent() {
+        const gridContainer = document.getElementById('missingGrid');
+        const listContainer = document.getElementById('missingList');
+        
+        if (gridContainer) {
+            gridContainer.innerHTML = '<p>실종자 목록을 불러오는 중입니다...</p>';
+        }
+        if (listContainer) {
+            listContainer.innerHTML = '<p>실종자 목록을 불러오는 중입니다...</p>';
+        }
+    }
+
+    initializeAnimations() {
+        if (this.isDestroyed) return;
+        
+        try {
+            this.animations = new SearchAnimations();
+            console.log('✅ Animations initialized');
+        } catch (error) {
+            console.error('❌ Animation initialization failed:', error);
+        }
+    }
+
+    enableAnimations() {
+        const hasReact = typeof React !== 'undefined';
+        const hasGSAP = typeof gsap !== 'undefined';
+        
+        console.log('🎨 Checking animation readiness:', { hasReact, hasGSAP });
+        
+        if (hasReact) {
+            document.body.classList.add('js-animation-ready');
+            console.log('✅ Animations enabled');
+            
+            if (this.animations) {
+                this.animations.startSequentialAnimations();
             }
+        } else {
+            console.log('⚠️ Keeping elements visible - React not ready');
         }
     }
 
     resetFilters() {
         if (this.isDestroyed) return;
         
-        // 폼 리셋
         const searchInput = document.getElementById('searchInput');
         if (searchInput) searchInput.value = '';
         
-        // 검색 관리자 리셋
         this.searchManager.resetFilters();
-        
-        // 페이지네이션 리셋
         this.paginationManager.currentPage = 1;
         
-        // 애니메이션
         if (this.animations && !this.animations.isDestroyed) {
             this.animations.animateFilterChange();
         }
         
-        // 활성 필터 업데이트
         if (this.filterPopupManager) {
             this.filterPopupManager.updateActiveFilters();
         }
         
-        // 알림
         if (window.showNotification) {
             window.showNotification('필터가 초기화되었습니다.', 'info');
         }
@@ -2009,7 +1939,6 @@ class MissingSearchPage {
     handleResize() {
         if (this.isDestroyed) return;
         
-        // 반응형 조정
         if (window.innerWidth <= 768) {
             document.body.classList.add('mobile');
         } else {
@@ -2017,27 +1946,23 @@ class MissingSearchPage {
         }
     }
 
-    // 정리 함수
     destroy() {
         this.isDestroyed = true;
         
-        // React 루트 정리
         this.reactRoots.forEach(root => {
             try {
                 root.unmount();
             } catch (e) {
-                console.warn('Error unmounting React root:', e);
+                console.warn('⚠️ Error unmounting React root:', e);
             }
         });
         this.reactRoots.clear();
         
-        // 애니메이션 정리
         if (this.animations) {
             this.animations.destroy();
             this.animations = null;
         }
         
-        // 타이머 정리
         if (this.searchDebouncer) {
             this.searchDebouncer.cancel();
         }
@@ -2046,10 +1971,9 @@ class MissingSearchPage {
     }
 }
 
-// 페이지 로드 시 자동 초기화
+// ============ 페이지 로드 시 자동 초기화 ============
 let missingSearchPage = null;
 
-// 즉시 초기화
 console.log('🚀 Initializing missing search page...');
 missingSearchPage = new MissingSearchPage();
 
@@ -2061,7 +1985,7 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// 전역 함수 (하위 호환성을 위해)
+// 전역 함수들
 window.performSearch = function() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput && missingSearchPage && missingSearchPage.searchManager) {
@@ -2097,60 +2021,72 @@ window.handleUpClick = function(button, missingId) {
     }
 };
 
-// 개발자 도구
+// ============ 개선된 디버깅 도구 ============
 if (typeof window !== 'undefined') {
     window.missingSearchDebug = {
         get instance() { return missingSearchPage; },
         sampleData: sampleMissingData,
         get animations() { return missingSearchPage ? missingSearchPage.animations : null; },
         
-        checkVisibility: () => {
+        // 페이지네이션 상태 확인
+        checkPagination: () => {
+            const pagination = missingSearchPage?.paginationManager;
+            if (!pagination) {
+                console.log('❌ Pagination manager not found');
+                return;
+            }
+            
+            console.log('=== 페이지네이션 상태 ===');
+            console.log('Current page:', pagination.currentPage);
+            console.log('Total items:', pagination.totalItems);
+            console.log('Total pages:', pagination.getTotalPages());
+            console.log('Start index:', pagination.getStartIndex());
+            console.log('End index:', pagination.getEndIndex());
+            console.log('Items per page:', pagination.itemsPerPage);
+            
+            const data = missingSearchPage?.searchManager?.filteredData;
+            if (data) {
+                console.log('Available data:', data.length, 'items');
+                console.log('Current page data:', data.slice(pagination.getStartIndex(), pagination.getEndIndex()));
+            }
+        },
+        
+        // 뷰 상태 확인
+        checkViews: () => {
             const gridView = document.getElementById('missingGrid');
             const listView = document.getElementById('missingList');
+            
+            console.log('=== 뷰 상태 ===');
+            console.log('Current view mode:', missingSearchPage?.viewMode);
+            console.log('Grid view display:', gridView ? window.getComputedStyle(gridView).display : 'Not found');
+            console.log('List view display:', listView ? window.getComputedStyle(listView).display : 'Not found');
+            
             const cards = document.querySelectorAll('.missing-card');
-            
-            console.log('=== 가시성 체크 ===');
-            console.log('Grid view:', gridView ? 'Found' : 'Not found');
-            console.log('List view:', listView ? 'Found' : 'Not found');
-            console.log('Cards count:', cards.length);
-            console.log('Animation ready class:', document.body.classList.contains('js-animation-ready'));
-            
-            if (gridView) {
-                console.log('Grid styles:', {
-                    opacity: window.getComputedStyle(gridView).opacity,
-                    visibility: window.getComputedStyle(gridView).visibility,
-                    display: window.getComputedStyle(gridView).display
-                });
-            }
-            
-            cards.forEach((card, index) => {
-                console.log(`Card ${index + 1}:`, {
-                    opacity: window.getComputedStyle(card).opacity,
-                    visibility: window.getComputedStyle(card).visibility,
-                    display: window.getComputedStyle(card).display
-                });
-            });
+            const listItems = document.querySelectorAll('.list-item');
+            console.log('Grid cards count:', cards.length);
+            console.log('List items count:', listItems.length);
         },
         
-        forceShow: () => {
-            console.log('🔧 Forcing all elements to show...');
-            const elements = document.querySelectorAll('.missing-grid, .missing-card, .list-item');
-            elements.forEach(el => {
-                el.style.opacity = '1';
-                el.style.visibility = 'visible';
-                el.style.transform = 'translateY(0)';
-                el.style.display = 'block';
-            });
-        },
-        
-        destroyInstance: () => {
-            if (missingSearchPage) {
-                missingSearchPage.destroy();
-                missingSearchPage = null;
+        // 강제 1페이지 로드
+        forceFirstPage: () => {
+            console.log('🔧 Forcing first page load...');
+            if (missingSearchPage?.paginationManager) {
+                missingSearchPage.paginationManager.currentPage = 1;
+                missingSearchPage.paginationManager.notify();
             }
         },
         
+        // 데이터 재로드
+        reloadData: () => {
+            console.log('🔄 Reloading data...');
+            if (missingSearchPage?.searchManager) {
+                missingSearchPage.searchManager.applyFilters();
+            }
+        },
+        
+        // 완전 재초기화
         reinitialize: () => {
+            console.log('🔄 Reinitializing page...');
             if (missingSearchPage) {
                 missingSearchPage.destroy();
             }
@@ -2158,7 +2094,9 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Debug tools loaded!');
-    console.log('- window.missingSearchDebug.checkVisibility() : 가시성 상태 확인');
-    console.log('- window.missingSearchDebug.forceShow() : 강제로 모든 요소 표시');
+    console.log('🛠️ Enhanced debug tools loaded!');
+    console.log('- window.missingSearchDebug.checkPagination() : 페이지네이션 상태 확인');
+    console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
+    console.log('- window.missingSearchDebug.forceFirstPage() : 강제로 1페이지 로드');
+    console.log('- window.missingSearchDebug.reloadData() : 데이터 재로드');
 }
