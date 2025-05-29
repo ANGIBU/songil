@@ -623,7 +623,7 @@ class FilterPopupManager {
             }, 100);
         }
         
-        console.log('✅ Filter popup opened successfully - viewport centered');
+        console.log('✅ Filter popup opened successfully - viewport centered (40px above center)');
     }
 
     // ============ 완전히 수정된 팝업 닫기 - 스크롤 위치 정확 복원 ============
@@ -2027,7 +2027,7 @@ if (typeof window !== 'undefined') {
         }
     };
     
-    console.log('🛠️ Debug tools loaded - VIEWPORT CENTERING FIXED!');
+    console.log('🛠️ Debug tools loaded - VIEWPORT CENTERING FIXED (40px above center)!');
     console.log('- window.missingSearchDebug.checkViews() : 뷰 상태 확인');
     console.log('- window.missingSearchDebug.checkPopup() : 팝업 상태 확인');
     console.log('- window.missingSearchDebug.forceOpenPopup() : 강제 팝업 열기');

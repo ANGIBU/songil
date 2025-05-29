@@ -350,7 +350,7 @@ html {
     display: flex !important;
 }
 
-/* ============ 모달 컨테이너 - 절대적 중앙 정렬 ============ */
+/* ============ 모달 컨테이너 - 절대적 중앙 정렬 + 위치 조정 ============ */
 .filter-popup-modal {
     /* 기본 레이아웃 */
     background: white !important;
@@ -367,15 +367,15 @@ html {
     display: flex !important;
     flex-direction: column !important;
     
-    /* 위치 - 중앙 정렬 절대 보장 */
+    /* 위치 - 중앙 정렬 + 40px 위로 이동 */
     position: relative !important;
     margin: 0 !important;
+    transform: translateY(-40px) !important;
     
     /* 스크롤 */
     overflow: hidden !important;
     
     /* 렌더링 최적화 */
-    transform: translateZ(0) !important;
     will-change: transform, opacity !important;
     -webkit-backface-visibility: hidden !important;
     backface-visibility: hidden !important;
@@ -388,13 +388,13 @@ html {
     -ms-user-select: text !important;
     
     /* 브라우저별 호환성 */
-    -webkit-transform: translateZ(0) !important;
-    -moz-transform: translateZ(0) !important;
-    -ms-transform: translateZ(0) !important;
-    -o-transform: translateZ(0) !important;
+    -webkit-transform: translateY(-40px) !important;
+    -moz-transform: translateY(-40px) !important;
+    -ms-transform: translateY(-40px) !important;
+    -o-transform: translateY(-40px) !important;
 }
 
-/* ============ 모바일 환경 모달 최적화 ============ */
+/* ============ 모바일 환경 모달 최적화 + 위치 조정 ============ */
 @media (max-width: 768px) {
     .filter-popup-overlay {
         /* 모바일에서 더 안전한 뷰포트 단위 */
@@ -413,10 +413,13 @@ html {
         max-height: calc(100dvh - 40px) !important;
         /* iOS Safari 안전 영역 고려 */
         max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px) !important;
+        /* 모바일에서도 40px 위로 이동 유지 */
+        transform: translateY(-40px) !important;
+        -webkit-transform: translateY(-40px) !important;
     }
 }
 
-/* 초소형 모바일 (480px 이하) */
+/* 초소형 모바일 (480px 이하) + 위치 조정 */
 @media (max-width: 480px) {
     .filter-popup-overlay {
         padding: 5px !important;
@@ -428,6 +431,9 @@ html {
         max-height: calc(100vh - 20px) !important;
         max-height: calc(100dvh - 20px) !important;
         border-radius: 15px !important;
+        /* 소형 모바일에서도 40px 위로 이동 유지 */
+        transform: translateY(-40px) !important;
+        -webkit-transform: translateY(-40px) !important;
     }
 }
 
