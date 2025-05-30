@@ -1,9 +1,9 @@
 // static/js/missing-detail.js
 
 // 실종자 상세 페이지 JavaScript
-let currentTab = 'situation';
 let isBookmarked = false;
 let upClicked = false;
+let recommendClicked = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeMissingDetail();
@@ -55,16 +55,6 @@ function animatePageLoad() {
                 stagger: 0.15,
                 ease: 'back.out(1.7)'
             }, '-=0.2');
-        
-        // 탭 애니메이션
-        gsap.from('.tab-btn', {
-            duration: 0.6,
-            y: 20,
-            opacity: 0,
-            stagger: 0.1,
-            delay: 0.5,
-            ease: 'power2.out'
-        });
     }
 }
 
@@ -89,14 +79,6 @@ function setupEventListeners() {
     document.querySelectorAll('.image-thumbnail').forEach(thumb => {
         thumb.addEventListener('click', function() {
             changeMainImage(this);
-        });
-    });
-    
-    // 탭 버튼 클릭 이벤트
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            switchTab(tabName);
         });
     });
     
@@ -128,8 +110,8 @@ function setupScrollAnimations() {
             });
         });
         
-        // 수사 타임라인 애니메이션
-        gsap.utils.toArray('.timeline-item').forEach((item, index) => {
+        // 목격 정보 애니메이션
+        gsap.utils.toArray('.witness-item').forEach((item, index) => {
             gsap.from(item, {
                 scrollTrigger: {
                     trigger: item,
@@ -143,41 +125,6 @@ function setupScrollAnimations() {
                 ease: 'power2.out'
             });
         });
-    }
-}
-
-// 탭 전환
-function switchTab(tabName) {
-    // 탭 버튼 활성화
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-    
-    // 탭 콘텐츠 표시
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    const activeTab = document.getElementById(tabName + 'Tab');
-    activeTab.classList.add('active');
-    
-    currentTab = tabName;
-    
-    // 탭 전환 애니메이션
-    if (typeof gsap !== 'undefined') {
-        gsap.from(activeTab, {
-            duration: 0.4,
-            y: 20,
-            opacity: 0,
-            ease: 'power2.out'
-        });
-    }
-    
-    // 특정 탭에 대한 추가 처리
-    if (tabName === 'location') {
-        // 지도 API 초기화 (실제 구현 시)
-        // initializeMap();
     }
 }
 
@@ -285,6 +232,67 @@ function handleUpClick() {
     sendUpToServer(newCount);
 }
 
+// 추천 버튼 클릭
+function handleRecommendClick() {
+    if (recommendClicked) {
+        showNotification('이미 추천하셨습니다.', 'info');
+        return;
+    }
+    
+    const recommendBtn = document.querySelector('.recommendation-btn');
+    const recommendCount = document.getElementById('recommendCount');
+    const currentCount = parseInt(recommendCount.textContent);
+    const newCount = currentCount + 1;
+    
+    // 버튼 활성화
+    recommendClicked = true;
+    recommendBtn.classList.add('active');
+    
+    // 카운트 애니메이션
+    if (typeof gsap !== 'undefined') {
+        // 버튼 애니메이션
+        gsap.timeline()
+            .to(recommendBtn, {
+                duration: 0.1,
+                scale: 0.9,
+                ease: 'power2.in'
+            })
+            .to(recommendBtn, {
+                duration: 0.4,
+                scale: 1.2,
+                ease: 'elastic.out(1, 0.5)'
+            })
+            .to(recommendBtn, {
+                duration: 0.2,
+                scale: 1,
+                ease: 'power2.out'
+            });
+        
+        // 숫자 카운트업 애니메이션
+        const countObj = { count: currentCount };
+        gsap.to(countObj, {
+            count: newCount,
+            duration: 0.6,
+            ease: 'power2.out',
+            onUpdate: function() {
+                recommendCount.textContent = Math.floor(countObj.count);
+            }
+        });
+        
+        // 하트 파티클 효과
+        createHeartParticleEffect(recommendBtn);
+    } else {
+        // GSAP 없을 때
+        recommendCount.textContent = newCount;
+    }
+    
+    // 알림 표시
+    showNotification('추천했습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+    
+    // 서버에 추천 정보 전송
+    sendRecommendToServer(newCount);
+}
+
 // UP 파티클 효과
 function createParticleEffect(element) {
     if (typeof gsap === 'undefined') return;
@@ -317,6 +325,45 @@ function createParticleEffect(element) {
             y: Math.sin(angle) * distance - 30,
             opacity: 0,
             scale: 0.3,
+            ease: 'power2.out',
+            onComplete: () => particle.remove()
+        });
+    }
+}
+
+// 하트 파티클 효과
+function createHeartParticleEffect(element) {
+    if (typeof gsap === 'undefined') return;
+    
+    const rect = element.getBoundingClientRect();
+    const particles = 8;
+    
+    for (let i = 0; i < particles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'heart-particle';
+        particle.innerHTML = '<i class="fas fa-heart"></i>';
+        particle.style.cssText = `
+            position: fixed;
+            left: ${rect.left + rect.width / 2}px;
+            top: ${rect.top + rect.height / 2}px;
+            color: var(--danger-red);
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 1000;
+        `;
+        
+        document.body.appendChild(particle);
+        
+        const angle = (i / particles) * Math.PI * 2;
+        const distance = 40 + Math.random() * 40;
+        
+        gsap.to(particle, {
+            duration: 1.2,
+            x: Math.cos(angle) * distance,
+            y: Math.sin(angle) * distance - 40,
+            opacity: 0,
+            scale: 0.2,
+            rotation: 360,
             ease: 'power2.out',
             onComplete: () => particle.remove()
         });
@@ -549,6 +596,19 @@ function sendUpToServer(newCount) {
     });
 }
 
+function sendRecommendToServer(newCount) {
+    // 실제 구현 시 서버 API 호출
+    fetch(`/api/missing/${getMissingId()}/recommend`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ count: newCount })
+    }).catch(error => {
+        console.error('추천 전송 실패:', error);
+    });
+}
+
 function sendBookmarkToServer(bookmarked) {
     // 실제 구현 시 서버 API 호출
     fetch(`/api/missing/${getMissingId()}/bookmark`, {
@@ -731,7 +791,7 @@ const modalStyles = `
     color: #6b7280;
 }
 
-.up-particle {
+.up-particle, .heart-particle {
     position: fixed;
     pointer-events: none;
 }
@@ -764,9 +824,9 @@ const modalStyles = `
 document.head.insertAdjacentHTML('beforeend', modalStyles);
 
 // 전역 함수로 내보내기
-window.switchTab = switchTab;
 window.changeMainImage = changeMainImage;
 window.handleUpClick = handleUpClick;
+window.handleRecommendClick = handleRecommendClick;
 window.toggleBookmark = toggleBookmark;
 window.shareContent = shareContent;
 window.closeShareModal = closeShareModal;

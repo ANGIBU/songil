@@ -172,6 +172,52 @@ body {
     border-color: var(--primary-orange);
 }
 
+/* 추천 버튼 스타일 */
+.recommendation-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.recommendation-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    border: 2px solid var(--gray-200);
+    background: white;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: var(--transition-base);
+    font-size: 16px;
+    padding: 8px;
+}
+
+.recommendation-btn:hover {
+    border-color: var(--danger-red);
+    color: var(--danger-red);
+    background: var(--danger-red-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.recommendation-btn.active {
+    background: var(--danger-red);
+    color: white;
+    border-color: var(--danger-red);
+}
+
+.recommendation-count {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+
 /* ===== 실종자 상세 페이지 ===== */
 .missing-basic-info {
     padding: 40px 0;
@@ -185,10 +231,9 @@ body {
     align-items: start;
 }
 
-/* 프로필 이미지 섹션 */
+/* 프로필 이미지 섹션 - sticky 제거 */
 .profile-image-section {
-    position: sticky;
-    top: 100px;
+    position: static;
 }
 
 .main-image {
@@ -324,7 +369,9 @@ body {
 
 .profile-actions {
     display: flex;
+    flex-direction: column;
     gap: 12px;
+    align-items: center;
 }
 
 /* 기본 정보 그리드 */
@@ -377,69 +424,17 @@ body {
     align-items: center;
 }
 
-/* ===== 탭 네비게이션 ===== */
-.missing-details-tabs {
-    background-color: var(--gray-50);
-    padding: 40px 0 60px;
-}
-
-.tabs-navigation {
-    display: flex;
-    gap: 0;
-    margin-bottom: 32px;
-    background-color: white;
+/* 실종 상황 상세 정보 */
+.situation-details {
+    margin-top: 32px;
+    padding: 32px;
+    background: var(--gray-50);
     border-radius: 16px;
-    padding: 4px;
-    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-100);
 }
 
-.tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 16px 24px;
-    background-color: transparent;
-    border: none;
-    border-radius: 12px;
-    color: var(--gray-600);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition-base);
-    font-size: 15px;
-}
-
-.tab-btn:hover {
-    background-color: var(--gray-100);
-    color: var(--gray-800);
-}
-
-.tab-btn.active {
-    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    color: white;
-    box-shadow: var(--shadow-md);
-}
-
-.tab-btn i {
-    font-size: 18px;
-}
-
-.tab-content {
-    display: none;
-    background-color: white;
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: var(--shadow-lg);
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* 콘텐츠 헤더 */
 .content-header {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 2px solid var(--gray-100);
 }
@@ -456,11 +451,25 @@ body {
     color: var(--primary-orange);
 }
 
+.situation-text {
+    margin-bottom: 24px;
+}
+
+.situation-text p {
+    margin-bottom: 16px;
+    line-height: 1.8;
+    color: var(--gray-700);
+}
+
+.situation-text p:last-child {
+    margin-bottom: 0;
+}
+
 /* 추가 정보 스타일 */
 .additional-info {
     margin-top: 32px;
     padding: 24px;
-    background: var(--gray-50);
+    background: white;
     border-radius: 12px;
     border: 1px solid var(--gray-100);
 }
@@ -541,7 +550,12 @@ body {
     font-weight: 500;
 }
 
-/* ===== 목격 정보 스타일 ===== */
+/* ===== 목격 정보 섹션 ===== */
+.witness-reports-section {
+    padding: 60px 0;
+    background: var(--gray-50);
+}
+
 .witness-header {
     display: flex;
     justify-content: space-between;
@@ -569,9 +583,10 @@ body {
 .stat-item {
     text-align: center;
     padding: 12px 20px;
-    background: var(--gray-50);
+    background: white;
     border-radius: 12px;
     border: 1px solid var(--gray-100);
+    box-shadow: var(--shadow-sm);
 }
 
 .stat-label {
@@ -607,10 +622,11 @@ body {
     display: flex;
     gap: 24px;
     padding: 24px;
-    background: var(--gray-50);
+    background: white;
     border-radius: 12px;
     border: 2px solid var(--gray-100);
     transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
 }
 
 .witness-item:hover {
@@ -690,7 +706,7 @@ body {
     font-size: 15px;
     line-height: 1.6;
     color: var(--gray-700);
-    background: white;
+    background: var(--gray-50);
     padding: 16px;
     border-radius: 8px;
     border: 1px solid var(--gray-100);
@@ -797,286 +813,6 @@ body {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
     background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
-}
-
-/* ===== 위치 정보 스타일 ===== */
-.map-container {
-    margin-bottom: 32px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-}
-
-.map-placeholder {
-    height: 400px;
-    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    color: var(--gray-500);
-}
-
-.map-placeholder i {
-    font-size: 64px;
-    color: var(--gray-400);
-}
-
-.location-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-}
-
-.location-info h4,
-.nearby-info h4 {
-    font-size: 20px;
-    color: var(--gray-800);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.location-info h4 i,
-.nearby-info h4 i {
-    color: var(--primary-orange);
-}
-
-.location-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.location-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background: var(--gray-50);
-    border-radius: 12px;
-    border: 1px solid var(--gray-100);
-    transition: var(--transition-base);
-}
-
-.location-item:hover {
-    border-color: var(--primary-orange-light);
-    box-shadow: var(--shadow-md);
-}
-
-.location-item.primary {
-    background: var(--danger-red-bg);
-    border-color: var(--danger-red-light);
-}
-
-.location-icon {
-    width: 48px;
-    height: 48px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-sm);
-}
-
-.location-icon i {
-    font-size: 20px;
-    color: var(--primary-orange);
-}
-
-.location-item.primary .location-icon i {
-    color: var(--danger-red);
-}
-
-.location-text strong {
-    display: block;
-    color: var(--gray-800);
-    font-size: 16px;
-    margin-bottom: 4px;
-}
-
-.location-text p {
-    color: var(--gray-600);
-    font-size: 14px;
-}
-
-.nearby-list {
-    list-style: none;
-}
-
-.nearby-list li {
-    padding: 12px 0;
-    color: var(--gray-700);
-    border-bottom: 1px solid var(--gray-100);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.nearby-list li:last-child {
-    border-bottom: none;
-}
-
-.nearby-list li i {
-    color: var(--primary-orange);
-    width: 20px;
-    text-align: center;
-}
-
-/* ===== 타임라인 스타일 ===== */
-.timeline {
-    position: relative;
-    padding-left: 60px;
-}
-
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 24px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--secondary-green) 0%, var(--gray-200) 100%);
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: 40px;
-}
-
-.timeline-marker {
-    position: absolute;
-    left: -36px;
-    top: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: white;
-    box-shadow: var(--shadow-lg);
-}
-
-.timeline-item.completed .timeline-marker {
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-}
-
-.timeline-item.in-progress .timeline-marker {
-    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
-}
-
-.timeline-item.planned .timeline-marker {
-    background: linear-gradient(135deg, var(--gray-300) 0%, var(--gray-400) 100%);
-}
-
-.timeline-content-item {
-    background: var(--gray-50);
-    padding: 24px;
-    border-radius: 12px;
-    border: 1px solid var(--gray-100);
-    transition: var(--transition-base);
-}
-
-.timeline-item:hover .timeline-content-item {
-    border-color: var(--primary-orange-light);
-    box-shadow: var(--shadow-md);
-}
-
-.timeline-time {
-    font-size: 14px;
-    color: var(--gray-500);
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.timeline-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--gray-800);
-    margin-bottom: 8px;
-}
-
-.timeline-description {
-    font-size: 15px;
-    color: var(--gray-600);
-    line-height: 1.6;
-}
-
-/* 수사 현황 */
-.investigation-status {
-    margin-top: 40px;
-}
-
-.investigation-status h4 {
-    font-size: 20px;
-    color: var(--gray-800);
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.investigation-status h4 i {
-    color: var(--primary-orange);
-}
-
-.status-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-
-.status-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid var(--gray-100);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-base);
-}
-
-.status-item:hover {
-    border-color: var(--primary-orange-light);
-    box-shadow: var(--shadow-md);
-}
-
-.status-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--warning-amber-bg) 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.status-icon i {
-    font-size: 20px;
-    color: var(--primary-orange);
-}
-
-.status-info {
-    flex: 1;
-}
-
-.status-label {
-    font-size: 13px;
-    color: var(--gray-600);
-    margin-bottom: 4px;
-}
-
-.status-value {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--gray-900);
 }
 
 /* ===== 관련 실종자 섹션 ===== */
@@ -1219,28 +955,19 @@ body {
 }
 
 /* ===== 플로팅 버튼 ===== */
-.floating-emergency,
-.floating-back {
+.floating-witness {
     position: fixed;
+    bottom: 24px;
+    right: 24px;
     z-index: 1000;
 }
 
-.floating-emergency {
-    bottom: 24px;
-    right: 24px;
-}
-
-.floating-back {
-    bottom: 24px;
-    left: 24px;
-}
-
-.emergency-btn {
+.witness-floating-btn {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 16px 24px;
-    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     text-decoration: none;
     border-radius: 50px;
@@ -1249,30 +976,10 @@ body {
     transition: var(--transition-base);
 }
 
-.emergency-btn:hover {
+.witness-floating-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
-}
-
-.back-floating-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    background: white;
-    color: var(--gray-700);
-    border-radius: 50%;
-    box-shadow: var(--shadow-lg);
-    transition: var(--transition-base);
-    border: 1px solid var(--gray-200);
-}
-
-.back-floating-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-xl);
-    color: var(--primary-orange);
-    border-color: var(--primary-orange);
+    box-shadow: 0 8px 30px rgba(249, 115, 22, 0.4);
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
 /* ===== 반응형 디자인 ===== */
@@ -1283,19 +990,8 @@ body {
     }
 
     .profile-image-section {
-        position: static;
         max-width: 400px;
         margin: 0 auto;
-    }
-    
-    .location-details {
-        grid-template-columns: 1fr;
-        gap: 30px;
-    }
-    
-    .status-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
     }
 }
 
@@ -1311,19 +1007,8 @@ body {
     
     .profile-actions {
         width: 100%;
-        justify-content: flex-end;
-    }
-    
-    .tabs-navigation {
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 8px;
-    }
-    
-    .tab-btn {
-        flex: 1 1 calc(50% - 4px);
-        padding: 12px 16px;
-        font-size: 14px;
+        flex-direction: row;
+        justify-content: space-around;
     }
     
     .basic-info-grid {
@@ -1362,24 +1047,14 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .floating-emergency {
+    .floating-witness {
         bottom: 16px;
         right: 16px;
     }
     
-    .floating-back {
-        bottom: 16px;
-        left: 16px;
-    }
-    
-    .emergency-btn {
+    .witness-floating-btn {
         padding: 12px 20px;
         font-size: 14px;
-    }
-    
-    .back-floating-btn {
-        width: 48px;
-        height: 48px;
     }
     
     .main-image img {
@@ -1390,19 +1065,8 @@ body {
         font-size: 28px;
     }
     
-    .tab-content {
+    .situation-details {
         padding: 24px;
-    }
-    
-    .timeline {
-        padding-left: 40px;
-    }
-    
-    .timeline-marker {
-        left: -20px;
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
     }
 }
 
@@ -1415,10 +1079,6 @@ body {
         padding: 20px;
     }
     
-    .tab-btn {
-        flex: 1 1 100%;
-    }
-    
     .witness-stats {
         width: 100%;
         justify-content: space-around;
@@ -1428,16 +1088,26 @@ body {
         padding: 8px 12px;
     }
     
-    .emergency-btn span {
+    .witness-floating-btn span {
         display: none;
     }
     
-    .emergency-btn {
+    .witness-floating-btn {
         width: 56px;
         height: 56px;
         padding: 0;
         justify-content: center;
         border-radius: 50%;
+    }
+
+    .recommendation-section {
+        margin-top: 12px;
+    }
+
+    .recommendation-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 14px;
     }
 }
 
