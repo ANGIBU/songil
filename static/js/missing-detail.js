@@ -235,7 +235,7 @@ function handleUpClick() {
 // 추천 버튼 클릭
 function handleRecommendClick() {
     if (recommendClicked) {
-        showNotification('이미 추천하셨습니다.', 'info');
+        showNotification('이미 응원하셨습니다.', 'info');
         return;
     }
     
@@ -279,15 +279,15 @@ function handleRecommendClick() {
             }
         });
         
-        // 하트 파티클 효과
-        createHeartParticleEffect(recommendBtn);
+        // 응원 파티클 효과
+        createSupportParticleEffect(recommendBtn);
     } else {
         // GSAP 없을 때
         recommendCount.textContent = newCount;
     }
     
     // 알림 표시
-    showNotification('추천했습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+    showNotification('응원했습니다! 실종자 찾기에 도움이 됩니다.', 'success');
     
     // 서버에 추천 정보 전송
     sendRecommendToServer(newCount);
@@ -331,8 +331,8 @@ function createParticleEffect(element) {
     }
 }
 
-// 하트 파티클 효과
-function createHeartParticleEffect(element) {
+// 응원 파티클 효과
+function createSupportParticleEffect(element) {
     if (typeof gsap === 'undefined') return;
     
     const rect = element.getBoundingClientRect();
@@ -340,13 +340,13 @@ function createHeartParticleEffect(element) {
     
     for (let i = 0; i < particles; i++) {
         const particle = document.createElement('div');
-        particle.className = 'heart-particle';
-        particle.innerHTML = '<i class="fas fa-heart"></i>';
+        particle.className = 'support-particle';
+        particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
         particle.style.cssText = `
             position: fixed;
             left: ${rect.left + rect.width / 2}px;
             top: ${rect.top + rect.height / 2}px;
-            color: var(--danger-red);
+            color: var(--secondary-green);
             font-size: 16px;
             pointer-events: none;
             z-index: 1000;
@@ -791,7 +791,7 @@ const modalStyles = `
     color: #6b7280;
 }
 
-.up-particle, .heart-particle {
+.up-particle, .support-particle {
     position: fixed;
     pointer-events: none;
 }

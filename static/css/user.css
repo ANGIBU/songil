@@ -374,12 +374,34 @@ body {
     align-items: center;
 }
 
+/* ===== 실종자 기본 정보 섹션 ===== */
+.missing-basic-details {
+    padding: 40px 0;
+    background: var(--gray-50);
+}
+
+.missing-basic-details .section-header {
+    text-align: left;
+    margin-bottom: 32px;
+}
+
+.missing-basic-details .section-header h3 {
+    font-size: 24px;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.missing-basic-details .section-header h3 i {
+    color: var(--primary-orange);
+}
+
 /* 기본 정보 그리드 */
 .basic-info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
-    margin-bottom: 32px;
 }
 
 .info-item {
@@ -387,15 +409,18 @@ body {
     flex-direction: column;
     gap: 8px;
     padding: 16px;
-    background: var(--gray-50);
+    background: white;
     border-radius: 12px;
     border: 1px solid var(--gray-100);
     transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
 }
 
 .info-item:hover {
     border-color: var(--primary-orange-light);
     background: var(--primary-orange-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .info-label {
@@ -424,9 +449,14 @@ body {
     align-items: center;
 }
 
+/* ===== 실종 상황 섹션 ===== */
+.missing-situation-section {
+    padding: 40px 0;
+    background: white;
+}
+
 /* 실종 상황 상세 정보 */
 .situation-details {
-    margin-top: 32px;
     padding: 32px;
     background: var(--gray-50);
     border-radius: 16px;
@@ -1007,8 +1037,11 @@ body {
     
     .profile-actions {
         width: 100%;
-        flex-direction: row;
-        justify-content: space-around;
+        align-items: center;
+    }
+    
+    .action-buttons-row {
+        justify-content: center;
     }
     
     .basic-info-grid {
@@ -1067,6 +1100,14 @@ body {
     
     .situation-details {
         padding: 24px;
+    }
+    
+    .missing-basic-details {
+        padding: 30px 0;
+    }
+    
+    .missing-situation-section {
+        padding: 30px 0;
     }
 }
 
