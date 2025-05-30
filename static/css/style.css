@@ -471,54 +471,231 @@ body.modal-open {
     min-height: calc(100vh - 200px);
 }
 
-/* 실종자 상세 페이지 스타일 */
+/* 실종자 이미지 섹션 */
 .missing-basic-info {
-    padding: var(--spacing-8) 0;
+    padding: var(--spacing-8) 0 var(--spacing-4) 0;
 }
 
 .missing-profile {
     display: flex;
-    gap: var(--spacing-8);
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
 }
 
 .profile-image-section {
-    flex: 0 0 300px;
+    max-width: 400px;
 }
 
-.profile-details {
-    flex: 1;
-    margin-bottom: var(--spacing-2);
+.main-image {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-4);
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.danger-level {
+    position: absolute;
+    top: var(--spacing-3);
+    right: var(--spacing-3);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--white);
+    backdrop-filter: blur(10px);
+}
+
+.danger-level.high {
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+    animation: dangerPulse 2s infinite;
+}
+
+.missing-period {
+    position: absolute;
+    bottom: var(--spacing-3);
+    left: var(--spacing-3);
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--white);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.additional-images {
+    display: flex;
+    gap: var(--spacing-2);
+    justify-content: center;
+}
+
+.image-thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: var(--transition-all);
+}
+
+.image-thumbnail.active {
+    border-color: var(--primary-orange);
+}
+
+.image-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 실종자 타이틀 섹션 */
+.missing-title-section {
+    padding: var(--spacing-6) 0;
+}
+
+.title-container {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-8);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-info h1 {
+    font-size: var(--font-size-3xl);
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-3);
+    font-weight: 700;
+}
+
+.title-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+}
+
+.status-badge {
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--white);
+}
+
+.status-badge.urgent {
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+    animation: dangerPulse 2s infinite;
+}
+
+.report-id {
+    color: var(--gray-600);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+}
+
+.title-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.action-icon-btn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--gray-300);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-all);
+    color: var(--gray-600);
+    font-size: var(--font-size-lg);
+}
+
+.action-icon-btn:hover {
+    background: var(--gray-50);
+    border-color: var(--primary-orange);
+    color: var(--primary-orange);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.recommendation-btn {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3) var(--spacing-6);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    cursor: pointer;
+    transition: var(--transition-all);
+    font-weight: 600;
+    font-size: var(--font-size-base);
+}
+
+.recommendation-btn:hover {
+    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.recommendation-count {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+}
+
+/* 기본 정보 섹션 */
+.basic-info-section {
+    padding: var(--spacing-6) 0;
 }
 
 .basic-info-container {
     background: var(--gray-50);
     border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-6);
-    margin-top: var(--spacing-6);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-8);
     margin-bottom: var(--spacing-20);
-    border-bottom: none;
 }
 
-.basic-info-container::after {
-    display: none;
+.info-header {
+    margin-bottom: var(--spacing-6);
 }
 
-.basic-info-container + hr {
-    display: none;
+.info-header h4 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-xl);
+    color: var(--gray-900);
+    font-weight: 700;
 }
 
 .basic-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-4);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-6);
 }
 
 .info-item {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--spacing-2);
 }
 
 .info-label {
@@ -530,16 +707,28 @@ body.modal-open {
     color: var(--gray-600);
 }
 
+.info-label i {
+    color: var(--primary-orange);
+    width: 16px;
+}
+
 .info-value {
     color: var(--gray-900);
     font-weight: 500;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: var(--font-size-base);
+}
+
+/* 액션 버튼 섹션 */
+.action-buttons-section {
+    padding: var(--spacing-6) 0;
 }
 
 .action-buttons {
     display: flex;
-    gap: var(--spacing-4);
-    margin-top: var(--spacing-6);
+    gap: var(--spacing-6);
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .action-btn {
@@ -547,19 +736,21 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-2);
-    padding: var(--spacing-4) var(--spacing-6);
-    border-radius: var(--radius-lg);
+    gap: var(--spacing-3);
+    padding: var(--spacing-8) var(--spacing-6);
+    border-radius: var(--radius-xl);
     text-decoration: none;
     font-weight: 600;
     transition: var(--transition-all);
     border: none;
     cursor: pointer;
+    font-size: var(--font-size-base);
+    box-shadow: var(--shadow-md);
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .up-btn {
@@ -567,23 +758,49 @@ body.modal-open {
     color: var(--white);
 }
 
+.up-btn:hover {
+    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
+}
+
 .witness-btn {
     background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: var(--white);
 }
 
+.witness-btn:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+}
+
+.action-btn i {
+    font-size: var(--font-size-2xl);
+}
+
 .btn-text {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-lg);
+    font-weight: 700;
 }
 
 .btn-count, .btn-sub-text {
     font-size: var(--font-size-sm);
     opacity: 0.9;
+    font-weight: 500;
 }
 
-/* hr 선 숨김 */
+@keyframes dangerPulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); 
+    }
+    50% { 
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); 
+    }
+}
+
+/* hr 선 마진 증가 */
 hr {
-    display: none;
+    border: none;
+    height: 1px;
+    background: var(--gray-200);
+    margin: var(--spacing-20) 0;
 }
 
 /* 긴급 실종자 섹션 */
@@ -675,38 +892,12 @@ hr {
     transform: scale(1.05);
 }
 
-.danger-level {
-    position: absolute;
-    top: var(--spacing-3);
-    right: var(--spacing-3);
-    padding: var(--spacing-1) var(--spacing-3);
-    border-radius: var(--radius-lg);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--white);
-    backdrop-filter: blur(10px);
-}
-
-.danger-level.high {
-    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-    animation: dangerPulse 2s infinite;
-}
-
 .danger-level.medium {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
 .danger-level.low {
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-}
-
-@keyframes dangerPulse {
-    0%, 100% { 
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); 
-    }
-    50% { 
-        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); 
-    }
 }
 
 .card-content {
@@ -735,33 +926,6 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.up-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    background: var(--secondary-green-soft);
-    border: 1px solid var(--secondary-green-light);
-    color: var(--secondary-green-dark);
-    padding: var(--spacing-2) var(--spacing-3);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: var(--transition-all);
-    font-weight: 500;
-}
-
-.up-btn:hover {
-    background: var(--secondary-green);
-    color: var(--white);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-}
-
-.up-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
 }
 
 .detail-btn {
@@ -1091,27 +1255,24 @@ hr {
         grid-template-columns: 1fr;
     }
     
-    .missing-profile {
+    .title-container {
         flex-direction: column;
-        gap: var(--spacing-6);
+        gap: var(--spacing-4);
+        text-align: center;
     }
     
-    .profile-image-section {
-        flex: none;
-        width: 100%;
+    .title-actions {
+        justify-content: center;
     }
     
     .basic-info-grid {
         grid-template-columns: 1fr;
-        gap: var(--spacing-3);
+        gap: var(--spacing-4);
     }
     
     .action-buttons {
         flex-direction: column;
-    }
-    
-    .profile-details {
-        margin-bottom: var(--spacing-1);
+        gap: var(--spacing-4);
     }
     
     .basic-info-container {
@@ -1153,6 +1314,25 @@ hr {
         grid-template-columns: 1fr;
         grid-template-rows: repeat(8, minmax(250px, auto));
         gap: var(--spacing-2);
+    }
+    
+    .title-info h1 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .title-container {
+        padding: var(--spacing-6);
+    }
+    
+    .action-icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: var(--font-size-base);
+    }
+    
+    .recommendation-btn {
+        padding: var(--spacing-2) var(--spacing-4);
+        font-size: var(--font-size-sm);
     }
 }
 

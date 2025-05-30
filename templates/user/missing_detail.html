@@ -31,104 +31,111 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- 오른쪽: 프로필 상세정보 + 기본정보 -->
-            <div class="profile-details">
-                <div class="profile-header">
-                    <div class="profile-title-section">
-                        <h1>김○○ (32세)</h1>
-                        <div class="profile-status">
-                            <span class="status-badge urgent">수색 중</span>
-                            <span class="report-id">신고번호: #2024-0520-001</span>
-                        </div>
-                    </div>
-                    <div class="profile-actions">
-                        <div class="action-buttons-row">
-                            <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                            <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                        <div class="recommendation-section">
-                            <button class="recommendation-btn" onclick="handleRecommendClick()" title="응원하기">
-                                <i class="fas fa-arrow-up"></i>
-                                <span class="recommendation-count" id="recommendCount">246</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 기본 정보를 오른쪽으로 이동 -->
-                <div class="basic-info-container">
-                    <div class="info-header">
-                        <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
-                    </div>
-                    <div class="basic-info-grid">
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-calendar"></i>
-                                실종일시
-                            </div>
-                            <div class="info-value">2024년 5월 20일 오후 6시경</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-map-marker-alt"></i>
-                                실종장소
-                            </div>
-                            <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-user"></i>
-                                성별/나이
-                            </div>
-                            <div class="info-value">남성 / 32세</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-ruler-vertical"></i>
-                                신체정보
-                            </div>
-                            <div class="info-value">175cm, 중간체형, 단발머리</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-tshirt"></i>
-                                착용의상
-                            </div>
-                            <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">
-                                <i class="fas fa-exclamation-circle"></i>
-                                특이사항
-                            </div>
-                            <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="action-btn up-btn" onclick="handleUpClick()">
-                        <i class="fas fa-arrow-up"></i>
-                        <span class="btn-text">UP</span>
-                        <span class="btn-count" id="upCount">246</span>
-                    </button>
-                    <a href="{{ url_for('missing_report') }}" class="action-btn witness-btn">
-                        <i class="fas fa-eye"></i>
-                        <span class="btn-text">목격 신고하기</span>
-                        <span class="btn-sub-text">예상 포인트: 100~500P</span>
-                    </a>
+        </div>
+    </div>
+</section>
+
+<!-- 실종자 타이틀 및 액션 (완전히 분리된 컨테이너) -->
+<section class="missing-title-section">
+    <div class="container">
+        <div class="title-container">
+            <div class="title-info">
+                <h1>김○○ (32세)</h1>
+                <div class="title-status">
+                    <span class="status-badge urgent">수색 중</span>
+                    <span class="report-id">신고번호: #2024-0520-001</span>
                 </div>
             </div>
+            <div class="title-actions">
+                <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
+                    <i class="far fa-bookmark"></i>
+                </button>
+                <button class="recommendation-btn" onclick="handleRecommendClick()" title="응원하기">
+                    <i class="fas fa-arrow-up"></i>
+                    <span class="recommendation-count" id="recommendCount">246</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 기본 정보 (완전히 분리된 컨테이너) -->
+<section class="basic-info-section">
+    <div class="container">
+        <div class="basic-info-container">
+            <div class="info-header">
+                <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
+            </div>
+            <div class="basic-info-grid">
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-calendar"></i>
+                        실종일시
+                    </div>
+                    <div class="info-value">2024년 5월 20일 오후 6시경</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        실종장소
+                    </div>
+                    <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-user"></i>
+                        성별/나이
+                    </div>
+                    <div class="info-value">남성 / 32세</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-ruler-vertical"></i>
+                        신체정보
+                    </div>
+                    <div class="info-value">175cm, 중간체형, 단발머리</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-tshirt"></i>
+                        착용의상
+                    </div>
+                    <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-exclamation-circle"></i>
+                        특이사항
+                    </div>
+                    <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 액션 버튼 (완전히 분리된 컨테이너) -->
+<section class="action-buttons-section">
+    <div class="container">
+        <div class="action-buttons">
+            <button class="action-btn up-btn" onclick="handleUpClick()">
+                <i class="fas fa-arrow-up"></i>
+                <span class="btn-text">UP</span>
+                <span class="btn-count" id="upCount">246</span>
+            </button>
+            <a href="{{ url_for('missing_report') }}" class="action-btn witness-btn">
+                <i class="fas fa-eye"></i>
+                <span class="btn-text">목격 신고하기</span>
+                <span class="btn-sub-text">예상 포인트: 100~500P</span>
+            </a>
         </div>
     </div>
 </section>
