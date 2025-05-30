@@ -29,6 +29,62 @@
                         <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="실종자 사진 3">
                     </div>
                 </div>
+                
+                <!-- 기본 정보를 사진 아래로 이동 -->
+                <div class="basic-info-container">
+                    <div class="info-header">
+                        <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
+                    </div>
+                    <div class="basic-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar"></i>
+                                실종일시
+                            </div>
+                            <div class="info-value">2024년 5월 20일 오후 6시경</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                실종장소
+                            </div>
+                            <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user"></i>
+                                성별/나이
+                            </div>
+                            <div class="info-value">남성 / 32세</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-ruler-vertical"></i>
+                                신체정보
+                            </div>
+                            <div class="info-value">175cm, 중간체형, 단발머리</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-tshirt"></i>
+                                착용의상
+                            </div>
+                            <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-exclamation-circle"></i>
+                                특이사항
+                            </div>
+                            <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="profile-details">
@@ -57,7 +113,36 @@
                         </div>
                     </div>
                 </div>
-
+                
+                <!-- 실종 상황 및 추가 정보는 원래 자리에 그대로 -->
+                <div class="situation-details">
+                    <div class="content-header">
+                        <h3><i class="fas fa-info-circle"></i> 실종 당시 상황</h3>
+                    </div>
+                    <div class="situation-text">
+                        <p>
+                            김○○씨는 5월 20일 오후 회사에서 퇴근한 후 평소와 같이 지하철을 이용하여 귀가하는 중이었습니다. 
+                            오후 6시경 테헤란로 역삼역 2번 출구 근처에서 동료와 통화한 것이 마지막 연락이었으며, 
+                            이후 가족들의 연락에 응답하지 않고 있습니다.
+                        </p>
+                        <p>
+                            평소 규칙적인 생활을 하며 무단으로 외박을 한 적이 없어 가족들이 매우 걱정하고 있는 상황입니다. 
+                            최근 직장 스트레스로 인해 우울감을 호소했다고 가족이 증언했습니다.
+                        </p>
+                    </div>
+                    
+                    <div class="additional-info">
+                        <h4><i class="fas fa-clipboard-list"></i> 추가 정보</h4>
+                        <ul class="info-list">
+                            <li><i class="fas fa-subway"></i> 평소 이용하는 교통수단: 지하철 2호선</li>
+                            <li><i class="fas fa-building"></i> 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
+                            <li><i class="fas fa-mobile-alt"></i> 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
+                            <li><i class="fas fa-credit-card"></i> 신용카드: 실종 이후 사용 내역 없음</li>
+                            <li><i class="fas fa-heartbeat"></i> 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
+                        </ul>
+                    </div>
+                </div>
+                
                 <div class="action-buttons">
                     <button class="action-btn up-btn" onclick="handleUpClick()">
                         <i class="fas fa-arrow-up"></i>
@@ -75,103 +160,17 @@
     </div>
 </section>
 
-<!-- 실종자 기본 정보 -->
-<section class="missing-basic-details">
+<!-- 가족 메시지만 별도 섹션으로 분리 -->
+<section class="family-message-section">
     <div class="container">
-        <div class="section-header">
-            <h3><i class="fas fa-info-circle"></i> 기본 정보</h3>
-        </div>
-        <div class="basic-info-grid">
-            <div class="info-item">
-                <div class="info-label">
-                    <i class="fas fa-calendar"></i>
-                    실종일시
-                </div>
-                <div class="info-value">2024년 5월 20일 오후 6시경</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">
-                    <i class="fas fa-map-marker-alt"></i>
-                    실종장소
-                </div>
-                <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">
-                    <i class="fas fa-user"></i>
-                    성별/나이
-                </div>
-                <div class="info-value">남성 / 32세</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">
-                    <i class="fas fa-ruler-vertical"></i>
-                    신체정보
-                </div>
-                <div class="info-value">175cm, 중간체형, 단발머리</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">
-                    <i class="fas fa-tshirt"></i>
-                    착용의상
-                </div>
-                <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
-            </div>
-            
-            <div class="info-item">
-                <div class="info-label">
-                    <i class="fas fa-exclamation-circle"></i>
-                    특이사항
-                </div>
-                <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 실종 상황 상세 정보 -->
-<section class="missing-situation-section">
-    <div class="container">
-        <div class="situation-details">
-            <div class="content-header">
-                <h3><i class="fas fa-info-circle"></i> 실종 당시 상황</h3>
-            </div>
-            <div class="situation-text">
-                <p>
-                    김○○씨는 5월 20일 오후 회사에서 퇴근한 후 평소와 같이 지하철을 이용하여 귀가하는 중이었습니다. 
-                    오후 6시경 테헤란로 역삼역 2번 출구 근처에서 동료와 통화한 것이 마지막 연락이었으며, 
-                    이후 가족들의 연락에 응답하지 않고 있습니다.
-                </p>
-                <p>
-                    평소 규칙적인 생활을 하며 무단으로 외박을 한 적이 없어 가족들이 매우 걱정하고 있는 상황입니다. 
-                    최근 직장 스트레스로 인해 우울감을 호소했다고 가족이 증언했습니다.
-                </p>
-            </div>
-            
-            <div class="additional-info">
-                <h4><i class="fas fa-clipboard-list"></i> 추가 정보</h4>
-                <ul class="info-list">
-                    <li><i class="fas fa-subway"></i> 평소 이용하는 교통수단: 지하철 2호선</li>
-                    <li><i class="fas fa-building"></i> 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
-                    <li><i class="fas fa-mobile-alt"></i> 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
-                    <li><i class="fas fa-credit-card"></i> 신용카드: 실종 이후 사용 내역 없음</li>
-                    <li><i class="fas fa-heartbeat"></i> 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
-                </ul>
-            </div>
-            
-            <div class="family-message">
-                <h4><i class="fas fa-comment-dots"></i> 가족 메시지</h4>
-                <blockquote>
-                    "김○○은 책임감이 강하고 가족을 사랑하는 사람입니다. 
-                    혹시 어디서든 보신다면 꼭 연락 부탁드립니다. 
-                    우리는 항상 기다리고 있습니다."
-                    <cite>- 가족 일동</cite>
-                </blockquote>
-            </div>
+        <div class="family-message">
+            <h4><i class="fas fa-comment-dots"></i> 가족 메시지</h4>
+            <blockquote>
+                "김○○은 책임감이 강하고 가족을 사랑하는 사람입니다. 
+                혹시 어디서든 보신다면 꼭 연락 부탁드립니다. 
+                우리는 항상 기다리고 있습니다."
+                <cite>- 가족 일동</cite>
+            </blockquote>
         </div>
     </div>
 </section>
