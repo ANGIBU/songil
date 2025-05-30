@@ -1,22 +1,22 @@
 /* static/css/user.css */
 
-/* ===== 색상 변수 정의 - 통일된 디자인 시스템 ===== */
+/* ===== 색상 변수 정의 - PDF 디자인 시스템 기준 ===== */
 :root {
-    /* Primary Colors - Orange Theme */
+    /* Primary Colors - Orange Theme (PDF 기준) */
     --primary-orange: #f97316;
     --primary-orange-light: #fb923c;
     --primary-orange-dark: #ea580c;
     --primary-orange-soft: #fed7aa;
     --primary-orange-bg: #fff7ed;
     
-    /* Secondary Colors */
+    /* Secondary Colors (PDF 기준) */
     --secondary-green: #22c55e;
     --secondary-green-light: #4ade80;
     --secondary-green-dark: #16a34a;
     --secondary-green-soft: #bbf7d0;
     --secondary-green-bg: #f0fdf4;
     
-    /* Status Colors */
+    /* Status Colors (PDF 기준) */
     --danger-red: #ef4444;
     --danger-red-light: #f87171;
     --danger-red-dark: #dc2626;
@@ -47,6 +47,12 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* Border Radius (PDF 기준) */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 15px;
+    --radius-xl: 20px;
     
     /* Transitions */
     --transition-fast: all 0.15s ease;
@@ -86,7 +92,7 @@ body {
     min-width: 160px;
     height: 80px;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-size: 16px;
     font-weight: 600;
     text-decoration: none;
@@ -146,7 +152,7 @@ body {
 .action-icon-btn {
     width: 44px;
     height: 44px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 2px solid var(--gray-200);
     background: white;
     color: var(--gray-600);
@@ -188,12 +194,16 @@ body {
 /* 프로필 이미지 섹션 */
 .profile-image-section {
     position: static;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    width: 100%;
 }
 
 .main-image {
     position: relative;
     margin-bottom: 20px;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     overflow: hidden;
     box-shadow: var(--shadow-xl);
 }
@@ -236,7 +246,7 @@ body {
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 14px;
     font-weight: 500;
     backdrop-filter: blur(10px);
@@ -252,7 +262,7 @@ body {
 .image-thumbnail {
     width: 80px;
     height: 80px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     cursor: pointer;
     border: 3px solid transparent;
@@ -275,21 +285,26 @@ body {
     object-fit: cover;
 }
 
-/* 왼쪽 기본 정보 컨테이너 */
+/* 왼쪽 기본 정보 컨테이너 - 미니멀 & 클린 디자인 */
 .basic-info-container {
     background: white;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     padding: 24px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--gray-100);
     margin-top: 20px;
     width: 100%;
     min-height: 200px;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    position: relative;
 }
 
 .info-header {
     margin-bottom: 20px;
     display: block;
+    visibility: visible;
 }
 
 .info-header h4 {
@@ -300,11 +315,13 @@ body {
     gap: 8px;
     margin: 0;
     font-weight: 600;
+    visibility: visible;
 }
 
 .info-header h4 i {
     color: var(--primary-orange);
     font-size: 16px;
+    display: inline-block;
 }
 
 .basic-info-grid {
@@ -312,6 +329,7 @@ body {
     grid-template-columns: 1fr;
     gap: 16px;
     width: 100%;
+    visibility: visible;
 }
 
 .info-item {
@@ -320,14 +338,19 @@ body {
     gap: 8px;
     padding: 16px;
     background: var(--gray-50);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
     transition: var(--transition-base);
+    visibility: visible;
+    opacity: 1;
+    min-height: 80px;
 }
 
 .info-item:hover {
     border-color: var(--primary-orange-light);
     background: var(--primary-orange-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
 .info-label {
@@ -337,23 +360,27 @@ body {
     font-size: 13px;
     font-weight: 600;
     color: var(--gray-600);
+    visibility: visible;
 }
 
 .info-label i {
     color: var(--primary-orange);
     font-size: 16px;
+    display: inline-block;
 }
 
 .info-value {
     font-size: 15px;
     color: var(--gray-800);
     font-weight: 500;
+    visibility: visible;
+    line-height: 1.4;
 }
 
 /* 프로필 상세 정보 */
 .profile-details {
     background: white;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     padding: 32px;
     box-shadow: var(--shadow-lg);
 }
@@ -424,7 +451,7 @@ body {
     gap: 4px;
     width: 60px;
     height: 60px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 2px solid var(--gray-200);
     background: white;
     color: var(--gray-600);
@@ -465,7 +492,7 @@ body {
     margin-top: 32px;
     padding: 32px;
     background: var(--gray-50);
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     border: 1px solid var(--gray-100);
 }
 
@@ -506,7 +533,7 @@ body {
     margin-top: 32px;
     padding: 24px;
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
 }
 
@@ -556,7 +583,7 @@ body {
 .family-message {
     padding: 32px;
     background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--warning-amber-bg) 100%);
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     border: 1px solid var(--primary-orange-light);
     box-shadow: var(--shadow-lg);
 }
@@ -627,7 +654,7 @@ body {
     text-align: center;
     padding: 12px 20px;
     background: var(--gray-50);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
     box-shadow: var(--shadow-sm);
 }
@@ -666,7 +693,7 @@ body {
     gap: 24px;
     padding: 24px;
     background: var(--gray-50);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     border: 2px solid var(--gray-100);
     transition: var(--transition-base);
 }
@@ -750,7 +777,7 @@ body {
     color: var(--gray-700);
     background: white;
     padding: 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--gray-100);
 }
 
@@ -796,7 +823,7 @@ body {
 /* CTA 섹션 */
 .witness-cta {
     background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--warning-amber-bg) 100%);
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     padding: 40px;
     text-align: center;
     border: 1px solid var(--primary-orange-light);
@@ -844,7 +871,7 @@ body {
     background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
     color: white;
     text-decoration: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-weight: 600;
     font-size: 16px;
     transition: var(--transition-base);
@@ -895,7 +922,7 @@ body {
 
 .missing-card {
     background: white;
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
     overflow: hidden;
     box-shadow: var(--shadow-lg);
     transition: var(--transition-base);
