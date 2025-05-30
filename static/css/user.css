@@ -127,10 +127,29 @@ body {
     opacity: 0.9;
 }
 
-/* UP 버튼 스타일 */
+/* UP 버튼 스타일 - 가운데 정렬 수정 */
 .up-btn {
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
     color: white;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.up-btn .btn-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.up-btn .btn-count {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .up-btn:hover {
@@ -188,13 +207,29 @@ body {
     display: grid;
     grid-template-columns: 400px 1fr;
     gap: 40px;
-    align-items: stretch;
+    align-items: start;
 }
 
-/* 프로필 이미지 섹션 */
+/* 프로필 이미지 섹션 - 기본 정보 제거 */
 .profile-image-section {
     width: 100%;
     display: block;
+}
+
+/* 기본 정보를 오른쪽으로 이동 */
+.profile-details .basic-info-container {
+    background: var(--gray-50);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: none;
+    border: 1px solid var(--gray-100);
+    margin-top: 20px;
+    width: 100%;
+    min-height: auto;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
 }
 
 .main-image {
@@ -282,14 +317,14 @@ body {
     object-fit: cover;
 }
 
-/* ===== 기본 정보 컨테이너 수정 ===== */
+/* ===== 기본 정보 컨테이너 수정 (오른쪽으로 이동) ===== */
 .basic-info-container {
-    background: white;
+    background: var(--gray-50);
     border-radius: var(--radius-xl);
     padding: 24px;
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
     border: 1px solid var(--gray-100);
-    margin-top: 12px;
+    margin-top: 20px;
     width: 100%;
     min-height: auto;
     display: block !important;
@@ -389,20 +424,16 @@ body {
 .profile-details {
     background: white;
     border-radius: var(--radius-xl);
-    padding: 32px;
+    padding: 28px;
     box-shadow: var(--shadow-lg);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 100%;
 }
 
 .profile-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
     border-bottom: 2px solid var(--gray-100);
 }
 
@@ -410,7 +441,7 @@ body {
     font-size: 36px;
     font-weight: 700;
     color: var(--gray-900);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .profile-status {
@@ -454,23 +485,24 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    align-self: flex-end;
 }
 
 .recommendation-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    width: 60px;
-    height: 60px;
+    gap: 2px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
     border: 2px solid var(--gray-200);
     background: white;
     color: var(--gray-600);
     cursor: pointer;
     transition: var(--transition-base);
-    font-size: 16px;
-    padding: 8px;
+    font-size: 14px;
+    padding: 4px;
 }
 
 .recommendation-btn:hover {
@@ -488,7 +520,7 @@ body {
 }
 
 .recommendation-count {
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
     line-height: 1;
 }
@@ -497,23 +529,46 @@ body {
     display: flex;
     gap: 16px;
     align-items: center;
-    margin-top: auto;
+    margin-top: 24px;
     padding-top: 20px;
+    border-top: 1px solid var(--gray-100);
 }
 
-/* 실종 상황 상세 정보 */
+/* ===== 실종 상황 섹션 (새로 추가) ===== */
+.situation-section {
+    padding: 40px 0;
+    background: white;
+}
+
+.situation-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 실종 상황 상세 정보 - 독립 섹션으로 변경 */
 .situation-details {
-    margin-top: 24px;
-    padding: 24px;
+    padding: 32px;
     background: var(--gray-50);
     border-radius: var(--radius-xl);
     border: 1px solid var(--gray-100);
-    flex-grow: 1;
+    box-shadow: var(--shadow-md);
+}
+
+/* 추가 정보 스타일 - 독립 섹션으로 변경 */
+.additional-info {
+    padding: 32px;
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-100);
+    box-shadow: var(--shadow-md);
 }
 
 .content-header {
-    margin-bottom: 20px;
-    padding-bottom: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
     border-bottom: 2px solid var(--gray-100);
 }
 
@@ -530,7 +585,7 @@ body {
 }
 
 .situation-text {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .situation-text p {
@@ -543,19 +598,12 @@ body {
     margin-bottom: 0;
 }
 
-/* 추가 정보 스타일 */
-.additional-info {
-    margin-top: 24px;
-    padding: 20px;
-    background: white;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-100);
-}
+
 
 .additional-info h4 {
     font-size: 18px;
     color: var(--gray-800);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1078,6 +1126,11 @@ body {
         margin: 0 auto;
     }
     
+    .situation-content {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
     .basic-info-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
@@ -1089,9 +1142,21 @@ body {
         padding: 0 16px;
     }
     
+    .situation-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .situation-details,
+    .additional-info {
+        padding: 24px;
+    }
+    
     .profile-header {
         flex-direction: column;
         gap: 16px;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
     }
     
     .profile-actions {
@@ -1157,10 +1222,6 @@ body {
         font-size: 28px;
     }
     
-    .situation-details {
-        padding: 20px;
-    }
-    
     .family-message {
         padding: 24px;
     }
@@ -1172,7 +1233,7 @@ body {
     }
     
     .profile-details {
-        padding: 20px;
+        padding: 18px;
     }
     
     .witness-stats {
@@ -1201,9 +1262,9 @@ body {
     }
 
     .recommendation-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 14px;
+        width: 40px;
+        height: 40px;
+        font-size: 12px;
     }
     
     .family-message-section {
