@@ -8,28 +8,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- 실종자 상세 헤더 -->
-<section class="missing-detail-header">
-    <div class="container">
-        <div class="detail-navigation">
-            <a href="{{ url_for('search') }}" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                목록으로 돌아가기
-            </a>
-            <div class="detail-actions">
-                <button class="share-btn" onclick="shareContent()">
-                    <i class="fas fa-share-alt"></i>
-                    공유하기
-                </button>
-                <button class="bookmark-btn" onclick="toggleBookmark()">
-                    <i class="fas fa-bookmark"></i>
-                    관심등록
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- 실종자 기본 정보 -->
 <section class="missing-basic-info">
     <div class="container">
@@ -55,10 +33,20 @@
             
             <div class="profile-details">
                 <div class="profile-header">
-                    <h1>김○○ (32세)</h1>
-                    <div class="profile-status">
-                        <span class="status-badge urgent">수색 중</span>
-                        <span class="report-id">신고번호: #2024-0520-001</span>
+                    <div class="profile-title-section">
+                        <h1>김○○ (32세)</h1>
+                        <div class="profile-status">
+                            <span class="status-badge urgent">수색 중</span>
+                            <span class="report-id">신고번호: #2024-0520-001</span>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
+                            <i class="far fa-bookmark"></i>
+                        </button>
                     </div>
                 </div>
                 
@@ -113,14 +101,15 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="up-btn large" onclick="handleUpClick()">
+                    <button class="action-btn up-btn" onclick="handleUpClick()">
                         <i class="fas fa-arrow-up"></i>
-                        UP <span id="upCount">246</span>
+                        <span class="btn-text">UP</span>
+                        <span class="btn-count" id="upCount">246</span>
                     </button>
-                    <a href="{{ url_for('witness_report', missing_id=missing_id) }}" class="witness-btn">
+                    <a href="{{ url_for('witness_report', missing_id=missing_id) }}" class="action-btn witness-btn">
                         <i class="fas fa-eye"></i>
-                        목격 신고하기
-                        <span class="expected-points">예상 포인트: 100~500P</span>
+                        <span class="btn-text">목격 신고하기</span>
+                        <span class="btn-sub-text">예상 포인트: 100~500P</span>
                     </a>
                 </div>
             </div>
@@ -153,7 +142,9 @@
         <!-- 실종 상황 탭 -->
         <div class="tab-content active" id="situationTab">
             <div class="situation-content">
-                <h3>실종 당시 상황</h3>
+                <div class="content-header">
+                    <h3><i class="fas fa-info-circle"></i> 실종 당시 상황</h3>
+                </div>
                 <div class="situation-text">
                     <p>
                         김○○씨는 5월 20일 오후 회사에서 퇴근한 후 평소와 같이 지하철을 이용하여 귀가하는 중이었습니다. 
@@ -167,18 +158,18 @@
                 </div>
                 
                 <div class="additional-info">
-                    <h4>추가 정보</h4>
-                    <ul>
-                        <li>• 평소 이용하는 교통수단: 지하철 2호선</li>
-                        <li>• 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
-                        <li>• 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
-                        <li>• 신용카드: 실종 이후 사용 내역 없음</li>
-                        <li>• 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
+                    <h4><i class="fas fa-clipboard-list"></i> 추가 정보</h4>
+                    <ul class="info-list">
+                        <li><i class="fas fa-subway"></i> 평소 이용하는 교통수단: 지하철 2호선</li>
+                        <li><i class="fas fa-building"></i> 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
+                        <li><i class="fas fa-mobile-alt"></i> 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
+                        <li><i class="fas fa-credit-card"></i> 신용카드: 실종 이후 사용 내역 없음</li>
+                        <li><i class="fas fa-heartbeat"></i> 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
                     </ul>
                 </div>
                 
                 <div class="family-message">
-                    <h4>가족 메시지</h4>
+                    <h4><i class="fas fa-comment-dots"></i> 가족 메시지</h4>
                     <blockquote>
                         "김○○은 책임감이 강하고 가족을 사랑하는 사람입니다. 
                         혹시 어디서든 보신다면 꼭 연락 부탁드립니다. 
@@ -193,23 +184,35 @@
         <div class="tab-content" id="witnessTab">
             <div class="witness-reports">
                 <div class="witness-header">
-                    <h3>목격 신고 현황</h3>
+                    <h3><i class="fas fa-eye"></i> 목격 신고 현황</h3>
                     <div class="witness-stats">
-                        <span class="stat">총 <strong>7건</strong></span>
-                        <span class="stat">검토 중 <strong>3건</strong></span>
-                        <span class="stat">승인 <strong>4건</strong></span>
+                        <div class="stat-item">
+                            <span class="stat-label">총 신고</span>
+                            <span class="stat-value">7건</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">검토 중</span>
+                            <span class="stat-value pending">3건</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">승인</span>
+                            <span class="stat-value verified">4건</span>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="witness-list">
                     <div class="witness-item verified">
-                        <div class="witness-status">
+                        <div class="witness-badge">
                             <i class="fas fa-check-circle"></i>
                             <span>승인됨</span>
                         </div>
                         <div class="witness-info">
                             <div class="witness-details">
-                                <div class="witness-time">5월 20일 오후 6시 15분</div>
+                                <div class="witness-time">
+                                    <i class="fas fa-clock"></i>
+                                    5월 20일 오후 6시 15분
+                                </div>
                                 <div class="witness-location">
                                     <i class="fas fa-map-marker-alt"></i>
                                     역삼역 2번 출구 근처 편의점 앞
@@ -220,19 +223,29 @@
                                 </div>
                             </div>
                             <div class="witness-reliability">
-                                신뢰도: <span class="high">높음</span>
+                                <span class="reliability-label">신뢰도</span>
+                                <div class="reliability-stars high">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="witness-item verified">
-                        <div class="witness-status">
+                        <div class="witness-badge">
                             <i class="fas fa-check-circle"></i>
                             <span>승인됨</span>
                         </div>
                         <div class="witness-info">
                             <div class="witness-details">
-                                <div class="witness-time">5월 20일 오후 6시 30분</div>
+                                <div class="witness-time">
+                                    <i class="fas fa-clock"></i>
+                                    5월 20일 오후 6시 30분
+                                </div>
                                 <div class="witness-location">
                                     <i class="fas fa-map-marker-alt"></i>
                                     강남역 지하 2층 푸드코트 입구
@@ -243,22 +256,32 @@
                                 </div>
                             </div>
                             <div class="witness-reliability">
-                                신뢰도: <span class="medium">보통</span>
+                                <span class="reliability-label">신뢰도</span>
+                                <div class="reliability-stars medium">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="witness-item pending">
-                        <div class="witness-status">
+                        <div class="witness-badge pending">
                             <i class="fas fa-clock"></i>
                             <span>검토 중</span>
                         </div>
                         <div class="witness-info">
                             <div class="witness-details">
-                                <div class="witness-time">5월 21일 오전 8시</div>
+                                <div class="witness-time">
+                                    <i class="fas fa-clock"></i>
+                                    5월 21일 오전 8시
+                                </div>
                                 <div class="witness-location">
                                     <i class="fas fa-map-marker-alt"></i>
-                                    한강공園 반포대교 근처
+                                    한강공원 반포대교 근처
                                 </div>
                                 <div class="witness-description">
                                     "정장 입은 남성이 한강을 바라보며 서 있었습니다. 
@@ -266,7 +289,11 @@
                                 </div>
                             </div>
                             <div class="witness-reliability">
-                                신뢰도: <span class="pending">검토중</span>
+                                <span class="reliability-label">신뢰도</span>
+                                <div class="reliability-stars pending">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    검토중
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -274,9 +301,14 @@
                 
                 <div class="witness-cta">
                     <div class="cta-content">
-                        <h4>목격하셨나요?</h4>
-                        <p>작은 정보도 큰 도움이 됩니다. 목격 정보를 신고해주세요.</p>
-                        <a href="{{ url_for('witness_report', missing_id=missing_id) }}" class="btn btn-primary">
+                        <div class="cta-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <div class="cta-text">
+                            <h4>목격하셨나요?</h4>
+                            <p>작은 정보도 큰 도움이 됩니다. 목격 정보를 신고해주세요.</p>
+                        </div>
+                        <a href="{{ url_for('witness_report', missing_id=missing_id) }}" class="cta-btn">
                             <i class="fas fa-plus"></i>
                             목격 정보 신고하기
                         </a>
@@ -288,7 +320,9 @@
         <!-- 실종 위치 탭 -->
         <div class="tab-content" id="locationTab">
             <div class="location-content">
-                <h3>실종 위치 및 주변 정보</h3>
+                <div class="content-header">
+                    <h3><i class="fas fa-map-marked-alt"></i> 실종 위치 및 주변 정보</h3>
+                </div>
                 <div class="map-container">
                     <div id="missing-map" class="map-placeholder">
                         <i class="fas fa-map-marked-alt"></i>
@@ -299,24 +333,30 @@
                 
                 <div class="location-details">
                     <div class="location-info">
-                        <h4>주요 위치 정보</h4>
+                        <h4><i class="fas fa-location-arrow"></i> 주요 위치 정보</h4>
                         <div class="location-list">
                             <div class="location-item primary">
-                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="location-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
                                 <div class="location-text">
                                     <strong>최종 목격 지점</strong>
                                     <p>역삼역 2번 출구 (2024.05.20 18:15)</p>
                                 </div>
                             </div>
                             <div class="location-item">
-                                <i class="fas fa-building"></i>
+                                <div class="location-icon">
+                                    <i class="fas fa-building"></i>
+                                </div>
                                 <div class="location-text">
                                     <strong>직장</strong>
                                     <p>테헤란로 ○○빌딩 (평소 퇴근 경로)</p>
                                 </div>
                             </div>
                             <div class="location-item">
-                                <i class="fas fa-home"></i>
+                                <div class="location-icon">
+                                    <i class="fas fa-home"></i>
+                                </div>
                                 <div class="location-text">
                                     <strong>자택</strong>
                                     <p>강남구 대치동 (평소 거주지)</p>
@@ -326,12 +366,12 @@
                     </div>
                     
                     <div class="nearby-info">
-                        <h4>주변 시설</h4>
-                        <ul>
-                            <li>• CCTV 설치: 역삼역 출구, 주요 건물 입구</li>
-                            <li>• 병원: 강남성심병원 (0.5km)</li>
-                            <li>• 경찰서: 강남경찰서 (1.2km)</li>
-                            <li>• 대중교통: 지하철 2호선, 버스 정류장 다수</li>
+                        <h4><i class="fas fa-info-circle"></i> 주변 시설</h4>
+                        <ul class="nearby-list">
+                            <li><i class="fas fa-video"></i> CCTV 설치: 역삼역 출구, 주요 건물 입구</li>
+                            <li><i class="fas fa-hospital"></i> 병원: 강남성심병원 (0.5km)</li>
+                            <li><i class="fas fa-shield-alt"></i> 경찰서: 강남경찰서 (1.2km)</li>
+                            <li><i class="fas fa-bus"></i> 대중교통: 지하철 2호선, 버스 정류장 다수</li>
                         </ul>
                     </div>
                 </div>
@@ -341,7 +381,9 @@
         <!-- 수사 진행 탭 -->
         <div class="tab-content" id="timelineTab">
             <div class="timeline-content">
-                <h3>수사 진행 현황</h3>
+                <div class="content-header">
+                    <h3><i class="fas fa-tasks"></i> 수사 진행 현황</h3>
+                </div>
                 <div class="timeline">
                     <div class="timeline-item completed">
                         <div class="timeline-marker">
@@ -400,23 +442,43 @@
                 </div>
                 
                 <div class="investigation-status">
-                    <h4>현재 수사 현황</h4>
+                    <h4><i class="fas fa-chart-line"></i> 현재 수사 현황</h4>
                     <div class="status-grid">
                         <div class="status-item">
-                            <div class="status-label">담당 기관</div>
-                            <div class="status-value">강남경찰서 실종수사팀</div>
+                            <div class="status-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">담당 기관</div>
+                                <div class="status-value">강남경찰서 실종수사팀</div>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <div class="status-label">수사 진행률</div>
-                            <div class="status-value">65%</div>
+                            <div class="status-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">수사 진행률</div>
+                                <div class="status-value">65%</div>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <div class="status-label">CCTV 분석</div>
-                            <div class="status-value">20개소 완료</div>
+                            <div class="status-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">CCTV 분석</div>
+                                <div class="status-value">20개소 완료</div>
+                            </div>
                         </div>
                         <div class="status-item">
-                            <div class="status-label">목격자 조사</div>
-                            <div class="status-value">4명 조사 완료</div>
+                            <div class="status-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-label">목격자 조사</div>
+                                <div class="status-value">4명 조사 완료</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -428,8 +490,10 @@
 <!-- 관련 실종자 -->
 <section class="related-missing">
     <div class="container">
-        <h3>유사 실종자</h3>
-        <p>비슷한 조건의 다른 실종자들을 확인해보세요</p>
+        <div class="section-header">
+            <h3><i class="fas fa-users"></i> 유사 실종자</h3>
+            <p>비슷한 조건의 다른 실종자들을 확인해보세요</p>
+        </div>
         
         <div class="related-cards">
             <div class="missing-card">
@@ -441,8 +505,15 @@
                     <h4>이○○ (28세)</h4>
                     <p class="location"><i class="fas fa-map-marker-alt"></i> 강남구 일대</p>
                     <p class="date"><i class="fas fa-calendar"></i> 2024.05.18 실종</p>
+                    <div class="card-stats">
+                        <span class="stat"><i class="fas fa-arrow-up"></i> 182</span>
+                        <span class="stat"><i class="fas fa-eye"></i> 5건</span>
+                    </div>
                 </div>
-                <a href="#" class="detail-link">상세보기</a>
+                <a href="#" class="detail-link">
+                    상세보기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
             
             <div class="missing-card">
@@ -454,8 +525,15 @@
                     <h4>박○○ (35세)</h4>
                     <p class="location"><i class="fas fa-map-marker-alt"></i> 서초구 일대</p>
                     <p class="date"><i class="fas fa-calendar"></i> 2024.05.19 실종</p>
+                    <div class="card-stats">
+                        <span class="stat"><i class="fas fa-arrow-up"></i> 156</span>
+                        <span class="stat"><i class="fas fa-eye"></i> 3건</span>
+                    </div>
                 </div>
-                <a href="#" class="detail-link">상세보기</a>
+                <a href="#" class="detail-link">
+                    상세보기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
             
             <div class="missing-card">
@@ -467,8 +545,15 @@
                     <h4>정○○ (30세)</h4>
                     <p class="location"><i class="fas fa-map-marker-alt"></i> 송파구 일대</p>
                     <p class="date"><i class="fas fa-calendar"></i> 2024.05.21 실종</p>
+                    <div class="card-stats">
+                        <span class="stat"><i class="fas fa-arrow-up"></i> 224</span>
+                        <span class="stat"><i class="fas fa-eye"></i> 8건</span>
+                    </div>
                 </div>
-                <a href="#" class="detail-link">상세보기</a>
+                <a href="#" class="detail-link">
+                    상세보기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
     </div>
@@ -479,6 +564,13 @@
     <a href="tel:112" class="emergency-btn">
         <i class="fas fa-phone"></i>
         <span>긴급신고 112</span>
+    </a>
+</div>
+
+<!-- 뒤로가기 플로팅 버튼 -->
+<div class="floating-back">
+    <a href="{{ url_for('search') }}" class="back-floating-btn">
+        <i class="fas fa-arrow-left"></i>
     </a>
 </div>
 {% endblock %}
