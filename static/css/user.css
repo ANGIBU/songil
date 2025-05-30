@@ -188,16 +188,13 @@ body {
     display: grid;
     grid-template-columns: 400px 1fr;
     gap: 40px;
-    align-items: start;
+    align-items: stretch;
 }
 
 /* 프로필 이미지 섹션 */
 .profile-image-section {
-    position: static;
-    display: block;
-    visibility: visible;
-    opacity: 1;
     width: 100%;
+    display: block;
 }
 
 .main-image {
@@ -256,7 +253,7 @@ body {
     display: flex;
     gap: 12px;
     justify-content: center;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .image-thumbnail {
@@ -285,55 +282,59 @@ body {
     object-fit: cover;
 }
 
-/* 왼쪽 기본 정보 컨테이너 - 미니멀 & 클린 디자인 */
+/* ===== 기본 정보 컨테이너 수정 ===== */
 .basic-info-container {
     background: white;
     border-radius: var(--radius-xl);
     padding: 24px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--gray-100);
-    margin-top: 20px;
+    margin-top: 12px;
     width: 100%;
-    min-height: 200px;
-    display: block;
-    visibility: visible;
-    opacity: 1;
+    min-height: auto;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     position: relative;
 }
 
 .info-header {
     margin-bottom: 20px;
-    display: block;
-    visibility: visible;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .info-header h4 {
     font-size: 18px;
     color: var(--gray-900);
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 8px;
     margin: 0;
     font-weight: 600;
-    visibility: visible;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .info-header h4 i {
     color: var(--primary-orange);
     font-size: 16px;
-    display: inline-block;
+    display: inline-block !important;
+    visibility: visible !important;
 }
 
 .basic-info-grid {
-    display: grid;
+    display: grid !important;
     grid-template-columns: 1fr;
     gap: 16px;
     width: 100%;
-    visibility: visible;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .info-item {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     gap: 8px;
     padding: 16px;
@@ -341,9 +342,10 @@ body {
     border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
     transition: var(--transition-base);
-    visibility: visible;
-    opacity: 1;
-    min-height: 80px;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: auto;
+    position: relative;
 }
 
 .info-item:hover {
@@ -354,27 +356,33 @@ body {
 }
 
 .info-label {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: 8px;
     font-size: 13px;
     font-weight: 600;
     color: var(--gray-600);
-    visibility: visible;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .info-label i {
     color: var(--primary-orange);
     font-size: 16px;
-    display: inline-block;
+    display: inline-block !important;
+    visibility: visible !important;
+    width: 16px;
+    text-align: center;
 }
 
 .info-value {
     font-size: 15px;
     color: var(--gray-800);
     font-weight: 500;
-    visibility: visible;
+    visibility: visible !important;
+    opacity: 1 !important;
     line-height: 1.4;
+    display: block !important;
 }
 
 /* 프로필 상세 정보 */
@@ -383,14 +391,18 @@ body {
     border-radius: var(--radius-xl);
     padding: 32px;
     box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100%;
 }
 
 .profile-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
     border-bottom: 2px solid var(--gray-100);
 }
 
@@ -485,19 +497,22 @@ body {
     display: flex;
     gap: 16px;
     align-items: center;
+    margin-top: auto;
+    padding-top: 20px;
 }
 
 /* 실종 상황 상세 정보 */
 .situation-details {
-    margin-top: 32px;
-    padding: 32px;
+    margin-top: 24px;
+    padding: 24px;
     background: var(--gray-50);
     border-radius: var(--radius-xl);
     border: 1px solid var(--gray-100);
+    flex-grow: 1;
 }
 
 .content-header {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 2px solid var(--gray-100);
 }
@@ -515,7 +530,7 @@ body {
 }
 
 .situation-text {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .situation-text p {
@@ -530,8 +545,8 @@ body {
 
 /* 추가 정보 스타일 */
 .additional-info {
-    margin-top: 32px;
-    padding: 24px;
+    margin-top: 24px;
+    padding: 20px;
     background: white;
     border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
@@ -1089,7 +1104,7 @@ body {
     }
     
     .basic-info-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 16px;
     }
     
@@ -1143,7 +1158,7 @@ body {
     }
     
     .situation-details {
-        padding: 24px;
+        padding: 20px;
     }
     
     .family-message {
