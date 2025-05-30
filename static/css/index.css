@@ -1,210 +1,12 @@
 /* static/css/index.css */
 
-/* ===== 홈페이지 전용 스타일 ===== */
+/* ===== 홈페이지 전용 스타일 (애니메이션 제거) ===== */
 
 /* CSS 변수 상속 확인 */
 /* 
 이 파일은 style.css의 CSS 변수를 상속받습니다.
 style.css를 먼저 로드해야 정상적으로 작동합니다.
 */
-
-/* 초기 애니메이션 준비 상태 - 원래대로 완전히 숨김 */
-.hero-title,
-.hero-description,
-.hero-buttons,
-.ranking-display,
-.urgent-cards,
-.section-header {
-    /* GSAP 애니메이션을 위한 초기 상태 - 완전히 숨김 */
-    opacity: 0;
-    transform: translateY(30px);
-    visibility: hidden;
-}
-
-/* 중요한 섹션들도 완전히 숨김 - 드라마틱한 등장 효과 */
-.intro-text h2,
-.intro-steps,
-.step,
-.stats-grid,
-.stat-item {
-    /* 완전히 숨김 상태에서 시작 */
-    opacity: 0;
-    transform: translateY(30px);
-    visibility: hidden;
-    transition: all 0.6s ease;
-}
-
-/* 통계 섹션 - 스크롤 감지 전까지 완전 숨김 */
-.stats-section {
-    /* 통계 섹션 전체 초기 숨김 */
-    opacity: 0;
-    transform: translateY(50px);
-    visibility: hidden;
-    transition: all 0.8s ease;
-}
-
-.stats-section .container {
-    /* 컨테이너도 초기 숨김 */
-    opacity: 0;
-    transform: translateY(30px);
-    visibility: hidden;
-    transition: all 0.6s ease 0.2s;
-}
-
-.stats-section h2 {
-    /* 제목 초기 숨김 */
-    opacity: 0;
-    transform: translateY(20px);
-    visibility: hidden;
-    transition: all 0.6s ease 0.3s;
-}
-
-.hope-message {
-    /* 희망 메시지 초기 숨김 */
-    opacity: 0;
-    transform: translateY(20px);
-    visibility: hidden;
-    transition: all 0.6s ease 0.4s;
-}
-
-.stats-grid {
-    /* 통계 그리드 초기 숨김 - 더 강화 */
-    opacity: 0 !important;
-    transform: translateY(40px) !important;
-    visibility: hidden !important;
-    transition: all 0.8s ease 0.5s;
-}
-
-.stat-item {
-    /* 개별 통계 아이템 초기 숨김 - 더 강화 */
-    opacity: 0 !important;
-    transform: translateY(30px) scale(0.9) !important;
-    visibility: hidden !important;
-    transition: all 0.6s ease;
-}
-
-/* 통계 숫자 카운터 초기 상태 */
-.stat-number {
-    /* 카운터 숫자도 초기 숨김 */
-    opacity: 0;
-    transform: scale(0.8);
-    visibility: hidden;
-    transition: all 0.4s ease;
-}
-
-/* 스크롤 감지 후 통계 섹션 표시 클래스 */
-.stats-section.in-view {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
-}
-
-.stats-section.in-view .container {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
-}
-
-.stats-section.in-view h2 {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
-}
-
-.stats-section.in-view .hope-message {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
-}
-
-.stats-section.in-view .stats-grid {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    visibility: visible !important;
-}
-
-.stats-section.in-view .stat-item {
-    opacity: 1 !important;
-    transform: translateY(0) scale(1) !important;
-    visibility: visible !important;
-}
-
-.stats-section.in-view .stat-number {
-    opacity: 1 !important;
-    transform: scale(1) !important;
-    visibility: visible !important;
-}
-
-/* JavaScript 비활성화 시 모든 요소 완전히 표시 - 안전장치 */
-.no-js .hero-title,
-.no-js .hero-description,
-.no-js .hero-buttons,
-.no-js .ranking-display,
-.no-js .ranking-item,
-.no-js .urgent-cards,
-.no-js .missing-card,
-.no-js .intro-steps,
-.no-js .step,
-.no-js .stats-section,
-.no-js .stats-grid,
-.no-js .stat-item,
-.no-js .stat-number,
-.no-js .section-header,
-.no-js .intro-text h2 {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) scale(1) !important;
-    transition: none !important;
-}
-
-/* JavaScript 활성화 후에도 숨김 유지 - 애니메이션 대기 */
-.js-enabled .intro-steps,
-.js-enabled .step,
-.js-enabled .stats-section,
-.js-enabled .stats-grid,
-.js-enabled .stat-item,
-.js-enabled .stat-number {
-    opacity: 0;
-    visibility: hidden;
-}
-
-/* 강제 표시 애니메이션 (안전장치) - 10초 후 */
-.intro-steps,
-.step,
-.stats-grid,
-.stat-item {
-    animation: forceShowFromHidden 0.8s ease forwards;
-    animation-delay: 10s; /* 10초로 늘려서 스크롤 애니메이션이 우선되도록 */
-}
-
-/* 통계 섹션은 더 긴 지연 (스크롤 애니메이션 우선) */
-.stats-section,
-.stats-section .container,
-.stats-section h2,
-.hope-message {
-    animation: forceShowFromHidden 0.8s ease forwards;
-    animation-delay: 15s; /* 15초 후 안전장치 발동 */
-}
-
-@keyframes forceShowFromHidden {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-        visibility: hidden;
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-        visibility: visible;
-    }
-}
-
-/* 애니메이션 완료 후 상태 */
-.animate-complete {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) scale(1) !important;
-}
 
 /* 히어로 섹션 */
 .hero-section {
@@ -339,9 +141,9 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     gap: 10px;
 }
 
-/* 순위 아이템 - 항상 표시 (React 컴포넌트이므로 애니메이션 대상 아님) */
+/* 순위 아이템 */
 .ranking-item {
-    display: flex !important;
+    display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
@@ -353,13 +155,10 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     overflow: hidden;
     min-height: 45px;
     height: 45px;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
 }
 
 .ranking-item:hover {
-    transform: translateX(5px) translateY(0);
+    transform: translateX(5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
@@ -550,7 +349,7 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     display: none !important;
 }
 
-/* 실종자 카드 - 애니메이션 대상이므로 초기 숨김 */
+/* 실종자 카드 */
 .missing-card {
     background: white !important;
     border-radius: 20px;
@@ -562,15 +361,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     height: 300px;
     display: block !important;
     width: 100% !important;
-    /* React 컴포넌트로 렌더링되는 카드들은 개별 애니메이션 */
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* HTML 폴백 카드들은 초기 숨김 */
-.urgent-cards:not([data-react-rendered]) .missing-card {
-    opacity: 0;
-    transform: translateY(30px);
 }
 
 .missing-card:hover {
@@ -743,7 +533,7 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     z-index: 1;
 }
 
-/* 소개 섹션 - 드라마틱한 등장 효과 */
+/* 소개 섹션 */
 .intro-section {
     padding: 80px 0;
     background: white;
@@ -777,7 +567,7 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     border-radius: 2px;
 }
 
-/* 수정된 intro-steps 레이아웃 - 완전 숨김에서 등장 */
+/* intro-steps 레이아웃 */
 .intro-steps {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -785,10 +575,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     justify-items: center;
     max-width: 1400px;
     margin: 0 auto;
-    /* 초기 완전 숨김 */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(30px);
 }
 
 .step {
@@ -803,10 +589,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     width: 100%;
     max-width: 260px;
     min-height: 320px;
-    /* 초기 완전 숨김 */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(30px);
 }
 
 .step::before {
@@ -894,7 +676,7 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     font-size: 0.9rem;
 }
 
-/* 희망 메시지 섹션 - 스크롤 감지 시까지 완전 숨김 */
+/* 희망 메시지 섹션 */
 .stats-section {
     padding: 80px 0;
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--primary-orange) 100%);
@@ -902,11 +684,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     text-align: center;
     position: relative;
     overflow: hidden;
-    /* 초기 완전 숨김 - 강화된 버전 */
-    opacity: 0 !important;
-    transform: translateY(50px) !important;
-    visibility: hidden !important;
-    transition: all 1s ease;
 }
 
 .stats-section::before {
@@ -937,10 +714,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 16px;
-    /* 초기 숨김 */
-    opacity: 0;
-    transform: translateY(30px);
-    visibility: hidden;
 }
 
 .stats-section h2 {
@@ -949,10 +722,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     margin-bottom: 30px;
     position: relative;
     z-index: 1;
-    /* 초기 숨김 */
-    opacity: 0;
-    transform: translateY(20px);
-    visibility: hidden;
 }
 
 .hope-message {
@@ -963,10 +732,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     opacity: 0.95;
     position: relative;
     z-index: 1;
-    /* 초기 숨김 */
-    opacity: 0;
-    transform: translateY(20px);
-    visibility: hidden;
 }
 
 .stats-grid {
@@ -978,10 +743,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 16px;
-    /* 초기 완전 숨김 - 강화 */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(40px) !important;
 }
 
 .stat-item {
@@ -993,10 +754,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    /* 초기 완전 숨김 - 강화 */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateY(30px) scale(0.9) !important;
 }
 
 .stat-item::before {
@@ -1026,10 +783,6 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     margin-bottom: 10px;
     display: block;
     position: relative;
-    /* 초기 숨김 */
-    opacity: 0;
-    transform: scale(0.8);
-    visibility: hidden;
 }
 
 .stat-label {

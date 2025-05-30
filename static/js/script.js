@@ -7,7 +7,6 @@ window.APP = {
     currentPage: null,
     notifications: [],
     config: {
-        animationDuration: 0.3,
         scrollOffset: 100
     },
     initialized: false
@@ -46,60 +45,14 @@ function initializeApp() {
         // 사용자 인증 상태 확인
         checkAuthStatus();
         
-        // GSAP 애니메이션 초기화 (메인 페이지 제외 - 충돌 방지)
-        if (window.APP.currentPage !== 'home') {
-            initializeAnimations();
-        } else {
-            console.log('🏠 Home page detected - skipping global animations to prevent conflicts');
-        }
-        
         // 반응형 처리
         handleResponsive();
-        
-        // 콘텐츠 표시 보장 (홈페이지)
-        if (window.APP.currentPage === 'home') {
-            ensureHomeContentVisible();
-        }
         
         window.APP.initialized = true;
         console.log('✅ App initialized successfully');
     } catch (error) {
         console.error('❌ App initialization error:', error);
     }
-}
-
-// ===== 홈페이지 콘텐츠 표시 보장 =====
-function ensureHomeContentVisible() {
-    // 3초 후 강제로 모든 콘텐츠 표시 (폴백)
-    setTimeout(() => {
-        const importantElements = document.querySelectorAll(`
-            .intro-steps,
-            .step,
-            .stats-grid,
-            .stat-item,
-            .section-header,
-            .hero-title,
-            .hero-description
-        `);
-        
-        let hiddenCount = 0;
-        importantElements.forEach(element => {
-            if (element) {
-                const computed = window.getComputedStyle(element);
-                if (computed.opacity === '0' || computed.visibility === 'hidden') {
-                    hiddenCount++;
-                    element.style.opacity = '1';
-                    element.style.visibility = 'visible';
-                    element.style.transform = 'translateY(0)';
-                    element.classList.add('animate-complete');
-                }
-            }
-        });
-        
-        if (hiddenCount > 0) {
-            console.log(`🔧 Ensured visibility for ${hiddenCount} hidden elements`);
-        }
-    }, 3000);
 }
 
 // ===== 페이지 로딩 최적화 처리 =====
@@ -215,15 +168,6 @@ function setupPageTransitionOptimization() {
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
             }
-            
-            // 부드러운 페이드아웃 효과 (선택사항)
-            if (typeof gsap !== 'undefined' && window.APP.currentPage !== 'home') {
-                gsap.to('body', {
-                    opacity: 0.95,
-                    duration: 0.2,
-                    ease: 'power2.out'
-                });
-            }
         });
     });
     
@@ -268,25 +212,6 @@ function initializeNavigation() {
             link.classList.add('active');
             link.setAttribute('aria-current', 'page');
         }
-    });
-    
-    // 네비게이션 링크 클릭 애니메이션
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            // GSAP 애니메이션 (홈페이지 제외)
-            if (typeof gsap !== 'undefined' && window.APP.currentPage !== 'home') {
-                gsap.to(this, {
-                    duration: 0.1,
-                    scale: 0.95,
-                    yoyo: true,
-                    repeat: 1,
-                    ease: 'power2.out',
-                    onComplete: () => {
-                        gsap.set(this, { clearProps: 'transform' });
-                    }
-                });
-            }
-        });
     });
 }
 
@@ -378,21 +303,7 @@ function toggleMobileMenu() {
         mobileNav.classList.remove('active');
         toggle.classList.remove('active');
         toggle.setAttribute('aria-expanded', 'false');
-        
-        // GSAP 애니메이션으로 부드럽게 닫기
-        if (typeof gsap !== 'undefined') {
-            gsap.to(mobileNav, {
-                duration: 0.3,
-                opacity: 0,
-                y: -20,
-                ease: "power2.out",
-                onComplete: () => {
-                    mobileNav.style.display = 'none';
-                }
-            });
-        } else {
-            mobileNav.style.display = 'none';
-        }
+        mobileNav.style.display = 'none';
     } else {
         // 메뉴 열기
         mobileNav.classList.add('active');
@@ -400,23 +311,9 @@ function toggleMobileMenu() {
         toggle.setAttribute('aria-expanded', 'true');
         mobileNav.style.display = 'block';
         
-        // GSAP 애니메이션으로 부드럽게 열기
-        if (typeof gsap !== 'undefined') {
-            gsap.fromTo(mobileNav, 
-                { opacity: 0, y: -20 },
-                { 
-                    opacity: 1, 
-                    y: 0, 
-                    duration: 0.3, 
-                    ease: "power2.out",
-                    onComplete: () => {
-                        // 포커스를 첫 번째 링크로 이동
-                        const firstLink = mobileNav.querySelector('a');
-                        if (firstLink) firstLink.focus();
-                    }
-                }
-            );
-        }
+        // 포커스를 첫 번째 링크로 이동
+        const firstLink = mobileNav.querySelector('a');
+        if (firstLink) firstLink.focus();
     }
 }
 
@@ -436,23 +333,6 @@ function toggleUserMenu() {
         closeAllDropdowns();
         dropdown.classList.add('show');
         dropdown.setAttribute('aria-hidden', 'false');
-        
-        // GSAP 애니메이션
-        if (typeof gsap !== 'undefined') {
-            gsap.fromTo(dropdown,
-                { opacity: 0, y: -10, scale: 0.95 },
-                { 
-                    opacity: 1, 
-                    y: 0, 
-                    scale: 1,
-                    duration: 0.2, 
-                    ease: "back.out(1.7)",
-                    onComplete: () => {
-                        gsap.set(dropdown, { clearProps: 'transform' });
-                    }
-                }
-            );
-        }
     }
 }
 
@@ -472,23 +352,6 @@ function toggleNotifications() {
         closeAllDropdowns();
         dropdown.classList.add('show');
         dropdown.setAttribute('aria-hidden', 'false');
-        
-        // GSAP 애니메이션
-        if (typeof gsap !== 'undefined') {
-            gsap.fromTo(dropdown,
-                { opacity: 0, y: -10, scale: 0.95 },
-                { 
-                    opacity: 1, 
-                    y: 0, 
-                    scale: 1,
-                    duration: 0.3, 
-                    ease: "back.out(1.7)",
-                    onComplete: () => {
-                        gsap.set(dropdown, { clearProps: 'transform' });
-                    }
-                }
-            );
-        }
         
         // 알림 읽음 처리
         setTimeout(() => markNotificationsAsRead(), 1000);
@@ -537,7 +400,7 @@ function handleOutsideClick(event) {
     }
 }
 
-// ===== 스크롤 처리 - 최적화됨 =====
+// ===== 스크롤 처리 =====
 function handleScroll() {
     const scrollY = window.scrollY;
     const header = document.querySelector('.header');
@@ -550,14 +413,9 @@ function handleScroll() {
             header.classList.remove('scrolled');
         }
     }
-    
-    // 스크롤 기반 애니메이션 트리거 (홈페이지 제외)
-    if (window.APP.currentPage !== 'home') {
-        triggerScrollAnimations();
-    }
 }
 
-// ===== 리사이즈 처리 - 개선됨 =====
+// ===== 리사이즈 처리 =====
 function handleResize() {
     const width = window.innerWidth;
     
@@ -604,177 +462,6 @@ function handleResponsive() {
     }
 }
 
-// ===== GSAP 애니메이션 초기화 (홈페이지 제외) =====
-function initializeAnimations() {
-    if (typeof gsap === 'undefined') return;
-    
-    // ScrollTrigger 등록
-    if (typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-    }
-    
-    // 페이지별 애니메이션 초기화 (홈페이지 제외)
-    setTimeout(() => initializePageAnimations(), 100);
-    
-    console.log('🎨 Basic animations initialized (non-home pages)');
-}
-
-// ===== 페이지별 애니메이션 초기화 =====
-function initializePageAnimations() {
-    switch (window.APP.currentPage) {
-        case 'search':
-            initializeSearchAnimations();
-            break;
-        case 'about':
-            initializeAboutAnimations();
-            break;
-        case 'ranking':
-            initializeRankingAnimations();
-            break;
-        default:
-            initializeGenericAnimations();
-            break;
-    }
-}
-
-// ===== 일반 페이지 애니메이션 =====
-function initializeGenericAnimations() {
-    if (typeof gsap === 'undefined') return;
-    
-    // 기본 페이드인 애니메이션
-    const fadeElements = document.querySelectorAll('.fade-in-up:not(.animated)');
-    
-    if (fadeElements.length > 0) {
-        gsap.fromTo(fadeElements, {
-            y: 30,
-            opacity: 0
-        }, {
-            duration: 0.6,
-            y: 0,
-            opacity: 1,
-            ease: "power2.out",
-            stagger: 0.1,
-            onComplete: () => {
-                fadeElements.forEach(element => {
-                    element.classList.add('animated');
-                    gsap.set(element, { clearProps: 'transform,opacity' });
-                });
-            }
-        });
-    }
-}
-
-// ===== 검색 페이지 애니메이션 =====
-function initializeSearchAnimations() {
-    if (typeof gsap === 'undefined') return;
-    
-    // 검색 결과 애니메이션
-    const cards = document.querySelectorAll('.missing-card:not(.animated)');
-    if (cards.length > 0) {
-        gsap.fromTo(cards, {
-            y: 30,
-            opacity: 0
-        }, {
-            duration: 0.6,
-            y: 0,
-            opacity: 1,
-            stagger: 0.1,
-            ease: "power2.out",
-            onComplete: () => {
-                cards.forEach(card => {
-                    card.classList.add('animated');
-                    gsap.set(card, { clearProps: 'transform,opacity' });
-                });
-            }
-        });
-    }
-}
-
-// ===== About 페이지 애니메이션 =====
-function initializeAboutAnimations() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    
-    // 섹션별 애니메이션
-    const sections = document.querySelectorAll('.section:not(.animated)');
-    sections.forEach(section => {
-        gsap.fromTo(section, {
-            y: 50,
-            opacity: 0
-        }, {
-            scrollTrigger: {
-                trigger: section,
-                start: 'top 80%',
-                once: true
-            },
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            ease: "power2.out",
-            onComplete: () => {
-                section.classList.add('animated');
-                gsap.set(section, { clearProps: 'transform,opacity' });
-            }
-        });
-    });
-}
-
-// ===== 랭킹 페이지 애니메이션 =====
-function initializeRankingAnimations() {
-    if (typeof gsap === 'undefined') return;
-    
-    // 랭킹 아이템 애니메이션
-    const rankingItems = document.querySelectorAll('.ranking-item:not(.animated)');
-    if (rankingItems.length > 0) {
-        gsap.fromTo(rankingItems, {
-            y: 30,
-            opacity: 0
-        }, {
-            duration: 0.6,
-            y: 0,
-            opacity: 1,
-            stagger: 0.1,
-            ease: "power2.out",
-            delay: 0.3,
-            onComplete: () => {
-                rankingItems.forEach(item => {
-                    item.classList.add('animated');
-                    gsap.set(item, { clearProps: 'transform,opacity' });
-                });
-            }
-        });
-    }
-}
-
-// ===== 스크롤 애니메이션 트리거 - 성능 최적화 =====
-function triggerScrollAnimations() {
-    if (typeof gsap === 'undefined') return;
-    
-    const animateElements = document.querySelectorAll('.animate-on-scroll:not(.animated)');
-    
-    animateElements.forEach(element => {
-        const elementRect = element.getBoundingClientRect();
-        const elementTop = elementRect.top;
-        const elementVisible = 150;
-        
-        if (elementTop < window.innerHeight - elementVisible) {
-            element.classList.add('animated');
-            
-            gsap.fromTo(element, {
-                opacity: 0,
-                y: 30
-            }, {
-                opacity: 1,
-                y: 0,
-                duration: 0.6,
-                ease: "power2.out",
-                onComplete: () => {
-                    gsap.set(element, { clearProps: 'transform,opacity' });
-                }
-            });
-        }
-    });
-}
-
 // ===== 부드러운 스크롤 설정 =====
 function setupSmoothScroll() {
     const scrollLinks = document.querySelectorAll('a[href^="#"]');
@@ -787,20 +474,11 @@ function setupSmoothScroll() {
             const targetElement = document.getElementById(targetId);
             
             if (targetElement) {
-                if (typeof gsap !== 'undefined' && typeof ScrollToPlugin !== 'undefined') {
-                    gsap.to(window, {
-                        duration: 0.8,
-                        scrollTo: { y: targetElement.offsetTop - 100 },
-                        ease: "power2.inOut"
-                    });
-                } else {
-                    // 폴백 스크롤
-                    const targetOffset = targetElement.offsetTop - 100;
-                    window.scrollTo({
-                        top: targetOffset,
-                        behavior: 'smooth'
-                    });
-                }
+                const targetOffset = targetElement.offsetTop - 100;
+                window.scrollTo({
+                    top: targetOffset,
+                    behavior: 'smooth'
+                });
             }
         });
     });
@@ -817,25 +495,12 @@ function markNotificationsAsRead() {
         });
         
         if (notificationBadge) {
-            // 뱃지 숨김 애니메이션
-            if (typeof gsap !== 'undefined') {
-                gsap.to(notificationBadge, {
-                    duration: 0.3,
-                    scale: 0,
-                    opacity: 0,
-                    ease: "back.in(2)",
-                    onComplete: () => {
-                        notificationBadge.style.display = 'none';
-                    }
-                });
-            } else {
-                notificationBadge.style.display = 'none';
-            }
+            notificationBadge.style.display = 'none';
         }
     }
 }
 
-// ===== 로딩 인디케이터 - 단순화됨 (필요시에만 사용) =====
+// ===== 로딩 인디케이터 =====
 function showLoading(target = 'body', message = '처리 중...') {
     const targetEl = typeof target === 'string' ? document.querySelector(target) : target;
     
@@ -871,46 +536,22 @@ function showLoading(target = 'body', message = '처리 중...') {
         align-items: center;
         justify-content: center;
         z-index: 9999;
-        opacity: 0;
+        opacity: 1;
     `;
     
     targetEl.appendChild(loader);
-    
-    if (typeof gsap !== 'undefined') {
-        gsap.to(loader, {
-            duration: 0.3,
-            opacity: 1,
-            ease: "power2.out"
-        });
-    } else {
-        loader.style.opacity = '1';
-    }
-    
     return loader;
 }
 
 function hideLoading(loader) {
     if (!loader || !loader.parentNode) return;
     
-    if (typeof gsap !== 'undefined') {
-        gsap.to(loader, {
-            duration: 0.3,
-            opacity: 0,
-            ease: "power2.out",
-            onComplete: () => {
-                if (loader.parentNode) {
-                    loader.parentNode.removeChild(loader);
-                }
-            }
-        });
-    } else {
-        if (loader.parentNode) {
-            loader.parentNode.removeChild(loader);
-        }
+    if (loader.parentNode) {
+        loader.parentNode.removeChild(loader);
     }
 }
 
-// ===== 알림 시스템 (완전히 개선됨) =====
+// ===== 알림 시스템 =====
 function showNotification(message, type = 'info', duration = 3000) {
     // 토스트 컨테이너 확인/생성
     let toastContainer = document.querySelector('.toast-container');
@@ -955,8 +596,7 @@ function showNotification(message, type = 'info', duration = 3000) {
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         pointer-events: auto;
-        transform: translateX(100%);
-        opacity: 0;
+        opacity: 1;
         display: flex;
         align-items: center;
         gap: 12px;
@@ -966,44 +606,12 @@ function showNotification(message, type = 'info', duration = 3000) {
     
     toastContainer.appendChild(toast);
     
-    // 애니메이션
-    if (typeof gsap !== 'undefined') {
-        gsap.fromTo(toast,
-            { opacity: 0, x: 100, scale: 0.9 },
-            { 
-                opacity: 1, 
-                x: 0, 
-                scale: 1, 
-                duration: 0.3, 
-                ease: "back.out(1.7)" 
-            }
-        );
-        
-        // 자동 제거
-        setTimeout(() => {
-            gsap.to(toast, {
-                duration: 0.3,
-                opacity: 0,
-                x: 100,
-                scale: 0.9,
-                ease: "power2.out",
-                onComplete: () => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }
-            });
-        }, duration);
-    } else {
-        toast.style.transform = 'translateX(0)';
-        toast.style.opacity = '1';
-        
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, duration);
-    }
+    // 자동 제거
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, duration);
     
     return toast;
 }
@@ -1104,7 +712,7 @@ window.announceToScreenReader = announceToScreenReader;
 window.debounce = debounce;
 window.throttle = throttle;
 
-console.log('📜 Script.js loaded successfully (conflict-free for home page)');
+console.log('📜 Script.js loaded successfully (no animations)');
 
 // ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
 if (!document.querySelector('#dynamic-styles')) {
@@ -1169,16 +777,6 @@ if (!document.querySelector('#dynamic-styles')) {
             clip: rect(0, 0, 0, 0) !important;
             white-space: nowrap !important;
             border: 0 !important;
-        }
-        
-        /* 페이지 전환 최적화 */
-        body {
-            opacity: 1;
-            transition: opacity 0.2s ease;
-        }
-        
-        .page-transition {
-            opacity: 0.95;
         }
     `;
     document.head.appendChild(style);
