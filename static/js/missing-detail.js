@@ -2,7 +2,6 @@
 
 // 실종자 상세 페이지 JavaScript
 let isBookmarked = false;
-let upClicked = false;
 let recommendClicked = false;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -47,14 +46,7 @@ function animatePageLoad() {
                 opacity: 0,
                 stagger: 0.1,
                 ease: 'power2.out'
-            }, '-=0.3')
-            .from('.action-btn', {
-                duration: 0.6,
-                scale: 0.8,
-                opacity: 0,
-                stagger: 0.15,
-                ease: 'back.out(1.7)'
-            }, '-=0.2');
+            }, '-=0.3');
     }
 }
 
@@ -170,68 +162,6 @@ function changeMainImage(thumbnail) {
     }
 }
 
-// UP 버튼 클릭
-function handleUpClick() {
-    if (upClicked) {
-        showNotification('이미 UP을 누르셨습니다.', 'info');
-        return;
-    }
-    
-    const upBtn = document.querySelector('.up-btn');
-    const upCount = document.getElementById('upCount');
-    const currentCount = parseInt(upCount.textContent);
-    const newCount = currentCount + 1;
-    
-    // 버튼 비활성화
-    upClicked = true;
-    upBtn.style.opacity = '0.7';
-    upBtn.style.cursor = 'not-allowed';
-    
-    // 카운트 애니메이션
-    if (typeof gsap !== 'undefined') {
-        // 버튼 애니메이션
-        gsap.timeline()
-            .to(upBtn, {
-                duration: 0.1,
-                scale: 0.95,
-                ease: 'power2.in'
-            })
-            .to(upBtn, {
-                duration: 0.3,
-                scale: 1.1,
-                ease: 'elastic.out(1, 0.5)'
-            })
-            .to(upBtn, {
-                duration: 0.2,
-                scale: 1,
-                ease: 'power2.out'
-            });
-        
-        // 숫자 카운트업 애니메이션
-        const countObj = { count: currentCount };
-        gsap.to(countObj, {
-            count: newCount,
-            duration: 0.6,
-            ease: 'power2.out',
-            onUpdate: function() {
-                upCount.textContent = Math.floor(countObj.count);
-            }
-        });
-        
-        // 파티클 효과
-        createParticleEffect(upBtn);
-    } else {
-        // GSAP 없을 때
-        upCount.textContent = newCount;
-    }
-    
-    // 알림 표시
-    showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
-    
-    // 서버에 UP 정보 전송
-    sendUpToServer(newCount);
-}
-
 // 추천 버튼 클릭
 function handleRecommendClick() {
     if (recommendClicked) {
@@ -291,44 +221,6 @@ function handleRecommendClick() {
     
     // 서버에 추천 정보 전송
     sendRecommendToServer(newCount);
-}
-
-// UP 파티클 효과
-function createParticleEffect(element) {
-    if (typeof gsap === 'undefined') return;
-    
-    const rect = element.getBoundingClientRect();
-    const particles = 10;
-    
-    for (let i = 0; i < particles; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'up-particle';
-        particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
-        particle.style.cssText = `
-            position: fixed;
-            left: ${rect.left + rect.width / 2}px;
-            top: ${rect.top + rect.height / 2}px;
-            color: var(--secondary-green);
-            font-size: 20px;
-            pointer-events: none;
-            z-index: 1000;
-        `;
-        
-        document.body.appendChild(particle);
-        
-        const angle = (i / particles) * Math.PI * 2;
-        const distance = 50 + Math.random() * 50;
-        
-        gsap.to(particle, {
-            duration: 1,
-            x: Math.cos(angle) * distance,
-            y: Math.sin(angle) * distance - 30,
-            opacity: 0,
-            scale: 0.3,
-            ease: 'power2.out',
-            onComplete: () => particle.remove()
-        });
-    }
 }
 
 // 응원 파티클 효과
@@ -583,19 +475,6 @@ function setupLazyLoading() {
 }
 
 // 서버 통신 함수들
-function sendUpToServer(newCount) {
-    // 실제 구현 시 서버 API 호출
-    fetch(`/api/missing/${getMissingId()}/up`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ count: newCount })
-    }).catch(error => {
-        console.error('UP 전송 실패:', error);
-    });
-}
-
 function sendRecommendToServer(newCount) {
     // 실제 구현 시 서버 API 호출
     fetch(`/api/missing/${getMissingId()}/recommend`, {
@@ -631,33 +510,35 @@ function getMissingId() {
 
 // 알림 표시 함수 (window.showNotification이 없을 경우 대비)
 function showNotification(message, type = 'info') {
-    if (window.showNotification) {
+    // 전역 showNotification 함수가 있으면 사용
+    if (window.showNotification && typeof window.showNotification === 'function') {
         window.showNotification(message, type);
-    } else {
-        // 간단한 알림 구현
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        return;
     }
+    
+    // 간단한 알림 구현
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 // 모든 모달 닫기
@@ -791,7 +672,7 @@ const modalStyles = `
     color: #6b7280;
 }
 
-.up-particle, .support-particle {
+.support-particle {
     position: fixed;
     pointer-events: none;
 }
@@ -825,7 +706,6 @@ document.head.insertAdjacentHTML('beforeend', modalStyles);
 
 // 전역 함수로 내보내기
 window.changeMainImage = changeMainImage;
-window.handleUpClick = handleUpClick;
 window.handleRecommendClick = handleRecommendClick;
 window.toggleBookmark = toggleBookmark;
 window.shareContent = shareContent;

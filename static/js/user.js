@@ -33,8 +33,6 @@ function initializeUserApp() {
     
     // 페이지별 초기화
     initializePageSpecific();
-    
-    console.log('User App initialized for page:', window.userApp.currentPage);
 }
 
 // ===== 현재 페이지 확인 =====
@@ -425,6 +423,17 @@ function initializePageSpecific() {
     }
 }
 
+// ===== 실종자 상세 페이지 초기화 =====
+function initializeMissingDetailPage() {
+    // 실종자 상세 페이지 관련 초기화
+    // missing-detail.js에서 처리되므로 여기서는 기본 설정만
+}
+
+// ===== 랭킹 페이지 초기화 =====
+function initializeRankingPage() {
+    // 랭킹 페이지 관련 초기화
+}
+
 // ===== 홈페이지 초기화 =====
 function initializeHomePage() {
     // Three.js 3D 요소 초기화
@@ -582,6 +591,11 @@ function initializeSearchPage() {
     setupFilterEvents();
 }
 
+// ===== 필터 이벤트 설정 =====
+function setupFilterEvents() {
+    // 필터 관련 이벤트 설정
+}
+
 // ===== 무한 스크롤 설정 =====
 function setupInfiniteScroll() {
     let loading = false;
@@ -622,6 +636,17 @@ async function loadMoreContent() {
     }
     
     loading = false;
+}
+
+// ===== 더미 컨텐츠 생성 =====
+function generateDummyContent() {
+    // 실제로는 서버에서 데이터를 받아옴
+    return [];
+}
+
+// ===== 컨텐츠를 그리드에 추가 =====
+function appendContentToGrid(content) {
+    // 실제로는 받은 데이터로 DOM 요소 생성 후 추가
 }
 
 // ===== 로딩 인디케이터 표시 =====
@@ -795,5 +820,3 @@ window.hideFieldError = hideFieldError;
 window.debounce = debounce;
 window.formatDate = formatDate;
 window.getTimeAgo = getTimeAgo;
-
-console.log('User.js loaded successfully');

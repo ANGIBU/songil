@@ -309,14 +309,17 @@ body {
     line-height: 1;
 }
 
-/* ===== 기본 정보 컨테이너 ===== */
+/* ===== 기본 정보 컨테이너 - 수정된 부분 ===== */
 .basic-info-container {
     background: var(--gray-50);
     border-radius: var(--radius-xl);
     padding: 24px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--gray-100);
-    margin-bottom: 60px; /* margin 증가 */
+    margin-bottom: 60px;
+    /* 안정성을 위한 기본 표시 설정 */
+    opacity: 1;
+    visibility: visible;
 }
 
 .info-header {
@@ -342,24 +345,33 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+    /* 안정성을 위한 기본 표시 설정 */
+    opacity: 1;
+    visibility: visible;
 }
 
+/* 수정된 info-item 스타일 - 안정성 개선 */
 .info-item {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 16px;
-    background: white; /* 하얀색 배경으로 변경 */
+    background: white;
     border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
-    transition: var(--transition-base);
+    /* 안정성을 위한 기본 표시 설정 */
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    /* 부드러운 hover 효과만 유지 */
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .info-item:hover {
     border-color: var(--primary-orange-light);
     background: var(--primary-orange-bg);
-    transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
+    /* transform 제거로 레이아웃 안정성 확보 */
 }
 
 .info-label {
@@ -387,7 +399,7 @@ body {
 
 /* ===== 실종 상황 섹션 (전체 너비로 확장) ===== */
 .situation-section {
-    padding: 20px 0 40px 0;
+    padding: 0px 0 40px 0;
     background: white;
 }
 

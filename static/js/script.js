@@ -31,8 +31,6 @@ function initializeApp() {
     if (window.APP.initialized) return;
     
     try {
-        console.log('🚀 App initialization started...');
-        
         // 현재 페이지 식별
         identifyCurrentPage();
         
@@ -49,7 +47,6 @@ function initializeApp() {
         handleResponsive();
         
         window.APP.initialized = true;
-        console.log('✅ App initialized successfully');
     } catch (error) {
         console.error('❌ App initialization error:', error);
     }
@@ -103,7 +100,6 @@ function identifyCurrentPage() {
     
     // 페이지별 CSS 클래스 추가
     document.body.classList.add(`page-${window.APP.currentPage}`);
-    console.log(`📄 Current page: ${window.APP.currentPage}`);
 }
 
 // ===== 이벤트 리스너 설정 =====
@@ -711,8 +707,6 @@ window.showNotification = showNotification;
 window.announceToScreenReader = announceToScreenReader;
 window.debounce = debounce;
 window.throttle = throttle;
-
-console.log('📜 Script.js loaded successfully (no animations)');
 
 // ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
 if (!document.querySelector('#dynamic-styles')) {
