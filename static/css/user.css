@@ -81,93 +81,7 @@ body {
     padding: 0 20px;
 }
 
-/* ===== 통일된 액션 버튼 스타일 ===== */
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 4px;
-    padding: 16px 32px;
-    min-width: 160px;
-    height: 80px;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: var(--transition-base);
-    position: relative;
-    overflow: hidden;
-}
-
-.action-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-}
-
-.action-btn .btn-text {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.action-btn .btn-count {
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.action-btn .btn-sub-text {
-    font-size: 12px;
-    font-weight: 400;
-    opacity: 0.9;
-}
-
-/* UP 버튼 스타일 - 가운데 정렬 수정 */
-.up-btn {
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-    color: white;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-}
-
-.up-btn .btn-text {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.up-btn .btn-count {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.up-btn:hover {
-    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
-}
-
-/* 목격 신고 버튼 스타일 */
-.witness-btn {
-    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    color: white;
-    flex: 1;
-}
-
-.witness-btn:hover {
-    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
-}
-
-/* 아이콘 버튼 스타일 (공유, 북마크) */
+/* ===== 아이콘 버튼 스타일 (공유, 북마크, 추천) ===== */
 .action-icon-btn {
     width: 44px;
     height: 44px;
@@ -210,26 +124,10 @@ body {
     align-items: start;
 }
 
-/* 프로필 이미지 섹션 - 기본 정보 제거 */
+/* 프로필 이미지 섹션 */
 .profile-image-section {
     width: 100%;
     display: block;
-}
-
-/* 기본 정보를 오른쪽으로 이동 */
-.profile-details .basic-info-container {
-    background: var(--gray-50);
-    border-radius: var(--radius-xl);
-    padding: 24px;
-    box-shadow: none;
-    border: 1px solid var(--gray-100);
-    margin-top: 20px;
-    width: 100%;
-    min-height: auto;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative;
 }
 
 .main-image {
@@ -317,134 +215,33 @@ body {
     object-fit: cover;
 }
 
-/* ===== 기본 정보 컨테이너 수정 (오른쪽으로 이동) ===== */
-.basic-info-container {
-    background: var(--gray-50);
+/* ===== 프로필 상세 정보 (오른쪽) ===== */
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* 타이틀 컨테이너 */
+.title-container {
+    background: white;
+    border: 1px solid var(--gray-200);
     border-radius: var(--radius-xl);
     padding: 24px;
-    box-shadow: none;
-    border: 1px solid var(--gray-100);
-    margin-top: 20px;
-    width: 100%;
-    min-height: auto;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: relative;
-}
-
-.info-header {
-    margin-bottom: 20px;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-.info-header h4 {
-    font-size: 18px;
-    color: var(--gray-900);
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    font-weight: 600;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-.info-header h4 i {
-    color: var(--primary-orange);
-    font-size: 16px;
-    display: inline-block !important;
-    visibility: visible !important;
-}
-
-.basic-info-grid {
-    display: grid !important;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    width: 100%;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-.info-item {
-    display: flex !important;
-    flex-direction: column;
-    gap: 8px;
-    padding: 16px;
-    background: var(--gray-50);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-100);
-    transition: var(--transition-base);
-    visibility: visible !important;
-    opacity: 1 !important;
-    min-height: auto;
-    position: relative;
-}
-
-.info-item:hover {
-    border-color: var(--primary-orange-light);
-    background: var(--primary-orange-bg);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-}
-
-.info-label {
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--gray-600);
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-.info-label i {
-    color: var(--primary-orange);
-    font-size: 16px;
-    display: inline-block !important;
-    visibility: visible !important;
-    width: 16px;
-    text-align: center;
-}
-
-.info-value {
-    font-size: 15px;
-    color: var(--gray-800);
-    font-weight: 500;
-    visibility: visible !important;
-    opacity: 1 !important;
-    line-height: 1.4;
-    display: block !important;
-}
-
-/* 프로필 상세 정보 */
-.profile-details {
-    background: white;
-    border-radius: var(--radius-xl);
-    padding: 28px;
-    box-shadow: var(--shadow-lg);
-}
-
-.profile-header {
+    box-shadow: var(--shadow-md);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--gray-100);
+    align-items: center;
 }
 
-.profile-title-section h1 {
-    font-size: 36px;
-    font-weight: 700;
+.title-info h1 {
+    font-size: 28px;
     color: var(--gray-900);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    font-weight: 700;
 }
 
-.profile-status {
+.title-status {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -467,100 +264,142 @@ body {
     font-size: 14px;
 }
 
-.profile-actions {
+.title-actions {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
     align-items: center;
-}
-
-.action-buttons-row {
-    display: flex;
     gap: 12px;
 }
 
-/* 추천 버튼 스타일 */
-.recommendation-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    align-self: flex-end;
-}
-
+/* 추천 버튼 스타일 - 다른 아이콘 버튼과 동일한 크기 */
 .recommendation-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
     width: 44px;
     height: 44px;
     border-radius: var(--radius-md);
-    border: 2px solid var(--gray-200);
-    background: white;
-    color: var(--gray-600);
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: var(--transition-base);
     font-size: 14px;
-    padding: 4px;
 }
 
 .recommendation-btn:hover {
-    border-color: var(--secondary-green);
-    color: var(--secondary-green);
-    background: var(--secondary-green-bg);
+    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-.recommendation-btn.active {
-    background: var(--secondary-green);
-    color: white;
-    border-color: var(--secondary-green);
+.recommendation-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.recommendation-content i {
+    font-size: 14px;
 }
 
 .recommendation-count {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid var(--gray-100);
+/* ===== 기본 정보 컨테이너 ===== */
+.basic-info-container {
+    background: var(--gray-50);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-100);
+    margin-bottom: 60px; /* margin 증가 */
 }
 
-/* ===== 실종 상황 섹션 (새로 추가) ===== */
+.info-header {
+    margin-bottom: 20px;
+}
+
+.info-header h4 {
+    font-size: 18px;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 600;
+}
+
+.info-header h4 i {
+    color: var(--primary-orange);
+    font-size: 16px;
+}
+
+.basic-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: white; /* 하얀색 배경으로 변경 */
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-100);
+    transition: var(--transition-base);
+}
+
+.info-item:hover {
+    border-color: var(--primary-orange-light);
+    background: var(--primary-orange-bg);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-600);
+}
+
+.info-label i {
+    color: var(--primary-orange);
+    font-size: 16px;
+    width: 16px;
+    text-align: center;
+}
+
+.info-value {
+    font-size: 15px;
+    color: var(--gray-800);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* ===== 실종 상황 섹션 (전체 너비로 확장) ===== */
 .situation-section {
-    padding: 40px 0;
+    padding: 20px 0 40px 0;
     background: white;
 }
 
-.situation-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+.situation-content-single {
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* 실종 상황 상세 정보 - 독립 섹션으로 변경 */
-.situation-details {
+/* 실종 상황 상세 정보 - 전체 너비 */
+.situation-details-full {
     padding: 32px;
     background: var(--gray-50);
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--gray-100);
-    box-shadow: var(--shadow-md);
-}
-
-/* 추가 정보 스타일 - 독립 섹션으로 변경 */
-.additional-info {
-    padding: 32px;
-    background: white;
     border-radius: var(--radius-xl);
     border: 1px solid var(--gray-100);
     box-shadow: var(--shadow-md);
@@ -598,9 +437,14 @@ body {
     margin-bottom: 0;
 }
 
+/* 추가 정보를 인라인으로 포함 */
+.additional-info-inline {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+}
 
-
-.additional-info h4 {
+.additional-info-inline h4 {
     font-size: 18px;
     color: var(--gray-800);
     margin-bottom: 14px;
@@ -609,7 +453,7 @@ body {
     gap: 8px;
 }
 
-.additional-info h4 i {
+.additional-info-inline h4 i {
     color: var(--primary-orange);
 }
 
@@ -634,53 +478,6 @@ body {
     color: var(--primary-orange);
     width: 20px;
     text-align: center;
-}
-
-/* ===== 가족 메시지 섹션 ===== */
-.family-message-section {
-    padding: 40px 0;
-    background: var(--gray-50);
-}
-
-/* 가족 메시지 */
-.family-message {
-    padding: 32px;
-    background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--warning-amber-bg) 100%);
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--primary-orange-light);
-    box-shadow: var(--shadow-lg);
-}
-
-.family-message h4 {
-    font-size: 24px;
-    color: var(--gray-800);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.family-message h4 i {
-    color: var(--primary-orange);
-}
-
-.family-message blockquote {
-    font-style: italic;
-    color: var(--gray-700);
-    line-height: 1.8;
-    margin: 0;
-    padding: 0 0 0 20px;
-    border-left: 4px solid var(--primary-orange);
-    font-size: 18px;
-}
-
-.family-message cite {
-    display: block;
-    text-align: right;
-    margin-top: 16px;
-    font-style: normal;
-    color: var(--gray-600);
-    font-weight: 500;
 }
 
 /* ===== 목격 정보 섹션 ===== */
@@ -842,45 +639,6 @@ body {
     padding: 16px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--gray-100);
-}
-
-/* 신뢰도 표시 */
-.witness-reliability {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.reliability-label {
-    font-size: 14px;
-    color: var(--gray-600);
-    font-weight: 500;
-}
-
-.reliability-stars {
-    display: flex;
-    gap: 4px;
-}
-
-.reliability-stars i {
-    font-size: 16px;
-}
-
-.reliability-stars.high i {
-    color: var(--warning-amber);
-}
-
-.reliability-stars.medium i:nth-child(-n+3) {
-    color: var(--warning-amber);
-}
-
-.reliability-stars.medium i:nth-child(n+4) {
-    color: var(--gray-300);
-}
-
-.reliability-stars.pending {
-    color: var(--gray-400);
-    font-size: 14px;
 }
 
 /* CTA 섹션 */
@@ -1126,14 +884,8 @@ body {
         margin: 0 auto;
     }
     
-    .situation-content {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    
     .basic-info-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1142,45 +894,23 @@ body {
         padding: 0 16px;
     }
     
-    .situation-content {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .situation-details,
-    .additional-info {
+    .situation-details-full {
         padding: 24px;
     }
     
-    .profile-header {
+    .title-container {
         flex-direction: column;
         gap: 16px;
-        margin-bottom: 12px;
-        padding-bottom: 12px;
+        text-align: center;
     }
     
-    .profile-actions {
-        width: 100%;
-        align-items: center;
-    }
-    
-    .action-buttons-row {
+    .title-actions {
         justify-content: center;
     }
     
     .basic-info-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr;
         gap: 16px;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .action-btn {
-        width: 100%;
-        min-width: auto;
     }
     
     .witness-header {
@@ -1218,12 +948,8 @@ body {
         height: 350px;
     }
     
-    .profile-title-section h1 {
-        font-size: 28px;
-    }
-    
-    .family-message {
-        padding: 24px;
+    .title-info h1 {
+        font-size: 24px;
     }
 }
 
@@ -1232,7 +958,7 @@ body {
         padding: 24px 0;
     }
     
-    .profile-details {
+    .title-container {
         padding: 18px;
     }
     
@@ -1257,18 +983,13 @@ body {
         border-radius: 50%;
     }
 
-    .recommendation-section {
-        margin-top: 12px;
-    }
-
     .recommendation-btn {
         width: 40px;
         height: 40px;
-        font-size: 12px;
     }
-    
-    .family-message-section {
-        padding: 30px 0;
+
+    .basic-info-container {
+        margin-bottom: 30px;
     }
 }
 

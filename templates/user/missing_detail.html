@@ -31,121 +31,100 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
 
-<!-- 실종자 타이틀 및 액션 (완전히 분리된 컨테이너) -->
-<section class="missing-title-section">
-    <div class="container">
-        <div class="title-container">
-            <div class="title-info">
-                <h1>김○○ (32세)</h1>
-                <div class="title-status">
-                    <span class="status-badge urgent">수색 중</span>
-                    <span class="report-id">신고번호: #2024-0520-001</span>
+            <!-- 오른쪽: 타이틀과 기본정보 -->
+            <div class="profile-details">
+                <!-- 타이틀 섹션 -->
+                <div class="title-container">
+                    <div class="title-info">
+                        <h1>김○○ (32세)</h1>
+                        <div class="title-status">
+                            <span class="status-badge urgent">수색 중</span>
+                            <span class="report-id">신고번호: #2024-0520-001</span>
+                        </div>
+                    </div>
+                    <div class="title-actions">
+                        <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                        <button class="recommendation-btn" onclick="handleRecommendClick()" title="응원하기">
+                            <div class="recommendation-content">
+                                <i class="fas fa-arrow-up"></i>
+                                <span class="recommendation-count" id="recommendCount">246</span>
+                            </div>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="title-actions">
-                <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
-                    <i class="fas fa-share-alt"></i>
-                </button>
-                <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
-                    <i class="far fa-bookmark"></i>
-                </button>
-                <button class="recommendation-btn" onclick="handleRecommendClick()" title="응원하기">
-                    <i class="fas fa-arrow-up"></i>
-                    <span class="recommendation-count" id="recommendCount">246</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- 기본 정보 (완전히 분리된 컨테이너) -->
-<section class="basic-info-section">
-    <div class="container">
-        <div class="basic-info-container">
-            <div class="info-header">
-                <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
-            </div>
-            <div class="basic-info-grid">
-                <div class="info-item">
-                    <div class="info-label">
-                        <i class="fas fa-calendar"></i>
-                        실종일시
+                <!-- 기본 정보 섹션 -->
+                <div class="basic-info-container">
+                    <div class="info-header">
+                        <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
                     </div>
-                    <div class="info-value">2024년 5월 20일 오후 6시경</div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-label">
-                        <i class="fas fa-map-marker-alt"></i>
-                        실종장소
+                    <div class="basic-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar"></i>
+                                실종일시
+                            </div>
+                            <div class="info-value">2024년 5월 20일 오후 6시경</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                실종장소
+                            </div>
+                            <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user"></i>
+                                성별/나이
+                            </div>
+                            <div class="info-value">남성 / 32세</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-ruler-vertical"></i>
+                                신체정보
+                            </div>
+                            <div class="info-value">175cm, 중간체형, 단발머리</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-tshirt"></i>
+                                착용의상
+                            </div>
+                            <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-exclamation-circle"></i>
+                                특이사항
+                            </div>
+                            <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
+                        </div>
                     </div>
-                    <div class="info-value">서울시 강남구 역삼동 테헤란로 일대</div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-label">
-                        <i class="fas fa-user"></i>
-                        성별/나이
-                    </div>
-                    <div class="info-value">남성 / 32세</div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-label">
-                        <i class="fas fa-ruler-vertical"></i>
-                        신체정보
-                    </div>
-                    <div class="info-value">175cm, 중간체형, 단발머리</div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-label">
-                        <i class="fas fa-tshirt"></i>
-                        착용의상
-                    </div>
-                    <div class="info-value">검은색 정장 상하의, 갈색 구두, 검은색 서류가방</div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="info-label">
-                        <i class="fas fa-exclamation-circle"></i>
-                        특이사항
-                    </div>
-                    <div class="info-value">왼쪽 손목에 시계 착용, 안경 착용</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- 액션 버튼 (완전히 분리된 컨테이너) -->
-<section class="action-buttons-section">
-    <div class="container">
-        <div class="action-buttons">
-            <button class="action-btn up-btn" onclick="handleUpClick()">
-                <i class="fas fa-arrow-up"></i>
-                <span class="btn-text">UP</span>
-                <span class="btn-count" id="upCount">246</span>
-            </button>
-            <a href="{{ url_for('missing_report') }}" class="action-btn witness-btn">
-                <i class="fas fa-eye"></i>
-                <span class="btn-text">목격 신고하기</span>
-                <span class="btn-sub-text">예상 포인트: 100~500P</span>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- 실종 당시 상황 및 추가 정보 섹션 -->
+<!-- 실종 당시 상황 섹션 (넓혀진 버전) -->
 <section class="situation-section">
     <div class="container">
-        <div class="situation-content">
+        <div class="situation-content-single">
             <!-- 실종 상황 -->
-            <div class="situation-details">
+            <div class="situation-details-full">
                 <div class="content-header">
                     <h3><i class="fas fa-info-circle"></i> 실종 당시 상황</h3>
                 </div>
@@ -159,35 +138,18 @@
                         평소 규칙적인 생활을 하며 무단으로 외박을 한 적이 없어 가족들이 매우 걱정하고 있는 상황입니다. 
                         최근 직장 스트레스로 인해 우울감을 호소했다고 가족이 증언했습니다.
                     </p>
+                    <div class="additional-info-inline">
+                        <h4><i class="fas fa-clipboard-list"></i> 추가 정보</h4>
+                        <ul class="info-list">
+                            <li><i class="fas fa-subway"></i> 평소 이용하는 교통수단: 지하철 2호선</li>
+                            <li><i class="fas fa-building"></i> 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
+                            <li><i class="fas fa-mobile-alt"></i> 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
+                            <li><i class="fas fa-credit-card"></i> 신용카드: 실종 이후 사용 내역 없음</li>
+                            <li><i class="fas fa-heartbeat"></i> 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            
-            <!-- 추가 정보 -->
-            <div class="additional-info">
-                <h4><i class="fas fa-clipboard-list"></i> 추가 정보</h4>
-                <ul class="info-list">
-                    <li><i class="fas fa-subway"></i> 평소 이용하는 교통수단: 지하철 2호선</li>
-                    <li><i class="fas fa-building"></i> 자주 가는 장소: 회사(테헤란로), 집(강남구 대치동)</li>
-                    <li><i class="fas fa-mobile-alt"></i> 휴대폰: 전원이 꺼진 상태 (위치 추적 불가)</li>
-                    <li><i class="fas fa-credit-card"></i> 신용카드: 실종 이후 사용 내역 없음</li>
-                    <li><i class="fas fa-heartbeat"></i> 건강상태: 특별한 지병 없음, 정신적 스트레스 상태</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 가족 메시지 섹션 -->
-<section class="family-message-section">
-    <div class="container">
-        <div class="family-message">
-            <h4><i class="fas fa-comment-dots"></i> 가족 메시지</h4>
-            <blockquote>
-                "김○○은 책임감이 강하고 가족을 사랑하는 사람입니다. 
-                혹시 어디서든 보신다면 꼭 연락 부탁드립니다. 
-                우리는 항상 기다리고 있습니다."
-                <cite>- 가족 일동</cite>
-            </blockquote>
         </div>
     </div>
 </section>
@@ -234,16 +196,6 @@
                             표정이 심각해 보였고, 약 5분 정도 그 자리에 서 있다가 강남역 방향으로 걸어갔습니다."
                         </div>
                     </div>
-                    <div class="witness-reliability">
-                        <span class="reliability-label">신뢰도</span>
-                        <div class="reliability-stars high">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
             
@@ -267,16 +219,6 @@
                             음식점 앞에서 메뉴를 보다가 그냥 지나갔습니다."
                         </div>
                     </div>
-                    <div class="witness-reliability">
-                        <span class="reliability-label">신뢰도</span>
-                        <div class="reliability-stars medium">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
                 </div>
             </div>
             
@@ -298,13 +240,6 @@
                         <div class="witness-description">
                             "정장 입은 남성이 한강을 바라보며 서 있었습니다. 
                             뒷모습이라 확실하지 않지만 체형이 비슷했습니다."
-                        </div>
-                    </div>
-                    <div class="witness-reliability">
-                        <span class="reliability-label">신뢰도</span>
-                        <div class="reliability-stars pending">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            검토중
                         </div>
                     </div>
                 </div>
