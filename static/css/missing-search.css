@@ -2,31 +2,9 @@
 
 /* ===== 실종자 검색 페이지 전용 스타일 ===== */
 
-/* ============ 빠른 로딩을 위한 최적화 - 애니메이션 제거 ============ */
-
-/* 모든 요소는 즉시 표시 (애니메이션 제거) */
-.search-title,
-.search-controls,
-.search-results-info,
-.missing-grid,
-.missing-list-view,
-.missing-card,
-.list-item,
-.pagination {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-}
-
-/* CSS 변수 정의 - style.css와 통합됨 */
-/* 
-이 파일은 style.css의 CSS 변수를 사용합니다.
-중복 정의를 피하기 위해 style.css를 먼저 로드해야 합니다.
-*/
+/* CSS 변수는 style.css에서 상속됨 */
 
 /* ============ 사이드바 제거 - 전체 너비 레이아웃 보장 ============ */
-
-/* 메인 콘텐츠 영역 - 사이드바 없이 전체 너비 사용 */
 .main-content-area {
     width: 100% !important;
     max-width: 100% !important;
@@ -34,21 +12,18 @@
     padding: 0 !important;
 }
 
-/* 컨테이너 - 적절한 크기로 조정 */
 .missing-list .container {
-    max-width: 1200px !important; /* 기존 크기로 복원 */
+    max-width: 1200px !important;
     width: 100% !important;
     margin: 0 auto !important;
     padding: 0 20px !important;
 }
 
-/* 검색 헤더도 동일한 크기 */
 .search-header .container {
-    max-width: 1200px !important; /* 기존 크기로 복원 */
+    max-width: 1200px !important;
     width: 100% !important;
 }
 
-/* 사이드바 관련 요소 완전 제거 */
 .sidebar,
 .side-nav,
 .side-menu,
@@ -60,13 +35,13 @@
     overflow: hidden !important;
 }
 
-/* 검색 헤더 섹션 */
+/* ============ 검색 헤더 섹션 ============ */
 .search-header {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 60px 0 40px;
     position: relative;
     overflow: hidden;
-    width: 100% !important; /* 전체 너비 보장 */
+    width: 100% !important;
 }
 
 .search-header::before {
@@ -82,7 +57,7 @@
 
 .search-title {
     text-align: center;
-    margin-bottom: 25px; /* 기존 40px에서 줄임 */
+    margin-bottom: 25px;
     position: relative;
     z-index: 1;
 }
@@ -110,16 +85,16 @@
     margin: 0 auto;
 }
 
-/* 검색 컨트롤 - 간격 조정 */
+/* ============ 검색 컨트롤 ============ */
 .search-controls {
     background: white;
     border-radius: 20px;
-    padding: 25px; /* 기존 30px에서 줄임 */
+    padding: 25px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--gray-200);
     position: relative;
     z-index: 1;
-    margin-bottom: 20px; /* 기존 30px에서 줄임 */
+    margin-bottom: 20px;
 }
 
 .search-section {
@@ -191,7 +166,6 @@
     background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
-/* 필터 컨트롤 */
 .filter-controls {
     display: flex;
     gap: 15px;
@@ -272,13 +246,11 @@
     color: var(--danger-red);
 }
 
-/* ============ 완전히 수정된 팝업 모달 - 뷰포트 중앙 정렬 절대 보장 ============ */
-
-/* 모달 오픈 시 body 고정 - 배경 상단 이동 방지 */
+/* ============ 필터 팝업 모달 ============ */
 body.modal-open {
     position: fixed !important;
-    top: 0 !important; /* 상단 이동 방지: 항상 0 */
-    left: 0 !important; /* 좌측 이동 방지: 항상 0 */
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
     overflow: hidden !important;
@@ -286,14 +258,11 @@ body.modal-open {
     margin: 0 !important;
 }
 
-/* 스크롤바 너비 계산을 위한 CSS 변수 */
 html {
     --scrollbar-width: 0px;
 }
 
-/* ============ 절대적 뷰포트 중앙 정렬 모달 오버레이 - 배경 효과 개선 ============ */
 .filter-popup-overlay {
-    /* 최우선 고정 위치 - 뷰포트 전체 덮기 */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -303,42 +272,26 @@ html {
     height: 100vh !important;
     margin: 0 !important;
     padding: 0 !important;
-    
-    /* 배경 효과 - 더 어둡고 자연스러운 블러 */
-    background: rgba(0, 0, 0, 0.75) !important; /* 0.6에서 0.75로 증가 */
-    backdrop-filter: blur(12px) !important; /* 8px에서 12px로 증가 */
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
-    
-    /* Flexbox 완전 중앙 정렬 */
     display: none !important;
     align-items: center !important;
     justify-content: center !important;
     align-content: center !important;
-    
-    /* 최고 우선순위 z-index */
     z-index: 999999 !important;
-    
-    /* 스크롤 완전 방지 */
     overflow: hidden !important;
     overscroll-behavior: none !important;
-    
-    /* 터치 및 모바일 최적화 */
     -webkit-overflow-scrolling: touch !important;
     touch-action: none !important;
-    
-    /* 렌더링 최적화 */
     transform: translateZ(0) !important;
     will-change: opacity, visibility !important;
     -webkit-backface-visibility: hidden !important;
     backface-visibility: hidden !important;
-    
-    /* 브라우저별 호환성 강화 */
     -webkit-transform: translateZ(0) !important;
     -moz-transform: translateZ(0) !important;
     -ms-transform: translateZ(0) !important;
     -o-transform: translateZ(0) !important;
-    
-    /* 포인터 이벤트 */
     pointer-events: auto !important;
     user-select: none !important;
     -webkit-user-select: none !important;
@@ -350,94 +303,34 @@ html {
     display: flex !important;
 }
 
-/* ============ 모달 컨테이너 - 절대적 중앙 정렬 + 위치 조정 ============ */
 .filter-popup-modal {
-    /* 기본 레이아웃 */
     background: white !important;
     border-radius: 20px !important;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4) !important;
-    
-    /* 크기 설정 */
     width: 90% !important;
     max-width: 450px !important;
     max-height: 80vh !important;
     min-height: 400px !important;
-    
-    /* Flexbox 레이아웃 */
     display: flex !important;
     flex-direction: column !important;
-    
-    /* 위치 - 중앙 정렬 + 40px 위로 이동 */
     position: relative !important;
     margin: 0 !important;
     transform: translateY(-40px) !important;
-    
-    /* 스크롤 */
     overflow: hidden !important;
-    
-    /* 렌더링 최적화 */
     will-change: transform, opacity !important;
     -webkit-backface-visibility: hidden !important;
     backface-visibility: hidden !important;
-    
-    /* 포인터 이벤트 */
     pointer-events: auto !important;
     user-select: text !important;
     -webkit-user-select: text !important;
     -moz-user-select: text !important;
     -ms-user-select: text !important;
-    
-    /* 브라우저별 호환성 */
     -webkit-transform: translateY(-40px) !important;
     -moz-transform: translateY(-40px) !important;
     -ms-transform: translateY(-40px) !important;
     -o-transform: translateY(-40px) !important;
 }
 
-/* ============ 모바일 환경 모달 최적화 + 위치 조정 ============ */
-@media (max-width: 768px) {
-    .filter-popup-overlay {
-        /* 모바일에서 더 안전한 뷰포트 단위 */
-        width: 100vw !important;
-        height: 100vh !important;
-        height: 100dvh !important; /* Dynamic Viewport Height for mobile */
-        min-height: -webkit-fill-available !important;
-        min-height: fill-available !important;
-        padding: 10px !important;
-    }
-    
-    .filter-popup-modal {
-        width: calc(100% - 20px) !important;
-        max-width: 400px !important;
-        max-height: calc(100vh - 40px) !important;
-        max-height: calc(100dvh - 40px) !important;
-        /* iOS Safari 안전 영역 고려 */
-        max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px) !important;
-        /* 모바일에서도 40px 위로 이동 유지 */
-        transform: translateY(-40px) !important;
-        -webkit-transform: translateY(-40px) !important;
-    }
-}
-
-/* 초소형 모바일 (480px 이하) + 위치 조정 */
-@media (max-width: 480px) {
-    .filter-popup-overlay {
-        padding: 5px !important;
-    }
-    
-    .filter-popup-modal {
-        width: calc(100% - 10px) !important;
-        max-width: 350px !important;
-        max-height: calc(100vh - 20px) !important;
-        max-height: calc(100dvh - 20px) !important;
-        border-radius: 15px !important;
-        /* 소형 모바일에서도 40px 위로 이동 유지 */
-        transform: translateY(-40px) !important;
-        -webkit-transform: translateY(-40px) !important;
-    }
-}
-
-/* ============ 모달 헤더 ============ */
 .filter-popup-header {
     display: flex;
     justify-content: space-between;
@@ -483,7 +376,6 @@ html {
     color: var(--gray-800);
 }
 
-/* 필터 탭 버튼들 */
 .filter-tabs {
     display: flex;
     background: var(--gray-50);
@@ -539,36 +431,31 @@ html {
     padding: 20px 25px;
     overflow-y: auto !important;
     flex: 1;
-    /* 내부 스크롤 최적화 */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     background: white;
 }
 
-/* 지역 선택 관련 스타일 - 완전 재작성으로 버그 해결 */
 .region-selector {
     position: relative;
     min-height: 300px;
     background: transparent;
 }
 
-/* 단순한 표시/숨김 방식으로 변경 */
 .region-level-1 {
     width: 100%;
-    display: block; /* 기본적으로 표시 */
+    display: block;
 }
 
 .region-level-2 {
     width: 100%;
-    display: none; /* 기본적으로 숨김 */
+    display: none;
 }
 
-/* 2단계 활성화 시 */
 .region-level-2.show {
     display: block;
 }
 
-/* 2단계 활성화 시 1단계 숨김 */
 .region-level-1.hide {
     display: none;
 }
@@ -614,7 +501,6 @@ html {
     font-size: 0.8rem;
 }
 
-/* 지역 옵션 그리드: 3줄 배치 */
 .region-level-1 .filter-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -629,7 +515,6 @@ html {
     margin-top: 10px;
 }
 
-/* 지역 선택 옵션 스타일 조정 */
 .region-selector .filter-option {
     padding: 8px 10px;
     font-size: 0.8rem;
@@ -647,7 +532,6 @@ html {
     height: 5px;
 }
 
-/* 탭 콘텐츠 */
 .filter-tab-content {
     display: none;
 }
@@ -744,7 +628,7 @@ html {
     background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
-/* 검색 결과 정보 */
+/* ============ 검색 결과 정보 ============ */
 .search-results-info {
     display: flex;
     justify-content: space-between;
@@ -778,23 +662,20 @@ html {
 }
 
 .view-btn {
-    padding: 10px 16px;
+    padding: 12px;
     background: transparent;
     border: none;
     border-radius: 8px;
     color: var(--gray-600);
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 16px;
+    font-size: 18px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
     font-weight: 500;
-}
-
-.view-btn .view-label {
-    font-size: 13px;
-    font-weight: 500;
+    width: 44px;
+    height: 44px;
 }
 
 .view-btn:hover {
@@ -806,67 +687,59 @@ html {
     color: white !important;
 }
 
-/* ============ 실종자 목록 섹션 - 위치 조정 ============ */
+/* ============ 실종자 목록 섹션 - missing_detail 스타일 적용 ============ */
 .missing-list {
-    padding: 20px 0 60px; /* 기존 40px 0 80px에서 줄임 */
+    padding: 20px 0 60px;
     background: white;
 }
 
-/* 수정된 뷰 컨테이너 - absolute positioning 제거 */
 .view-container {
     position: relative;
     min-height: 400px;
     width: 100%;
 }
 
-/* ============ 단순한 뷰 전환 구조 ============ */
-
-/* 그리드 뷰 - 기본 표시 */
+/* 그리드 뷰 - missing_detail의 related-missing 스타일 사용 */
 .missing-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 25px; /* 기존 30px에서 줄임 */
-    margin-bottom: 30px; /* 기존 40px에서 줄임 */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
     width: 100%;
     opacity: 1 !important;
     visibility: visible !important;
-    /* absolute positioning 완전 제거 */
     position: static !important;
 }
 
-/* 그리드 뷰 숨김 상태 */
 .missing-grid.view-hidden {
     display: none !important;
 }
 
-/* 리스트 뷰 - 기본 숨김 */
+/* 리스트 뷰 - missing_detail 스타일 기반 세로 배치 */
 .missing-list-view {
     display: none !important;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 30px; /* 기존 40px에서 줄임 */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
     width: 100%;
-    /* absolute positioning 완전 제거 */
     position: static !important;
 }
 
-/* 리스트 뷰 활성화 */
 .missing-list-view.view-active {
-    display: flex !important;
+    display: grid !important;
     opacity: 1 !important;
     visibility: visible !important;
 }
 
-/* 실종자 카드 스타일 */
+/* missing_detail의 관련 실종자 카드 스타일 적용 */
 .missing-card {
     background: white;
-    border-radius: 20px;
+    border-radius: var(--radius-xl, 15px);
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
+    border: 1px solid var(--gray-100);
     position: relative;
-    /* 강제 표시 보장 */
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
@@ -874,24 +747,9 @@ html {
 }
 
 .missing-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-}
-
-.missing-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.missing-card:hover::before {
-    transform: scaleX(1);
+    border-color: var(--primary-orange-light);
 }
 
 .card-image {
@@ -949,296 +807,77 @@ html {
 }
 
 .card-content {
-    padding: 25px;
+    padding: 24px;
 }
 
-.card-content h3 {
-    font-size: 1.4rem;
-    font-weight: 600;
+.card-content h4 {
+    font-size: 20px;
     color: var(--gray-900);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
-.missing-info {
+.card-content .location,
+.card-content .date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
     color: var(--gray-600);
-    margin-bottom: 20px;
-    line-height: 1.8;
-}
-
-.missing-info p {
     margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
 }
 
-.missing-info i {
+.card-content i {
     color: var(--primary-orange);
-    width: 16px;
-    text-align: center;
 }
 
-.card-actions {
+.card-stats {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-}
-
-.up-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--secondary-green-soft);
-    color: var(--secondary-green-dark);
-    border: 1px solid var(--secondary-green-light);
-    padding: 12px 18px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    font-weight: 600;
-    position: relative;
-    overflow: hidden;
-}
-
-.up-btn:hover {
-    background: var(--secondary-green);
-    color: white;
-    transform: translateY(-2px);
-}
-
-.detail-btn {
-    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: background 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-    overflow: hidden;
-}
-
-.detail-btn:hover {
-    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
-    transform: translateY(-2px);
-}
-
-/* ============ 완전히 수정된 리스트 뷰 아이템 스타일 - 가로 공간 최적화 ============ */
-.list-item {
-    display: grid;
-    grid-template-columns: 140px 1fr auto auto;
     gap: 20px;
-    padding: 20px 25px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--gray-200);
-    transition: all 0.3s ease;
-    align-items: center;
-    width: 100%;
-    box-sizing: border-box;
-    min-height: 120px;
-    /* 강제 표시 보장 */
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    /* 가로 레이아웃 강화 */
-    position: relative;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--gray-100);
 }
 
-.list-item:hover {
-    transform: translateX(8px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: var(--primary-orange-light);
-}
-
-.list-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-    border-radius: 0 2px 2px 0;
-    transform: scaleY(0);
-    transition: transform 0.3s ease;
-}
-
-.list-item:hover::before {
-    transform: scaleY(1);
-}
-
-.list-image {
-    width: 140px;
-    height: 100px;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.list-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.list-item:hover .list-image img {
-    transform: scale(1.05);
-}
-
-/* 위험도 배지를 이미지 위에 표시 */
-.list-image::after {
-    content: attr(data-danger-level);
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: white;
-    backdrop-filter: blur(8px);
-    z-index: 2;
-}
-
-.list-image[data-danger-level="긴급"]::after {
-    content: "긴급";
-    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-}
-
-.list-image[data-danger-level="주의"]::after {
-    content: "주의";
-    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
-}
-
-.list-image[data-danger-level="관심"]::after {
-    content: "관심";
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-}
-
-/* ============ 수정된 리스트 콘텐츠 - 가로 공간 최적화 ============ */
-.list-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.list-content h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: 8px;
-    line-height: 1.2;
-    /* 텍스트 오버플로우 방지 */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.list-content .missing-info {
-    margin-bottom: 0;
-    line-height: 1.5;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 15px;
-    font-size: 0.85rem;
-}
-
-.list-content .missing-info p {
-    margin-bottom: 0;
+.card-stats .stat {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
-    color: var(--gray-600);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.list-content .missing-info i {
-    color: var(--primary-orange);
-    width: 14px;
-    font-size: 0.8rem;
-    flex-shrink: 0;
-}
-
-/* ============ 수정된 리스트 상태 정보 - 컴팩트한 디스플레이 ============ */
-.list-status {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    min-width: 80px;
-    flex-shrink: 0;
-}
-
-.list-period {
-    background: var(--gray-100);
+    font-size: 14px;
     color: var(--gray-700);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-    border: 1px solid var(--gray-200);
+    font-weight: 500;
 }
 
-.list-up-count {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--secondary-green-dark);
-    font-size: 0.8rem;
-    font-weight: 600;
+.card-stats .stat i {
+    color: var(--primary-orange);
 }
 
-.list-up-count i {
-    color: var(--secondary-green);
-    font-size: 0.7rem;
-}
-
-/* ============ 수정된 리스트 액션 버튼 - 세로 배치로 컴팩트하게 ============ */
-.list-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-    flex-shrink: 0;
-    min-width: 100px;
-}
-
-.list-actions .up-btn {
-    padding: 8px 16px;
-    font-size: 0.8rem;
-    min-width: 70px;
-    justify-content: center;
-    border-radius: 8px;
-}
-
-.list-actions .detail-btn {
-    padding: 8px 16px;
-    font-size: 0.8rem;
-    min-width: 70px;
-    justify-content: center;
-    border-radius: 8px;
+.detail-link {
+    display: block;
     text-align: center;
+    padding: 16px;
+    background: var(--gray-50);
+    color: var(--primary-orange);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-top: 1px solid var(--gray-100);
 }
 
-/* 로딩 인디케이터 */
+.detail-link:hover {
+    background: var(--primary-orange);
+    color: white;
+}
+
+.detail-link i {
+    margin-left: 8px;
+    transition: all 0.3s ease;
+}
+
+.detail-link:hover i {
+    transform: translateX(4px);
+}
+
+/* ============ 로딩 및 에러 상태 ============ */
 .loading-indicator {
     display: none;
     justify-content: center;
@@ -1261,7 +900,6 @@ html {
     100% { transform: rotate(360deg); }
 }
 
-/* 결과 없음 메시지 */
 .no-results {
     display: none;
     text-align: center;
@@ -1286,14 +924,13 @@ html {
     color: var(--gray-500);
 }
 
-/* 페이지네이션 */
+/* ============ 페이지네이션 ============ */
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 12px;
-    margin-top: 30px; /* 기존 40px에서 줄임 */
-    /* 페이지네이션도 항상 표시 보장 */
+    margin-top: 30px;
     opacity: 1 !important;
     visibility: visible !important;
 }
@@ -1375,7 +1012,7 @@ html {
     font-weight: 600;
 }
 
-/* 플로팅 버튼들 */
+/* ============ 플로팅 버튼들 ============ */
 .floating-report-btns {
     position: fixed;
     bottom: 30px;
@@ -1484,15 +1121,20 @@ html {
     opacity: 1;
 }
 
-/* ============ 반응형 디자인 (PDF 가이드라인: Mobile First) - 리스트 뷰 최적화 ============ */
+/* ============ 반응형 디자인 ============ */
 @media (max-width: 1024px) {
     .search-controls {
-        padding: 20px; /* 기존 25px에서 줄임 */
+        padding: 20px;
     }
     
     .missing-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 22px; /* 기존 25px에서 줄임 */
+        gap: 22px;
+    }
+    
+    .missing-list-view {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
     }
     
     .search-results-info {
@@ -1506,30 +1148,6 @@ html {
     
     .filter-options {
         grid-template-columns: 1fr 1fr;
-    }
-
-    /* 리스트 뷰 태블릿 최적화 */
-    .list-item {
-        grid-template-columns: 120px 1fr auto;
-        gap: 15px;
-        padding: 18px 20px;
-        min-height: 110px;
-    }
-
-    .list-image {
-        width: 120px;
-        height: 90px;
-    }
-
-    .list-actions {
-        flex-direction: row;
-        gap: 6px;
-        min-width: 140px;
-    }
-
-    .list-content .missing-info {
-        grid-template-columns: 1fr;
-        gap: 4px;
     }
 }
 
@@ -1581,77 +1199,14 @@ html {
         text-align: center;
     }
     
-    .view-btn .view-label {
-        display: none;
-    }
-    
     .missing-grid {
         grid-template-columns: 1fr;
-        gap: 18px; /* 기존 20px에서 줄임 */
+        gap: 18px;
     }
     
-    /* ============ 모바일 리스트 뷰 최적화 - 세로 레이아웃 ============ */
-    .list-item {
+    .missing-list-view {
         grid-template-columns: 1fr;
-        gap: 15px;
-        text-align: left;
-        padding: 20px;
-        min-height: auto;
-    }
-    
-    .list-image {
-        width: 100%;
-        height: 180px;
-        justify-self: center;
-        max-width: 300px;
-        margin: 0 auto;
-    }
-
-    .list-content {
-        text-align: left;
-    }
-
-    .list-content h3 {
-        text-align: center;
-        font-size: 1.4rem;
-        white-space: normal;
-        margin-bottom: 15px;
-    }
-
-    .list-content .missing-info {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        margin-bottom: 15px;
-    }
-
-    .list-content .missing-info p {
-        white-space: normal;
-    }
-
-    /* 모바일에서 상태와 액션을 가로로 배치 */
-    .list-status,
-    .list-actions {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        gap: 15px;
-    }
-
-    .list-status {
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    .list-actions {
-        justify-content: center;
-    }
-
-    .list-actions .up-btn,
-    .list-actions .detail-btn {
-        flex: 1;
-        max-width: 120px;
-        min-width: 100px;
+        gap: 16px;
     }
     
     .floating-report-btns {
@@ -1677,7 +1232,6 @@ html {
         margin: 0 8px;
     }
     
-    /* 모바일 필터 팝업 조정 */
     .filter-popup-modal {
         width: 95% !important;
         max-width: 400px !important;
@@ -1721,7 +1275,7 @@ html {
 
 @media (max-width: 480px) {
     .search-header {
-        padding: 30px 0 20px; /* 기존 40px 0 30px에서 줄임 */
+        padding: 30px 0 20px;
     }
     
     .search-title h1 {
@@ -1729,8 +1283,8 @@ html {
     }
     
     .search-controls {
-        padding: 18px; /* 기존 20px에서 줄임 */
-        margin: 0 -10px 15px; /* 기존 margin-bottom 20px에서 줄임 */
+        padding: 18px;
+        margin: 0 -10px 15px;
         border-radius: 15px;
     }
     
@@ -1764,16 +1318,6 @@ html {
         padding: 20px;
     }
     
-    .card-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-    
-    .up-btn, .detail-btn {
-        justify-content: center;
-    }
-    
     .search-status {
         position: static;
         transform: none;
@@ -1804,32 +1348,7 @@ html {
     .filter-reset-btn {
         width: 100%;
     }
-
-    /* 소형 모바일 리스트 뷰 최적화 */
-    .list-item {
-        padding: 18px;
-    }
-
-    .list-image {
-        height: 160px;
-    }
-
-    .list-content h3 {
-        font-size: 1.2rem;
-    }
-
-    .list-content .missing-info p {
-        font-size: 0.8rem;
-    }
-
-    .list-actions .up-btn,
-    .list-actions .detail-btn {
-        font-size: 0.75rem;
-        padding: 8px 12px;
-        min-width: 80px;
-    }
     
-    /* 소형 모바일 필터 팝업 */
     .filter-popup-modal {
         width: 98% !important;
         max-width: 350px !important;
@@ -1891,17 +1410,7 @@ html {
         font-size: 14px;
     }
     
-    /* 모바일 지역 선택 높이 조정 */
     .region-selector {
         min-height: 300px;
     }
-}
-
-/* 성능 최적화 - 빠른 로딩을 위한 최소한의 최적화 */
-.missing-grid,
-.missing-list-view,
-.missing-card,
-.list-item {
-    transform: translateZ(0);
-    backface-visibility: hidden;
 }
