@@ -218,38 +218,32 @@ class HopeEffectManager {
 
     createStarTexture() {
         const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
+        canvas.width = 128;
+        canvas.height = 128;
         const ctx = canvas.getContext('2d');
         
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-        const outerRadius = 12; // 매우 작은 별
-        const innerRadius = 5;
+        const outerRadius = 25;
+        const innerRadius = 10;
         const spikes = 5;
         
-        // 강한 블러 효과를 위한 큰 그라데이션 영역
-        const blurRadius = 80;
-        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, blurRadius);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(0.1, 'rgba(255, 255, 255, 0.9)');
-        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.7)');
-        gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
-        gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
-        gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        // 부드러운 외곽 그라데이션 (몽글몽글한 효과)
+        const outerGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
+        outerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        outerGradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.6)');
+        outerGradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.3)');
+        outerGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.15)');
+        outerGradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.05)');
+        outerGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
         
-        // 블러 효과가 강한 배경 원형 그라데이션
-        ctx.filter = 'blur(20px)';
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // 외곽 부드러운 원 그리기
+        ctx.fillStyle = outerGradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+        ctx.fill();
         
-        // 중간 블러 레이어
-        ctx.filter = 'blur(12px)';
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // 별 모양 경로 생성 (매우 작은 크기)
+        // 별 모양 경로 생성
         ctx.beginPath();
         for (let i = 0; i < spikes * 2; i++) {
             const radius = i % 2 === 0 ? outerRadius : innerRadius;
@@ -265,14 +259,20 @@ class HopeEffectManager {
         }
         ctx.closePath();
         
-        // 별 중심부 - 강한 빛 효과
-        ctx.filter = 'blur(4px)';
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        // 별 중심부 그라데이션 (밝은 중심)
+        const starGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, outerRadius);
+        starGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        starGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
+        starGradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.4)');
+        starGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.fillStyle = starGradient;
         ctx.fill();
         
-        // 매우 작은 별 중심점 
-        ctx.filter = 'blur(1px)';
+        // 중심점 강조
         ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
         ctx.fill();
         
         return new THREE.CanvasTexture(canvas);
@@ -322,7 +322,9 @@ class HopeEffectManager {
             blending: THREE.AdditiveBlending,
             sizeAttenuation: true,
             vertexColors: false,
-            alphaTest: 0.001
+            alphaTest: 0.001,
+            depthTest: false, // 깊이 테스트 비활성화
+            depthWrite: false // 깊이 쓰기 비활성화
         });
         
         const particles = new THREE.Points(geometry, material);
@@ -356,7 +358,9 @@ class HopeEffectManager {
             opacity: 0.9,
             blending: THREE.AdditiveBlending,
             sizeAttenuation: true,
-            alphaTest: 0.001
+            alphaTest: 0.001,
+            depthTest: false, // 깊이 테스트 비활성화
+            depthWrite: false // 깊이 쓰기 비활성화
         });
         
         const smallParticles = new THREE.Points(smallGeometry, smallMaterial);
@@ -661,16 +665,12 @@ class GSAPAnimationManager {
             }, 1.4);
         }
 
-        // 6. 통계 섹션 (1.8초 후) - 희망 효과와 함께
+        // 6. 통계 섹션 (1.8초 후)
         masterTL.to('.stats-section h2', {
             opacity: 1,
             visibility: 'visible',
             duration: 0.5,
-            ease: "power2.out",
-            onComplete: () => {
-                // 통계 섹션이 나타날 때 희망 효과 시작
-                this.initializeHopeEffect();
-            }
+            ease: "power2.out"
         }, 1.8)
         .to('.hope-message', {
             opacity: 1,
@@ -1017,7 +1017,12 @@ class EnhancedIndexPage {
         // 이벤트 리스너 설정
         this.setupEventListeners();
         
-        // 메인 애니메이션 + 희망 효과 시작
+        // 희망 효과 즉시 시작
+        setTimeout(() => {
+            this.animationManager.initializeHopeEffect();
+        }, 200);
+        
+        // 메인 애니메이션 시작
         setTimeout(() => {
             this.animationManager.startMainAnimation();
         }, 100);
