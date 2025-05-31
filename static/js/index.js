@@ -216,7 +216,72 @@ class HopeEffectManager {
         this.container.appendChild(this.renderer.domElement);
     }
 
+    createStarTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const outerRadius = 12; // 매우 작은 별
+        const innerRadius = 5;
+        const spikes = 5;
+        
+        // 강한 블러 효과를 위한 큰 그라데이션 영역
+        const blurRadius = 80;
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, blurRadius);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.1, 'rgba(255, 255, 255, 0.9)');
+        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.7)');
+        gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
+        gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        // 블러 효과가 강한 배경 원형 그라데이션
+        ctx.filter = 'blur(20px)';
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 중간 블러 레이어
+        ctx.filter = 'blur(12px)';
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 별 모양 경로 생성 (매우 작은 크기)
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            const angle = (i * Math.PI) / spikes;
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+            
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.closePath();
+        
+        // 별 중심부 - 강한 빛 효과
+        ctx.filter = 'blur(4px)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.fill();
+        
+        // 매우 작은 별 중심점 
+        ctx.filter = 'blur(1px)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+        ctx.fill();
+        
+        return new THREE.CanvasTexture(canvas);
+    }
+
     createParticles() {
+        // 별 모양 텍스처 생성
+        const starTexture = this.createStarTexture();
+        
         const particleCount = 150;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
@@ -247,22 +312,24 @@ class HopeEffectManager {
         geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
         geometry.setAttribute('opacity', new THREE.BufferAttribute(opacities, 1));
         
-        // 희망의 빛을 표현하는 따뜻한 색상
+        // 희망의 빛을 표현하는 따뜻한 색상 - 별 모양 텍스처 적용
         const material = new THREE.PointsMaterial({
             color: 0xffd700, // 황금색
-            size: 0.8,
+            size: 0.8, // 미세한 크기로 축소
+            map: starTexture,
             transparent: true,
-            opacity: 0.8,
+            opacity: 0.9,
             blending: THREE.AdditiveBlending,
             sizeAttenuation: true,
-            vertexColors: false
+            vertexColors: false,
+            alphaTest: 0.001
         });
         
         const particles = new THREE.Points(geometry, material);
         this.scene.add(particles);
         this.particles.push({ mesh: particles, velocities });
         
-        // 추가 파티클 레이어 - 더 작고 밝은 빛
+        // 추가 파티클 레이어 - 더 작고 밝은 별들
         const smallParticleCount = 80;
         const smallGeometry = new THREE.BufferGeometry();
         const smallPositions = new Float32Array(smallParticleCount * 3);
@@ -283,11 +350,13 @@ class HopeEffectManager {
         
         const smallMaterial = new THREE.PointsMaterial({
             color: 0xffffff, // 순백색
-            size: 0.4,
+            size: 0.5, // 더 작은 별들로 축소
+            map: starTexture,
             transparent: true,
             opacity: 0.9,
             blending: THREE.AdditiveBlending,
-            sizeAttenuation: true
+            sizeAttenuation: true,
+            alphaTest: 0.001
         });
         
         const smallParticles = new THREE.Points(smallGeometry, smallMaterial);
