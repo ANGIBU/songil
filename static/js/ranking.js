@@ -448,9 +448,149 @@ class GSAPRankingAnimator {
         // 페이지 로드 시 통계 카드 애니메이션 실행
         this.animateStatCards();
         
+        // Three.js CTA 배경 효과 초기화
+        this.initializeCTABackground();
+        
         // 스크롤 기반 애니메이션들 설정
         this.animateCTASection();
         this.animateBenefitsSection();
+    }
+
+    // CTA 배경 Three.js 효과
+    initializeCTABackground() {
+        const container = document.getElementById('ctaThreeJSContainer');
+        if (!container || typeof THREE === 'undefined') {
+            console.warn('Three.js not available or container not found');
+            return;
+        }
+
+        // 모바일에서는 성능을 위해 비활성화
+        if (window.innerWidth <= 480) {
+            console.log('Three.js CTA background disabled on mobile for performance');
+            return;
+        }
+
+        try {
+            // Scene, Camera, Renderer 설정
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ 
+                alpha: true, 
+                antialias: window.innerWidth > 768, // 모바일에서는 안티알리아싱 비활성화
+                powerPreference: "low-power"
+            });
+
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            // 보글보글 구체들 생성
+            const bubbles = [];
+            const bubbleGeometry = new THREE.SphereGeometry(0.1, 8, 6);
+            const bubbleMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            // 디바이스에 따라 구체 개수 조정
+            const bubbleCount = window.innerWidth > 768 ? 20 : 12;
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial.clone());
+                
+                // 랜덤 위치 설정
+                bubble.position.x = (Math.random() - 0.5) * 10;
+                bubble.position.y = (Math.random() - 0.5) * 6;
+                bubble.position.z = (Math.random() - 0.5) * 4;
+                
+                // 개별 속도와 방향 설정
+                bubble.userData = {
+                    velocity: {
+                        x: (Math.random() - 0.5) * 0.02,
+                        y: (Math.random() - 0.5) * 0.02,
+                        z: (Math.random() - 0.5) * 0.01
+                    },
+                    originalY: bubble.position.y,
+                    phase: Math.random() * Math.PI * 2,
+                    scale: 0.5 + Math.random() * 0.5
+                };
+                
+                bubble.scale.setScalar(bubble.userData.scale);
+                scene.add(bubble);
+                bubbles.push(bubble);
+            }
+
+            camera.position.z = 5;
+
+            // 애니메이션 루프
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                bubbles.forEach((bubble, index) => {
+                    // 위아래 보글보글 움직임
+                    bubble.userData.phase += 0.02;
+                    bubble.position.y = bubble.userData.originalY + Math.sin(bubble.userData.phase) * 0.5;
+                    
+                    // 좌우 미세 움직임
+                    bubble.position.x += bubble.userData.velocity.x;
+                    bubble.position.z += bubble.userData.velocity.z;
+                    
+                    // 투명도 변화로 반짝임 효과
+                    bubble.material.opacity = 0.3 + Math.sin(bubble.userData.phase * 1.5) * 0.3;
+                    
+                    // 경계 충돌 처리
+                    if (Math.abs(bubble.position.x) > 5) {
+                        bubble.userData.velocity.x *= -1;
+                    }
+                    if (Math.abs(bubble.position.z) > 2) {
+                        bubble.userData.velocity.z *= -1;
+                    }
+                    
+                    // 미세한 회전
+                    bubble.rotation.x += 0.01;
+                    bubble.rotation.y += 0.01;
+                });
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            // 리사이즈 처리
+            const handleResize = () => {
+                if (container.offsetWidth && container.offsetHeight) {
+                    camera.aspect = container.offsetWidth / container.offsetHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.offsetWidth, container.offsetHeight);
+                }
+            };
+
+            window.addEventListener('resize', handleResize);
+
+            // 정리 함수 저장
+            this.ctaCleanup = () => {
+                window.removeEventListener('resize', handleResize);
+                if (container && renderer.domElement) {
+                    container.removeChild(renderer.domElement);
+                }
+                renderer.dispose();
+                bubbleGeometry.dispose();
+                bubbleMaterial.dispose();
+            };
+
+            console.log('CTA Three.js background initialized successfully');
+
+        } catch (error) {
+            console.warn('Failed to initialize CTA Three.js background:', error);
+        }
+    }
+
+    // 정리 함수
+    dispose() {
+        if (this.ctaCleanup) {
+            this.ctaCleanup();
+        }
     }
 }
 
@@ -548,6 +688,13 @@ class RankingPage {
         window.addEventListener('scroll', this.throttle(() => {
             this.handleScroll();
         }, 16));
+
+        // 페이지 언로드시 Three.js 리소스 정리
+        window.addEventListener('beforeunload', () => {
+            if (this.scrollObserver && this.scrollObserver.animator) {
+                this.scrollObserver.animator.dispose();
+            }
+        });
     }
 
     renderRankingPanel() {

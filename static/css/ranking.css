@@ -462,6 +462,24 @@
     overflow: hidden;
 }
 
+/* Three.js 배경 컨테이너 */
+.cta-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.cta-background canvas {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 25px;
+}
+
 .cta-content {
     position: relative;
     z-index: 1;
