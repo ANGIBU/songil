@@ -155,18 +155,12 @@
     font-weight: 700;
     color: var(--gray-900);
     line-height: 1;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateY(20px);
 }
 
 .stat-label {
     font-size: 1rem;
     color: var(--gray-600);
     font-weight: 500;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateY(20px);
 }
 
 /* 순위 콘텐츠 섹션 */
@@ -178,9 +172,6 @@
 /* 순위 패널 */
 .ranking-panel {
     display: block;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateY(30px);
 }
 
 .ranking-header-info {
@@ -224,9 +215,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateX(-30px);
 }
 
 .ranking-item::before {
@@ -472,9 +460,6 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateY(30px);
 }
 
 .cta-content {
@@ -532,9 +517,6 @@
 /* 랭킹 혜택 */
 .ranking-benefits {
     margin-top: 60px;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateY(30px);
 }
 
 .ranking-benefits h3 {
@@ -561,9 +543,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    /* GSAP 애니메이션을 위한 초기 상태 */
-    opacity: 0;
-    transform: translateY(30px);
 }
 
 .benefit-item::before {
@@ -668,7 +647,42 @@
     color: var(--primary-orange);
 }
 
-/* GSAP 애니메이션 클래스 */
+/* GSAP 애니메이션 클래스 - 애니메이션이 활성화될 때만 적용 */
+.gsap-animation-ready .stat-number {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.gsap-animation-ready .stat-label {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.gsap-animation-ready .ranking-panel {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.gsap-animation-ready .ranking-item {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.gsap-animation-ready .personal-ranking-cta {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.gsap-animation-ready .ranking-benefits {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.gsap-animation-ready .benefit-item {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
 .gsap-counter-ready .stat-number {
     opacity: 1;
     transform: translateY(0);
