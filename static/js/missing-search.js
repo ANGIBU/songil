@@ -1,1817 +1,1416 @@
-// static/js/missing-search.js
+/* static/css/missing-search.css */
 
-// React 컴포넌트 활용
-const { useState, useEffect, useCallback, useMemo } = React;
+/* ===== 실종자 검색 페이지 전용 스타일 ===== */
 
-// 디버그 모드 설정 (개발 시에만 true로 설정)
-const DEBUG_MODE = false;
+/* CSS 변수는 style.css에서 상속됨 */
 
-// 디버그 로그 함수
-function debugLog(...args) {
-    if (DEBUG_MODE) {
-        console.log(...args);
-    }
+/* ============ 사이드바 제거 - 전체 너비 레이아웃 보장 ============ */
+.main-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-function debugWarn(...args) {
-    if (DEBUG_MODE) {
-        console.warn(...args);
-    }
+.missing-list .container {
+    max-width: 1200px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 20px !important;
 }
 
-function debugError(...args) {
-    console.error(...args); // 에러는 항상 출력
+.search-header .container {
+    max-width: 1200px !important;
+    width: 100% !important;
 }
 
-// 실종자 데이터 (샘플)
-const sampleMissingData = [
-    {
-        id: 1,
-        name: "김○○",
-        age: 32,
-        gender: "남성",
-        date: "2024-05-20",
-        location: "서울시 강남구 역삼동",
-        region: "seoul",
-        description: "검은색 정장, 갈색 구두",
-        physicalInfo: "175cm, 중간체형",
-        dangerLevel: "high",
-        upCount: 246,
-        witnessCount: 7,
-        period: "3일째",
-        image: "/static/images/sample-missing-1.jpg"
-    },
-    {
-        id: 2,
-        name: "박○○",
-        age: 8,
-        gender: "남성",
-        date: "2024-05-21",
-        location: "부산시 해운대구 중동",
-        region: "busan",
-        description: "파란색 티셔츠, 검은색 반바지",
-        physicalInfo: "120cm, 마른체형",
-        dangerLevel: "high",
-        upCount: 189,
-        witnessCount: 5,
-        period: "2일째",
-        image: "/static/images/sample-missing-2.jpg"
-    },
-    {
-        id: 3,
-        name: "최○○",
-        age: 67,
-        gender: "여성",
-        date: "2024-05-22",
-        location: "대구시 중구 삼덕동",
-        region: "daegu",
-        description: "흰색 블라우스, 검은색 바지",
-        physicalInfo: "160cm, 중간체형",
-        dangerLevel: "medium",
-        upCount: 134,
-        witnessCount: 3,
-        period: "1일째",
-        image: "/static/images/sample-missing-3.jpg"
-    },
-    {
-        id: 4,
-        name: "이○○",
-        age: 45,
-        gender: "남성",
-        date: "2024-05-19",
-        location: "인천시 남동구 구월동",
-        region: "incheon",
-        description: "회색 후드티, 청바지",
-        physicalInfo: "168cm, 뚱뚱한체형",
-        dangerLevel: "low",
-        upCount: 87,
-        witnessCount: 2,
-        period: "4일째",
-        image: "/static/images/placeholder.jpg"
-    },
-    {
-        id: 5,
-        name: "정○○",
-        age: 23,
-        gender: "여성",
-        date: "2024-05-18",
-        location: "광주시 서구 상무동",
-        region: "gwangju",
-        description: "분홍색 원피스, 흰색 운동화",
-        physicalInfo: "165cm, 마른체형",
-        dangerLevel: "medium",
-        upCount: 156,
-        witnessCount: 4,
-        period: "5일째",
-        image: "/static/images/placeholder.jpg"
-    },
-    {
-        id: 6,
-        name: "홍○○",
-        age: 14,
-        gender: "남성",
-        date: "2024-05-23",
-        location: "대전시 유성구 봉명동",
-        region: "daejeon",
-        description: "교복, 검은색 가방",
-        physicalInfo: "160cm, 마른체형",
-        dangerLevel: "high",
-        upCount: 23,
-        witnessCount: 1,
-        period: "방금",
-        image: "/static/images/placeholder.jpg"
-    },
-    {
-        id: 7,
-        name: "강○○",
-        age: 55,
-        gender: "여성",
-        date: "2024-05-17",
-        location: "울산시 남구 삼산동",
-        region: "ulsan",
-        description: "베이지색 코트, 검은색 핸드백",
-        physicalInfo: "158cm, 중간체형",
-        dangerLevel: "medium",
-        upCount: 98,
-        witnessCount: 2,
-        period: "6일째",
-        image: "/static/images/placeholder.jpg"
-    },
-    {
-        id: 8,
-        name: "조○○",
-        age: 29,
-        gender: "남성",
-        date: "2024-05-16",
-        location: "경기도 수원시 영통구",
-        region: "gyeonggi",
-        description: "네이비 패딩, 청바지",
-        physicalInfo: "172cm, 마른체형",
-        dangerLevel: "low",
-        upCount: 67,
-        witnessCount: 3,
-        period: "7일째",
-        image: "/static/images/placeholder.jpg"
-    }
-];
-
-// 상태 저장 키
-const STORAGE_KEYS = {
-    FILTERS: 'missing_search_filters',
-    CURRENT_PAGE: 'missing_search_page',
-    VIEW_MODE: 'missing_search_view'
-};
-
-// 페이지네이션 관리자
-class PaginationManager {
-    constructor(itemsPerPage = 6) {
-        this.itemsPerPage = itemsPerPage;
-        this.currentPage = this.loadCurrentPage();
-        this.totalItems = 0;
-        this.maxVisiblePages = 5;
-        this.callbacks = [];
-    }
-
-    loadCurrentPage() {
-        try {
-            const saved = sessionStorage.getItem(STORAGE_KEYS.CURRENT_PAGE);
-            return saved ? parseInt(saved, 10) : 1;
-        } catch (error) {
-            debugWarn('Failed to load current page from storage:', error);
-            return 1;
-        }
-    }
-
-    saveCurrentPage() {
-        try {
-            sessionStorage.setItem(STORAGE_KEYS.CURRENT_PAGE, this.currentPage.toString());
-        } catch (error) {
-            debugWarn('Failed to save current page to storage:', error);
-        }
-    }
-
-    addCallback(callback) {
-        this.callbacks.push(callback);
-    }
-
-    notify() {
-        const paginationInfo = {
-            currentPage: this.currentPage,
-            totalPages: this.getTotalPages(),
-            startIndex: this.getStartIndex(),
-            endIndex: this.getEndIndex(),
-            totalItems: this.totalItems
-        };
-        
-        this.callbacks.forEach(callback => {
-            try {
-                callback(paginationInfo);
-            } catch (error) {
-                debugError('Pagination callback error:', error);
-            }
-        });
-    }
-
-    setTotalItems(count) {
-        this.totalItems = count;
-        
-        const totalPages = this.getTotalPages();
-        if (this.currentPage > totalPages && totalPages > 0) {
-            this.currentPage = 1;
-        }
-        
-        this.renderPagination();
-        this.notify();
-        this.saveCurrentPage();
-    }
-
-    getTotalPages() {
-        return Math.ceil(this.totalItems / this.itemsPerPage);
-    }
-
-    getStartIndex() {
-        return (this.currentPage - 1) * this.itemsPerPage;
-    }
-
-    getEndIndex() {
-        return Math.min(this.getStartIndex() + this.itemsPerPage, this.totalItems);
-    }
-
-    goToPage(page) {
-        const totalPages = this.getTotalPages();
-        
-        if (page >= 1 && page <= totalPages && page !== this.currentPage) {
-            this.currentPage = page;
-            this.renderPagination();
-            this.notify();
-            this.saveCurrentPage();
-            this.scrollToTop();
-        }
-    }
-
-    nextPage() {
-        if (this.currentPage < this.getTotalPages()) {
-            this.goToPage(this.currentPage + 1);
-        }
-    }
-
-    prevPage() {
-        if (this.currentPage > 1) {
-            this.goToPage(this.currentPage - 1);
-        }
-    }
-
-    scrollToTop() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
-
-    renderPagination() {
-        const pageNumbersContainer = document.getElementById('pageNumbers');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (!pageNumbersContainer) {
-            debugWarn('Page numbers container not found');
-            return;
-        }
-
-        const totalPages = this.getTotalPages();
-        
-        if (prevBtn) {
-            prevBtn.disabled = this.currentPage === 1;
-        }
-        if (nextBtn) {
-            nextBtn.disabled = this.currentPage === totalPages;
-        }
-
-        pageNumbersContainer.innerHTML = '';
-        
-        if (totalPages <= 1) {
-            return;
-        }
-
-        const startPage = Math.max(1, this.currentPage - Math.floor(this.maxVisiblePages / 2));
-        const endPage = Math.min(totalPages, startPage + this.maxVisiblePages - 1);
-        const adjustedStartPage = Math.max(1, endPage - this.maxVisiblePages + 1);
-
-        if (adjustedStartPage > 1) {
-            this.createPageButton(1, pageNumbersContainer);
-            if (adjustedStartPage > 2) {
-                this.createDots(pageNumbersContainer);
-            }
-        }
-
-        for (let i = adjustedStartPage; i <= endPage; i++) {
-            this.createPageButton(i, pageNumbersContainer);
-        }
-
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                this.createDots(pageNumbersContainer);
-            }
-            this.createPageButton(totalPages, pageNumbersContainer);
-        }
-    }
-
-    createPageButton(pageNum, container) {
-        const button = document.createElement('button');
-        button.className = `page-num ${pageNum === this.currentPage ? 'active' : ''}`;
-        button.innerHTML = `<span>${pageNum}</span>`;
-        button.addEventListener('click', () => this.goToPage(pageNum));
-        container.appendChild(button);
-    }
-
-    createDots(container) {
-        const dots = document.createElement('span');
-        dots.className = 'page-dots';
-        dots.textContent = '...';
-        container.appendChild(dots);
-    }
+.sidebar,
+.side-nav,
+.side-menu,
+.side-panel {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
 }
 
-// 필터 팝업 관리자
-class FilterPopupManager {
-    constructor(searchManager) {
-        this.searchManager = searchManager;
-        this.overlay = null;
-        this.modal = null;
-        this.currentFilters = {
-            sort: 'danger',
-            region: '',
-            age: '',
-            period: ''
-        };
-        this.regionData = this.initRegionData();
-        this.scrollY = 0;
-        this.scrollX = 0;
-        this.scrollbarWidth = 0;
-        this.originalBodyStyles = {};
-        this.init();
-    }
-
-    initRegionData() {
-        return {
-            seoul: {
-                name: '서울특별시',
-                districts: ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', 
-                          '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', 
-                          '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구']
-            },
-            gyeonggi: {
-                name: '경기도',
-                districts: ['고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', 
-                          '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', 
-                          '양주시', '여주시', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', 
-                          '평택시', '포천시', '하남시', '화성시']
-            },
-            busan: {
-                name: '부산광역시',
-                districts: ['중구', '서구', '동구', '영도구', '부산진구', '동래구', '남구', '북구', '해운대구', '사하구', '금정구', '강서구', '연제구', '수영구', '사상구', '기장군']
-            },
-            daegu: {
-                name: '대구광역시',
-                districts: ['중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군']
-            },
-            incheon: {
-                name: '인천광역시',
-                districts: ['중구', '동구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서구', '강화군', '옹진군']
-            },
-            gwangju: {
-                name: '광주광역시',
-                districts: ['동구', '서구', '남구', '북구', '광산구']
-            },
-            daejeon: {
-                name: '대전광역시',
-                districts: ['동구', '중구', '서구', '유성구', '대덕구']
-            },
-            ulsan: {
-                name: '울산광역시',
-                districts: ['중구', '남구', '동구', '북구', '울주군']
-            }
-        };
-    }
-
-    init() {
-        this.overlay = document.getElementById('filterPopupOverlay');
-        if (this.overlay) this.modal = this.overlay.querySelector('.filter-popup-modal');
-        
-        if (!this.overlay || !this.modal) {
-            debugWarn('Filter popup elements not found');
-            return;
-        }
-
-        this.calculateScrollbarWidth();
-        this.setupEventListeners();
-        this.loadCurrentFilters();
-    }
-
-    calculateScrollbarWidth() {
-        const outer = document.createElement('div');
-        outer.style.cssText = `
-            visibility: hidden;
-            overflow: scroll;
-            msOverflowStyle: scrollbar;
-            position: absolute;
-            top: -9999px;
-            width: 100px;
-            height: 100px;
-        `;
-        document.body.appendChild(outer);
-        
-        const inner = document.createElement('div');
-        inner.style.width = '100%';
-        inner.style.height = '200px';
-        outer.appendChild(inner);
-        
-        this.scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
-        document.body.removeChild(outer);
-        
-        document.documentElement.style.setProperty('--scrollbar-width', `${this.scrollbarWidth}px`);
-    }
-
-    setupEventListeners() {
-        const openBtn = document.getElementById('filterPopupBtn');
-        if (openBtn) {
-            openBtn.addEventListener('click', () => this.openPopup());
-        }
-
-        const closeBtn = document.getElementById('filterPopupClose');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closePopup());
-        }
-
-        if (this.overlay) {
-            this.overlay.addEventListener('click', (e) => {
-                if (e.target === this.overlay) {
-                    this.closePopup();
-                }
-            });
-        }
-
-        const applyBtn = document.getElementById('filterApplyBtn');
-        if (applyBtn) {
-            applyBtn.addEventListener('click', () => this.applyFilters());
-        }
-
-        document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                const tabName = e.currentTarget.dataset.tab;
-                this.switchTab(tabName);
-            });
-        });
-
-        document.addEventListener('change', (e) => {
-            if (e.target.name === 'region-level1') {
-                this.handleRegionLevel1Change(e.target.value);
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('#regionBackBtn')) {
-                this.showRegionLevel1();
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.overlay && this.overlay.classList.contains('active')) {
-                this.closePopup();
-            }
-        });
-    }
-
-    handleRegionLevel1Change(regionCode) {
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        const regionLevel2Options = document.getElementById('regionLevel2Options');
-        const regionLevel2Title = document.getElementById('regionLevel2Title');
-        
-        if (!regionCode) {
-            this.showRegionLevel1();
-            return;
-        }
-        
-        const regionInfo = this.regionData[regionCode];
-        if (!regionInfo) {
-            debugError('Region data not found for:', regionCode);
-            return;
-        }
-        
-        if (regionLevel2Title) {
-            regionLevel2Title.textContent = `${regionInfo.name} 세부 지역`;
-        }
-        
-        if (regionLevel2Options) {
-            regionLevel2Options.innerHTML = '';
-            
-            const allOption = document.createElement('label');
-            allOption.className = 'filter-option';
-            allOption.innerHTML = `
-                <input type="radio" name="region-level2" value="${regionCode}" checked>
-                <span class="checkmark"></span>
-                전체 ${regionInfo.name}
-            `;
-            regionLevel2Options.appendChild(allOption);
-            
-            regionInfo.districts.forEach(district => {
-                const option = document.createElement('label');
-                option.className = 'filter-option';
-                option.innerHTML = `
-                    <input type="radio" name="region-level2" value="${regionCode}-${district}">
-                    <span class="checkmark"></span>
-                    ${district}
-                `;
-                regionLevel2Options.appendChild(option);
-            });
-        }
-        
-        this.showRegionLevel2();
-    }
-
-    showRegionLevel2() {
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        
-        if (regionLevel1) {
-            regionLevel1.classList.add('hide');
-        }
-        
-        if (regionLevel2) {
-            regionLevel2.classList.add('show');
-        }
-    }
-
-    showRegionLevel1() {
-        const regionLevel1 = document.getElementById('regionLevel1');
-        const regionLevel2 = document.getElementById('regionLevel2');
-        
-        if (regionLevel2) {
-            regionLevel2.classList.remove('show');
-        }
-        
-        if (regionLevel1) {
-            regionLevel1.classList.remove('hide');
-        }
-    }
-
-    switchTab(tabName) {
-        document.querySelectorAll('.filter-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelectorAll('.filter-tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
-        const selectedContent = document.getElementById(`tab-${tabName}`);
-        
-        if (selectedTab && selectedContent) {
-            selectedTab.classList.add('active');
-            selectedContent.classList.add('active');
-            
-            if (tabName === 'region') {
-                setTimeout(() => {
-                    this.showRegionLevel1();
-                }, 50);
-            }
-        }
-    }
-
-    openPopup() {
-        if (!this.overlay) return;
-        
-        this.loadCurrentFilters();
-        
-        this.scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-        this.scrollX = window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0;
-        
-        const bodyStyle = document.body.style;
-        this.originalBodyStyles = {
-            position: bodyStyle.position || '',
-            top: bodyStyle.top || '',
-            left: bodyStyle.left || '',
-            width: bodyStyle.width || '',
-            height: bodyStyle.height || '',
-            overflow: bodyStyle.overflow || '',
-            paddingRight: bodyStyle.paddingRight || '',
-            margin: bodyStyle.margin || ''
-        };
-        
-        this.calculateScrollbarWidth();
-        
-        document.body.style.position = 'fixed';
-        document.body.style.top = '0px';
-        document.body.style.left = '0px';
-        document.body.style.width = '100%';
-        document.body.style.height = '100%';
-        document.body.style.overflow = 'hidden';
-        document.body.style.paddingRight = `${this.scrollbarWidth}px`;
-        document.body.style.margin = '0';
-        
-        document.body.classList.add('modal-open');
-        this.overlay.classList.add('active');
-        this.showRegionLevel1();
-        
-        const firstFocusable = this.modal.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        if (firstFocusable) {
-            setTimeout(() => {
-                firstFocusable.focus();
-            }, 100);
-        }
-    }
-
-    closePopup() {
-        if (!this.overlay) return;
-        
-        this.overlay.classList.remove('active');
-        document.body.classList.remove('modal-open');
-        
-        const bodyStyle = document.body.style;
-        Object.keys(this.originalBodyStyles).forEach(prop => {
-            if (this.originalBodyStyles[prop] === '') {
-                bodyStyle.removeProperty(prop);
-            } else {
-                bodyStyle[prop] = this.originalBodyStyles[prop];
-            }
-        });
-        
-        setTimeout(() => {
-            window.scrollTo({
-                top: this.scrollY,
-                left: this.scrollX,
-                behavior: 'instant'
-            });
-        }, 0);
-        
-        const openBtn = document.getElementById('filterPopupBtn');
-        if (openBtn) {
-            setTimeout(() => {
-                openBtn.focus();
-            }, 100);
-        }
-    }
-
-    loadCurrentFilters() {
-        const filters = this.searchManager.filters;
-        
-        const sortRadio = document.querySelector(`input[name="sort"][value="${filters.sort}"]`);
-        if (sortRadio) sortRadio.checked = true;
-
-        this.loadRegionFilter(filters.region);
-
-        const ageRadio = document.querySelector(`input[name="age"][value="${filters.age}"]`);
-        if (ageRadio) ageRadio.checked = true;
-
-        const periodRadio = document.querySelector(`input[name="period"][value="${filters.period}"]`);
-        if (periodRadio) periodRadio.checked = true;
-    }
-
-    loadRegionFilter(regionValue) {
-        this.showRegionLevel1();
-        
-        if (!regionValue) {
-            const allRegionRadio = document.querySelector('input[name="region-level1"][value=""]');
-            if (allRegionRadio) allRegionRadio.checked = true;
-            return;
-        }
-        
-        if (regionValue.includes('-')) {
-            const [regionCode, district] = regionValue.split('-');
-            
-            const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionCode}"]`);
-            if (level1Radio) {
-                level1Radio.checked = true;
-                this.handleRegionLevel1Change(regionCode);
-                
-                setTimeout(() => {
-                    const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
-                    if (level2Radio) {
-                        level2Radio.checked = true;
-                    }
-                }, 100);
-            }
-        } else {
-            const level1Radio = document.querySelector(`input[name="region-level1"][value="${regionValue}"]`);
-            if (level1Radio) {
-                level1Radio.checked = true;
-                this.handleRegionLevel1Change(regionValue);
-                
-                setTimeout(() => {
-                    const level2Radio = document.querySelector(`input[name="region-level2"][value="${regionValue}"]`);
-                    if (level2Radio) {
-                        level2Radio.checked = true;
-                    }
-                }, 100);
-            }
-        }
-    }
-
-    applyFilters() {
-        const sortValue = document.querySelector('input[name="sort"]:checked')?.value || 'danger';
-        
-        let regionValue = '';
-        const regionLevel2Input = document.querySelector('input[name="region-level2"]:checked');
-        if (regionLevel2Input) {
-            regionValue = regionLevel2Input.value;
-        } else {
-            const regionLevel1Input = document.querySelector('input[name="region-level1"]:checked');
-            if (regionLevel1Input && regionLevel1Input.value) {
-                regionValue = regionLevel1Input.value;
-            }
-        }
-        
-        const ageValue = document.querySelector('input[name="age"]:checked')?.value || '';
-        const periodValue = document.querySelector('input[name="period"]:checked')?.value || '';
-
-        this.searchManager.updateFilter('sort', sortValue);
-        this.searchManager.updateFilter('region', regionValue);
-        this.searchManager.updateFilter('age', ageValue);
-        this.searchManager.updateFilter('period', periodValue);
-
-        this.updateActiveFilters();
-        this.closePopup();
-        
-        if (window.showNotification) {
-            window.showNotification('필터가 적용되었습니다.', 'success');
-        }
-    }
-
-    updateActiveFilters() {
-        const container = document.getElementById('activeFilters');
-        if (!container) return;
-
-        container.innerHTML = '';
-        const filters = this.searchManager.filters;
-        
-        const filterLabels = {
-            sort: {
-                danger: '위험도순',
-                up: 'UP순',
-                recent: '최신순',
-                old: '오래된순'
-            },
-            age: {
-                child: '어린이 (0-12세)',
-                teen: '청소년 (13-19세)',
-                adult: '성인 (20-64세)',
-                senior: '고령자 (65세 이상)'
-            },
-            period: {
-                today: '오늘',
-                week: '최근 1주일',
-                month: '최근 1개월',
-                '3month': '최근 3개월',
-                year: '최근 1년'
-            }
-        };
-
-        Object.keys(filters).forEach(key => {
-            const value = filters[key];
-            if (value && value !== 'danger' && key !== 'searchTerm') {
-                let label = '';
-                
-                if (key === 'region') {
-                    label = this.getRegionLabel(value);
-                } else {
-                    label = filterLabels[key]?.[value] || value;
-                }
-                
-                if (label) {
-                    this.createFilterTag(key, value, label, container);
-                }
-            }
-        });
-
-        if (container.children.length > 0) {
-            container.style.display = 'flex';
-        } else {
-            container.style.display = 'none';
-        }
-    }
-
-    getRegionLabel(regionValue) {
-        if (!regionValue) return '';
-        
-        if (regionValue.includes('-')) {
-            const [regionCode, district] = regionValue.split('-');
-            const regionInfo = this.regionData[regionCode];
-            if (regionInfo) {
-                return `${regionInfo.name} ${district}`;
-            }
-        } else {
-            const regionInfo = this.regionData[regionValue];
-            if (regionInfo) {
-                return regionInfo.name;
-            }
-        }
-        
-        return regionValue;
-    }
-
-    createFilterTag(filterKey, filterValue, label, container) {
-        const tag = document.createElement('span');
-        tag.className = 'filter-tag';
-        tag.innerHTML = `
-            <span>${label}</span>
-            <i class="fas fa-times" data-filter="${filterKey}" title="필터 제거"></i>
-        `;
-        
-        const removeIcon = tag.querySelector('i');
-        removeIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.removeFilter(filterKey);
-        });
-        
-        container.appendChild(tag);
-    }
-
-    removeFilter(filterKey) {
-        const defaultValue = filterKey === 'sort' ? 'danger' : '';
-        this.searchManager.updateFilter(filterKey, defaultValue);
-        this.updateActiveFilters();
-        
-        if (window.showNotification) {
-            window.showNotification('필터가 제거되었습니다.', 'info');
-        }
-    }
+/* ============ 검색 헤더 섹션 ============ */
+.search-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    padding: 60px 0 40px;
+    position: relative;
+    overflow: hidden;
+    width: 100% !important;
 }
 
-// missing_detail 스타일에 맞춘 실종자 카드 React 컴포넌트
-function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
-    const [upCount, setUpCount] = useState(data.upCount);
-    const [isAnimating, setIsAnimating] = useState(false);
-
-    const handleUpClick = useCallback(() => {
-        if (isAnimating) return;
-        
-        setIsAnimating(true);
-        setUpCount(prev => prev + 1);
-        onUpClick(data.id);
-        
-        setTimeout(() => setIsAnimating(false), 300);
-    }, [isAnimating, onUpClick, data.id]);
-
-    const getDangerLevelText = useCallback((level) => {
-        const levels = {
-            'high': '긴급',
-            'medium': '주의',
-            'low': '관심'
-        };
-        return levels[level] || '일반';
-    }, []);
-
-    const formatDate = useCallback((dateStr) => {
-        return dateStr.replace(/-/g, '.');
-    }, []);
-
-    // missing_detail의 관련 실종자 카드 구조 적용
-    return React.createElement('div', {
-        className: `missing-card ${isAnimating ? 'animating' : ''}`,
-        'data-id': data.id
-    }, [
-        React.createElement('div', { className: 'card-image', key: 'image' }, [
-            React.createElement('img', {
-                src: data.image,
-                alt: '실종자 사진',
-                onError: (e) => {
-                    e.target.src = '/static/images/placeholder.jpg';
-                },
-                key: 'img'
-            }),
-            React.createElement('div', {
-                className: `danger-level ${data.dangerLevel}`,
-                key: 'danger'
-            }, getDangerLevelText(data.dangerLevel))
-        ]),
-        React.createElement('div', { className: 'card-content', key: 'content' }, [
-            React.createElement('h4', { key: 'title' }, `${data.name} (${data.age}세)`),
-            React.createElement('p', { className: 'location', key: 'location' }, [
-                React.createElement('i', { className: 'fas fa-map-marker-alt', key: 'location-icon' }),
-                ` ${data.location}`
-            ]),
-            React.createElement('p', { className: 'date', key: 'date' }, [
-                React.createElement('i', { className: 'fas fa-calendar', key: 'date-icon' }),
-                ` ${formatDate(data.date)} 실종`
-            ]),
-            React.createElement('div', { className: 'card-stats', key: 'stats' }, [
-                React.createElement('span', { 
-                    className: 'stat',
-                    key: 'up-stat',
-                    onClick: handleUpClick,
-                    style: { cursor: 'pointer' }
-                }, [
-                    React.createElement('i', { className: 'fas fa-arrow-up', key: 'up-icon' }),
-                    ` ${upCount}`
-                ]),
-                React.createElement('span', { className: 'stat', key: 'witness-stat' }, [
-                    React.createElement('i', { className: 'fas fa-eye', key: 'witness-icon' }),
-                    ` ${data.witnessCount}건`
-                ])
-            ])
-        ]),
-        React.createElement('a', {
-            href: `/missing/${data.id}`,
-            className: 'detail-link',
-            key: 'detail-link'
-        }, [
-            '상세보기',
-            React.createElement('i', { className: 'fas fa-arrow-right', key: 'arrow' })
-        ])
-    ]);
+.search-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+    pointer-events: none;
 }
 
-// 검색 및 필터 관리 클래스
-class SearchManager {
-    constructor() {
-        this.filters = this.loadFilters();
-        this.data = [...sampleMissingData];
-        this.filteredData = [...this.data];
-        this.callbacks = [];
-    }
-
-    loadFilters() {
-        try {
-            const saved = sessionStorage.getItem(STORAGE_KEYS.FILTERS);
-            return saved ? JSON.parse(saved) : {
-                searchTerm: '',
-                sort: 'danger',
-                region: '',
-                age: '',
-                period: ''
-            };
-        } catch (error) {
-            debugWarn('Failed to load filters from storage:', error);
-            return {
-                searchTerm: '',
-                sort: 'danger',
-                region: '',
-                age: '',
-                period: ''
-            };
-        }
-    }
-
-    saveFilters() {
-        try {
-            sessionStorage.setItem(STORAGE_KEYS.FILTERS, JSON.stringify(this.filters));
-        } catch (error) {
-            debugWarn('Failed to save filters to storage:', error);
-        }
-    }
-
-    addCallback(callback) {
-        this.callbacks.push(callback);
-    }
-
-    notify() {
-        this.callbacks.forEach(callback => {
-            try {
-                callback(this.filteredData);
-            } catch (error) {
-                debugError('SearchManager callback error:', error);
-            }
-        });
-    }
-
-    updateFilter(key, value) {
-        this.filters[key] = value;
-        this.saveFilters();
-        this.applyFilters();
-    }
-
-    applyFilters() {
-        let filtered = [...this.data];
-
-        if (this.filters.searchTerm) {
-            const term = this.filters.searchTerm.toLowerCase();
-            filtered = filtered.filter(item =>
-                item.name.toLowerCase().includes(term) ||
-                item.location.toLowerCase().includes(term) ||
-                item.description.toLowerCase().includes(term)
-            );
-        }
-
-        if (this.filters.region) {
-            filtered = filtered.filter(item => this.matchesRegion(item.region, this.filters.region));
-        }
-
-        if (this.filters.age) {
-            filtered = filtered.filter(item => this.matchesAgeGroup(item.age, this.filters.age));
-        }
-
-        if (this.filters.period) {
-            filtered = filtered.filter(item => this.matchesPeriod(item.date, this.filters.period));
-        }
-
-        filtered = this.sortData(filtered, this.filters.sort);
-
-        this.filteredData = filtered;
-        this.notify();
-    }
-
-    matchesRegion(itemRegion, filterRegion) {
-        if (!filterRegion) return true;
-        
-        if (filterRegion.includes('-')) {
-            const [regionCode, district] = filterRegion.split('-');
-            return itemRegion === regionCode;
-        } else {
-            return itemRegion === filterRegion;
-        }
-    }
-
-    matchesAgeGroup(age, group) {
-        switch (group) {
-            case 'child': return age >= 0 && age <= 12;
-            case 'teen': return age >= 13 && age <= 19;
-            case 'adult': return age >= 20 && age <= 64;
-            case 'senior': return age >= 65;
-            default: return true;
-        }
-    }
-
-    matchesPeriod(dateStr, period) {
-        const cardDate = new Date(dateStr);
-        const today = new Date();
-        const diffDays = Math.floor((today - cardDate) / (1000 * 60 * 60 * 24));
-
-        switch (period) {
-            case 'today': return diffDays === 0;
-            case 'week': return diffDays <= 7;
-            case 'month': return diffDays <= 30;
-            case '3month': return diffDays <= 90;
-            case 'year': return diffDays <= 365;
-            default: return true;
-        }
-    }
-
-    sortData(data, sortType) {
-        return data.sort((a, b) => {
-            switch (sortType) {
-                case 'danger':
-                    return this.getDangerWeight(b) - this.getDangerWeight(a);
-                case 'up':
-                    return b.upCount - a.upCount;
-                case 'recent':
-                    return new Date(b.date) - new Date(a.date);
-                case 'old':
-                    return new Date(a.date) - new Date(b.date);
-                default:
-                    return 0;
-            }
-        });
-    }
-
-    getDangerWeight(item) {
-        const weights = { 'high': 3, 'medium': 2, 'low': 1 };
-        return weights[item.dangerLevel] || 0;
-    }
-
-    restorePageState() {
-        if (this.isDestroyed) return;
-        
-        try {
-            // 저장된 검색어 복원
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput && this.searchManager.filters.searchTerm) {
-                searchInput.value = this.searchManager.filters.searchTerm;
-            }
-            
-            // 뷰 모드 복원
-            this.viewMode = this.loadViewMode();
-            this.initializeViews();
-            
-            // 필터 상태 복원
-            if (this.filterPopupManager) {
-                this.filterPopupManager.updateActiveFilters();
-            }
-            
-            // 페이지네이션 상태 복원
-            const savedPage = this.paginationManager.loadCurrentPage();
-            if (savedPage !== this.paginationManager.currentPage) {
-                this.paginationManager.currentPage = savedPage;
-                this.paginationManager.renderPagination();
-            }
-            
-            debugLog('Page state restored successfully');
-        } catch (error) {
-            debugError('Failed to restore page state:', error);
-        }
-    }
-
-    resetFilters() {
-        this.filters = {
-            searchTerm: '',
-            sort: 'danger',
-            region: '',
-            age: '',
-            period: ''
-        };
-        this.saveFilters();
-        this.applyFilters();
-    }
+.search-title {
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 1;
 }
 
-// 간단한 애니메이션 관리자
-class SimpleAnimations {
-    constructor() {
-        this.isDestroyed = false;
-    }
-
-    animateUpButton(button) {
-        if (this.isDestroyed) return;
-
-        button.style.transform = 'scale(1.1)';
-        setTimeout(() => {
-            if (!this.isDestroyed && button.style) {
-                button.style.transform = 'scale(1)';
-            }
-        }, 200);
-
-        const countElement = button.querySelector('span');
-        if (countElement) {
-            countElement.style.color = '#22c55e';
-            countElement.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                if (!this.isDestroyed && countElement.style) {
-                    countElement.style.color = '';
-                    countElement.style.transform = 'scale(1)';
-                }
-            }, 300);
-        }
-    }
-
-    handleResize() {
-        if (this.isDestroyed) return;
-        
-        if (window.innerWidth <= 768) {
-            document.body.classList.add('mobile');
-        } else {
-            document.body.classList.remove('mobile');
-        }
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-    }
+.search-title h1 {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
-// 플로팅 버튼 관리자
-class FloatingButtons {
-    constructor() {
-        this.isOpen = false;
-        this.init();
-    }
-
-    init() {
-        const mainBtn = document.querySelector('.floating-btn.main-btn');
-        const subBtns = document.querySelector('.floating-sub-btns');
-        
-        if (!mainBtn || !subBtns) return;
-
-        mainBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggle();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.floating-report-btns') && this.isOpen) {
-                this.close();
-            }
-        });
-    }
-
-    toggle() {
-        if (this.isOpen) {
-            this.close();
-        } else {
-            this.open();
-        }
-    }
-
-    open() {
-        this.isOpen = true;
-        const subBtns = document.querySelector('.floating-sub-btns');
-        const mainBtn = document.querySelector('.floating-btn.main-btn');
-        
-        subBtns.classList.add('open');
-        
-        if (typeof gsap !== 'undefined') {
-            gsap.to(mainBtn, {
-                rotation: 45,
-                duration: 0.3,
-                ease: 'back.out(1.7)'
-            });
-            
-            gsap.from(subBtns.children, {
-                scale: 0,
-                opacity: 0,
-                duration: 0.4,
-                stagger: 0.1,
-                ease: 'back.out(1.7)'
-            });
-        }
-    }
-
-    close() {
-        this.isOpen = false;
-        const subBtns = document.querySelector('.floating-sub-btns');
-        const mainBtn = document.querySelector('.floating-btn.main-btn');
-        
-        subBtns.classList.remove('open');
-        
-        if (typeof gsap !== 'undefined') {
-            gsap.to(mainBtn, {
-                rotation: 0,
-                duration: 0.3,
-                ease: 'power2.out'
-            });
-        }
-    }
+.search-title h1 i {
+    color: var(--primary-orange);
+    font-size: 2.5rem;
 }
 
-// 검색 입력 디바운서
-class SearchDebouncer {
-    constructor(callback, delay = 500) {
-        this.callback = callback;
-        this.delay = delay;
-        this.timeoutId = null;
-    }
-
-    execute(value) {
-        clearTimeout(this.timeoutId);
-        this.timeoutId = setTimeout(() => {
-            this.callback(value);
-        }, this.delay);
-    }
-
-    cancel() {
-        clearTimeout(this.timeoutId);
-    }
+.search-title p {
+    font-size: 1.2rem;
+    color: var(--gray-600);
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-// 메인 검색 페이지 클래스
-class MissingSearchPage {
-    constructor() {
-        this.searchManager = new SearchManager();
-        this.paginationManager = new PaginationManager(6);
-        this.filterPopupManager = null;
-        this.animations = null;
-        this.floatingButtons = null;
-        this.searchDebouncer = null;
-        this.viewMode = this.loadViewMode();
-        this.currentPageData = [];
-        this.reactRoots = new Map();
-        this.isViewChanging = false;
-        this.isDestroyed = false;
-        this.init();
-    }
-
-    loadViewMode() {
-        try {
-            const saved = sessionStorage.getItem(STORAGE_KEYS.VIEW_MODE);
-            return saved || 'grid';
-        } catch (error) {
-            debugWarn('Failed to load view mode from storage:', error);
-            return 'grid';
-        }
-    }
-
-    saveViewMode() {
-        try {
-            sessionStorage.setItem(STORAGE_KEYS.VIEW_MODE, this.viewMode);
-        } catch (error) {
-            debugWarn('Failed to save view mode to storage:', error);
-        }
-    }
-
-    init() {
-        if (this.isDestroyed) return;
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.handleDOMReady());
-        } else {
-            this.handleDOMReady();
-        }
-    }
-
-    handleDOMReady() {
-        if (this.isDestroyed) return;
-        
-        this.initializeViews();
-        this.setupManagers();
-        this.setupEventListeners();
-        this.loadInitialData();
-        this.animations = new SimpleAnimations();
-    }
-
-    loadInitialData() {
-        // 저장된 필터 적용
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && this.searchManager.filters.searchTerm) {
-            searchInput.value = this.searchManager.filters.searchTerm;
-        }
-
-        this.searchManager.applyFilters();
-        
-        setTimeout(() => {
-            this.handleDataChange(this.searchManager.filteredData);
-        }, 100);
-    }
-
-    initializeViews() {
-        const gridView = document.getElementById('missingGrid');
-        const listView = document.getElementById('missingList');
-        
-        if (gridView && listView) {
-            if (this.viewMode === 'list') {
-                gridView.style.display = 'none';
-                gridView.classList.add('view-hidden');
-                listView.style.display = 'grid';
-                listView.classList.add('view-active');
-            } else {
-                gridView.style.display = 'grid';
-                gridView.classList.remove('view-hidden');
-                listView.style.display = 'none';
-                listView.classList.remove('view-active');
-            }
-            
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            const activeBtn = document.querySelector(`[data-view="${this.viewMode}"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-        }
-    }
-
-    setupManagers() {
-        if (this.isDestroyed) return;
-        
-        this.filterPopupManager = new FilterPopupManager(this.searchManager);
-        this.searchManager.addCallback((data) => this.handleDataChange(data));
-        this.paginationManager.addCallback((paginationInfo) => this.handlePaginationChange(paginationInfo));
-        
-        this.searchDebouncer = new SearchDebouncer((value) => {
-            this.searchManager.updateFilter('searchTerm', value);
-        });
-        
-        this.floatingButtons = new FloatingButtons();
-    }
-
-    setupEventListeners() {
-        if (this.isDestroyed) return;
-        
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchDebouncer.execute(e.target.value.trim());
-                this.showSearchStatus(e.target.value.trim());
-            });
-            
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.searchDebouncer.cancel();
-                    this.searchManager.updateFilter('searchTerm', e.target.value.trim());
-                }
-            });
-        }
-
-        const gridViewBtn = document.getElementById('gridViewBtn');
-        const listViewBtn = document.getElementById('listViewBtn');
-        
-        if (gridViewBtn) {
-            gridViewBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.switchToView('grid');
-            });
-        }
-        
-        if (listViewBtn) {
-            listViewBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.switchToView('list');
-            });
-        }
-
-        const searchBtn = document.querySelector('.search-btn');
-        if (searchBtn) {
-            searchBtn.addEventListener('click', () => {
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {
-                    this.searchDebouncer.cancel();
-                    this.searchManager.updateFilter('searchTerm', searchInput.value.trim());
-                }
-            });
-        }
-
-        const resetBtn = document.getElementById('filterResetBtn');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
-                this.resetFilters();
-            });
-        }
-
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => this.paginationManager.prevPage());
-        }
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => this.paginationManager.nextPage());
-        }
-
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                this.handleResize();
-            }, 250);
-        });
-
-        // 뒤로가기/앞으로가기 이벤트 처리 (상태 복원)
-        window.addEventListener('popstate', (event) => {
-            setTimeout(() => {
-                // 페이지 상태 복원
-                this.restorePageState();
-                
-                // 데이터 재렌더링
-                if (this.currentPageData && this.currentPageData.length > 0) {
-                    this.renderResults(this.currentPageData);
-                } else {
-                    // 데이터가 없으면 다시 로드
-                    this.loadInitialData();
-                }
-            }, 100);
-        });
-
-        // 페이지 가시성 변경 시 상태 복원
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && !this.isDestroyed) {
-                setTimeout(() => {
-                    this.restorePageState();
-                    if (this.currentPageData && this.currentPageData.length > 0) {
-                        this.renderResults(this.currentPageData);
-                    }
-                }, 100);
-            }
-        });
-    }
-
-    switchToView(targetViewMode) {
-        if (this.isViewChanging || this.isDestroyed) return;
-        if (targetViewMode === this.viewMode) return;
-        
-        this.isViewChanging = true;
-        
-        try {
-            const gridView = document.getElementById('missingGrid');
-            const listView = document.getElementById('missingList');
-            
-            if (!gridView || !listView) {
-                debugError('View containers not found!');
-                return;
-            }
-            
-            if (this.viewMode === 'grid') {
-                gridView.style.display = 'none';
-                gridView.classList.add('view-hidden');
-                gridView.classList.remove('view-active');
-            } else {
-                listView.style.display = 'none';
-                listView.classList.remove('view-active');
-            }
-            
-            this.viewMode = targetViewMode;
-            this.saveViewMode();
-            
-            if (targetViewMode === 'list') {
-                listView.style.display = 'grid';
-                listView.classList.add('view-active');
-            } else {
-                gridView.style.display = 'grid';
-                gridView.classList.remove('view-hidden');
-                gridView.classList.add('view-active');
-            }
-            
-            this.updateViewButtons(targetViewMode);
-            
-            setTimeout(() => {
-                if (this.currentPageData && this.currentPageData.length > 0) {
-                    this.renderResults(this.currentPageData);
-                }
-            }, 50);
-            
-        } catch (error) {
-            debugError('Error during view switch:', error);
-        } finally {
-            this.isViewChanging = false;
-        }
-    }
-
-    updateViewButtons(activeViewMode) {
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = document.querySelector(`[data-view="${activeViewMode}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        }
-    }
-
-    handleDataChange(data) {
-        if (this.isDestroyed) return;
-        
-        this.paginationManager.setTotalItems(data.length);
-        
-        const totalCountElement = document.getElementById('totalCount');
-        if (totalCountElement) {
-            totalCountElement.textContent = data.length;
-        }
-        
-        const noResults = document.getElementById('noResults');
-        if (noResults) {
-            noResults.style.display = data.length === 0 ? 'block' : 'none';
-        }
-
-        if (this.filterPopupManager) {
-            this.filterPopupManager.updateActiveFilters();
-        }
-    }
-
-    handlePaginationChange(paginationInfo) {
-        if (this.isDestroyed) return;
-        
-        const { startIndex, endIndex } = paginationInfo;
-        this.currentPageData = this.searchManager.filteredData.slice(startIndex, endIndex);
-        this.renderResults(this.currentPageData);
-    }
-
-    showSearchStatus(term) {
-        const inputGroup = document.querySelector('.search-input-group');
-        if (inputGroup) {
-            if (term.length > 0) {
-                inputGroup.classList.add('searching');
-            } else {
-                inputGroup.classList.remove('searching');
-            }
-        }
-    }
-
-    renderResults(data) {
-        if (this.isDestroyed) return;
-
-        const gridContainer = document.getElementById('missingGrid');
-        const listContainer = document.getElementById('missingList');
-        
-        if (!gridContainer || !listContainer) {
-            debugError('Containers not found!');
-            return;
-        }
-        
-        if (data.length === 0) {
-            gridContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">표시할 데이터가 없습니다.</p>';
-            listContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">표시할 데이터가 없습니다.</p>';
-            return;
-        }
-
-        if (typeof React !== 'undefined') {
-            this.renderWithReact(data, gridContainer, listContainer);
-        } else {
-            debugWarn('React not available, showing fallback');
-            this.showFallbackContent();
-        }
-    }
-
-    renderWithReact(data, gridContainer, listContainer) {
-        const handleUpClick = (cardId) => {
-            if (this.isDestroyed) return;
-            
-            const button = document.querySelector(`[data-id="${cardId}"] .stat`);
-            if (button && this.animations && !this.animations.isDestroyed) {
-                this.animations.animateUpButton(button);
-            }
-            
-            if (window.showNotification) {
-                window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
-            }
-        };
-
-        ['grid', 'list'].forEach(key => {
-            if (this.reactRoots.has(key)) {
-                try {
-                    this.reactRoots.get(key).unmount();
-                } catch (e) {
-                    debugWarn(`Error unmounting ${key} root:`, e);
-                }
-            }
-        });
-
-        try {
-            gridContainer.innerHTML = '';
-            const gridRoot = ReactDOM.createRoot(gridContainer);
-            this.reactRoots.set('grid', gridRoot);
-            
-            gridRoot.render(
-                React.createElement(React.Fragment, null,
-                    data.map(item =>
-                        React.createElement(MissingCard, {
-                            key: `grid-${item.id}`,
-                            data: item,
-                            onUpClick: handleUpClick,
-                            viewMode: 'grid'
-                        })
-                    )
-                )
-            );
-        } catch (error) {
-            debugError('Grid rendering failed:', error);
-            gridContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">그리드 뷰를 불러올 수 없습니다.</p>';
-        }
-
-        try {
-            listContainer.innerHTML = '';
-            const listRoot = ReactDOM.createRoot(listContainer);
-            this.reactRoots.set('list', listRoot);
-            
-            listRoot.render(
-                React.createElement(React.Fragment, null,
-                    data.map(item =>
-                        React.createElement(MissingCard, {
-                            key: `list-${item.id}`,
-                            data: item,
-                            onUpClick: handleUpClick,
-                            viewMode: 'list'
-                        })
-                    )
-                )
-            );
-        } catch (error) {
-            debugError('List rendering failed:', error);
-            listContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">리스트 뷰를 불러올 수 없습니다.</p>';
-        }
-    }
-
-    showFallbackContent() {
-        const gridContainer = document.getElementById('missingGrid');
-        const listContainer = document.getElementById('missingList');
-        
-        if (gridContainer) {
-            gridContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">실종자 목록을 불러오는 중입니다...</p>';
-        }
-        if (listContainer) {
-            listContainer.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">실종자 목록을 불러오는 중입니다...</p>';
-        }
-    }
-
-    resetFilters() {
-        if (this.isDestroyed) return;
-        
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) searchInput.value = '';
-        
-        this.searchManager.resetFilters();
-        this.paginationManager.currentPage = 1;
-        this.paginationManager.saveCurrentPage();
-        
-        if (this.filterPopupManager) {
-            this.filterPopupManager.updateActiveFilters();
-        }
-        
-        if (window.showNotification) {
-            window.showNotification('필터가 초기화되었습니다.', 'info');
-        }
-    }
-
-    handleResize() {
-        if (this.isDestroyed) return;
-        
-        if (window.innerWidth <= 768) {
-            document.body.classList.add('mobile');
-        } else {
-            document.body.classList.remove('mobile');
-        }
-    }
-
-    destroy() {
-        this.isDestroyed = true;
-        
-        this.reactRoots.forEach(root => {
-            try {
-                root.unmount();
-            } catch (e) {
-                debugWarn('Error unmounting React root:', e);
-            }
-        });
-        this.reactRoots.clear();
-        
-        if (this.animations) {
-            this.animations.destroy();
-            this.animations = null;
-        }
-        
-        if (this.searchDebouncer) {
-            this.searchDebouncer.cancel();
-        }
-    }
+/* ============ 검색 컨트롤 ============ */
+.search-controls {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--gray-200);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 20px;
 }
 
-// 페이지 로드 시 자동 초기화
-let missingSearchPage = null;
+.search-section {
+    margin-bottom: 25px;
+}
 
-missingSearchPage = new MissingSearchPage();
+.search-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 900px;
+    margin: 0 auto;
+}
 
-// 페이지 언로드 시 정리
-window.addEventListener('beforeunload', () => {
-    if (missingSearchPage) {
-        missingSearchPage.destroy();
-        missingSearchPage = null;
-    }
-});
+.search-input-group {
+    display: flex;
+    gap: 0;
+    width: 100%;
+    position: relative;
+    align-items: stretch;
+}
 
-// 전역 함수들
-window.performSearch = function() {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput && missingSearchPage && missingSearchPage.searchManager) {
-        missingSearchPage.searchManager.updateFilter('searchTerm', searchInput.value.trim());
-    }
-};
+.search-input {
+    flex: 1;
+    padding: 16px 20px;
+    border: 2px solid var(--gray-300);
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: white;
+    min-width: 0;
+    height: 54px;
+    box-sizing: border-box;
+}
 
-window.resetFilters = function() {
-    if (missingSearchPage) {
-        missingSearchPage.resetFilters();
-    }
-};
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
 
-window.toggleView = function(viewMode) {
-    if (missingSearchPage) {
-        missingSearchPage.switchToView(viewMode);
-    }
-};
+.search-input::placeholder {
+    color: var(--gray-400);
+}
 
-window.handleUpClick = function(button, missingId) {
-    const countSpan = button.querySelector('span');
-    if (countSpan) {
-        const currentCount = parseInt(countSpan.textContent);
-        countSpan.textContent = currentCount + 1;
+.search-btn {
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 0 12px 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 100px;
+    height: 54px;
+    box-sizing: border-box;
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+}
+
+.filter-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.filter-popup-btn {
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-popup-btn:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+}
+
+.filter-reset-btn {
+    padding: 12px 20px;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 2px solid var(--gray-300);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.filter-reset-btn:hover {
+    background: var(--gray-200);
+}
+
+.active-filters-container {
+    margin-top: 15px;
+}
+
+.active-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-tag {
+    background: var(--primary-orange-soft);
+    color: var(--primary-orange-dark);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--primary-orange-light);
+}
+
+.filter-tag i {
+    cursor: pointer;
+    transition: color 0.3s ease;
+    font-size: 12px;
+}
+
+.filter-tag i:hover {
+    color: var(--danger-red);
+}
+
+/* ============ 필터 팝업 모달 ============ */
+body.modal-open {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    padding-right: var(--scrollbar-width, 0) !important;
+    margin: 0 !important;
+}
+
+html {
+    --scrollbar-width: 0px;
+}
+
+.filter-popup-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-content: center !important;
+    z-index: 999999 !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: none !important;
+    transform: translateZ(0) !important;
+    will-change: opacity, visibility !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-transform: translateZ(0) !important;
+    -moz-transform: translateZ(0) !important;
+    -ms-transform: translateZ(0) !important;
+    -o-transform: translateZ(0) !important;
+    pointer-events: auto !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
+.filter-popup-overlay.active {
+    display: flex !important;
+}
+
+.filter-popup-modal {
+    background: white !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4) !important;
+    width: 90% !important;
+    max-width: 450px !important;
+    max-height: 80vh !important;
+    min-height: 400px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    margin: 0 !important;
+    transform: translateY(-40px) !important;
+    overflow: hidden !important;
+    will-change: transform, opacity !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    -webkit-transform: translateY(-40px) !important;
+    -moz-transform: translateY(-40px) !important;
+    -ms-transform: translateY(-40px) !important;
+    -o-transform: translateY(-40px) !important;
+}
+
+.filter-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+}
+
+.filter-popup-header h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.filter-popup-header h3 i {
+    color: var(--primary-orange);
+}
+
+.filter-popup-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--gray-100);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-600);
+    font-size: 14px;
+}
+
+.filter-popup-close:hover {
+    background: var(--gray-200);
+    color: var(--gray-800);
+}
+
+.filter-tabs {
+    display: flex;
+    background: var(--gray-50);
+    padding: 0;
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+}
+
+.filter-tab {
+    flex: 1;
+    padding: 12px 8px;
+    background: none;
+    border: none;
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+
+.filter-tab i {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.filter-tab:hover {
+    background: var(--primary-orange-soft);
+    color: var(--primary-orange-dark);
+}
+
+.filter-tab.active {
+    background: white;
+    color: var(--primary-orange);
+    border-bottom: 2px solid var(--primary-orange);
+}
+
+.filter-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-orange);
+}
+
+.filter-popup-body {
+    padding: 20px 25px;
+    overflow-y: auto !important;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    background: white;
+}
+
+.region-selector {
+    position: relative;
+    min-height: 300px;
+    background: transparent;
+}
+
+.region-level-1 {
+    width: 100%;
+    display: block;
+}
+
+.region-level-2 {
+    width: 100%;
+    display: none;
+}
+
+.region-level-2.show {
+    display: block;
+}
+
+.region-level-1.hide {
+    display: none;
+}
+
+.region-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.region-level-1 h5,
+.region-level-2 h5 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin: 0;
+}
+
+.region-back-btn {
+    background: none;
+    border: none;
+    color: var(--primary-orange);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.region-back-btn:hover {
+    background: var(--primary-orange-soft);
+    opacity: 0.8;
+}
+
+.region-back-btn i {
+    font-size: 0.8rem;
+}
+
+.region-level-1 .filter-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.region-level-2 .filter-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.region-selector .filter-option {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    text-align: center;
+    justify-content: center;
+}
+
+.region-selector .checkmark {
+    width: 16px;
+    height: 16px;
+}
+
+.region-selector .filter-option input[type="radio"]:checked ~ .checkmark::after {
+    width: 5px;
+    height: 5px;
+}
+
+.filter-tab-content {
+    display: none;
+}
+
+.filter-tab-content.active {
+    display: block;
+}
+
+.filter-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.filter-option:hover {
+    border-color: var(--primary-orange-light);
+    background: var(--primary-orange-soft);
+}
+
+.filter-option input[type="radio"] {
+    display: none;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--gray-300);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.filter-option input[type="radio"]:checked ~ .checkmark {
+    border-color: var(--primary-orange);
+    background: var(--primary-orange);
+}
+
+.filter-option input[type="radio"]:checked ~ .checkmark::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+}
+
+.filter-option input[type="radio"]:checked ~ span:last-child {
+    color: var(--primary-orange-dark);
+    font-weight: 600;
+}
+
+.filter-popup-footer {
+    padding: 20px 25px;
+    border-top: 1px solid var(--gray-200);
+    flex-shrink: 0;
+    background: white;
+    border-radius: 0 0 20px 20px;
+}
+
+.filter-apply-btn {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.filter-apply-btn:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+}
+
+/* ============ 검색 결과 정보 ============ */
+.search-results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--gray-200);
+    position: relative;
+    z-index: 1;
+}
+
+.results-count {
+    font-size: 16px;
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.results-count span {
+    color: var(--primary-orange);
+    font-weight: 700;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--gray-100);
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.view-btn {
+    padding: 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    width: 44px;
+    height: 44px;
+}
+
+.view-btn:hover {
+    background: var(--gray-200);
+}
+
+.view-btn.active {
+    background: var(--primary-orange) !important;
+    color: white !important;
+}
+
+/* ============ 실종자 목록 섹션 - missing_detail 스타일 적용 ============ */
+.missing-list {
+    padding: 20px 0 60px;
+    background: white;
+}
+
+.view-container {
+    position: relative;
+    min-height: 400px;
+    width: 100%;
+}
+
+/* 그리드 뷰 - missing_detail의 related-missing 스타일 사용 */
+.missing-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+    width: 100%;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: static !important;
+}
+
+.missing-grid.view-hidden {
+    display: none !important;
+}
+
+/* 리스트 뷰 - missing_detail 스타일 기반 세로 배치 */
+.missing-list-view {
+    display: none !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    position: static !important;
+}
+
+.missing-list-view.view-active {
+    display: grid !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* missing_detail의 관련 실종자 카드 스타일 적용 */
+.missing-card {
+    background: white;
+    border-radius: var(--radius-xl, 15px);
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid var(--gray-100);
+    position: relative;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+.missing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    border-color: var(--primary-orange-light);
+}
+
+.card-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.missing-card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.danger-level {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    backdrop-filter: blur(10px);
+    z-index: 2;
+}
+
+.danger-level.high {
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+}
+
+.danger-level.medium {
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+}
+
+.danger-level.low {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+}
+
+.missing-period {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.card-content {
+    padding: 24px;
+}
+
+.card-content h4 {
+    font-size: 20px;
+    color: var(--gray-900);
+    margin-bottom: 12px;
+}
+
+.card-content .location,
+.card-content .date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--gray-600);
+    margin-bottom: 8px;
+}
+
+.card-content i {
+    color: var(--primary-orange);
+}
+
+.card-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--gray-100);
+}
+
+.card-stats .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.card-stats .stat i {
+    color: var(--primary-orange);
+}
+
+.detail-link {
+    display: block;
+    text-align: center;
+    padding: 16px;
+    background: var(--gray-50);
+    color: var(--primary-orange);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-top: 1px solid var(--gray-100);
+}
+
+.detail-link:hover {
+    background: var(--primary-orange);
+    color: white;
+}
+
+.detail-link i {
+    margin-left: 8px;
+    transition: all 0.3s ease;
+}
+
+.detail-link:hover i {
+    transform: translateX(4px);
+}
+
+/* ============ 로딩 및 에러 상태 ============ */
+.loading-indicator {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 60px 20px;
+    color: var(--gray-500);
+    font-size: 1.1rem;
+}
+
+.loading-indicator i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: var(--primary-orange);
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-results {
+    display: none;
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--gray-500);
+}
+
+.no-results i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: var(--gray-400);
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    color: var(--gray-700);
+    margin-bottom: 10px;
+}
+
+.no-results p {
+    font-size: 1rem;
+    color: var(--gray-500);
+}
+
+/* ============ 페이지네이션 ============ */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 30px;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.page-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: white;
+    color: var(--gray-700);
+    border: 2px solid var(--gray-300);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--gray-100);
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 6px;
+    margin: 0 16px;
+}
+
+.page-num {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--gray-700);
+    border: 2px solid var(--gray-300);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+.page-num span {
+    position: relative;
+    z-index: 1;
+}
+
+.page-num:hover {
+    background: var(--gray-100);
+}
+
+.page-num.active {
+    background: var(--primary-orange);
+    color: white;
+    border-color: var(--primary-orange);
+}
+
+.page-num.active:hover {
+    background: var(--primary-orange-dark);
+}
+
+.page-dots {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--gray-400);
+    font-weight: 600;
+}
+
+/* ============ 플로팅 버튼들 ============ */
+.floating-report-btns {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: var(--z-index-header, 1000);
+}
+
+.floating-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.main-btn {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.main-btn:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 12px 35px rgba(249, 115, 22, 0.4);
+}
+
+.floating-sub-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.floating-sub-btns.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.sub-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    position: relative;
+    background: white;
+    color: var(--gray-700);
+    border: 2px solid var(--gray-200);
+}
+
+.sub-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--primary-orange);
+    color: var(--primary-orange);
+}
+
+.sub-btn.emergency {
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+    color: white;
+    border-color: var(--danger-red);
+}
+
+.sub-btn span {
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--gray-800);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.sub-btn:hover span {
+    opacity: 1;
+}
+
+/* 검색 상태 표시 */
+.search-status {
+    position: absolute;
+    top: 50%;
+    right: 120px;
+    transform: translateY(-50%);
+    color: var(--gray-400);
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.search-input-group.searching .search-status {
+    opacity: 1;
+}
+
+/* ============ 반응형 디자인 ============ */
+@media (max-width: 1024px) {
+    .search-controls {
+        padding: 20px;
     }
     
-    if (missingSearchPage && missingSearchPage.animations) {
-        missingSearchPage.animations.animateUpButton(button);
+    .missing-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 22px;
     }
     
-    if (window.showNotification) {
-        window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+    .missing-list-view {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
     }
-};
+    
+    .search-results-info {
+        padding: 15px 20px;
+    }
+    
+    .filter-popup-modal {
+        width: 95%;
+        max-width: 500px;
+    }
+    
+    .filter-options {
+        grid-template-columns: 1fr 1fr;
+    }
+}
 
-// 디버그 도구 (개발 모드에서만)
-if (DEBUG_MODE && typeof window !== 'undefined') {
-    window.missingSearchDebug = {
-        get instance() { return missingSearchPage; },
-        sampleData: sampleMissingData,
-        
-        checkViews: () => {
-            const gridView = document.getElementById('missingGrid');
-            const listView = document.getElementById('missingList');
-            
-            debugLog('=== 뷰 상태 ===');
-            debugLog('Current view mode:', missingSearchPage?.viewMode);
-            debugLog('Grid view display:', gridView ? window.getComputedStyle(gridView).display : 'Not found');
-            debugLog('List view display:', listView ? window.getComputedStyle(listView).display : 'Not found');
-            debugLog('Grid view classes:', gridView ? Array.from(gridView.classList) : 'Not found');
-            debugLog('List view classes:', listView ? Array.from(listView.classList) : 'Not found');
-        },
-        
-        forceListView: () => {
-            if (missingSearchPage) {
-                missingSearchPage.switchToView('list');
-            }
-        },
-        
-        forceGridView: () => {
-            if (missingSearchPage) {
-                missingSearchPage.switchToView('grid');
-            }
-        },
-        
-        reloadData: () => {
-            if (missingSearchPage?.searchManager) {
-                missingSearchPage.searchManager.applyFilters();
-            }
-        },
-        
-        reinitialize: () => {
-            if (missingSearchPage) {
-                missingSearchPage.destroy();
-            }
-            missingSearchPage = new MissingSearchPage();
-        }
-    };
+@media (max-width: 768px) {
+    .search-title h1 {
+        font-size: 2.25rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-input-container {
+        max-width: none;
+    }
+    
+    .search-input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-input {
+        border-radius: 12px;
+        border: 2px solid var(--gray-300);
+        border-right: 2px solid var(--gray-300);
+        width: 100%;
+    }
+    
+    .search-btn {
+        border-radius: 12px;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .filter-controls {
+        flex-direction: row;
+        gap: 10px;
+        align-items: stretch;
+        justify-content: space-between;
+    }
+    
+    .filter-popup-btn,
+    .filter-reset-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .search-results-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .missing-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+    
+    .missing-list-view {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .floating-report-btns {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .floating-btn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .main-btn {
+        font-size: 1.2rem;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .page-numbers {
+        margin: 0 8px;
+    }
+    
+    .filter-popup-modal {
+        width: 95% !important;
+        max-width: 400px !important;
+        max-height: 85vh !important;
+    }
+    
+    .filter-popup-header {
+        padding: 18px 20px;
+    }
+    
+    .filter-popup-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .filter-tabs {
+        padding: 0;
+    }
+    
+    .filter-tab {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+    
+    .filter-tab i {
+        font-size: 0.9rem;
+    }
+    
+    .filter-popup-body {
+        padding: 18px 20px;
+    }
+    
+    .filter-popup-footer {
+        padding: 18px 20px;
+    }
+    
+    .filter-apply-btn {
+        padding: 12px 18px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-header {
+        padding: 30px 0 20px;
+    }
+    
+    .search-title h1 {
+        font-size: 1.875rem;
+    }
+    
+    .search-controls {
+        padding: 18px;
+        margin: 0 -10px 15px;
+        border-radius: 15px;
+    }
+    
+    .search-input-container {
+        gap: 12px;
+    }
+    
+    .search-input {
+        padding: 14px 16px;
+        font-size: 15px;
+        height: 48px;
+    }
+    
+    .search-btn {
+        padding: 14px 20px;
+        font-size: 15px;
+        height: 48px;
+    }
+    
+    .filter-reset-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+    
+    .filter-popup-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+    
+    .card-content {
+        padding: 20px;
+    }
+    
+    .search-status {
+        position: static;
+        transform: none;
+        text-align: center;
+        margin: 5px 0;
+        font-size: 12px;
+    }
+    
+    .search-input-group.searching {
+        margin-bottom: 10px;
+    }
+    
+    .active-filters {
+        justify-content: center;
+    }
+    
+    .filter-tag {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filter-popup-btn,
+    .filter-reset-btn {
+        width: 100%;
+    }
+    
+    .filter-popup-modal {
+        width: 98% !important;
+        max-width: 350px !important;
+        max-height: 90vh !important;
+    }
+    
+    .filter-popup-header {
+        padding: 15px 18px;
+    }
+    
+    .filter-popup-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .filter-popup-close {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .filter-tabs {
+        padding: 0;
+    }
+    
+    .filter-tab {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        gap: 2px;
+    }
+    
+    .filter-tab i {
+        font-size: 0.85rem;
+    }
+    
+    .filter-popup-body {
+        padding: 15px 18px;
+    }
+    
+    .filter-option {
+        padding: 8px 12px;
+        gap: 10px;
+    }
+    
+    .checkmark {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .filter-option input[type="radio"]:checked ~ .checkmark::after {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .filter-popup-footer {
+        padding: 15px 18px;
+    }
+    
+    .filter-apply-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .region-selector {
+        min-height: 300px;
+    }
 }

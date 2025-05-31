@@ -714,7 +714,7 @@ body {
     background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
 }
 
-/* ===== 관련 실종자 섹션 ===== */
+/* ===== 관련 실종자 섹션 - 가로 스크롤 ===== */
 .related-missing {
     padding: 60px 0;
     background: linear-gradient(to bottom, var(--gray-50) 0%, white 100%);
@@ -744,10 +744,32 @@ body {
     font-size: 16px;
 }
 
+/* 가로 스크롤 카드 컨테이너 */
 .related-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    display: flex;
     gap: 24px;
+    overflow-x: auto;
+    padding: 10px 0 20px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-orange-light) var(--gray-100);
+}
+
+.related-cards::-webkit-scrollbar {
+    height: 8px;
+}
+
+.related-cards::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.related-cards::-webkit-scrollbar-thumb {
+    background: var(--primary-orange-light);
+    border-radius: 4px;
+}
+
+.related-cards::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-orange);
 }
 
 .missing-card {
@@ -757,6 +779,8 @@ body {
     box-shadow: var(--shadow-lg);
     transition: var(--transition-base);
     border: 1px solid var(--gray-100);
+    min-width: 320px;
+    flex-shrink: 0;
 }
 
 .missing-card:hover {
@@ -821,6 +845,13 @@ body {
     font-size: 14px;
     color: var(--gray-700);
     font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.card-stats .stat:hover {
+    color: var(--primary-orange);
+    transform: translateY(-1px);
 }
 
 .card-stats .stat i {
@@ -896,6 +927,14 @@ body {
     .basic-info-grid {
         grid-template-columns: 1fr;
     }
+    
+    .related-cards {
+        gap: 20px;
+    }
+    
+    .missing-card {
+        min-width: 280px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -939,10 +978,6 @@ body {
         justify-content: center;
     }
     
-    .related-cards {
-        grid-template-columns: 1fr;
-    }
-    
     .floating-witness {
         bottom: 16px;
         right: 16px;
@@ -959,6 +994,15 @@ body {
     
     .title-info h1 {
         font-size: 24px;
+    }
+    
+    .related-cards {
+        gap: 16px;
+        padding: 10px 0 16px 0;
+    }
+    
+    .missing-card {
+        min-width: 260px;
     }
 }
 
@@ -999,6 +1043,18 @@ body {
 
     .basic-info-container {
         margin-bottom: 30px;
+    }
+    
+    .related-cards {
+        gap: 12px;
+    }
+    
+    .missing-card {
+        min-width: 240px;
+    }
+    
+    .card-content {
+        padding: 20px;
     }
 }
 
