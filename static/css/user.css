@@ -270,14 +270,14 @@ body {
     gap: 12px;
 }
 
-/* 추천 버튼 스타일 - 다른 아이콘 버튼과 동일한 크기 */
+/* 추천 버튼 스타일 - 기본은 흰색 배경으로 변경 */
 .recommendation-btn {
     width: 44px;
     height: 44px;
     border-radius: var(--radius-md);
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-    color: white;
-    border: none;
+    border: 2px solid var(--gray-200);
+    background: white;
+    color: var(--gray-600);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -287,9 +287,17 @@ body {
 }
 
 .recommendation-btn:hover {
-    background: linear-gradient(135deg, var(--secondary-green-dark) 0%, var(--secondary-green) 100%);
+    border-color: var(--secondary-green);
+    color: var(--secondary-green);
+    background: var(--secondary-green-bg);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+}
+
+.recommendation-btn.active {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+    color: white;
+    border-color: var(--secondary-green);
 }
 
 .recommendation-content {
@@ -350,7 +358,7 @@ body {
     visibility: visible;
 }
 
-/* 수정된 info-item 스타일 - 안정성 개선 */
+/* 수정된 info-item 스타일 - hover 제거 */
 .info-item {
     display: flex;
     flex-direction: column;
@@ -363,15 +371,6 @@ body {
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
-    /* 부드러운 hover 효과만 유지 */
-    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.info-item:hover {
-    border-color: var(--primary-orange-light);
-    background: var(--primary-orange-bg);
-    box-shadow: var(--shadow-sm);
-    /* transform 제거로 레이아웃 안정성 확보 */
 }
 
 .info-label {
@@ -449,11 +448,9 @@ body {
     margin-bottom: 0;
 }
 
-/* 추가 정보를 인라인으로 포함 */
+/* 추가 정보를 인라인으로 포함 - 숨김 처리 */
 .additional-info-inline {
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--gray-200);
+    display: none;
 }
 
 .additional-info-inline h4 {

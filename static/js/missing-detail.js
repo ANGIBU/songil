@@ -205,21 +205,35 @@ function changeMainImage(thumbnail) {
     }
 }
 
-// 추천 버튼 클릭
+// 추천 버튼 클릭 - 토글 기능 추가 (알림 제거)
 function handleRecommendClick() {
-    if (recommendClicked) {
-        showNotification('이미 응원하셨습니다.', 'info');
+    const recommendBtn = document.querySelector('.recommendation-btn');
+    const recommendCount = document.getElementById('recommendCount') || document.querySelector('.recommendation-count');
+    
+    // 요소가 존재하지 않으면 에러 방지
+    if (!recommendBtn || !recommendCount) {
+        console.error('추천 버튼 또는 카운트 요소를 찾을 수 없습니다.');
         return;
     }
     
-    const recommendBtn = document.querySelector('.recommendation-btn');
-    const recommendCount = document.getElementById('recommendCount');
-    const currentCount = parseInt(recommendCount.textContent);
-    const newCount = currentCount + 1;
+    const currentCount = parseInt(recommendCount.textContent) || 0;
     
-    // 버튼 활성화
-    recommendClicked = true;
-    recommendBtn.classList.add('active');
+    // 토글 상태 변경
+    recommendClicked = !recommendClicked;
+    
+    let newCount;
+    if (recommendClicked) {
+        // 추천 활성화
+        newCount = currentCount + 1;
+        recommendBtn.classList.add('active');
+    } else {
+        // 추천 취소
+        newCount = Math.max(0, currentCount - 1); // 0 이하로 떨어지지 않도록
+        recommendBtn.classList.remove('active');
+    }
+    
+    // 즉시 카운트 업데이트 (애니메이션 전에)
+    recommendCount.textContent = newCount;
     
     // 카운트 애니메이션
     if (typeof gsap !== 'undefined') {
@@ -241,7 +255,7 @@ function handleRecommendClick() {
                 ease: 'power2.out'
             });
         
-        // 숫자 카운트업 애니메이션
+        // 숫자 카운트 애니메이션 (이미 업데이트된 값에서 시작)
         const countObj = { count: currentCount };
         gsap.to(countObj, {
             count: newCount,
@@ -252,18 +266,14 @@ function handleRecommendClick() {
             }
         });
         
-        // 응원 파티클 효과
-        createSupportParticleEffect(recommendBtn);
-    } else {
-        // GSAP 없을 때
-        recommendCount.textContent = newCount;
+        // 활성화시에만 파티클 효과
+        if (recommendClicked) {
+            createSupportParticleEffect(recommendBtn);
+        }
     }
     
-    // 알림 표시
-    showNotification('응원했습니다! 실종자 찾기에 도움이 됩니다.', 'success');
-    
     // 서버에 추천 정보 전송
-    sendRecommendToServer(newCount);
+    sendRecommendToServer(newCount, recommendClicked);
 }
 
 // 응원 파티클 효과
@@ -518,14 +528,17 @@ function setupLazyLoading() {
 }
 
 // 서버 통신 함수들
-function sendRecommendToServer(newCount) {
+function sendRecommendToServer(newCount, isActive) {
     // 실제 구현 시 서버 API 호출
     fetch(`/api/missing/${getMissingId()}/recommend`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ count: newCount })
+        body: JSON.stringify({ 
+            count: newCount,
+            active: isActive 
+        })
     }).catch(error => {
         console.error('추천 전송 실패:', error);
     });
@@ -551,10 +564,10 @@ function getMissingId() {
     return pathParts[pathParts.length - 1] || '1';
 }
 
-// 알림 표시 함수 (window.showNotification이 없을 경우 대비)
+// 알림 표시 함수 (무한 재귀 방지)
 function showNotification(message, type = 'info') {
-    // 전역 showNotification 함수가 있으면 사용
-    if (window.showNotification && typeof window.showNotification === 'function') {
+    // script.js의 전역 showNotification 함수가 있으면 사용
+    if (window.showNotification && typeof window.showNotification === 'function' && window.showNotification !== showNotification) {
         window.showNotification(message, type);
         return;
     }
