@@ -372,29 +372,9 @@ function toggleBookmark() {
     sendBookmarkToServer(isBookmarked);
 }
 
-// 콘텐츠 공유
+// 콘텐츠 공유 - 링크 복사로 변경
 function shareContent() {
-    const shareData = {
-        title: '실종자 찾기 - 김○○ (32세)',
-        text: '실종자를 목격하신 분은 신고 부탁드립니다. 작은 정보도 큰 도움이 됩니다.',
-        url: window.location.href
-    };
-    
-    // Web Share API 지원 확인
-    if (navigator.share && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        navigator.share(shareData)
-            .then(() => {
-                showNotification('공유가 완료되었습니다.', 'success');
-            })
-            .catch((error) => {
-                if (error.name !== 'AbortError') {
-                    copyToClipboard();
-                }
-            });
-    } else {
-        // 데스크톱에서는 공유 모달 표시
-        showShareModal(shareData);
-    }
+    copyToClipboard();
 }
 
 // 공유 모달 표시
@@ -449,24 +429,59 @@ function closeShareModal() {
     }
 }
 
-// 링크 복사
+// 링크 복사 - HTTP 환경 지원
 function copyToClipboard() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        showNotification('링크가 클립보드에 복사되었습니다.', 'success');
-        closeShareModal();
-    }).catch(() => {
-        // 폴백: 구형 브라우저 지원
-        const textArea = document.createElement('textarea');
-        textArea.value = window.location.href;
-        textArea.style.position = 'fixed';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        showNotification('링크가 클립보드에 복사되었습니다.', 'success');
-        closeShareModal();
-    });
+    const currentUrl = window.location.href;
+    
+    // HTTPS 환경에서 Clipboard API 시도
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(currentUrl).then(() => {
+            showNotification('링크가 클립보드에 복사되었습니다.', 'success');
+        }).catch(() => {
+            // 실패 시 폴백 방식 사용
+            fallbackCopyTextToClipboard(currentUrl);
+        });
+    } else {
+        // HTTP 환경이나 구형 브라우저에서 폴백 방식 사용
+        fallbackCopyTextToClipboard(currentUrl);
+    }
+}
+
+// 폴백 복사 방식
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    
+    // 화면에 보이지 않게 설정
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0';
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showNotification('링크가 클립보드에 복사되었습니다.', 'success');
+        } else {
+            showNotification('복사에 실패했습니다. 브라우저가 지원하지 않습니다.', 'error');
+        }
+    } catch (err) {
+        console.error('폴백 복사 실패:', err);
+        showNotification('복사에 실패했습니다. 링크를 수동으로 복사해주세요.', 'error');
+    }
+    
+    document.body.removeChild(textArea);
 }
 
 // 소셜 공유 함수들
