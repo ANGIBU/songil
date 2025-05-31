@@ -3,52 +3,52 @@
 // React 컴포넌트 활용
 const { useState, useEffect, useCallback } = React;
 
-// 전체 순위 데이터 (단일 카테고리)
+// 전체 순위 데이터 (건수 기준)
 const rankingData = [
     {
         rank: 1,
         username: "시민영웅★★★",
-        points: 12450,
+        points: 89,
         change: { type: 'up', value: 2 },
-        stats: { reports: 23, witnesses: 89 },
+        stats: { reports: 23, witnesses: 66 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 2,
         username: "따뜻한마음",
-        points: 9830,
+        points: 72,
         change: { type: 'down', value: 1 },
-        stats: { reports: 15, witnesses: 67 },
+        stats: { reports: 15, witnesses: 57 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 3,
         username: "도움이되고싶어요",
-        points: 8960,
+        points: 68,
         change: { type: 'up', value: 1 },
-        stats: { reports: 8, witnesses: 78 },
+        stats: { reports: 8, witnesses: 60 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 4,
         username: "정의의사자",
-        points: 7820,
+        points: 58,
         change: { type: 'same', value: 0 },
-        stats: { reports: 12, witnesses: 45 },
+        stats: { reports: 12, witnesses: 46 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 5,
         username: "희망의빛",
-        points: 6940,
+        points: 52,
         change: { type: 'up', value: 3 },
-        stats: { reports: 6, witnesses: 52 },
+        stats: { reports: 6, witnesses: 46 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 6,
         username: "착한시민",
-        points: 6120,
+        points: 47,
         change: { type: 'down', value: 2 },
         stats: { reports: 9, witnesses: 38 },
         avatar: "fas fa-user-circle"
@@ -56,39 +56,39 @@ const rankingData = [
     {
         rank: 7,
         username: "사랑나눔",
-        points: 5680,
+        points: 43,
         change: { type: 'same', value: 0 },
-        stats: { reports: 4, witnesses: 41 },
+        stats: { reports: 4, witnesses: 39 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 8,
         username: "관찰자",
-        points: 5240,
+        points: 39,
         change: { type: 'up', value: 1 },
-        stats: { reports: 2, witnesses: 48 },
+        stats: { reports: 2, witnesses: 37 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 9,
         username: "경찰아저씨",
-        points: 4890,
+        points: 35,
         change: { type: 'down', value: 1 },
-        stats: { reports: 11, witnesses: 22 },
+        stats: { reports: 11, witnesses: 24 },
         avatar: "fas fa-user-circle"
     },
     {
         rank: 10,
         username: "평범한사람",
-        points: 4150,
+        points: 31,
         change: { type: 'new', value: 0 },
-        stats: { reports: 5, witnesses: 28 },
+        stats: { reports: 5, witnesses: 26 },
         avatar: "fas fa-user-circle"
     }
 ];
 
 // 순위 아이템 React 컴포넌트
-function RankingItem({ data }) {
+function RankingItem({ data, index }) {
     const getRankIcon = (rank) => {
         if (rank === 1) return 'fas fa-crown';
         if (rank <= 3) return 'fas fa-medal';
@@ -114,8 +114,44 @@ function RankingItem({ data }) {
         return `신고 ${stats.reports}건, 목격 ${stats.witnesses}건`;
     };
 
+    useEffect(() => {
+        // 개별 랭킹 아이템 애니메이션
+        const element = document.querySelector(`.ranking-item[data-rank="${data.rank}"]`);
+        if (element && typeof gsap !== 'undefined') {
+            gsap.fromTo(element, 
+                {
+                    opacity: 0,
+                    x: -30
+                },
+                {
+                    opacity: 1,
+                    x: 0,
+                    duration: 0.6,
+                    delay: index * 0.1,
+                    ease: "power2.out"
+                }
+            );
+
+            // 점수 카운트업 애니메이션
+            const pointsElement = element.querySelector('.points');
+            if (pointsElement) {
+                const countObj = { value: 0 };
+                gsap.to(countObj, {
+                    value: data.points,
+                    duration: 1.5,
+                    delay: 0.5 + (index * 0.1),
+                    ease: "power2.out",
+                    onUpdate: function() {
+                        pointsElement.textContent = `${Math.floor(countObj.value)}건`;
+                    }
+                });
+            }
+        }
+    }, [data, index]);
+
     return React.createElement('div', {
         className: `ranking-item rank-${data.rank}`,
+        'data-rank': data.rank,
         key: data.rank
     }, [
         React.createElement('div', { className: 'rank-number', key: 'rank' }, [
@@ -139,9 +175,10 @@ function RankingItem({ data }) {
             ])
         ]),
         React.createElement('div', { className: 'rank-score', key: 'score' }, [
-            React.createElement('div', { className: 'points', key: 'points' }, 
-                `${data.points.toLocaleString()}P`
-            ),
+            React.createElement('div', { 
+                className: 'points',
+                key: 'points'
+            }, '0건'),
             React.createElement('div', {
                 className: `change ${data.change.type}`,
                 key: 'change'
@@ -158,50 +195,217 @@ function RankingItem({ data }) {
 
 // 순위 패널 React 컴포넌트
 function RankingPanel({ data }) {
+    useEffect(() => {
+        // 패널 전체 애니메이션
+        const panel = document.querySelector('.ranking-panel');
+        if (panel && typeof gsap !== 'undefined') {
+            gsap.fromTo(panel,
+                {
+                    opacity: 0,
+                    y: 30
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power2.out"
+                }
+            );
+        }
+    }, []);
+
     return React.createElement('div', {
         className: 'ranking-panel active'
     }, [
         React.createElement('div', { className: 'ranking-header-info', key: 'header' }, [
             React.createElement('h2', { key: 'title' }, '전체 랭킹 TOP 10'),
-            React.createElement('p', { key: 'description' }, '실종자 신고, 목격 신고, 포인트를 종합한 전체 기간 순위입니다')
+            React.createElement('p', { key: 'description' }, '실종자 신고와 목격 신고에 기여한 건수를 종합한 전체 기간 순위입니다')
         ]),
         React.createElement('div', { className: 'ranking-list', key: 'list' },
-            data.map(item =>
+            data.map((item, index) =>
                 React.createElement(RankingItem, {
                     key: item.rank,
-                    data: item
+                    data: item,
+                    index: index
                 })
             )
         )
     ]);
 }
 
-// 통계 카운터 클래스 (애니메이션 제거됨)
-class StatCounter {
-    constructor(element, target, duration = 0) {
-        this.element = element;
-        this.target = parseInt(target.toString().replace(/[,%]/g, ''));
-        this.duration = duration;
-        this.current = this.target;
+// GSAP 카운터 애니메이션 클래스
+class GSAPRankingAnimator {
+    constructor() {
         this.isAnimating = false;
+        this.hasAnimated = false;
     }
 
-    start() {
-        // 애니메이션 없이 즉시 표시
-        this.element.textContent = this.target.toLocaleString();
+    // 통계 카드 애니메이션
+    animateStatCards() {
+        if (this.hasAnimated || typeof gsap === 'undefined') return;
+
+        const statCards = document.querySelectorAll('.stat-card');
+        const statNumbers = document.querySelectorAll('.stat-number');
+        const statLabels = document.querySelectorAll('.stat-label');
+
+        // 통계 데이터 (실제 값)
+        const statData = [15429, 8342, 1203];
+
+        // 카드 나타나기 애니메이션
+        gsap.fromTo(statCards, 
+            {
+                opacity: 0,
+                y: 50,
+                scale: 0.9
+            },
+            {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "back.out(1.7)"
+            }
+        );
+
+        // 숫자 카운트업 애니메이션
+        statNumbers.forEach((numberEl, index) => {
+            const targetValue = statData[index];
+            const countObj = { value: 0 };
+            
+            gsap.to(countObj, {
+                value: targetValue,
+                duration: 2,
+                delay: 0.5 + (index * 0.3),
+                ease: "power2.out",
+                onUpdate: function() {
+                    numberEl.textContent = Math.floor(countObj.value).toLocaleString();
+                },
+                onComplete: function() {
+                    numberEl.textContent = targetValue.toLocaleString();
+                }
+            });
+        });
+
+        // 라벨 페이드인 애니메이션
+        gsap.fromTo(statLabels,
+            {
+                opacity: 0,
+                y: 20
+            },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                delay: 1,
+                stagger: 0.1,
+                ease: "power2.out"
+            }
+        );
+
+        this.hasAnimated = true;
+    }
+
+    // CTA 섹션 애니메이션
+    animateCTASection() {
+        if (typeof gsap === 'undefined') return;
+
+        const cta = document.querySelector('.personal-ranking-cta');
+        if (cta) {
+            gsap.fromTo(cta,
+                {
+                    opacity: 0,
+                    y: 30
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: cta,
+                        start: "top 80%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none none"
+                    }
+                }
+            );
+        }
+    }
+
+    // 혜택 섹션 애니메이션
+    animateBenefitsSection() {
+        if (typeof gsap === 'undefined') return;
+
+        const benefits = document.querySelector('.ranking-benefits');
+        const benefitItems = document.querySelectorAll('.benefit-item');
+
+        if (benefits) {
+            gsap.fromTo(benefits,
+                {
+                    opacity: 0,
+                    y: 30
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: benefits,
+                        start: "top 80%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none none"
+                    }
+                }
+            );
+
+            gsap.fromTo(benefitItems,
+                {
+                    opacity: 0,
+                    y: 30
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.6,
+                    stagger: 0.2,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: benefits,
+                        start: "top 70%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none none"
+                    }
+                }
+            );
+        }
+    }
+
+    // 모든 애니메이션 초기화
+    initializeAnimations() {
+        // 페이지 로드 시 통계 카드 애니메이션 실행
+        this.animateStatCards();
+        
+        // 스크롤 기반 애니메이션들 설정
+        this.animateCTASection();
+        this.animateBenefitsSection();
     }
 }
 
-// Intersection Observer를 활용한 스크롤 트리거 (애니메이션 제거)
+// Intersection Observer를 활용한 스크롤 트리거
 class RankingScrollObserver {
     constructor() {
-        this.counters = new Map();
+        this.animator = new GSAPRankingAnimator();
         this.init();
     }
 
     init() {
         this.setupIntersectionObserver();
         this.observeElements();
+        
+        // GSAP 애니메이션 초기화
+        this.animator.initializeAnimations();
     }
 
     setupIntersectionObserver() {
@@ -210,37 +414,29 @@ class RankingScrollObserver {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
                     
-                    // 통계 카운터 시작 (애니메이션 없음)
-                    if (entry.target.classList.contains('stat-card')) {
-                        this.startStatCounter(entry.target);
+                    // 통계 카드가 보이면 애니메이션 시작
+                    if (entry.target.classList.contains('ranking-stats') && !this.animator.hasAnimated) {
+                        this.animator.animateStatCards();
                     }
                 }
             });
         }, {
-            threshold: 0.5,
+            threshold: 0.3,
             rootMargin: '0px 0px -50px 0px'
         });
     }
 
     observeElements() {
-        const elements = document.querySelectorAll('.stat-card, .ranking-item');
+        const elements = document.querySelectorAll('.ranking-stats, .ranking-panel');
         elements.forEach(el => this.observer.observe(el));
-    }
-
-    startStatCounter(statCard) {
-        const numberElement = statCard.querySelector('.stat-number');
-        if (numberElement && !this.counters.has(numberElement)) {
-            const counter = new StatCounter(numberElement, numberElement.textContent);
-            this.counters.set(numberElement, counter);
-            counter.start();
-        }
     }
 }
 
-// 메인 순위 페이지 클래스 (애니메이션 제거)
+// 메인 순위 페이지 클래스
 class RankingPage {
     constructor() {
         this.scrollObserver = null;
+        this.animator = null;
         this.init();
     }
 
@@ -253,6 +449,11 @@ class RankingPage {
     }
 
     setup() {
+        // GSAP ScrollTrigger 등록
+        if (typeof gsap !== 'undefined' && gsap.registerPlugin) {
+            gsap.registerPlugin(ScrollTrigger);
+        }
+
         // 스크롤 관찰자 초기화
         this.scrollObserver = new RankingScrollObserver();
         
@@ -262,7 +463,7 @@ class RankingPage {
         // 초기 렌더링
         this.renderRankingPanel();
         
-        console.log('Ranking page initialized successfully (no animations)');
+        console.log('Ranking page initialized with GSAP animations');
     }
 
     setupEventListeners() {
@@ -274,6 +475,11 @@ class RankingPage {
                 this.handleResize();
             }, 250);
         });
+
+        // 스크롤 이벤트 (GSAP ScrollTrigger와 함께 사용)
+        window.addEventListener('scroll', this.throttle(() => {
+            this.handleScroll();
+        }, 16));
     }
 
     renderRankingPanel() {
@@ -302,7 +508,7 @@ class RankingPage {
     }
 
     renderWithVanilla(data, container) {
-        const createRankingItemHTML = (data) => {
+        const createRankingItemHTML = (data, index) => {
             const rankIcon = data.rank <= 3 ? 
                 `<i class="${data.rank === 1 ? 'fas fa-crown' : 'fas fa-medal'}"></i>` : '';
             
@@ -321,7 +527,7 @@ class RankingPage {
             };
             
             return `
-                <div class="ranking-item rank-${data.rank}">
+                <div class="ranking-item rank-${data.rank}" data-rank="${data.rank}" data-index="${index}">
                     <div class="rank-number">
                         ${rankIcon}
                         <span>${data.rank}</span>
@@ -338,7 +544,7 @@ class RankingPage {
                         </div>
                     </div>
                     <div class="rank-score">
-                        <div class="points">${data.points.toLocaleString()}P</div>
+                        <div class="points">0건</div>
                         <div class="change ${data.change.type}">
                             ${changeIcon}
                             <span>${getChangeText(data.change)}</span>
@@ -351,12 +557,56 @@ class RankingPage {
         container.innerHTML = `
             <div class="ranking-header-info">
                 <h2>전체 랭킹 TOP 10</h2>
-                <p>실종자 신고, 목격 신고, 포인트를 종합한 전체 기간 순위입니다</p>
+                <p>실종자 신고와 목격 신고에 기여한 건수를 종합한 전체 기간 순위입니다</p>
             </div>
             <div class="ranking-list">
-                ${data.map(item => createRankingItemHTML(item)).join('')}
+                ${data.map((item, index) => createRankingItemHTML(item, index)).join('')}
             </div>
         `;
+
+        // Vanilla JS에서도 애니메이션 적용
+        this.applyVanillaAnimations(data);
+    }
+
+    applyVanillaAnimations(data) {
+        if (typeof gsap === 'undefined') return;
+
+        // 랭킹 아이템들 애니메이션
+        const rankingItems = document.querySelectorAll('.ranking-item');
+        
+        gsap.fromTo(rankingItems,
+            {
+                opacity: 0,
+                x: -30
+            },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out"
+            }
+        );
+
+        // 점수 카운트업
+        rankingItems.forEach((item, index) => {
+            const pointsElement = item.querySelector('.points');
+            const targetValue = data[index].points;
+            const countObj = { value: 0 };
+            
+            gsap.to(countObj, {
+                value: targetValue,
+                duration: 1.5,
+                delay: 0.5 + (index * 0.1),
+                ease: "power2.out",
+                onUpdate: function() {
+                    pointsElement.textContent = `${Math.floor(countObj.value)}건`;
+                },
+                onComplete: function() {
+                    pointsElement.textContent = `${targetValue}건`;
+                }
+            });
+        });
     }
 
     handleResize() {
@@ -365,6 +615,29 @@ class RankingPage {
             document.body.classList.add('mobile');
         } else {
             document.body.classList.remove('mobile');
+        }
+
+        // GSAP ScrollTrigger 새로고침
+        if (typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+        }
+    }
+
+    handleScroll() {
+        // 추가 스크롤 이벤트 처리 (필요시)
+    }
+
+    // 쓰로틀 유틸리티
+    throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
         }
     }
 }
@@ -376,6 +649,7 @@ const rankingPage = new RankingPage();
 if (typeof window !== 'undefined') {
     window.rankingPageDebug = {
         instance: rankingPage,
-        data: rankingData
+        data: rankingData,
+        animator: rankingPage.scrollObserver?.animator
     };
 }

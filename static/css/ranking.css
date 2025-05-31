@@ -100,16 +100,41 @@
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
 }
 
+/* 통계 카드 개별 색상 테마 */
+.stat-card:nth-child(1) .stat-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.stat-card:nth-child(1)::before {
+    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+.stat-card:nth-child(2)::before {
+    background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
+}
+
+.stat-card:nth-child(3)::before {
+    background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+}
+
 .stat-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, var(--primary-orange-light) 0%, var(--secondary-green) 100%);
     border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 20px;
     position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon i {
@@ -130,12 +155,18 @@
     font-weight: 700;
     color: var(--gray-900);
     line-height: 1;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(20px);
 }
 
 .stat-label {
     font-size: 1rem;
     color: var(--gray-600);
     font-weight: 500;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(20px);
 }
 
 /* 순위 콘텐츠 섹션 */
@@ -147,6 +178,9 @@
 /* 순위 패널 */
 .ranking-panel {
     display: block;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 .ranking-header-info {
@@ -190,6 +224,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateX(-30px);
 }
 
 .ranking-item::before {
@@ -435,6 +472,9 @@
     text-align: center;
     position: relative;
     overflow: hidden;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 .cta-content {
@@ -492,6 +532,9 @@
 /* 랭킹 혜택 */
 .ranking-benefits {
     margin-top: 60px;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 .ranking-benefits h3 {
@@ -518,6 +561,9 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    /* GSAP 애니메이션을 위한 초기 상태 */
+    opacity: 0;
+    transform: translateY(30px);
 }
 
 .benefit-item::before {
@@ -620,6 +666,22 @@
     font-size: 2rem;
     margin-bottom: 15px;
     color: var(--primary-orange);
+}
+
+/* GSAP 애니메이션 클래스 */
+.gsap-counter-ready .stat-number {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gsap-counter-ready .stat-label {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gsap-animated {
+    opacity: 1 !important;
+    transform: none !important;
 }
 
 /* 반응형 디자인 */

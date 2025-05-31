@@ -10,7 +10,8 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <!-- Three.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r144/three.min.js"></script>
-<!-- GSAP ScrollTrigger -->
+<!-- GSAP with ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 {% endblock %}
 
@@ -20,7 +21,7 @@
     <div class="container">
         <div class="ranking-title visible-on-load">
             <h1><i class="fas fa-trophy"></i> 실종자 찾기 순위</h1>
-            <p>실종자 찾기에 기여한 시민들의 순위를 확인하세요</p>
+            <p>실종자 찾기에 기여한 시민들의 참여 건수별 순위를 확인하세요</p>
         </div>
         
         <!-- 순위 통계 -->
@@ -30,7 +31,7 @@
                     <i class="fas fa-users"></i>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-number">15,429</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">총 참여자</div>
                 </div>
             </div>
@@ -39,7 +40,7 @@
                     <i class="fas fa-eye"></i>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-number">8,342</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">목격 신고</div>
                 </div>
             </div>
@@ -48,7 +49,7 @@
                     <i class="fas fa-heart"></i>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-number">1,203</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">해결된 사건</div>
                 </div>
             </div>
