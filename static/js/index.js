@@ -672,6 +672,60 @@ class GSAPAnimationManager {
         return masterTL;
     }
 
+    createFloatingAnimation() {
+        if (!this.isGSAPReady) {
+            console.warn('GSAP not ready for floating animation');
+            return;
+        }
+
+        const statItems = document.querySelectorAll('.stat-item');
+        console.log('🌊 Found stat items:', statItems.length);
+        
+        if (statItems.length === 0) {
+            console.warn('No stat items found for floating animation');
+            return;
+        }
+
+        statItems.forEach((item, index) => {
+            console.log(`🌊 Setting up floating for item ${index + 1}`);
+            
+            // 각각 다른 속도와 방향으로 floating 효과
+            const floatingTL = gsap.timeline({ repeat: -1, yoyo: true });
+            
+            const baseDelay = index * 0.3; // 각 아이템마다 다른 시작 시간
+            const yMovement = 8 + Math.random() * 6; // 8~14px 수직 움직임
+            const xMovement = 4 + Math.random() * 4; // 4~8px 수평 움직임
+            const duration = 2.5 + Math.random() * 1.5; // 2.5~4초 주기
+            
+            floatingTL
+                .to(item, {
+                    y: yMovement,
+                    x: xMovement * (Math.random() > 0.5 ? 1 : -1), // 랜덤 방향
+                    rotation: (Math.random() - 0.5) * 2, // -1도 ~ 1도 회전
+                    duration: duration,
+                    ease: "sine.inOut"
+                }, baseDelay)
+                .to(item, {
+                    y: -yMovement * 0.7,
+                    x: xMovement * 0.6 * (Math.random() > 0.5 ? 1 : -1),
+                    rotation: (Math.random() - 0.5) * 1.5,
+                    duration: duration * 0.8,
+                    ease: "sine.inOut"
+                })
+                .to(item, {
+                    y: 0,
+                    x: 0,
+                    rotation: 0,
+                    duration: duration * 0.6,
+                    ease: "sine.inOut"
+                });
+
+            this.timelines.push(floatingTL);
+        });
+
+        console.log('🌊 Floating animation started for stat items');
+    }
+
     startMainAnimation() {
         if (!this.isGSAPReady) {
             console.warn('GSAP not ready - skipping animations');
@@ -686,6 +740,18 @@ class GSAPAnimationManager {
         if (masterAnimation) {
             masterAnimation.play();
             console.log('🎬 Master animation started');
+            
+            // 통계 아이템들이 나타난 후 floating 애니메이션 시작 - 시간 단축
+            setTimeout(() => {
+                this.createFloatingAnimation();
+            }, 3000); // 3초로 조정
+            
+            // 추가 안전장치 - 5초 후에도 한번 더 시도
+            setTimeout(() => {
+                if (document.querySelectorAll('.stat-item').length > 0) {
+                    this.createFloatingAnimation();
+                }
+            }, 5000);
         }
     }
 
