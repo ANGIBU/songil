@@ -292,9 +292,8 @@ class GSAPAnimationManager {
             ease: "power2.out"
         }, 2.0);
 
-        // 7. 통계 카드들과 숫자 카운터 (2.2초 후)
+        // 7. 통계 카드들 (2.2초 후) - 숫자 카운터 애니메이션 제거
         const statItems = document.querySelectorAll('.stat-item');
-        const statNumbers = document.querySelectorAll('.stat-number');
         
         if (statItems.length > 0) {
             masterTL.to(statItems, {
@@ -305,25 +304,6 @@ class GSAPAnimationManager {
                 stagger: 0.08,
                 ease: "power2.out"
             }, 2.2);
-
-            // 숫자 카운터 애니메이션
-            statNumbers.forEach((numberEl, index) => {
-                const statData = statsData[index];
-                if (statData) {
-                    const targetValue = statData.value;
-                    const isPercent = statData.isPercent;
-                    
-                    masterTL.to({ count: 0 }, {
-                        count: targetValue,
-                        duration: 1.2,
-                        ease: "power2.out",
-                        onUpdate: function() {
-                            const currentCount = Math.round(this.targets()[0].count);
-                            numberEl.textContent = currentCount + (isPercent ? '%' : '');
-                        }
-                    }, 2.4);
-                }
-            });
         }
 
         this.timelines.push(masterTL);
@@ -740,28 +720,8 @@ class EnhancedIndexPage {
     }
 
     ensureStatsDisplay() {
-        const statsNumbers = document.querySelectorAll('.stat-number');
-        
-        // GSAP가 없을 때만 직접 설정 (GSAP가 있으면 애니메이션으로 처리)
-        if (!gsap) {
-            statsNumbers.forEach((element, index) => {
-                const statData = statsData[index];
-                if (statData) {
-                    element.textContent = statData.value + (statData.isPercent ? '%' : '');
-                    element.setAttribute('data-count', statData.value + (statData.isPercent ? '%' : ''));
-                }
-            });
-            console.log('✅ Stats display set (fallback mode)');
-        } else {
-            // GSAP가 있으면 초기값을 0으로 설정 (애니메이션을 위해)
-            statsNumbers.forEach((element, index) => {
-                const statData = statsData[index];
-                if (statData) {
-                    element.textContent = '0' + (statData.isPercent ? '%' : '');
-                }
-            });
-            console.log('✅ Stats display prepared for animation');
-        }
+        // 통계 숫자는 HTML에서 직접 설정되므로 별도 처리 불필요
+        console.log('✅ Stats display ready (no animation)');
     }
 
     setupEventListeners() {
