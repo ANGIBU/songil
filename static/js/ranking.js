@@ -118,45 +118,50 @@ function RankingItem({ data, index }) {
         // 개별 랭킹 아이템 애니메이션
         const element = document.querySelector(`.ranking-item[data-rank="${data.rank}"]`);
         
-        if (element && typeof gsap !== 'undefined') {
-            gsap.fromTo(element, 
-                {
-                    opacity: 0,
-                    x: -30
-                },
-                {
-                    opacity: 1,
-                    x: 0,
-                    duration: 0.6,
-                    delay: index * 0.1,
-                    ease: "power2.out"
-                }
-            );
-
-            // 점수 카운트업 애니메이션
+        if (element) {
             const pointsElement = element.querySelector('.points');
-            if (pointsElement) {
-                const countObj = { value: 0 };
-                pointsElement.textContent = '0건'; // 초기값 설정
-                
-                gsap.to(countObj, {
-                    value: data.points,
-                    duration: 1.5,
-                    delay: 0.5 + (index * 0.1),
-                    ease: "power2.out",
-                    onUpdate: function() {
-                        pointsElement.textContent = `${Math.floor(countObj.value)}건`;
+            
+            if (typeof gsap !== 'undefined') {
+                // GSAP 애니메이션
+                gsap.fromTo(element, 
+                    {
+                        opacity: 0,
+                        x: -30
                     },
-                    onComplete: function() {
-                        pointsElement.textContent = `${data.points}건`;
+                    {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.6,
+                        delay: index * 0.1,
+                        ease: "power2.out"
                     }
-                });
-            }
-        } else if (element) {
-            // GSAP가 없으면 즉시 표시
-            const pointsElement = element.querySelector('.points');
-            if (pointsElement) {
-                pointsElement.textContent = `${data.points}건`;
+                );
+
+                // 점수 카운트업 애니메이션
+                if (pointsElement) {
+                    const countObj = { value: 0 };
+                    pointsElement.textContent = '0건'; // 초기값 설정
+                    
+                    gsap.to(countObj, {
+                        value: data.points,
+                        duration: 1.5,
+                        delay: 0.5 + (index * 0.1),
+                        ease: "power2.out",
+                        onUpdate: function() {
+                            pointsElement.textContent = `${Math.floor(countObj.value)}건`;
+                        },
+                        onComplete: function() {
+                            pointsElement.textContent = `${data.points}건`;
+                        }
+                    });
+                }
+            } else {
+                // GSAP가 없으면 즉시 표시
+                if (pointsElement) {
+                    pointsElement.textContent = `${data.points}건`;
+                }
+                element.style.opacity = '1';
+                element.style.transform = 'none';
             }
         }
     }, [data, index]);
@@ -210,19 +215,25 @@ function RankingPanel({ data }) {
     useEffect(() => {
         // 패널 전체 애니메이션
         const panel = document.querySelector('.ranking-panel');
-        if (panel && typeof gsap !== 'undefined') {
-            gsap.fromTo(panel,
-                {
-                    opacity: 0,
-                    y: 30
-                },
-                {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: "power2.out"
-                }
-            );
+        if (panel) {
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo(panel,
+                    {
+                        opacity: 0,
+                        y: 30
+                    },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    }
+                );
+            } else {
+                // GSAP가 없으면 즉시 표시
+                panel.style.opacity = '1';
+                panel.style.transform = 'none';
+            }
         }
     }, []);
 
@@ -251,10 +262,28 @@ class GSAPRankingAnimator {
         this.isAnimating = false;
         this.hasAnimated = false;
         this.isGSAPReady = typeof gsap !== 'undefined';
+        this.statData = [15429, 8342, 1203];
         
-        // GSAP가 준비되었으면 애니메이션용 클래스 추가
+        // 페이지 로드시 즉시 숫자 설정
+        this.setInitialNumbers();
+    }
+
+    // 초기 숫자 설정 (GSAP 없어도 보이도록)
+    setInitialNumbers() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
         if (this.isGSAPReady) {
-            document.body.classList.add('gsap-animation-ready');
+            // GSAP가 있으면 0에서 시작 (애니메이션 예정)
+            statNumbers.forEach(numberEl => {
+                numberEl.textContent = '0';
+            });
+        } else {
+            // GSAP가 없으면 즉시 최종값 표시
+            statNumbers.forEach((numberEl, index) => {
+                if (this.statData[index]) {
+                    numberEl.textContent = this.statData[index].toLocaleString();
+                }
+            });
         }
     }
 
@@ -266,13 +295,12 @@ class GSAPRankingAnimator {
         const statNumbers = document.querySelectorAll('.stat-number');
         const statLabels = document.querySelectorAll('.stat-label');
 
-        // 통계 데이터 (실제 값)
-        const statData = [15429, 8342, 1203];
-
         if (!this.isGSAPReady) {
             // GSAP가 없으면 즉시 표시
             statNumbers.forEach((numberEl, index) => {
-                numberEl.textContent = statData[index].toLocaleString();
+                if (this.statData[index]) {
+                    numberEl.textContent = this.statData[index].toLocaleString();
+                }
             });
             this.hasAnimated = true;
             return;
@@ -298,7 +326,9 @@ class GSAPRankingAnimator {
 
         // 숫자 카운트업 애니메이션 - 0에서 시작
         statNumbers.forEach((numberEl, index) => {
-            const targetValue = statData[index];
+            const targetValue = this.statData[index];
+            if (!targetValue) return;
+            
             const countObj = { value: 0 };
             
             // 초기값을 0으로 설정
@@ -432,6 +462,11 @@ class RankingScrollObserver {
     }
 
     init() {
+        // 즉시 통계 카드 애니메이션 시작 (페이지 로드시)
+        setTimeout(() => {
+            this.animator.animateStatCards();
+        }, 100);
+        
         this.setupIntersectionObserver();
         this.observeElements();
         
@@ -444,11 +479,6 @@ class RankingScrollObserver {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('in-view');
-                    
-                    // 통계 카드가 보이면 애니메이션 시작
-                    if (entry.target.classList.contains('ranking-stats') && !this.animator.hasAnimated) {
-                        this.animator.animateStatCards();
-                    }
                 }
             });
         }, {
@@ -492,14 +522,14 @@ class RankingPage {
             console.warn('GSAP or ScrollTrigger not available, animations will be disabled');
         }
 
+        // 초기 렌더링 (먼저 실행)
+        this.renderRankingPanel();
+        
         // 스크롤 관찰자 초기화
         this.scrollObserver = new RankingScrollObserver();
         
         // 이벤트 리스너 설정
         this.setupEventListeners();
-        
-        // 초기 렌더링
-        this.renderRankingPanel();
         
         console.log('Ranking page initialized with GSAP animations');
     }
@@ -582,7 +612,7 @@ class RankingPage {
                         </div>
                     </div>
                     <div class="rank-score">
-                        <div class="points">0건</div>
+                        <div class="points">${data.points}건</div>
                         <div class="change ${data.change.type}">
                             ${changeIcon}
                             <span>${getChangeText(data.change)}</span>
