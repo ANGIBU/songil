@@ -161,7 +161,6 @@ class HopeEffectManager {
 
     init(container) {
         if (!THREE || this.isDestroyed) {
-            console.warn('Three.js not available or manager destroyed');
             return false;
         }
 
@@ -175,10 +174,8 @@ class HopeEffectManager {
             this.startAnimation();
             this.isActive = true;
             
-            console.log('✨ Hope effect initialized successfully');
             return true;
         } catch (error) {
-            console.error('Hope effect initialization failed:', error);
             return false;
         }
     }
@@ -472,8 +469,6 @@ class HopeEffectManager {
         this.particles = [];
         this.lights = [];
         this.container = null;
-        
-        console.log('✨ Hope effect destroyed');
     }
 }
 
@@ -489,7 +484,6 @@ class GSAPAnimationManager {
 
     initGSAP() {
         if (!gsap) {
-            console.warn('GSAP not available - animations will be skipped');
             return false;
         }
 
@@ -505,7 +499,6 @@ class GSAPAnimationManager {
 
     prepareAnimationElements() {
         if (!this.isGSAPReady) {
-            console.warn('GSAP not ready - all elements will remain visible');
             return;
         }
 
@@ -533,19 +526,15 @@ class GSAPAnimationManager {
                 el.classList.add(config.class);
             });
         });
-        
-        console.log('✅ GSAP animation elements prepared');
     }
 
     initializeHopeEffect() {
         if (!THREE) {
-            console.warn('Three.js not available - hope effect will be skipped');
             return;
         }
 
         const statsSection = document.querySelector('.stats-section');
         if (!statsSection) {
-            console.warn('Stats section not found - hope effect will be skipped');
             return;
         }
 
@@ -556,9 +545,7 @@ class GSAPAnimationManager {
         this.hopeEffect = new HopeEffectManager();
         const success = this.hopeEffect.init(statsSection);
         
-        if (success) {
-            console.log('✨ Hope effect initialized for stats section');
-        } else {
+        if (!success) {
             this.hopeEffect = null;
         }
     }
@@ -674,21 +661,16 @@ class GSAPAnimationManager {
 
     createFloatingAnimation() {
         if (!this.isGSAPReady) {
-            console.warn('GSAP not ready for floating animation');
             return;
         }
 
         const statItems = document.querySelectorAll('.stat-item');
-        console.log('🌊 Found stat items:', statItems.length);
         
         if (statItems.length === 0) {
-            console.warn('No stat items found for floating animation');
             return;
         }
 
         statItems.forEach((item, index) => {
-            console.log(`🌊 Setting up floating for item ${index + 1}`);
-            
             // 각각 다른 속도와 방향으로 floating 효과
             const floatingTL = gsap.timeline({ repeat: -1, yoyo: true });
             
@@ -722,13 +704,10 @@ class GSAPAnimationManager {
 
             this.timelines.push(floatingTL);
         });
-
-        console.log('🌊 Floating animation started for stat items');
     }
 
     startMainAnimation() {
         if (!this.isGSAPReady) {
-            console.warn('GSAP not ready - skipping animations');
             // GSAP 없이도 희망 효과는 시도
             setTimeout(() => {
                 this.initializeHopeEffect();
@@ -739,7 +718,6 @@ class GSAPAnimationManager {
         const masterAnimation = this.createMasterTimeline();
         if (masterAnimation) {
             masterAnimation.play();
-            console.log('🎬 Master animation started');
             
             // 통계 아이템들이 나타난 후 floating 애니메이션 시작 - 시간 단축
             setTimeout(() => {
@@ -771,8 +749,6 @@ class GSAPAnimationManager {
             }
         });
         this.timelines = [];
-
-        console.log('🧹 GSAP Animation Manager destroyed');
     }
 }
 
@@ -804,7 +780,6 @@ function renderRankingFallback() {
     `).join('');
     
     rankingContainer.innerHTML = html;
-    console.log('✅ Ranking fallback rendered');
 }
 
 function renderUrgentCardsFallback() {
@@ -842,20 +817,17 @@ function renderUrgentCardsFallback() {
     
     urgentContainer.innerHTML = html;
     urgentContainer.setAttribute('data-fallback-rendered', 'true');
-    console.log('✅ Urgent cards fallback rendered');
 }
 
 // React 순위 컴포넌트 - 안전한 버전
 const RankingDisplay = typeof React !== 'undefined' ? React.memo(function RankingDisplay({ rankings }) {
     if (!rankings || !Array.isArray(rankings)) {
-        console.warn('Invalid rankings data provided to RankingDisplay');
         return null;
     }
 
     return React.createElement('div', { style: { display: 'contents' } },
         rankings.map((rank, index) => {
             if (!rank || typeof rank.rank === 'undefined') {
-                console.warn(`Invalid rank data at index ${index}:`, rank);
                 return null;
             }
 
@@ -921,7 +893,6 @@ const RankingDisplay = typeof React !== 'undefined' ? React.memo(function Rankin
 // React 실종자 카드 컴포넌트 - 안전한 버전
 const MissingCard = typeof React !== 'undefined' ? React.memo(function MissingCard({ data, onUpClick }) {
     if (!data || !data.id) {
-        console.warn('Invalid data provided to MissingCard:', data);
         return null;
     }
 
@@ -1036,8 +1007,6 @@ class EnhancedIndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        console.log('🚀 Starting enhanced index page with GSAP + Three.js...');
-        
         // GSAP 애니메이션 매니저 초기화
         this.animationManager = new GSAPAnimationManager();
         
@@ -1070,20 +1039,16 @@ class EnhancedIndexPage {
     }
 
     renderFallbackContent() {
-        console.log('📋 Rendering fallback content...');
-        
         try {
             renderRankingFallback();
             renderUrgentCardsFallback();
-            console.log('✅ Fallback content rendered successfully');
         } catch (error) {
-            console.error('❌ Fallback rendering failed:', error);
+            // Silent fallback
         }
     }
 
     attemptReactRender() {
         if (this.renderAttempts >= this.maxRenderAttempts) {
-            console.log('⚠️ Max React render attempts reached, using fallback');
             return;
         }
 
@@ -1091,7 +1056,6 @@ class EnhancedIndexPage {
         
         try {
             if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
-                console.warn(`React not available (attempt ${this.renderAttempts})`);
                 if (this.renderAttempts < this.maxRenderAttempts) {
                     setTimeout(() => this.attemptReactRender(), 1000);
                 }
@@ -1099,9 +1063,7 @@ class EnhancedIndexPage {
             }
 
             this.renderReactComponents();
-            console.log('✅ React components rendered successfully');
         } catch (error) {
-            console.error(`❌ React rendering failed (attempt ${this.renderAttempts}):`, error);
             if (this.renderAttempts < this.maxRenderAttempts) {
                 setTimeout(() => this.attemptReactRender(), 1000);
             }
@@ -1125,7 +1087,6 @@ class EnhancedIndexPage {
                 })
             );
         } catch (error) {
-            console.error('React ranking rendering failed:', error);
             renderRankingFallback();
         }
     }
@@ -1157,14 +1118,12 @@ class EnhancedIndexPage {
             );
             urgentContainer.setAttribute('data-react-rendered', 'true');
         } catch (error) {
-            console.error('React cards rendering failed:', error);
             renderUrgentCardsFallback();
         }
     }
 
     ensureStatsDisplay() {
         // 통계 숫자는 HTML에서 직접 설정되므로 별도 처리 불필요
-        console.log('✅ Stats display ready (no animation)');
     }
 
     setupEventListeners() {
@@ -1219,7 +1178,7 @@ function handleUpClick(button, missingId) {
             window.showNotification('소중한 참여에 감사합니다! 함께라면 찾을 수 있어요.', 'success');
         }
     } catch (error) {
-        console.error('UP 버튼 클릭 처리 중 오류:', error);
+        // Silent error handling
     }
 }
 
@@ -1229,8 +1188,6 @@ let indexPage = null;
 try {
     indexPage = new EnhancedIndexPage();
 } catch (error) {
-    console.error('Enhanced index page initialization failed:', error);
-    
     // 최소한의 폴백 초기화
     document.addEventListener('DOMContentLoaded', () => {
         renderRankingFallback();
@@ -1247,7 +1204,7 @@ try {
                     }, 2000);
                 }
             } catch (effectError) {
-                console.warn('Hope effect fallback failed:', effectError);
+                // Silent error handling
             }
         }
     });
@@ -1311,10 +1268,8 @@ if (typeof window !== 'undefined') {
             try {
                 indexPage = new EnhancedIndexPage();
             } catch (error) {
-                console.error('Reinitialization failed:', error);
+                // Silent error handling
             }
         }
     };
 }
-
-console.log('📜 Enhanced index.js with GSAP + Three.js Hope Effect loaded successfully!');
