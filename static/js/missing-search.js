@@ -838,7 +838,7 @@ class FilterPopupManager {
     }
 }
 
-// missing_detail 스타일에 맞춘 실종자 카드 React 컴포넌트
+// 통일된 실종자 카드 React 컴포넌트 - style.css와 완전히 동일
 function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
     const [upCount, setUpCount] = useState(data.upCount);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -866,7 +866,7 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
         return dateStr.replace(/-/g, '.');
     }, []);
 
-    // missing_detail의 관련 실종자 카드 구조 적용
+    // 통일된 카드 구조 - style.css의 .missing-card와 완전히 동일
     return React.createElement('div', {
         className: `missing-card ${isAnimating ? 'animating' : ''}`,
         'data-id': data.id
@@ -1067,38 +1067,6 @@ class SearchManager {
     getDangerWeight(item) {
         const weights = { 'high': 3, 'medium': 2, 'low': 1 };
         return weights[item.dangerLevel] || 0;
-    }
-
-    restorePageState() {
-        if (this.isDestroyed) return;
-        
-        try {
-            // 저장된 검색어 복원
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput && this.searchManager.filters.searchTerm) {
-                searchInput.value = this.searchManager.filters.searchTerm;
-            }
-            
-            // 뷰 모드 복원
-            this.viewMode = this.loadViewMode();
-            this.initializeViews();
-            
-            // 필터 상태 복원
-            if (this.filterPopupManager) {
-                this.filterPopupManager.updateActiveFilters();
-            }
-            
-            // 페이지네이션 상태 복원
-            const savedPage = this.paginationManager.loadCurrentPage();
-            if (savedPage !== this.paginationManager.currentPage) {
-                this.paginationManager.currentPage = savedPage;
-                this.paginationManager.renderPagination();
-            }
-            
-            debugLog('Page state restored successfully');
-        } catch (error) {
-            debugError('Failed to restore page state:', error);
-        }
     }
 
     resetFilters() {
@@ -1696,6 +1664,38 @@ class MissingSearchPage {
             document.body.classList.add('mobile');
         } else {
             document.body.classList.remove('mobile');
+        }
+    }
+
+    restorePageState() {
+        if (this.isDestroyed) return;
+        
+        try {
+            // 저장된 검색어 복원
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && this.searchManager.filters.searchTerm) {
+                searchInput.value = this.searchManager.filters.searchTerm;
+            }
+            
+            // 뷰 모드 복원
+            this.viewMode = this.loadViewMode();
+            this.initializeViews();
+            
+            // 필터 상태 복원
+            if (this.filterPopupManager) {
+                this.filterPopupManager.updateActiveFilters();
+            }
+            
+            // 페이지네이션 상태 복원
+            const savedPage = this.paginationManager.loadCurrentPage();
+            if (savedPage !== this.paginationManager.currentPage) {
+                this.paginationManager.currentPage = savedPage;
+                this.paginationManager.renderPagination();
+            }
+            
+            debugLog('Page state restored successfully');
+        } catch (error) {
+            debugError('Failed to restore page state:', error);
         }
     }
 

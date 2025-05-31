@@ -121,7 +121,6 @@ async function loadUserInfo() {
         updateUserInfoInUI(userInfo);
         
     } catch (error) {
-        console.error('사용자 정보 로드 실패:', error);
         showNotification('사용자 정보를 불러오는데 실패했습니다.', 'error');
     }
 }
@@ -274,15 +273,22 @@ function handleResize() {
 
 // ===== 레이아웃 재계산 =====
 function recalculateLayouts() {
-    // 그리드 레이아웃 재계산
-    const grids = document.querySelectorAll('.auto-grid');
+    // 그리드 레이아웃 재계산 - 통일된 그리드 시스템 사용
+    const grids = document.querySelectorAll('.auto-grid, .related-cards');
     grids.forEach(grid => {
         adjustGridColumns(grid);
     });
 }
 
-// ===== 그리드 컬럼 조정 =====
+// ===== 그리드 컬럼 조정 - 통일된 시스템 =====
 function adjustGridColumns(grid) {
+    // missing-search.css와 동일한 그리드 시스템 적용
+    if (grid.classList.contains('related-cards')) {
+        // 관련 실종자 카드는 CSS에서 이미 설정됨: repeat(auto-fill, minmax(320px, 1fr))
+        return;
+    }
+    
+    // 다른 그리드들은 기존 로직 유지
     const containerWidth = grid.offsetWidth;
     const minColumnWidth = 280;
     const columnCount = Math.floor(containerWidth / minColumnWidth);
@@ -423,10 +429,85 @@ function initializePageSpecific() {
     }
 }
 
-// ===== 실종자 상세 페이지 초기화 =====
+// ===== 실종자 상세 페이지 초기화 - 관련 실종자 카드 처리 추가 =====
 function initializeMissingDetailPage() {
+    // 관련 실종자 카드 이벤트 설정
+    setupRelatedMissingCards();
+    
     // 실종자 상세 페이지 관련 초기화
     // missing-detail.js에서 처리되므로 여기서는 기본 설정만
+}
+
+// ===== 관련 실종자 카드 설정 - 통일된 인터랙션 =====
+function setupRelatedMissingCards() {
+    const relatedCards = document.querySelectorAll('.related-missing .missing-card');
+    
+    relatedCards.forEach(card => {
+        // UP 버튼 클릭 이벤트 (통일된 처리)
+        const upStat = card.querySelector('.card-stats .stat');
+        if (upStat && upStat.innerHTML.includes('fa-arrow-up')) {
+            upStat.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // UP 카운트 증가
+                const countText = this.textContent.trim();
+                const currentCount = parseInt(countText.replace(/\D/g, '')) || 0;
+                const newCount = currentCount + 1;
+                
+                // 아이콘과 숫자 유지하면서 카운트 업데이트
+                this.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
+                
+                // 애니메이션 효과
+                if (typeof gsap !== 'undefined') {
+                    gsap.timeline()
+                        .to(this, {
+                            duration: 0.1,
+                            scale: 0.9,
+                            ease: 'power2.in'
+                        })
+                        .to(this, {
+                            duration: 0.4,
+                            scale: 1.2,
+                            ease: 'elastic.out(1, 0.5)'
+                        })
+                        .to(this, {
+                            duration: 0.2,
+                            scale: 1,
+                            ease: 'power2.out'
+                        });
+                }
+                
+                // 알림 표시
+                if (window.showNotification) {
+                    window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+                }
+            });
+        }
+        
+        // 카드 호버 효과 개선
+        card.addEventListener('mouseenter', function() {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(this, {
+                    duration: 0.3,
+                    y: -4,
+                    boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
+                    ease: 'power2.out'
+                });
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(this, {
+                    duration: 0.3,
+                    y: 0,
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
+                    ease: 'power2.out'
+                });
+            }
+        });
+    });
 }
 
 // ===== 랭킹 페이지 초기화 =====
@@ -443,6 +524,74 @@ function initializeHomePage() {
     
     // 통계 카운터 애니메이션
     initializeCounterAnimations();
+    
+    // 홈페이지 실종자 카드들 설정
+    setupHomePageMissingCards();
+}
+
+// ===== 홈페이지 실종자 카드 설정 =====
+function setupHomePageMissingCards() {
+    const homeCards = document.querySelectorAll('.urgent-cards .missing-card');
+    
+    homeCards.forEach((card, index) => {
+        // 스크롤 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 0.6,
+                y: 50,
+                opacity: 0,
+                delay: index * 0.1,
+                ease: 'power2.out'
+            });
+        }
+        
+        // UP 버튼 이벤트 (관련 실종자와 동일한 처리)
+        const upStat = card.querySelector('.card-stats .stat');
+        if (upStat && upStat.innerHTML.includes('fa-arrow-up')) {
+            upStat.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // UP 카운트 증가
+                const countText = this.textContent.trim();
+                const currentCount = parseInt(countText.replace(/\D/g, '')) || 0;
+                const newCount = currentCount + 1;
+                
+                // 아이콘과 숫자 유지하면서 카운트 업데이트
+                this.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
+                
+                // 애니메이션 효과
+                if (typeof gsap !== 'undefined') {
+                    gsap.timeline()
+                        .to(this, {
+                            duration: 0.1,
+                            scale: 0.9,
+                            ease: 'power2.in'
+                        })
+                        .to(this, {
+                            duration: 0.4,
+                            scale: 1.2,
+                            ease: 'elastic.out(1, 0.5)'
+                        })
+                        .to(this, {
+                            duration: 0.2,
+                            scale: 1,
+                            ease: 'power2.out'
+                        });
+                }
+                
+                // 알림 표시
+                if (window.showNotification) {
+                    window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+                }
+            });
+        }
+    });
 }
 
 // ===== Three.js 요소 초기화 =====
@@ -631,7 +780,6 @@ async function loadMoreContent() {
         hideLoadingIndicator();
         
     } catch (error) {
-        console.error('컨텐츠 로드 실패:', error);
         showNotification('더 많은 내용을 불러오는데 실패했습니다.', 'error');
     }
     
@@ -704,7 +852,6 @@ async function apiCall(endpoint, options = {}) {
         return await response.json();
         
     } catch (error) {
-        console.error('API 호출 실패:', error);
         throw error;
     }
 }

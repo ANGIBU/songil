@@ -46,10 +46,237 @@ function initializeApp() {
         // 반응형 처리
         handleResponsive();
         
+        // 페이지별 카드 초기화
+        initializePageCards();
+        
         window.APP.initialized = true;
     } catch (error) {
         console.error('❌ App initialization error:', error);
     }
+}
+
+// ===== 페이지별 카드 초기화 =====
+function initializePageCards() {
+    // 홈페이지 긴급 실종자 카드들 초기화
+    if (window.APP.currentPage === 'home') {
+        setupHomePageCards();
+    }
+    
+    // 모든 페이지의 실종자 카드 공통 이벤트 설정
+    setupUniversalCardEvents();
+}
+
+// ===== 홈페이지 카드 설정 =====
+function setupHomePageCards() {
+    const urgentCards = document.querySelectorAll('.urgent-cards .missing-card');
+    
+    urgentCards.forEach((card, index) => {
+        // 카드 로드 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.from(card, {
+                duration: 0.6,
+                y: 50,
+                opacity: 0,
+                delay: index * 0.1,
+                ease: 'power2.out'
+            });
+        }
+        
+        // 개별 카드 이벤트 설정
+        setupCardEvents(card);
+    });
+}
+
+// ===== 범용 카드 이벤트 설정 =====
+function setupUniversalCardEvents() {
+    // 모든 실종자 카드에 대한 공통 이벤트
+    const allCards = document.querySelectorAll('.missing-card');
+    
+    allCards.forEach(card => {
+        setupCardEvents(card);
+    });
+}
+
+// ===== 개별 카드 이벤트 설정 =====
+function setupCardEvents(card) {
+    if (!card) return;
+    
+    // UP 버튼 이벤트 - 통일된 처리
+    const upStat = card.querySelector('.card-stats .stat');
+    if (upStat && upStat.innerHTML.includes('fa-arrow-up')) {
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        upStat.removeEventListener('click', handleUpClick);
+        upStat.addEventListener('click', handleUpClick);
+        
+        // 시각적 피드백을 위한 스타일 추가
+        upStat.style.cursor = 'pointer';
+        upStat.style.transition = 'all 0.2s ease';
+    }
+    
+    // 카드 호버 효과
+    card.addEventListener('mouseenter', function() {
+        if (typeof gsap !== 'undefined') {
+            gsap.to(this, {
+                duration: 0.3,
+                y: -4,
+                boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
+                ease: 'power2.out'
+            });
+        }
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        if (typeof gsap !== 'undefined') {
+            gsap.to(this, {
+                duration: 0.3,
+                y: 0,
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
+                ease: 'power2.out'
+            });
+        }
+    });
+    
+    // 카드 클릭 시 상세 페이지로 이동 (detail-link가 없는 경우)
+    const detailLink = card.querySelector('.detail-link');
+    if (!detailLink) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+            // UP 버튼 클릭은 제외
+            if (!e.target.closest('.stat')) {
+                const cardId = this.dataset.id || extractCardId(this);
+                if (cardId) {
+                    window.location.href = `/missing/${cardId}`;
+                }
+            }
+        });
+    }
+}
+
+// ===== UP 클릭 핸들러 - 통일된 처리 =====
+function handleUpClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const stat = e.currentTarget;
+    
+    // UP 카운트 증가
+    const countText = stat.textContent.trim();
+    const currentCount = parseInt(countText.replace(/\D/g, '')) || 0;
+    const newCount = currentCount + 1;
+    
+    // 아이콘과 숫자 유지하면서 카운트 업데이트
+    stat.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
+    
+    // 애니메이션 효과
+    if (typeof gsap !== 'undefined') {
+        gsap.timeline()
+            .to(stat, {
+                duration: 0.1,
+                scale: 0.9,
+                ease: 'power2.in'
+            })
+            .to(stat, {
+                duration: 0.4,
+                scale: 1.2,
+                ease: 'elastic.out(1, 0.5)'
+            })
+            .to(stat, {
+                duration: 0.2,
+                scale: 1,
+                ease: 'power2.out'
+            });
+        
+        // 파티클 효과
+        createUpParticleEffect(stat);
+    }
+    
+    // 알림 표시
+    if (window.showNotification) {
+        window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+    }
+    
+    // 서버에 UP 정보 전송
+    const cardId = extractCardId(stat.closest('.missing-card'));
+    if (cardId) {
+        sendUpToServer(cardId, newCount);
+    }
+}
+
+// ===== UP 파티클 효과 =====
+function createUpParticleEffect(element) {
+    if (typeof gsap === 'undefined') return;
+    
+    const rect = element.getBoundingClientRect();
+    const particles = 6;
+    
+    for (let i = 0; i < particles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'up-particle';
+        particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
+        particle.style.cssText = `
+            position: fixed;
+            left: ${rect.left + rect.width / 2}px;
+            top: ${rect.top + rect.height / 2}px;
+            color: #22c55e;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+        `;
+        
+        document.body.appendChild(particle);
+        
+        const angle = (i / particles) * Math.PI * 2;
+        const distance = 30 + Math.random() * 30;
+        
+        gsap.to(particle, {
+            duration: 1,
+            x: Math.cos(angle) * distance,
+            y: Math.sin(angle) * distance - 30,
+            opacity: 0,
+            scale: 0.3,
+            rotation: 180,
+            ease: 'power2.out',
+            onComplete: () => particle.remove()
+        });
+    }
+}
+
+// ===== 카드 ID 추출 =====
+function extractCardId(card) {
+    if (!card) return null;
+    
+    // data-id 속성에서 추출
+    if (card.dataset && card.dataset.id) {
+        return card.dataset.id;
+    }
+    
+    // detail-link href에서 추출
+    const detailLink = card.querySelector('.detail-link');
+    if (detailLink && detailLink.href) {
+        const match = detailLink.href.match(/\/missing\/(\d+)/);
+        return match ? match[1] : null;
+    }
+    
+    // URL에서 추출 (상세 페이지인 경우)
+    const pathMatch = window.location.pathname.match(/\/missing\/(\d+)/);
+    return pathMatch ? pathMatch[1] : null;
+}
+
+// ===== 서버에 UP 정보 전송 =====
+function sendUpToServer(cardId, newCount) {
+    if (!cardId) return;
+    
+    fetch(`/api/missing/${cardId}/up`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            count: newCount 
+        })
+    }).catch(error => {
+        console.error('UP 전송 실패:', error);
+    });
 }
 
 // ===== 페이지 로딩 최적화 처리 =====
@@ -151,6 +378,48 @@ function setupEventListeners() {
     
     // 페이지 전환 시 스크롤 최적화
     setupPageTransitionOptimization();
+    
+    // 동적으로 추가되는 카드들을 위한 이벤트 위임
+    setupDelegatedCardEvents();
+}
+
+// ===== 동적 카드 이벤트 위임 =====
+function setupDelegatedCardEvents() {
+    // 문서 레벨에서 이벤트 위임을 통해 동적으로 추가되는 카드들도 처리
+    document.addEventListener('click', function(e) {
+        // UP 버튼 클릭 처리
+        if (e.target.closest('.missing-card .stat') && 
+            e.target.closest('.stat').innerHTML.includes('fa-arrow-up')) {
+            handleUpClick(e);
+        }
+    });
+    
+    // 호버 효과도 위임으로 처리
+    document.addEventListener('mouseenter', function(e) {
+        if (e.target.classList.contains('missing-card')) {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(e.target, {
+                    duration: 0.3,
+                    y: -4,
+                    boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
+                    ease: 'power2.out'
+                });
+            }
+        }
+    }, true);
+    
+    document.addEventListener('mouseleave', function(e) {
+        if (e.target.classList.contains('missing-card')) {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(e.target, {
+                    duration: 0.3,
+                    y: 0,
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
+                    ease: 'power2.out'
+                });
+            }
+        }
+    }, true);
 }
 
 // ===== 페이지 전환 최적화 =====
@@ -441,6 +710,23 @@ function handleResize() {
         // 모든 드롭다운 닫기
         closeAllDropdowns();
     }
+    
+    // 카드 레이아웃 재계산
+    recalculateCardLayouts();
+}
+
+// ===== 카드 레이아웃 재계산 =====
+function recalculateCardLayouts() {
+    // 모든 실종자 카드 컨테이너의 레이아웃 재계산
+    const cardContainers = document.querySelectorAll('.urgent-cards, .related-cards, .missing-grid, .missing-list-view');
+    
+    cardContainers.forEach(container => {
+        // CSS Grid가 자동으로 처리하므로 특별한 작업 불필요
+        // 필요시 강제 reflow
+        container.style.display = 'none';
+        container.offsetHeight; // reflow 강제 실행
+        container.style.display = '';
+    });
 }
 
 // ===== 반응형 처리 =====
@@ -707,6 +993,8 @@ window.showNotification = showNotification;
 window.announceToScreenReader = announceToScreenReader;
 window.debounce = debounce;
 window.throttle = throttle;
+window.setupCardEvents = setupCardEvents;
+window.handleUpClick = handleUpClick;
 
 // ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
 if (!document.querySelector('#dynamic-styles')) {
@@ -771,6 +1059,11 @@ if (!document.querySelector('#dynamic-styles')) {
             clip: rect(0, 0, 0, 0) !important;
             white-space: nowrap !important;
             border: 0 !important;
+        }
+        
+        .up-particle {
+            position: fixed;
+            pointer-events: none;
         }
     `;
     document.head.appendChild(style);

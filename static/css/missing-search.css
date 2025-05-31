@@ -687,7 +687,7 @@ html {
     color: white !important;
 }
 
-/* ============ 실종자 목록 섹션 - missing_detail 스타일 적용 ============ */
+/* ============ 실종자 목록 섹션 - 통일된 카드 스타일 ============ */
 .missing-list {
     padding: 20px 0 60px;
     background: white;
@@ -699,10 +699,10 @@ html {
     width: 100%;
 }
 
-/* 그리드 뷰 - missing_detail의 related-missing 스타일 사용 */
+/* 그리드 뷰 - 빈 공간 늘어나는 버그 수정 */
 .missing-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
     gap: 24px;
     margin-bottom: 30px;
     width: 100%;
@@ -715,10 +715,10 @@ html {
     display: none !important;
 }
 
-/* 리스트 뷰 - missing_detail 스타일 기반 세로 배치 */
+/* 리스트 뷰 */
 .missing-list-view {
     display: none !important;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
     gap: 20px;
     margin-bottom: 30px;
     width: 100%;
@@ -731,7 +731,7 @@ html {
     visibility: visible !important;
 }
 
-/* missing_detail의 관련 실종자 카드 스타일 적용 */
+/* 통일된 실종자 카드 스타일 */
 .missing-card {
     background: white;
     border-radius: var(--radius-xl, 15px);
@@ -744,6 +744,8 @@ html {
     opacity: 1 !important;
     visibility: visible !important;
     transform: translateY(0) !important;
+    width: 100%;
+    max-width: none;
 }
 
 .missing-card:hover {
@@ -1128,12 +1130,12 @@ html {
     }
     
     .missing-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
         gap: 22px;
     }
     
     .missing-list-view {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
         gap: 18px;
     }
     
@@ -1200,12 +1202,12 @@ html {
     }
     
     .missing-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 18px;
     }
     
     .missing-list-view {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 16px;
     }
     
