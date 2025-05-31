@@ -218,61 +218,36 @@ class HopeEffectManager {
 
     createStarTexture() {
         const canvas = document.createElement('canvas');
-        canvas.width = 128;
-        canvas.height = 128;
+        canvas.width = 64;
+        canvas.height = 64;
         const ctx = canvas.getContext('2d');
         
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-        const outerRadius = 25;
-        const innerRadius = 10;
-        const spikes = 5;
+        const radius = 20;
         
-        // 부드러운 외곽 그라데이션 (몽글몽글한 효과)
-        const outerGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
-        outerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-        outerGradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.6)');
-        outerGradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.3)');
-        outerGradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.15)');
-        outerGradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.05)');
-        outerGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        // 뿌옇지만 확산되지 않는 원형 그라데이션
+        const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.9)');
+        gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.7)');
+        gradient.addColorStop(0.85, 'rgba(255, 255, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
         
-        // 외곽 부드러운 원 그리기
-        ctx.fillStyle = outerGradient;
+        // 원형 그리기
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.fill();
         
-        // 별 모양 경로 생성
+        // 중심부 강조 (더 밝은 점)
+        const centerGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 8);
+        centerGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        centerGradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)');
+        
+        ctx.fillStyle = centerGradient;
         ctx.beginPath();
-        for (let i = 0; i < spikes * 2; i++) {
-            const radius = i % 2 === 0 ? outerRadius : innerRadius;
-            const angle = (i * Math.PI) / spikes;
-            const x = centerX + Math.cos(angle) * radius;
-            const y = centerY + Math.sin(angle) * radius;
-            
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        }
-        ctx.closePath();
-        
-        // 별 중심부 그라데이션 (밝은 중심)
-        const starGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, outerRadius);
-        starGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        starGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
-        starGradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.4)');
-        starGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
-        ctx.fillStyle = starGradient;
-        ctx.fill();
-        
-        // 중심점 강조
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
+        ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
         ctx.fill();
         
         return new THREE.CanvasTexture(canvas);
@@ -302,8 +277,8 @@ class HopeEffectManager {
             velocities[i3 + 1] = 0.005 + Math.random() * 0.015; // y (상승)
             velocities[i3 + 2] = (Math.random() - 0.5) * 0.01; // z drift
             
-            // 크기와 투명도
-            scales[i] = 0.5 + Math.random() * 1.5;
+            // 크기와 투명도 - 중간 크기를 최대로 제한
+            scales[i] = 0.5 + Math.random() * 0.75; // 0.5~1.25 범위로 축소
             opacities[i] = 0.3 + Math.random() * 0.7;
         }
         
