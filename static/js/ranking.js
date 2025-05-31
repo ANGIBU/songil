@@ -121,6 +121,11 @@ function RankingItem({ data, index }) {
         if (element) {
             const pointsElement = element.querySelector('.points');
             
+            // 즉시 최종값 설정
+            if (pointsElement) {
+                pointsElement.textContent = `${data.points}건`;
+            }
+            
             if (typeof gsap !== 'undefined') {
                 // GSAP 애니메이션
                 gsap.fromTo(element, 
@@ -137,15 +142,14 @@ function RankingItem({ data, index }) {
                     }
                 );
 
-                // 점수 카운트업 애니메이션
+                // 점수 카운트업 애니메이션 (이미 값이 설정된 상태에서 시각적 효과만)
                 if (pointsElement) {
                     const countObj = { value: 0 };
-                    pointsElement.textContent = '0건'; // 초기값 설정
                     
                     gsap.to(countObj, {
                         value: data.points,
-                        duration: 1.5,
-                        delay: 0.5 + (index * 0.1),
+                        duration: 1,
+                        delay: 0.3 + (index * 0.05),
                         ease: "power2.out",
                         onUpdate: function() {
                             pointsElement.textContent = `${Math.floor(countObj.value)}건`;
@@ -157,9 +161,6 @@ function RankingItem({ data, index }) {
                 }
             } else {
                 // GSAP가 없으면 즉시 표시
-                if (pointsElement) {
-                    pointsElement.textContent = `${data.points}건`;
-                }
                 element.style.opacity = '1';
                 element.style.transform = 'none';
             }
@@ -195,7 +196,7 @@ function RankingItem({ data, index }) {
             React.createElement('div', { 
                 className: 'points',
                 key: 'points'
-            }, '0건'),
+            }, `${data.points}건`),
             React.createElement('div', {
                 className: `change ${data.change.type}`,
                 key: 'change'
@@ -264,30 +265,23 @@ class GSAPRankingAnimator {
         this.isGSAPReady = typeof gsap !== 'undefined';
         this.statData = [15429, 8342, 1203];
         
-        // 페이지 로드시 즉시 숫자 설정
-        this.setInitialNumbers();
+        // 페이지 로드시 즉시 최종값 설정
+        this.setFinalNumbers();
     }
 
-    // 초기 숫자 설정 (GSAP 없어도 보이도록)
-    setInitialNumbers() {
+    // 즉시 최종 숫자 설정 (로드 시 바로 표시)
+    setFinalNumbers() {
         const statNumbers = document.querySelectorAll('.stat-number');
         
-        if (this.isGSAPReady) {
-            // GSAP가 있으면 0에서 시작 (애니메이션 예정)
-            statNumbers.forEach(numberEl => {
-                numberEl.textContent = '0';
-            });
-        } else {
-            // GSAP가 없으면 즉시 최종값 표시
-            statNumbers.forEach((numberEl, index) => {
-                if (this.statData[index]) {
-                    numberEl.textContent = this.statData[index].toLocaleString();
-                }
-            });
-        }
+        // 항상 즉시 최종값 표시
+        statNumbers.forEach((numberEl, index) => {
+            if (this.statData[index]) {
+                numberEl.textContent = this.statData[index].toLocaleString();
+            }
+        });
     }
 
-    // 통계 카드 애니메이션
+    // 통계 카드 애니메이션 (이미 값이 설정된 상태에서 시각적 효과만)
     animateStatCards() {
         if (this.hasAnimated) return;
 
@@ -295,19 +289,19 @@ class GSAPRankingAnimator {
         const statNumbers = document.querySelectorAll('.stat-number');
         const statLabels = document.querySelectorAll('.stat-label');
 
+        // 최종값이 이미 설정되어 있는지 확인하고, 없으면 즉시 설정
+        statNumbers.forEach((numberEl, index) => {
+            if (this.statData[index] && (!numberEl.textContent || numberEl.textContent === '0')) {
+                numberEl.textContent = this.statData[index].toLocaleString();
+            }
+        });
+
         if (!this.isGSAPReady) {
-            // GSAP가 없으면 즉시 표시
-            statNumbers.forEach((numberEl, index) => {
-                if (this.statData[index]) {
-                    numberEl.textContent = this.statData[index].toLocaleString();
-                }
-            });
             this.hasAnimated = true;
             return;
         }
 
-        // GSAP 애니메이션
-        // 카드 나타나기 애니메이션
+        // GSAP 애니메이션 - 카드 나타나기만
         gsap.fromTo(statCards, 
             {
                 opacity: 0,
@@ -318,26 +312,23 @@ class GSAPRankingAnimator {
                 opacity: 1,
                 y: 0,
                 scale: 1,
-                duration: 0.8,
-                stagger: 0.2,
+                duration: 0.6,
+                stagger: 0.1,
                 ease: "back.out(1.7)"
             }
         );
 
-        // 숫자 카운트업 애니메이션 - 0에서 시작
+        // 선택적 카운트업 애니메이션 (더 빠르게, 그리고 실제값이 이미 보이는 상태에서)
         statNumbers.forEach((numberEl, index) => {
             const targetValue = this.statData[index];
             if (!targetValue) return;
             
-            const countObj = { value: 0 };
-            
-            // 초기값을 0으로 설정
-            numberEl.textContent = '0';
+            const countObj = { value: Math.floor(targetValue * 0.8) }; // 80%부터 시작
             
             gsap.to(countObj, {
                 value: targetValue,
-                duration: 2,
-                delay: 0.5 + (index * 0.3),
+                duration: 0.8, // 더 빠르게
+                delay: 0.2 + (index * 0.1),
                 ease: "power2.out",
                 onUpdate: function() {
                     numberEl.textContent = Math.floor(countObj.value).toLocaleString();
@@ -357,9 +348,9 @@ class GSAPRankingAnimator {
             {
                 opacity: 1,
                 y: 0,
-                duration: 0.6,
-                delay: 1,
-                stagger: 0.1,
+                duration: 0.4,
+                delay: 0.3,
+                stagger: 0.05,
                 ease: "power2.out"
             }
         );
@@ -460,13 +451,11 @@ class GSAPRankingAnimator {
     initializeCTABackground() {
         const container = document.getElementById('ctaThreeJSContainer');
         if (!container || typeof THREE === 'undefined') {
-            console.warn('Three.js not available or container not found');
             return;
         }
 
         // 모바일에서는 성능을 위해 비활성화
         if (window.innerWidth <= 480) {
-            console.log('Three.js CTA background disabled on mobile for performance');
             return;
         }
 
@@ -579,8 +568,6 @@ class GSAPRankingAnimator {
                 bubbleMaterial.dispose();
             };
 
-            console.log('CTA Three.js background initialized successfully');
-
         } catch (error) {
             console.warn('Failed to initialize CTA Three.js background:', error);
         }
@@ -605,7 +592,7 @@ class RankingScrollObserver {
         // 즉시 통계 카드 애니메이션 시작 (페이지 로드시)
         setTimeout(() => {
             this.animator.animateStatCards();
-        }, 100);
+        }, 50); // 더 빠르게
         
         this.setupIntersectionObserver();
         this.observeElements();
@@ -654,12 +641,9 @@ class RankingPage {
         if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && gsap.registerPlugin) {
             try {
                 gsap.registerPlugin(ScrollTrigger);
-                console.log('GSAP ScrollTrigger registered successfully');
             } catch (error) {
                 console.warn('Failed to register GSAP ScrollTrigger:', error);
             }
-        } else {
-            console.warn('GSAP or ScrollTrigger not available, animations will be disabled');
         }
 
         // 초기 렌더링 (먼저 실행)
@@ -670,8 +654,6 @@ class RankingPage {
         
         // 이벤트 리스너 설정
         this.setupEventListeners();
-        
-        console.log('Ranking page initialized with GSAP animations');
     }
 
     setupEventListeners() {
@@ -717,7 +699,6 @@ class RankingPage {
                 })
             );
         } else {
-            console.warn('React not available, falling back to vanilla JS');
             this.renderWithVanilla(rankingData, container);
         }
     }
@@ -784,21 +765,20 @@ class RankingPage {
     }
 
     applyVanillaAnimations(data) {
+        // 랭킹 아이템들 즉시 표시
+        const rankingItems = document.querySelectorAll('.ranking-item');
+        rankingItems.forEach((item, index) => {
+            const pointsElement = item.querySelector('.points');
+            if (pointsElement && data[index]) {
+                pointsElement.textContent = `${data[index].points}건`;
+            }
+        });
+
         if (typeof gsap === 'undefined') {
-            // GSAP가 없으면 즉시 모든 점수 표시
-            const rankingItems = document.querySelectorAll('.ranking-item');
-            rankingItems.forEach((item, index) => {
-                const pointsElement = item.querySelector('.points');
-                if (pointsElement && data[index]) {
-                    pointsElement.textContent = `${data[index].points}건`;
-                }
-            });
             return;
         }
 
-        // 랭킹 아이템들 애니메이션
-        const rankingItems = document.querySelectorAll('.ranking-item');
-        
+        // GSAP 애니메이션 - 더 빠르게
         gsap.fromTo(rankingItems,
             {
                 opacity: 0,
@@ -807,26 +787,23 @@ class RankingPage {
             {
                 opacity: 1,
                 x: 0,
-                duration: 0.6,
-                stagger: 0.1,
+                duration: 0.4,
+                stagger: 0.05,
                 ease: "power2.out"
             }
         );
 
-        // 점수 카운트업
+        // 점수 카운트업 - 더 빠르게
         rankingItems.forEach((item, index) => {
             const pointsElement = item.querySelector('.points');
             if (pointsElement && data[index]) {
                 const targetValue = data[index].points;
-                const countObj = { value: 0 };
-                
-                // 초기값 설정
-                pointsElement.textContent = '0건';
+                const countObj = { value: Math.floor(targetValue * 0.8) };
                 
                 gsap.to(countObj, {
                     value: targetValue,
-                    duration: 1.5,
-                    delay: 0.5 + (index * 0.1),
+                    duration: 0.8,
+                    delay: 0.2 + (index * 0.05),
                     ease: "power2.out",
                     onUpdate: function() {
                         pointsElement.textContent = `${Math.floor(countObj.value)}건`;
