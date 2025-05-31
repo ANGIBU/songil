@@ -1,12 +1,104 @@
 /* static/css/index.css */
 
-/* ===== 홈페이지 전용 스타일 (애니메이션 제거) ===== */
+/* ===== 홈페이지 전용 스타일 (GSAP 애니메이션 포함) ===== */
 
 /* CSS 변수 상속 확인 */
 /* 
 이 파일은 style.css의 CSS 변수를 상속받습니다.
 style.css를 먼저 로드해야 정상적으로 작동합니다.
 */
+
+/* ===== GSAP 애니메이션 초기 상태 ===== */
+.gsap-fade-in {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.gsap-slide-up {
+    opacity: 0;
+    transform: translateY(60px);
+    visibility: hidden;
+}
+
+.gsap-slide-down {
+    opacity: 0;
+    transform: translateY(-60px);
+    visibility: hidden;
+}
+
+.gsap-slide-left {
+    opacity: 0;
+    transform: translateX(80px);
+    visibility: hidden;
+}
+
+.gsap-slide-right {
+    opacity: 0;
+    transform: translateX(-80px);
+    visibility: hidden;
+}
+
+.gsap-scale-in {
+    opacity: 0;
+    transform: scale(0.8);
+    visibility: hidden;
+}
+
+.gsap-rotate-in {
+    opacity: 0;
+    transform: rotate(-10deg) scale(0.9);
+    visibility: hidden;
+}
+
+/* 개별 요소 지연 애니메이션을 위한 클래스 */
+.gsap-stagger-item {
+    opacity: 0;
+    transform: translateY(40px);
+    visibility: hidden;
+}
+
+/* 로딩 오버레이 */
+.page-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.page-loading-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--gray-200);
+    border-top: 3px solid var(--primary-orange);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-top: 20px;
+    color: var(--gray-600);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
 
 /* 히어로 섹션 */
 .hero-section {

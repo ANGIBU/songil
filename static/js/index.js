@@ -3,6 +3,10 @@
 // React 컴포넌트 활용 - 안전한 접근
 const { useState, useEffect, useCallback, useMemo } = typeof React !== 'undefined' ? React : {};
 
+// GSAP 안전한 접근
+const gsap = typeof window !== 'undefined' && window.gsap ? window.gsap : null;
+const ScrollTrigger = typeof window !== 'undefined' && window.ScrollTrigger ? window.ScrollTrigger : null;
+
 // 실종자 데이터
 const allMissingData = [
     {
@@ -138,6 +142,357 @@ const statsData = [
     { label: "희망을 나눈 분들", value: 15429 },
     { label: "포기하지 않는 마음", value: 94, isPercent: true }
 ];
+
+// GSAP 애니메이션 관리자 클래스
+class GSAPAnimationManager {
+    constructor() {
+        this.isDestroyed = false;
+        this.timelines = [];
+        this.scrollTriggers = [];
+        this.loadingOverlay = null;
+        this.initGSAP();
+    }
+
+    initGSAP() {
+        if (!gsap) {
+            console.warn('GSAP not available - animations will be skipped');
+            return false;
+        }
+
+        // ScrollTrigger 등록
+        if (ScrollTrigger) {
+            gsap.registerPlugin(ScrollTrigger);
+        }
+
+        // GSAP 기본 설정
+        gsap.defaults({
+            ease: "power2.out",
+            duration: 0.8
+        });
+
+        return true;
+    }
+
+    createLoadingOverlay() {
+        if (this.loadingOverlay) return this.loadingOverlay;
+
+        this.loadingOverlay = document.createElement('div');
+        this.loadingOverlay.className = 'page-loading-overlay';
+        this.loadingOverlay.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">잠시만 기다려주세요...</div>
+            </div>
+        `;
+
+        document.body.appendChild(this.loadingOverlay);
+        return this.loadingOverlay;
+    }
+
+    removeLoadingOverlay() {
+        if (!this.loadingOverlay) return;
+
+        if (gsap) {
+            gsap.to(this.loadingOverlay, {
+                opacity: 0,
+                duration: 0.6,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    if (this.loadingOverlay && this.loadingOverlay.parentNode) {
+                        this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
+                        this.loadingOverlay = null;
+                    }
+                }
+            });
+        } else {
+            this.loadingOverlay.classList.add('fade-out');
+            setTimeout(() => {
+                if (this.loadingOverlay && this.loadingOverlay.parentNode) {
+                    this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
+                    this.loadingOverlay = null;
+                }
+            }, 600);
+        }
+    }
+
+    prepareAnimationElements() {
+        if (!gsap) return;
+
+        // 모든 애니메이션 요소에 초기 상태 클래스 추가
+        const elementsConfig = [
+            { selector: '.hero-title', class: 'gsap-slide-up' },
+            { selector: '.hero-description', class: 'gsap-slide-up' },
+            { selector: '.hero-buttons', class: 'gsap-slide-up' },
+            { selector: '.ranking-display', class: 'gsap-slide-left' },
+            { selector: '.section-header', class: 'gsap-fade-in' },
+            { selector: '.missing-card', class: 'gsap-stagger-item' },
+            { selector: '.step', class: 'gsap-stagger-item' },
+            { selector: '.stat-item', class: 'gsap-stagger-item' },
+            { selector: '.hope-message', class: 'gsap-fade-in' }
+        ];
+
+        elementsConfig.forEach(config => {
+            const elements = document.querySelectorAll(config.selector);
+            elements.forEach(el => {
+                el.classList.add(config.class);
+            });
+        });
+    }
+
+    createHeroAnimation() {
+        if (!gsap) return null;
+
+        const tl = gsap.timeline({ paused: true });
+
+        // 히어로 텍스트 애니메이션
+        tl.to('.hero-title', {
+            opacity: 1,
+            y: 0,
+            visibility: 'visible',
+            duration: 1,
+            ease: "power3.out"
+        })
+        .to('.hero-description', {
+            opacity: 1,
+            y: 0,
+            visibility: 'visible',
+            duration: 0.8,
+            ease: "power2.out"
+        }, "-=0.6")
+        .to('.hero-buttons', {
+            opacity: 1,
+            y: 0,
+            visibility: 'visible',
+            duration: 0.8,
+            ease: "power2.out"
+        }, "-=0.4")
+        .to('.ranking-display', {
+            opacity: 1,
+            x: 0,
+            visibility: 'visible',
+            duration: 1,
+            ease: "power2.out"
+        }, "-=0.4");
+
+        this.timelines.push(tl);
+        return tl;
+    }
+
+    createUrgentCardsAnimation() {
+        if (!gsap) return null;
+
+        const cards = document.querySelectorAll('.missing-card');
+        if (cards.length === 0) return null;
+
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to(cards, {
+            opacity: 1,
+            y: 0,
+            visibility: 'visible',
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "power2.out"
+        });
+
+        this.timelines.push(tl);
+        return tl;
+    }
+
+    createStepsAnimation() {
+        if (!gsap) return null;
+
+        const steps = document.querySelectorAll('.step');
+        if (steps.length === 0) return null;
+
+        const tl = gsap.timeline({ paused: true });
+
+        tl.to(steps, {
+            opacity: 1,
+            y: 0,
+            visibility: 'visible',
+            duration: 0.8,
+            stagger: 0.15,
+            ease: "power2.out"
+        });
+
+        this.timelines.push(tl);
+        return tl;
+    }
+
+    createStatsAnimation() {
+        if (!gsap) return null;
+
+        const statItems = document.querySelectorAll('.stat-item');
+        const statNumbers = document.querySelectorAll('.stat-number');
+        
+        if (statItems.length === 0) return null;
+
+        const tl = gsap.timeline({ paused: true });
+
+        // 통계 카드들 나타나기
+        tl.to(statItems, {
+            opacity: 1,
+            y: 0,
+            visibility: 'visible',
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out"
+        });
+
+        // 숫자 카운터 애니메이션
+        statNumbers.forEach((numberEl, index) => {
+            const statData = statsData[index];
+            if (statData) {
+                const targetValue = statData.value;
+                const isPercent = statData.isPercent;
+                
+                tl.to({ count: 0 }, {
+                    count: targetValue,
+                    duration: 2,
+                    ease: "power2.out",
+                    onUpdate: function() {
+                        const currentCount = Math.round(this.targets()[0].count);
+                        numberEl.textContent = currentCount + (isPercent ? '%' : '');
+                    }
+                }, "-=0.5");
+            }
+        });
+
+        this.timelines.push(tl);
+        return tl;
+    }
+
+    setupScrollTriggers() {
+        if (!gsap || !ScrollTrigger) return;
+
+        // 긴급 실종자 섹션 스크롤 트리거
+        const urgentTrigger = ScrollTrigger.create({
+            trigger: '.urgent-section',
+            start: 'top 80%',
+            onEnter: () => {
+                const animation = this.createUrgentCardsAnimation();
+                if (animation) animation.play();
+            },
+            once: true
+        });
+        this.scrollTriggers.push(urgentTrigger);
+
+        // 소개 단계 섹션 스크롤 트리거
+        const introTrigger = ScrollTrigger.create({
+            trigger: '.intro-section',
+            start: 'top 70%',
+            onEnter: () => {
+                const animation = this.createStepsAnimation();
+                if (animation) animation.play();
+            },
+            once: true
+        });
+        this.scrollTriggers.push(introTrigger);
+
+        // 통계 섹션 스크롤 트리거
+        const statsTrigger = ScrollTrigger.create({
+            trigger: '.stats-section',
+            start: 'top 70%',
+            onEnter: () => {
+                const animation = this.createStatsAnimation();
+                if (animation) animation.play();
+            },
+            once: true
+        });
+        this.scrollTriggers.push(statsTrigger);
+
+        // 헤더 섹션들 페이드인
+        const headers = document.querySelectorAll('.section-header');
+        headers.forEach(header => {
+            const headerTrigger = ScrollTrigger.create({
+                trigger: header,
+                start: 'top 85%',
+                onEnter: () => {
+                    if (gsap) {
+                        gsap.to(header, {
+                            opacity: 1,
+                            y: 0,
+                            visibility: 'visible',
+                            duration: 0.8,
+                            ease: "power2.out"
+                        });
+                    }
+                },
+                once: true
+            });
+            this.scrollTriggers.push(headerTrigger);
+        });
+
+        // 희망 메시지 애니메이션
+        const hopeMessage = document.querySelector('.hope-message');
+        if (hopeMessage) {
+            const hopeTrigger = ScrollTrigger.create({
+                trigger: hopeMessage,
+                start: 'top 80%',
+                onEnter: () => {
+                    if (gsap) {
+                        gsap.to(hopeMessage, {
+                            opacity: 1,
+                            visibility: 'visible',
+                            duration: 1,
+                            ease: "power2.out"
+                        });
+                    }
+                },
+                once: true
+            });
+            this.scrollTriggers.push(hopeTrigger);
+        }
+    }
+
+    startMainAnimation() {
+        if (!gsap) return;
+
+        // 로딩 오버레이 제거 후 메인 애니메이션 시작
+        setTimeout(() => {
+            this.removeLoadingOverlay();
+            
+            setTimeout(() => {
+                const heroAnimation = this.createHeroAnimation();
+                if (heroAnimation) {
+                    heroAnimation.play();
+                }
+                
+                // 스크롤 트리거 설정
+                this.setupScrollTriggers();
+            }, 300);
+        }, 1000);
+    }
+
+    destroy() {
+        this.isDestroyed = true;
+
+        // 모든 타임라인 정리
+        this.timelines.forEach(tl => {
+            if (tl && tl.kill) {
+                tl.kill();
+            }
+        });
+        this.timelines = [];
+
+        // 모든 스크롤 트리거 정리
+        this.scrollTriggers.forEach(trigger => {
+            if (trigger && trigger.kill) {
+                trigger.kill();
+            }
+        });
+        this.scrollTriggers = [];
+
+        // 로딩 오버레이 정리
+        if (this.loadingOverlay && this.loadingOverlay.parentNode) {
+            this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
+            this.loadingOverlay = null;
+        }
+
+        console.log('🧹 GSAP Animation Manager destroyed');
+    }
+}
 
 // HTML 기반 폴백 렌더링 함수들
 function renderRankingFallback() {
@@ -376,12 +731,13 @@ const MissingCard = typeof React !== 'undefined' ? React.memo(function MissingCa
     ]);
 }) : null;
 
-// 메인 홈페이지 관리 클래스 - 단순화된 버전
-class SimpleIndexPage {
+// GSAP 통합 홈페이지 관리 클래스
+class EnhancedIndexPage {
     constructor() {
         this.isDestroyed = false;
         this.renderAttempts = 0;
         this.maxRenderAttempts = 3;
+        this.animationManager = null;
         this.init();
     }
 
@@ -398,7 +754,16 @@ class SimpleIndexPage {
     handleDOMReady() {
         if (this.isDestroyed) return;
         
-        console.log('🚀 Starting simple index page initialization...');
+        console.log('🚀 Starting enhanced index page with GSAP...');
+        
+        // GSAP 애니메이션 매니저 초기화
+        this.animationManager = new GSAPAnimationManager();
+        
+        // 로딩 오버레이 생성
+        this.animationManager.createLoadingOverlay();
+        
+        // 애니메이션 요소 준비
+        this.animationManager.prepareAnimationElements();
         
         // 즉시 폴백 콘텐츠 표시
         this.renderFallbackContent();
@@ -413,6 +778,9 @@ class SimpleIndexPage {
         
         // 이벤트 리스너 설정
         this.setupEventListeners();
+        
+        // 메인 애니메이션 시작
+        this.animationManager.startMainAnimation();
     }
 
     renderFallbackContent() {
@@ -514,7 +882,8 @@ class SimpleIndexPage {
         statsNumbers.forEach((element, index) => {
             if (!element.textContent || element.textContent === '0') {
                 const statData = statsData[index];
-                if (statData) {
+                if (statData && !gsap) {
+                    // GSAP가 없을 때만 직접 설정
                     element.textContent = statData.value + (statData.isPercent ? '%' : '');
                     element.setAttribute('data-count', statData.value + (statData.isPercent ? '%' : ''));
                 }
@@ -545,12 +914,17 @@ class SimpleIndexPage {
     destroy() {
         this.isDestroyed = true;
         
+        if (this.animationManager) {
+            this.animationManager.destroy();
+            this.animationManager = null;
+        }
+        
         if (this.eventCleanup) {
             this.eventCleanup();
             this.eventCleanup = null;
         }
         
-        console.log('🧹 Simple index page destroyed');
+        console.log('🧹 Enhanced index page destroyed');
     }
 }
 
@@ -573,13 +947,13 @@ function handleUpClick(button, missingId) {
     }
 }
 
-// 단순화된 초기화
+// GSAP 통합 초기화
 let indexPage = null;
 
 try {
-    indexPage = new SimpleIndexPage();
+    indexPage = new EnhancedIndexPage();
 } catch (error) {
-    console.error('Index page initialization failed:', error);
+    console.error('Enhanced index page initialization failed:', error);
     
     // 최소한의 폴백 초기화
     document.addEventListener('DOMContentLoaded', () => {
@@ -599,10 +973,11 @@ window.addEventListener('beforeunload', () => {
 // 전역 함수 내보내기
 window.handleUpClick = handleUpClick;
 
-// 개발자 도구 - 단순화된 버전
+// 개발자 도구 - GSAP 통합 버전
 if (typeof window !== 'undefined') {
     window.indexPageDebug = {
         get instance() { return indexPage; },
+        get animationManager() { return indexPage?.animationManager; },
         get data() { 
             return {
                 missing: urgentMissingData,
@@ -613,6 +988,12 @@ if (typeof window !== 'undefined') {
         forceRender: () => {
             if (indexPage) {
                 indexPage.renderFallbackContent();
+            }
+        },
+        testAnimation: () => {
+            if (indexPage?.animationManager) {
+                const heroAnim = indexPage.animationManager.createHeroAnimation();
+                if (heroAnim) heroAnim.restart();
             }
         },
         destroyInstance: () => {
@@ -626,7 +1007,7 @@ if (typeof window !== 'undefined') {
                 indexPage.destroy();
             }
             try {
-                indexPage = new SimpleIndexPage();
+                indexPage = new EnhancedIndexPage();
             } catch (error) {
                 console.error('Reinitialization failed:', error);
             }
@@ -634,4 +1015,4 @@ if (typeof window !== 'undefined') {
     };
 }
 
-console.log('📜 Simple index.js loaded successfully!');
+console.log('📜 Enhanced index.js with GSAP transitions loaded successfully!');
