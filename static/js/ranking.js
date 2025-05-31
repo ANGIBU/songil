@@ -114,6 +114,33 @@ function RankingItem({ data, index }) {
         return `신고 ${stats.reports}건, 목격 ${stats.witnesses}건`;
     };
 
+    useEffect(() => {
+        // 점수 카운트업 애니메이션
+        const pointsElement = document.querySelector(`.ranking-item[data-rank="${data.rank}"] .points`);
+        if (pointsElement) {
+            let currentValue = 0;
+            const targetValue = data.points;
+            const increment = targetValue / 60; // 60단계로 부드럽게
+            const stepTime = 1500 / 60; // 1.5초
+            
+            pointsElement.textContent = '0건';
+            
+            const counter = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(counter);
+                }
+                pointsElement.textContent = `${Math.floor(currentValue)}건`;
+            }, stepTime);
+            
+            // 지연 시작
+            setTimeout(() => {
+                counter;
+            }, index * 100);
+        }
+    }, [data, index]);
+
     return React.createElement('div', {
         className: `ranking-item rank-${data.rank}`,
         'data-rank': data.rank,
@@ -143,7 +170,7 @@ function RankingItem({ data, index }) {
             React.createElement('div', { 
                 className: 'points',
                 key: 'points'
-            }, `${data.points}건`),
+            }, '0건'),
             React.createElement('div', {
                 className: `change ${data.change.type}`,
                 key: 'change'
@@ -179,15 +206,30 @@ function RankingPanel({ data }) {
     ]);
 }
 
-// 통계 수치 즉시 설정
-function setStatNumbers() {
+// 통계 수치 카운트업 효과
+function animateStatNumbers() {
     const statData = [15429, 8342, 1203];
     const statNumbers = document.querySelectorAll('.stat-number');
     
     statNumbers.forEach((numberEl, index) => {
-        if (statData[index]) {
-            numberEl.textContent = statData[index].toLocaleString();
-        }
+        if (!statData[index]) return;
+        
+        const targetValue = statData[index];
+        let currentValue = 0;
+        const increment = targetValue / 100; // 100단계로 나누어 부드럽게
+        const duration = 2000; // 2초
+        const stepTime = duration / 100;
+        
+        numberEl.textContent = '0';
+        
+        const counter = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= targetValue) {
+                currentValue = targetValue;
+                clearInterval(counter);
+            }
+            numberEl.textContent = Math.floor(currentValue).toLocaleString();
+        }, stepTime);
     });
 }
 
@@ -324,8 +366,10 @@ class RankingPage {
     }
 
     setup() {
-        // 통계 수치 즉시 설정
-        setStatNumbers();
+        // 통계 수치 카운트업 애니메이션
+        setTimeout(() => {
+            animateStatNumbers();
+        }, 300);
         
         // 순위 패널 렌더링
         this.renderRankingPanel();
@@ -416,7 +460,7 @@ class RankingPage {
                         </div>
                     </div>
                     <div class="rank-score">
-                        <div class="points">${data.points}건</div>
+                        <div class="points">0건</div>
                         <div class="change ${data.change.type}">
                             ${changeIcon}
                             <span>${getChangeText(data.change)}</span>
@@ -435,6 +479,30 @@ class RankingPage {
                 ${data.map((item, index) => createRankingItemHTML(item, index)).join('')}
             </div>
         `;
+        
+        // 순위 점수 카운트업 애니메이션
+        setTimeout(() => {
+            const rankingItems = document.querySelectorAll('.ranking-item');
+            rankingItems.forEach((item, index) => {
+                const pointsElement = item.querySelector('.points');
+                const targetValue = data[index].points;
+                
+                if (pointsElement && targetValue) {
+                    let currentValue = 0;
+                    const increment = targetValue / 60;
+                    const stepTime = 1500 / 60;
+                    
+                    const counter = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= targetValue) {
+                            currentValue = targetValue;
+                            clearInterval(counter);
+                        }
+                        pointsElement.textContent = `${Math.floor(currentValue)}건`;
+                    }, stepTime);
+                }
+            });
+        }, 500);
     }
 
     handleResize() {
