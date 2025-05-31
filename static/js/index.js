@@ -5,7 +5,6 @@ const { useState, useEffect, useCallback, useMemo } = typeof React !== 'undefine
 
 // GSAP 안전한 접근
 const gsap = typeof window !== 'undefined' && window.gsap ? window.gsap : null;
-const ScrollTrigger = typeof window !== 'undefined' && window.ScrollTrigger ? window.ScrollTrigger : null;
 
 // 실종자 데이터
 const allMissingData = [
@@ -148,7 +147,7 @@ class GSAPAnimationManager {
     constructor() {
         this.isDestroyed = false;
         this.timelines = [];
-        this.scrollTriggers = [];
+        this.isGSAPReady = false;
         this.initGSAP();
     }
 
@@ -158,262 +157,190 @@ class GSAPAnimationManager {
             return false;
         }
 
-        // ScrollTrigger 등록
-        if (ScrollTrigger) {
-            gsap.registerPlugin(ScrollTrigger);
-        }
-
         // GSAP 기본 설정
         gsap.defaults({
             ease: "power2.out",
-            duration: 0.8
+            duration: 0.6
         });
 
+        this.isGSAPReady = true;
         return true;
     }
 
     prepareAnimationElements() {
-        if (!gsap) return;
+        if (!this.isGSAPReady) {
+            console.warn('GSAP not ready - all elements will remain visible');
+            return;
+        }
 
-        // 모든 애니메이션 요소에 초기 상태 클래스 추가
-        const elementsConfig = [
+        // GSAP가 준비되면 body에 클래스 추가하여 애니메이션 준비
+        document.body.classList.add('gsap-animation-ready');
+        
+        // 애니메이션할 요소들에 클래스 추가
+        const elementsToAnimate = [
             { selector: '.hero-title', class: 'gsap-slide-up' },
             { selector: '.hero-description', class: 'gsap-slide-up' },
             { selector: '.hero-buttons', class: 'gsap-slide-up' },
             { selector: '.ranking-display', class: 'gsap-slide-left' },
-            { selector: '.section-header', class: 'gsap-fade-in' },
-            { selector: '.missing-card', class: 'gsap-stagger-item' },
+            { selector: '.urgent-section .section-header', class: 'gsap-fade-in' },
+            { selector: '.urgent-section .missing-card', class: 'gsap-stagger-item' },
+            { selector: '.intro-section h2', class: 'gsap-fade-in' },
             { selector: '.step', class: 'gsap-stagger-item' },
-            { selector: '.stat-item', class: 'gsap-stagger-item' },
-            { selector: '.hope-message', class: 'gsap-fade-in' }
+            { selector: '.stats-section h2', class: 'gsap-fade-in' },
+            { selector: '.hope-message', class: 'gsap-fade-in' },
+            { selector: '.stat-item', class: 'gsap-stagger-item' }
         ];
 
-        elementsConfig.forEach(config => {
+        elementsToAnimate.forEach(config => {
             const elements = document.querySelectorAll(config.selector);
             elements.forEach(el => {
                 el.classList.add(config.class);
             });
         });
+        
+        console.log('✅ GSAP animation elements prepared');
     }
 
-    createHeroAnimation() {
-        if (!gsap) return null;
+    createMasterTimeline() {
+        if (!this.isGSAPReady) return null;
 
-        const tl = gsap.timeline({ paused: true });
+        const masterTL = gsap.timeline({ paused: true });
 
-        // 히어로 텍스트 애니메이션 - 더 빠르고 자연스럽게
-        tl.to('.hero-title', {
+        // 1. 히어로 섹션 애니메이션 (0초부터 시작)
+        masterTL.to('.hero-title', {
             opacity: 1,
             y: 0,
             visibility: 'visible',
-            duration: 0.8,
+            duration: 0.6,
             ease: "power3.out"
-        })
+        }, 0)
         .to('.hero-description', {
             opacity: 1,
             y: 0,
             visibility: 'visible',
-            duration: 0.6,
+            duration: 0.5,
             ease: "power2.out"
-        }, "-=0.5")
+        }, 0.15)
         .to('.hero-buttons', {
             opacity: 1,
             y: 0,
             visibility: 'visible',
-            duration: 0.6,
+            duration: 0.5,
             ease: "power2.out"
-        }, "-=0.3")
+        }, 0.3)
         .to('.ranking-display', {
             opacity: 1,
             x: 0,
             visibility: 'visible',
-            duration: 0.8,
-            ease: "power2.out"
-        }, "-=0.3");
-
-        this.timelines.push(tl);
-        return tl;
-    }
-
-    createUrgentCardsAnimation() {
-        if (!gsap) return null;
-
-        const cards = document.querySelectorAll('.missing-card');
-        if (cards.length === 0) return null;
-
-        const tl = gsap.timeline({ paused: true });
-
-        tl.to(cards, {
-            opacity: 1,
-            y: 0,
-            visibility: 'visible',
             duration: 0.6,
-            stagger: 0.1,
             ease: "power2.out"
-        });
+        }, 0.25);
 
-        this.timelines.push(tl);
-        return tl;
-    }
-
-    createStepsAnimation() {
-        if (!gsap) return null;
-
-        const steps = document.querySelectorAll('.step');
-        if (steps.length === 0) return null;
-
-        const tl = gsap.timeline({ paused: true });
-
-        tl.to(steps, {
+        // 2. 긴급 실종자 섹션 헤더 (0.6초 후)
+        masterTL.to('.urgent-section .section-header', {
             opacity: 1,
-            y: 0,
             visibility: 'visible',
-            duration: 0.8,
-            stagger: 0.15,
+            duration: 0.5,
             ease: "power2.out"
-        });
+        }, 0.6);
 
-        this.timelines.push(tl);
-        return tl;
-    }
+        // 3. 긴급 실종자 카드들 (0.8초 후, stagger 효과)
+        const urgentCards = document.querySelectorAll('.urgent-section .missing-card');
+        if (urgentCards.length > 0) {
+            masterTL.to(urgentCards, {
+                opacity: 1,
+                y: 0,
+                visibility: 'visible',
+                duration: 0.4,
+                stagger: 0.06,
+                ease: "power2.out"
+            }, 0.8);
+        }
 
-    createStatsAnimation() {
-        if (!gsap) return null;
+        // 4. 소개 섹션 헤더 (1.2초 후)
+        masterTL.to('.intro-section h2', {
+            opacity: 1,
+            visibility: 'visible',
+            duration: 0.5,
+            ease: "power2.out"
+        }, 1.2);
 
+        // 5. 소개 단계들 (1.4초 후)
+        const steps = document.querySelectorAll('.step');
+        if (steps.length > 0) {
+            masterTL.to(steps, {
+                opacity: 1,
+                y: 0,
+                visibility: 'visible',
+                duration: 0.5,
+                stagger: 0.08,
+                ease: "power2.out"
+            }, 1.4);
+        }
+
+        // 6. 통계 섹션 (1.8초 후)
+        masterTL.to('.stats-section h2', {
+            opacity: 1,
+            visibility: 'visible',
+            duration: 0.5,
+            ease: "power2.out"
+        }, 1.8)
+        .to('.hope-message', {
+            opacity: 1,
+            visibility: 'visible',
+            duration: 0.5,
+            ease: "power2.out"
+        }, 2.0);
+
+        // 7. 통계 카드들과 숫자 카운터 (2.2초 후)
         const statItems = document.querySelectorAll('.stat-item');
         const statNumbers = document.querySelectorAll('.stat-number');
         
-        if (statItems.length === 0) return null;
+        if (statItems.length > 0) {
+            masterTL.to(statItems, {
+                opacity: 1,
+                y: 0,
+                visibility: 'visible',
+                duration: 0.5,
+                stagger: 0.08,
+                ease: "power2.out"
+            }, 2.2);
 
-        const tl = gsap.timeline({ paused: true });
-
-        // 통계 카드들 나타나기
-        tl.to(statItems, {
-            opacity: 1,
-            y: 0,
-            visibility: 'visible',
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power2.out"
-        });
-
-        // 숫자 카운터 애니메이션
-        statNumbers.forEach((numberEl, index) => {
-            const statData = statsData[index];
-            if (statData) {
-                const targetValue = statData.value;
-                const isPercent = statData.isPercent;
-                
-                tl.to({ count: 0 }, {
-                    count: targetValue,
-                    duration: 2,
-                    ease: "power2.out",
-                    onUpdate: function() {
-                        const currentCount = Math.round(this.targets()[0].count);
-                        numberEl.textContent = currentCount + (isPercent ? '%' : '');
-                    }
-                }, "-=0.5");
-            }
-        });
-
-        this.timelines.push(tl);
-        return tl;
-    }
-
-    setupScrollTriggers() {
-        if (!gsap || !ScrollTrigger) return;
-
-        // 긴급 실종자 섹션 스크롤 트리거
-        const urgentTrigger = ScrollTrigger.create({
-            trigger: '.urgent-section',
-            start: 'top 80%',
-            onEnter: () => {
-                const animation = this.createUrgentCardsAnimation();
-                if (animation) animation.play();
-            },
-            once: true
-        });
-        this.scrollTriggers.push(urgentTrigger);
-
-        // 소개 단계 섹션 스크롤 트리거
-        const introTrigger = ScrollTrigger.create({
-            trigger: '.intro-section',
-            start: 'top 70%',
-            onEnter: () => {
-                const animation = this.createStepsAnimation();
-                if (animation) animation.play();
-            },
-            once: true
-        });
-        this.scrollTriggers.push(introTrigger);
-
-        // 통계 섹션 스크롤 트리거
-        const statsTrigger = ScrollTrigger.create({
-            trigger: '.stats-section',
-            start: 'top 70%',
-            onEnter: () => {
-                const animation = this.createStatsAnimation();
-                if (animation) animation.play();
-            },
-            once: true
-        });
-        this.scrollTriggers.push(statsTrigger);
-
-        // 헤더 섹션들 페이드인
-        const headers = document.querySelectorAll('.section-header');
-        headers.forEach(header => {
-            const headerTrigger = ScrollTrigger.create({
-                trigger: header,
-                start: 'top 85%',
-                onEnter: () => {
-                    if (gsap) {
-                        gsap.to(header, {
-                            opacity: 1,
-                            y: 0,
-                            visibility: 'visible',
-                            duration: 0.8,
-                            ease: "power2.out"
-                        });
-                    }
-                },
-                once: true
+            // 숫자 카운터 애니메이션
+            statNumbers.forEach((numberEl, index) => {
+                const statData = statsData[index];
+                if (statData) {
+                    const targetValue = statData.value;
+                    const isPercent = statData.isPercent;
+                    
+                    masterTL.to({ count: 0 }, {
+                        count: targetValue,
+                        duration: 1.2,
+                        ease: "power2.out",
+                        onUpdate: function() {
+                            const currentCount = Math.round(this.targets()[0].count);
+                            numberEl.textContent = currentCount + (isPercent ? '%' : '');
+                        }
+                    }, 2.4);
+                }
             });
-            this.scrollTriggers.push(headerTrigger);
-        });
-
-        // 희망 메시지 애니메이션
-        const hopeMessage = document.querySelector('.hope-message');
-        if (hopeMessage) {
-            const hopeTrigger = ScrollTrigger.create({
-                trigger: hopeMessage,
-                start: 'top 80%',
-                onEnter: () => {
-                    if (gsap) {
-                        gsap.to(hopeMessage, {
-                            opacity: 1,
-                            visibility: 'visible',
-                            duration: 1,
-                            ease: "power2.out"
-                        });
-                    }
-                },
-                once: true
-            });
-            this.scrollTriggers.push(hopeTrigger);
         }
+
+        this.timelines.push(masterTL);
+        return masterTL;
     }
 
     startMainAnimation() {
-        if (!gsap) return;
-
-        // 즉시 메인 애니메이션 시작 - 빠른 사용자 경험
-        const heroAnimation = this.createHeroAnimation();
-        if (heroAnimation) {
-            heroAnimation.play();
+        if (!this.isGSAPReady) {
+            console.warn('GSAP not ready - skipping animations');
+            return;
         }
-        
-        // 스크롤 트리거 설정
-        this.setupScrollTriggers();
+
+        const masterAnimation = this.createMasterTimeline();
+        if (masterAnimation) {
+            masterAnimation.play();
+            console.log('🎬 Master animation started');
+        }
     }
 
     destroy() {
@@ -426,14 +353,6 @@ class GSAPAnimationManager {
             }
         });
         this.timelines = [];
-
-        // 모든 스크롤 트리거 정리
-        this.scrollTriggers.forEach(trigger => {
-            if (trigger && trigger.kill) {
-                trigger.kill();
-            }
-        });
-        this.scrollTriggers = [];
 
         console.log('🧹 GSAP Animation Manager destroyed');
     }
@@ -721,10 +640,10 @@ class EnhancedIndexPage {
         // 이벤트 리스너 설정
         this.setupEventListeners();
         
-        // 메인 애니메이션 즉시 시작 - 빠른 사용자 경험
+        // 메인 애니메이션 즉시 시작 - 더 빠른 사용자 경험
         setTimeout(() => {
             this.animationManager.startMainAnimation();
-        }, 200);
+        }, 100);
     }
 
     renderFallbackContent() {
@@ -823,16 +742,26 @@ class EnhancedIndexPage {
     ensureStatsDisplay() {
         const statsNumbers = document.querySelectorAll('.stat-number');
         
-        statsNumbers.forEach((element, index) => {
-            if (!element.textContent || element.textContent === '0') {
+        // GSAP가 없을 때만 직접 설정 (GSAP가 있으면 애니메이션으로 처리)
+        if (!gsap) {
+            statsNumbers.forEach((element, index) => {
                 const statData = statsData[index];
-                if (statData && !gsap) {
-                    // GSAP가 없을 때만 직접 설정
+                if (statData) {
                     element.textContent = statData.value + (statData.isPercent ? '%' : '');
                     element.setAttribute('data-count', statData.value + (statData.isPercent ? '%' : ''));
                 }
-            }
-        });
+            });
+            console.log('✅ Stats display set (fallback mode)');
+        } else {
+            // GSAP가 있으면 초기값을 0으로 설정 (애니메이션을 위해)
+            statsNumbers.forEach((element, index) => {
+                const statData = statsData[index];
+                if (statData) {
+                    element.textContent = '0' + (statData.isPercent ? '%' : '');
+                }
+            });
+            console.log('✅ Stats display prepared for animation');
+        }
     }
 
     setupEventListeners() {
@@ -936,8 +865,8 @@ if (typeof window !== 'undefined') {
         },
         testAnimation: () => {
             if (indexPage?.animationManager) {
-                const heroAnim = indexPage.animationManager.createHeroAnimation();
-                if (heroAnim) heroAnim.restart();
+                const masterAnim = indexPage.animationManager.createMasterTimeline();
+                if (masterAnim) masterAnim.restart();
             }
         },
         testInstantLoad: () => {
@@ -964,4 +893,4 @@ if (typeof window !== 'undefined') {
     };
 }
 
-console.log('📜 Enhanced index.js with instant GSAP transitions loaded successfully!');
+console.log('📜 Enhanced index.js with instant sequential GSAP animations loaded successfully!');

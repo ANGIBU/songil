@@ -16,12 +16,12 @@
     <div class="container">
         <div class="hero-content">
             <div class="hero-text">
-                <h1 class="hero-title gsap-slide-up">함께 찾아요,<br>소중한 사람을</h1>
-                <p class="hero-description gsap-slide-up">
+                <h1 class="hero-title">함께 찾아요,<br>소중한 사람을</h1>
+                <p class="hero-description">
                     실종자 신고부터 목격 정보 제보까지,<br>
                     모두가 함께하는 실종자 찾기 플랫폼
                 </p>
-                <div class="hero-buttons gsap-slide-up">
+                <div class="hero-buttons">
                     <a href="{{ url_for('search') }}" class="btn btn-primary btn-large">
                         <i class="fas fa-search"></i>
                         실종자 찾기
@@ -30,7 +30,7 @@
             </div>
             <div class="hero-visual">
                 <!-- 순위 시스템 표시 -->
-                <div class="ranking-display gsap-slide-left">
+                <div class="ranking-display">
                     <h3 class="ranking-title">
                         <i class="fas fa-trophy"></i>
                         전체 순위
@@ -142,14 +142,14 @@
 <!-- 긴급 실종자 섹션 -->
 <section class="urgent-section">
     <div class="container">
-        <div class="section-header gsap-fade-in">
+        <div class="section-header">
             <h2><i class="fas fa-exclamation-triangle"></i> 긴급 실종자</h2>
             <p>위험도가 높은 최신 실종자 정보입니다</p>
         </div>
         <div class="urgent-cards-container">
             <div class="urgent-cards" id="urgentCardsGrid">
                 <!-- React 컴포넌트가 렌더링되거나 폴백 콘텐츠 표시 -->
-                <div class="missing-card urgent gsap-stagger-item" data-id="1">
+                <div class="missing-card urgent" data-id="1">
                     <div class="card-image">
                         <img src="/static/images/sample-missing-1.jpg" alt="실종자 사진" onerror="this.src='/static/images/placeholder.jpg'">
                         <div class="danger-level high">긴급</div>
@@ -173,7 +173,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="2">
+                <div class="missing-card urgent" data-id="2">
+                <div class="missing-card urgent" data-id="2">
                     <div class="card-image">
                         <img src="/static/images/sample-missing-2.jpg" alt="실종자 사진" onerror="this.src='/static/images/placeholder.jpg'">
                         <div class="danger-level high">긴급</div>
@@ -197,7 +198,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="3">
+                <div class="missing-card urgent" data-id="3">
                     <div class="card-image">
                         <img src="/static/images/sample-missing-3.jpg" alt="실종자 사진" onerror="this.src='/static/images/placeholder.jpg'">
                         <div class="danger-level high">긴급</div>
@@ -221,7 +222,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="4">
+                <div class="missing-card urgent" data-id="4">
                     <div class="card-image">
                         <img src="/static/images/placeholder.jpg" alt="실종자 사진">
                         <div class="danger-level high">긴급</div>
@@ -245,7 +246,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="5">
+                <div class="missing-card urgent" data-id="5">
                     <div class="card-image">
                         <img src="/static/images/placeholder.jpg" alt="실종자 사진">
                         <div class="danger-level high">긴급</div>
@@ -269,7 +270,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="6">
+                <div class="missing-card urgent" data-id="6">
                     <div class="card-image">
                         <img src="/static/images/placeholder.jpg" alt="실종자 사진">
                         <div class="danger-level high">긴급</div>
@@ -293,7 +294,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="7">
+                <div class="missing-card urgent" data-id="7">
                     <div class="card-image">
                         <img src="/static/images/placeholder.jpg" alt="실종자 사진">
                         <div class="danger-level high">긴급</div>
@@ -317,7 +318,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="missing-card urgent gsap-stagger-item" data-id="8">
+                <div class="missing-card urgent" data-id="8">
+                <div class="missing-card urgent" data-id="8">
                     <div class="card-image">
                         <img src="/static/images/placeholder.jpg" alt="실종자 사진">
                         <div class="danger-level high">긴급</div>
@@ -357,38 +359,38 @@
     <div class="container">
         <div class="intro-content">
             <div class="intro-text">
-                <h2 class="gsap-fade-in">어떻게 작동하나요?</h2>
+                <h2>어떻게 작동하나요?</h2>
                 <div class="intro-steps">
                     <!-- 5개의 스텝을 균등하게 배치 -->
-                    <div class="step gsap-stagger-item">
+                    <div class="step">
                         <div class="step-icon">
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <h3>1. 실종자 신고</h3>
                         <p>실종자의 정보와 사진을<br>등록하면 경찰청 API를<br>통해 공식 접수됩니다.</p>
                     </div>
-                    <div class="step gsap-stagger-item">
+                    <div class="step">
                         <div class="step-icon">
                             <i class="fas fa-eye"></i>
                         </div>
                         <h3>2. 목격 정보 제보</h3>
                         <p>실종자를 목격한 시민들이<br>손길을 통해 제보를 합니다</p>
                     </div>
-                    <div class="step gsap-stagger-item">
+                    <div class="step">
                         <div class="step-icon">
                             <i class="fas fa-heart"></i>
                         </div>
                         <h3>3. 가족 상봉</h3>
                         <p>수집된 정보를 바탕으로<br>경찰이 CCTV를 분석하여<br>실종자를 찾습니다.</p>
                     </div>
-                    <div class="step gsap-stagger-item">
+                    <div class="step">
                         <div class="step-icon">
                             <i class="fas fa-coins"></i>
                         </div>
                         <h3>4. 포인트 보상</h3>
                         <p>유용한 정보 제공자에게<br>포인트를 지급하여<br>참여를 독려합니다.</p>
                     </div>
-                    <div class="step gsap-stagger-item">
+                    <div class="step">
                         <div class="step-icon">
                             <i class="fas fa-gift"></i>
                         </div>
@@ -404,26 +406,26 @@
 <!-- 희망 메시지 섹션 -->
 <section class="stats-section">
     <div class="container">
-        <h2 class="gsap-fade-in">지금도 누군가는 간절히 기다리고 있습니다</h2>
-        <p class="hope-message gsap-fade-in">
+        <h2>지금도 누군가는 간절히 기다리고 있습니다</h2>
+        <p class="hope-message">
             소중한 사람을 찾는 가족들의 마음에 희망의 불씨가 꺼지지 않도록,<br>
             우리 모두의 작은 관심과 참여가 기적 같은 상봉을 만들어갑니다.
         </p>
         <div class="stats-grid">
-            <div class="stat-item gsap-stagger-item">
-                <div class="stat-number" data-count="1847">0</div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="1847">1847</div>
                 <div class="stat-label">함께한 신고</div>
             </div>
-            <div class="stat-item gsap-stagger-item">
-                <div class="stat-number" data-count="1203">0</div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="1203">1203</div>
                 <div class="stat-label">이루어진 상봉</div>
             </div>
-            <div class="stat-item gsap-stagger-item">
-                <div class="stat-number" data-count="15429">0</div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="15429">15429</div>
                 <div class="stat-label">희망을 나눈 분들</div>
             </div>
-            <div class="stat-item gsap-stagger-item">
-                <div class="stat-number" data-count="94%">0%</div>
+            <div class="stat-item">
+                <div class="stat-number" data-count="94%">94%</div>
                 <div class="stat-label">포기하지 않는 마음</div>
             </div>
         </div>

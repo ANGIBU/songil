@@ -8,50 +8,67 @@
 style.css를 먼저 로드해야 정상적으로 작동합니다.
 */
 
-/* ===== GSAP 애니메이션 초기 상태 ===== */
-.gsap-fade-in {
+/* ===== 모든 요소 기본적으로 표시 (폴백) ===== */
+.hero-title,
+.hero-description,
+.hero-buttons,
+.ranking-display,
+.section-header,
+.missing-card,
+.step,
+.stat-item,
+.hope-message,
+.intro-text h2,
+.stats-section h2 {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+}
+
+/* ===== GSAP 애니메이션 초기 상태 (GSAP 로드 후에만 적용) ===== */
+.gsap-animation-ready .gsap-fade-in {
     opacity: 0;
     visibility: hidden;
 }
 
-.gsap-slide-up {
+.gsap-animation-ready .gsap-slide-up {
     opacity: 0;
     transform: translateY(60px);
     visibility: hidden;
 }
 
-.gsap-slide-down {
+.gsap-animation-ready .gsap-slide-down {
     opacity: 0;
     transform: translateY(-60px);
     visibility: hidden;
 }
 
-.gsap-slide-left {
+.gsap-animation-ready .gsap-slide-left {
     opacity: 0;
     transform: translateX(80px);
     visibility: hidden;
 }
 
-.gsap-slide-right {
+.gsap-animation-ready .gsap-slide-right {
     opacity: 0;
     transform: translateX(-80px);
     visibility: hidden;
 }
 
-.gsap-scale-in {
+.gsap-animation-ready .gsap-scale-in {
     opacity: 0;
     transform: scale(0.8);
     visibility: hidden;
 }
 
-.gsap-rotate-in {
+.gsap-animation-ready .gsap-rotate-in {
     opacity: 0;
     transform: rotate(-10deg) scale(0.9);
     visibility: hidden;
 }
 
 /* 개별 요소 지연 애니메이션을 위한 클래스 */
-.gsap-stagger-item {
+.gsap-animation-ready .gsap-stagger-item {
     opacity: 0;
     transform: translateY(40px);
     visibility: hidden;
