@@ -9,8 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeMissingDetail() {
-    // 페이지 로드 애니메이션
-    animatePageLoad();
+    // 기본 정보 항목들이 확실히 표시되도록 보장
+    ensureBasicInfoVisibility();
+    
+    // 페이지 로드 애니메이션 (안전하게 실행)
+    setTimeout(() => {
+        animatePageLoad();
+    }, 100);
     
     // 이벤트 리스너 설정
     setupEventListeners();
@@ -22,31 +27,54 @@ function initializeMissingDetail() {
     setupLazyLoading();
 }
 
-// 페이지 로드 애니메이션
+// 기본 정보 가시성 보장 함수 추가
+function ensureBasicInfoVisibility() {
+    // 기본 정보 그리드와 항목들이 확실히 보이도록 설정
+    const basicInfoContainer = document.querySelector('.basic-info-container');
+    const basicInfoGrid = document.querySelector('.basic-info-grid');
+    const infoItems = document.querySelectorAll('.info-item');
+    
+    if (basicInfoContainer) {
+        basicInfoContainer.style.opacity = '1';
+        basicInfoContainer.style.visibility = 'visible';
+    }
+    
+    if (basicInfoGrid) {
+        basicInfoGrid.style.opacity = '1';
+        basicInfoGrid.style.visibility = 'visible';
+    }
+    
+    infoItems.forEach(item => {
+        item.style.opacity = '1';
+        item.style.visibility = 'visible';
+        item.style.transform = 'none';
+    });
+}
+
+// 페이지 로드 애니메이션 (수정됨)
 function animatePageLoad() {
     // GSAP 사용 가능 여부 확인
     if (typeof gsap !== 'undefined') {
-        // 기본 정보 섹션 애니메이션
+        // 기본 정보 항목들이 숨겨지지 않도록 안전한 애니메이션만 적용
         gsap.timeline()
             .from('.profile-image-section', {
-                duration: 0.8,
-                x: -30,
+                duration: 0.6,
+                x: -20,
                 opacity: 0,
-                ease: 'power3.out'
+                ease: 'power2.out'
             })
             .from('.profile-details', {
-                duration: 0.8,
-                x: 30,
+                duration: 0.6,
+                x: 20,
                 opacity: 0,
-                ease: 'power3.out'
-            }, '-=0.4')
-            .from('.info-item', {
-                duration: 0.5,
-                y: 20,
-                opacity: 0,
-                stagger: 0.1,
                 ease: 'power2.out'
-            }, '-=0.3');
+            }, '-=0.3')
+            // info-item에는 애니메이션 적용하지 않음 (안정성 확보)
+            .set('.info-item', {
+                opacity: 1,
+                visibility: 'visible',
+                transform: 'none'
+            });
     }
 }
 
@@ -81,9 +109,17 @@ function setupEventListeners() {
             closeAllModals();
         }
     });
+    
+    // 추가: 페이지 가시성 변경 시 기본 정보 재확인
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // 페이지가 다시 보일 때 기본 정보 확인
+            setTimeout(ensureBasicInfoVisibility, 50);
+        }
+    });
 }
 
-// 스크롤 애니메이션 설정
+// 스크롤 애니메이션 설정 (수정됨)
 function setupScrollAnimations() {
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
         // 관련 실종자 카드 애니메이션
@@ -116,6 +152,13 @@ function setupScrollAnimations() {
                 delay: index * 0.15,
                 ease: 'power2.out'
             });
+        });
+        
+        // 기본 정보 항목들은 ScrollTrigger에서 제외하여 안정성 확보
+        gsap.set('.info-item', {
+            opacity: 1,
+            visibility: 'visible',
+            transform: 'none'
         });
     }
 }
@@ -560,6 +603,14 @@ function throttle(func, wait) {
         }
     };
 }
+
+// 페이지 언로드 시 정리
+window.addEventListener('beforeunload', function() {
+    // 애니메이션 정리
+    if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf('*');
+    }
+});
 
 // CSS 추가 (공유 모달)
 const modalStyles = `
