@@ -149,7 +149,6 @@ class GSAPAnimationManager {
         this.isDestroyed = false;
         this.timelines = [];
         this.scrollTriggers = [];
-        this.loadingOverlay = null;
         this.initGSAP();
     }
 
@@ -171,48 +170,6 @@ class GSAPAnimationManager {
         });
 
         return true;
-    }
-
-    createLoadingOverlay() {
-        if (this.loadingOverlay) return this.loadingOverlay;
-
-        this.loadingOverlay = document.createElement('div');
-        this.loadingOverlay.className = 'page-loading-overlay';
-        this.loadingOverlay.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">잠시만 기다려주세요...</div>
-            </div>
-        `;
-
-        document.body.appendChild(this.loadingOverlay);
-        return this.loadingOverlay;
-    }
-
-    removeLoadingOverlay() {
-        if (!this.loadingOverlay) return;
-
-        if (gsap) {
-            gsap.to(this.loadingOverlay, {
-                opacity: 0,
-                duration: 0.6,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    if (this.loadingOverlay && this.loadingOverlay.parentNode) {
-                        this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
-                        this.loadingOverlay = null;
-                    }
-                }
-            });
-        } else {
-            this.loadingOverlay.classList.add('fade-out');
-            setTimeout(() => {
-                if (this.loadingOverlay && this.loadingOverlay.parentNode) {
-                    this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
-                    this.loadingOverlay = null;
-                }
-            }, 600);
-        }
     }
 
     prepareAnimationElements() {
@@ -244,35 +201,35 @@ class GSAPAnimationManager {
 
         const tl = gsap.timeline({ paused: true });
 
-        // 히어로 텍스트 애니메이션
+        // 히어로 텍스트 애니메이션 - 더 빠르고 자연스럽게
         tl.to('.hero-title', {
             opacity: 1,
             y: 0,
             visibility: 'visible',
-            duration: 1,
+            duration: 0.8,
             ease: "power3.out"
         })
         .to('.hero-description', {
             opacity: 1,
             y: 0,
             visibility: 'visible',
-            duration: 0.8,
+            duration: 0.6,
             ease: "power2.out"
-        }, "-=0.6")
+        }, "-=0.5")
         .to('.hero-buttons', {
             opacity: 1,
             y: 0,
             visibility: 'visible',
-            duration: 0.8,
+            duration: 0.6,
             ease: "power2.out"
-        }, "-=0.4")
+        }, "-=0.3")
         .to('.ranking-display', {
             opacity: 1,
             x: 0,
             visibility: 'visible',
-            duration: 1,
+            duration: 0.8,
             ease: "power2.out"
-        }, "-=0.4");
+        }, "-=0.3");
 
         this.timelines.push(tl);
         return tl;
@@ -449,20 +406,14 @@ class GSAPAnimationManager {
     startMainAnimation() {
         if (!gsap) return;
 
-        // 로딩 오버레이 제거 후 메인 애니메이션 시작
-        setTimeout(() => {
-            this.removeLoadingOverlay();
-            
-            setTimeout(() => {
-                const heroAnimation = this.createHeroAnimation();
-                if (heroAnimation) {
-                    heroAnimation.play();
-                }
-                
-                // 스크롤 트리거 설정
-                this.setupScrollTriggers();
-            }, 300);
-        }, 1000);
+        // 즉시 메인 애니메이션 시작 - 빠른 사용자 경험
+        const heroAnimation = this.createHeroAnimation();
+        if (heroAnimation) {
+            heroAnimation.play();
+        }
+        
+        // 스크롤 트리거 설정
+        this.setupScrollTriggers();
     }
 
     destroy() {
@@ -483,12 +434,6 @@ class GSAPAnimationManager {
             }
         });
         this.scrollTriggers = [];
-
-        // 로딩 오버레이 정리
-        if (this.loadingOverlay && this.loadingOverlay.parentNode) {
-            this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
-            this.loadingOverlay = null;
-        }
 
         console.log('🧹 GSAP Animation Manager destroyed');
     }
@@ -759,9 +704,6 @@ class EnhancedIndexPage {
         // GSAP 애니메이션 매니저 초기화
         this.animationManager = new GSAPAnimationManager();
         
-        // 로딩 오버레이 생성
-        this.animationManager.createLoadingOverlay();
-        
         // 애니메이션 요소 준비
         this.animationManager.prepareAnimationElements();
         
@@ -779,8 +721,10 @@ class EnhancedIndexPage {
         // 이벤트 리스너 설정
         this.setupEventListeners();
         
-        // 메인 애니메이션 시작
-        this.animationManager.startMainAnimation();
+        // 메인 애니메이션 즉시 시작 - 빠른 사용자 경험
+        setTimeout(() => {
+            this.animationManager.startMainAnimation();
+        }, 200);
     }
 
     renderFallbackContent() {
@@ -996,6 +940,11 @@ if (typeof window !== 'undefined') {
                 if (heroAnim) heroAnim.restart();
             }
         },
+        testInstantLoad: () => {
+            if (indexPage?.animationManager) {
+                indexPage.animationManager.startMainAnimation();
+            }
+        },
         destroyInstance: () => {
             if (indexPage) {
                 indexPage.destroy();
@@ -1015,4 +964,4 @@ if (typeof window !== 'undefined') {
     };
 }
 
-console.log('📜 Enhanced index.js with GSAP transitions loaded successfully!');
+console.log('📜 Enhanced index.js with instant GSAP transitions loaded successfully!');

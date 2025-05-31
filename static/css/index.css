@@ -57,47 +57,20 @@ style.css를 먼저 로드해야 정상적으로 작동합니다.
     visibility: hidden;
 }
 
-/* 로딩 오버레이 */
-.page-loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+/* 페이지 전환 효과 - 부드러운 페이드인 */
+.page-home .main-content {
+    animation: pageEnter 0.6s ease-out;
 }
 
-.page-loading-overlay.fade-out {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 3px solid var(--gray-200);
-    border-top: 3px solid var(--primary-orange);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-    margin-top: 20px;
-    color: var(--gray-600);
-    font-size: 1.1rem;
-    font-weight: 500;
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 히어로 섹션 */
