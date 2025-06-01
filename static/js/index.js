@@ -564,7 +564,14 @@ function renderRankingComponent() {
             );
         };
         
-        ReactDOM.render(React.createElement(RankingComponent), container);
+        // React 18 호환성 - createRoot 사용
+        if (ReactDOM.createRoot) {
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(RankingComponent));
+        } else {
+            // React 17 폴백
+            ReactDOM.render(React.createElement(RankingComponent), container);
+        }
         
     } catch (error) {
         console.warn('React 순위 컴포넌트 렌더링 오류:', error);
@@ -633,7 +640,14 @@ function renderUrgentMissingComponent() {
             );
         };
         
-        ReactDOM.render(React.createElement(UrgentMissingComponent), container);
+        // React 18 호환성 - createRoot 사용
+        if (ReactDOM.createRoot) {
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(UrgentMissingComponent));
+        } else {
+            // React 17 폴백
+            ReactDOM.render(React.createElement(UrgentMissingComponent), container);
+        }
         
     } catch (error) {
         console.warn('React 긴급 실종자 컴포넌트 렌더링 오류:', error);
