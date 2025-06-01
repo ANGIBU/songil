@@ -1,417 +1,248 @@
-// static/js/script.js
+// static/js/index.js
 
 // ===== 전역 변수 및 설정 =====
-window.APP = {
-    isLoggedIn: false,
-    user: null,
-    currentPage: null,
-    notifications: [],
-    config: {
-        scrollOffset: 100
+window.indexApp = {
+    initialized: false,
+    animations: {
+        gsapReady: false,
+        reactReady: false
     },
-    initialized: false
+    rankings: [],
+    urgentMissing: [],
+    stats: {
+        reports: 1847,
+        reunions: 1203,
+        helpers: 15429,
+        hope: 94
+    }
 };
 
 // ===== DOM 로드 완료 시 초기화 =====
 document.addEventListener('DOMContentLoaded', function() {
-    if (!window.APP.initialized) {
-        initializeApp();
+    if (!window.indexApp.initialized) {
+        initializeIndexPage();
     }
 });
 
 // 이미 로드된 경우 즉시 초기화
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    if (!window.APP.initialized) {
-        initializeApp();
+    if (!window.indexApp.initialized) {
+        initializeIndexPage();
     }
 }
 
-// ===== 앱 초기화 =====
-function initializeApp() {
-    if (window.APP.initialized) return;
+// ===== 인덱스 페이지 초기화 =====
+function initializeIndexPage() {
+    if (window.indexApp.initialized) return;
     
     try {
-        // 현재 페이지 식별
-        identifyCurrentPage();
+        // GSAP 및 React 로드 확인
+        checkLibrariesLoaded();
         
-        // 페이지 로딩 최적화 처리
-        handlePageLoadOptimization();
+        // 기본 이벤트 리스너 설정 (안전한 버전)
+        setupSafeEventListeners();
         
-        // 기본 이벤트 리스너 설정
-        setupEventListeners();
+        // 페이지 애니메이션 초기화
+        initializePageAnimations();
         
-        // 사용자 인증 상태 확인
-        checkAuthStatus();
+        // 순위 데이터 초기화
+        initializeRankingData();
         
-        // 반응형 처리
-        handleResponsive();
+        // 긴급 실종자 데이터 초기화
+        initializeUrgentMissingData();
         
-        // 페이지별 카드 초기화
-        initializePageCards();
+        // 통계 카운터 애니메이션
+        initializeStatCounters();
         
-        window.APP.initialized = true;
+        // UP 버튼 이벤트 설정 (안전한 버전)
+        setupSafeUpButtonEvents();
+        
+        // 카드 호버 효과 설정 (안전한 버전)
+        setupSafeCardHoverEffects();
+        
+        window.indexApp.initialized = true;
+        
     } catch (error) {
-        // 조용히 처리
+        console.warn('Index 페이지 초기화 중 오류 발생:', error);
+        // 폴백 모드로 기본 기능만 활성화
+        setupFallbackMode();
     }
 }
 
-// ===== 페이지별 카드 초기화 =====
-function initializePageCards() {
-    // 홈페이지 긴급 실종자 카드들 초기화
-    if (window.APP.currentPage === 'home') {
-        setupHomePageCards();
-    }
-    
-    // 모든 페이지의 실종자 카드 공통 이벤트 설정
-    setupUniversalCardEvents();
-}
-
-// ===== 홈페이지 카드 설정 =====
-function setupHomePageCards() {
-    const urgentCards = document.querySelectorAll('.urgent-cards .missing-card');
-    
-    urgentCards.forEach((card, index) => {
-        // 카드 로드 애니메이션
-        if (typeof gsap !== 'undefined') {
-            gsap.from(card, {
-                duration: 0.6,
-                y: 50,
-                opacity: 0,
-                delay: index * 0.1,
-                ease: 'power2.out'
-            });
-        }
+// ===== 라이브러리 로드 상태 확인 =====
+function checkLibrariesLoaded() {
+    // GSAP 로드 확인
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+        window.indexApp.animations.gsapReady = true;
+        gsap.registerPlugin(ScrollTrigger);
         
-        // 개별 카드 이벤트 설정
-        setupCardEvents(card);
-    });
-}
-
-// ===== 범용 카드 이벤트 설정 =====
-function setupUniversalCardEvents() {
-    // 모든 실종자 카드에 대한 공통 이벤트
-    const allCards = document.querySelectorAll('.missing-card');
-    
-    allCards.forEach(card => {
-        setupCardEvents(card);
-    });
-}
-
-// ===== 개별 카드 이벤트 설정 =====
-function setupCardEvents(card) {
-    if (!card) return;
-    
-    // UP 버튼 이벤트 - 통일된 처리
-    const upStat = card.querySelector('.card-stats .stat');
-    if (upStat && upStat.innerHTML.includes('fa-arrow-up')) {
-        // 기존 이벤트 리스너 제거 (중복 방지)
-        upStat.removeEventListener('click', handleUpClick);
-        upStat.addEventListener('click', handleUpClick);
-        
-        // 시각적 피드백을 위한 스타일 추가
-        upStat.style.cursor = 'pointer';
-        upStat.style.transition = 'all 0.2s ease';
+        // GSAP 애니메이션 준비 클래스 추가
+        document.documentElement.classList.add('gsap-animation-ready');
     }
     
-    // 카드 호버 효과
-    card.addEventListener('mouseenter', function() {
-        if (typeof gsap !== 'undefined') {
-            gsap.to(this, {
-                duration: 0.3,
-                y: -4,
-                boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
-                ease: 'power2.out'
-            });
-        }
-    });
-    
-    card.addEventListener('mouseleave', function() {
-        if (typeof gsap !== 'undefined') {
-            gsap.to(this, {
-                duration: 0.3,
-                y: 0,
-                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
-                ease: 'power2.out'
-            });
-        }
-    });
-    
-    // 카드 클릭 시 상세 페이지로 이동 (detail-link가 없는 경우)
-    const detailLink = card.querySelector('.detail-link');
-    if (!detailLink) {
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', function(e) {
-            // UP 버튼 클릭은 제외
-            if (!e.target.closest('.stat')) {
-                const cardId = this.dataset.id || extractCardId(this);
-                if (cardId) {
-                    window.location.href = `/missing/${cardId}`;
-                }
-            }
-        });
+    // React 로드 확인
+    if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
+        window.indexApp.animations.reactReady = true;
     }
 }
 
-// ===== UP 클릭 핸들러 - 통일된 처리 =====
-function handleUpClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const stat = e.currentTarget;
-    
-    // UP 카운트 증가
-    const countText = stat.textContent.trim();
-    const currentCount = parseInt(countText.replace(/\D/g, '')) || 0;
-    const newCount = currentCount + 1;
-    
-    // 아이콘과 숫자 유지하면서 카운트 업데이트
-    stat.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
-    
-    // 애니메이션 효과
-    if (typeof gsap !== 'undefined') {
-        gsap.timeline()
-            .to(stat, {
-                duration: 0.1,
-                scale: 0.9,
-                ease: 'power2.in'
-            })
-            .to(stat, {
-                duration: 0.4,
-                scale: 1.2,
-                ease: 'elastic.out(1, 0.5)'
-            })
-            .to(stat, {
-                duration: 0.2,
-                scale: 1,
-                ease: 'power2.out'
-            });
-        
-        // 파티클 효과
-        createUpParticleEffect(stat);
-    }
-    
-    // 알림 표시
-    if (window.showNotification) {
-        window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
-    }
-    
-    // 서버에 UP 정보 전송
-    const cardId = extractCardId(stat.closest('.missing-card'));
-    if (cardId) {
-        sendUpToServer(cardId, newCount);
-    }
-}
-
-// ===== UP 파티클 효과 =====
-function createUpParticleEffect(element) {
-    if (typeof gsap === 'undefined') return;
-    
-    const rect = element.getBoundingClientRect();
-    const particles = 6;
-    
-    for (let i = 0; i < particles; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'up-particle';
-        particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
-        particle.style.cssText = `
-            position: fixed;
-            left: ${rect.left + rect.width / 2}px;
-            top: ${rect.top + rect.height / 2}px;
-            color: #22c55e;
-            font-size: 14px;
-            pointer-events: none;
-            z-index: 1000;
-        `;
-        
-        document.body.appendChild(particle);
-        
-        const angle = (i / particles) * Math.PI * 2;
-        const distance = 30 + Math.random() * 30;
-        
-        gsap.to(particle, {
-            duration: 1,
-            x: Math.cos(angle) * distance,
-            y: Math.sin(angle) * distance - 30,
-            opacity: 0,
-            scale: 0.3,
-            rotation: 180,
-            ease: 'power2.out',
-            onComplete: () => particle.remove()
-        });
-    }
-}
-
-// ===== 카드 ID 추출 =====
-function extractCardId(card) {
-    if (!card) return null;
-    
-    // data-id 속성에서 추출
-    if (card.dataset && card.dataset.id) {
-        return card.dataset.id;
-    }
-    
-    // detail-link href에서 추출
-    const detailLink = card.querySelector('.detail-link');
-    if (detailLink && detailLink.href) {
-        const match = detailLink.href.match(/\/missing\/(\d+)/);
-        return match ? match[1] : null;
-    }
-    
-    // URL에서 추출 (상세 페이지인 경우)
-    const pathMatch = window.location.pathname.match(/\/missing\/(\d+)/);
-    return pathMatch ? pathMatch[1] : null;
-}
-
-// ===== 서버에 UP 정보 전송 =====
-function sendUpToServer(cardId, newCount) {
-    if (!cardId) return;
-    
-    fetch(`/api/missing/${cardId}/up`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            count: newCount 
-        })
-    }).catch(error => {
-        // 조용히 처리
-    });
-}
-
-// ===== 페이지 로딩 최적화 처리 =====
-function handlePageLoadOptimization() {
-    // 페이지 스크롤 위치 최적화
-    optimizePageScroll();
-}
-
-// ===== 스크롤 위치 최적화 =====
-function optimizePageScroll() {
-    // 스크롤 복원 비활성화
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-    
-    // 즉시 상단으로 스크롤
-    window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'instant'
-    });
-    
-    // 추가 안전장치
-    setTimeout(() => {
-        window.scrollTo(0, 0);
-    }, 0);
-}
-
-// ===== 현재 페이지 식별 =====
-function identifyCurrentPage() {
-    const path = window.location.pathname;
-    
-    if (path === '/' || path === '/index') {
-        window.APP.currentPage = 'home';
-    } else if (path.includes('/search')) {
-        window.APP.currentPage = 'search';
-    } else if (path.includes('/about')) {
-        window.APP.currentPage = 'about';
-    } else if (path.includes('/ranking')) {
-        window.APP.currentPage = 'ranking';
-    } else if (path.includes('/login')) {
-        window.APP.currentPage = 'login';
-    } else if (path.includes('/register')) {
-        window.APP.currentPage = 'register';
-    } else {
-        window.APP.currentPage = 'unknown';
-    }
-    
-    // 페이지별 CSS 클래스 추가
-    document.body.classList.add(`page-${window.APP.currentPage}`);
-}
-
-// ===== 이벤트 리스너 설정 =====
-function setupEventListeners() {
-    // 모바일 메뉴 토글
-    const mobileToggle = document.querySelector('.mobile-menu-btn');
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', toggleMobileMenu);
-    }
-    
-    // 사용자 메뉴 토글
-    const userBtn = document.querySelector('.profile-btn');
-    if (userBtn) {
-        userBtn.addEventListener('click', toggleUserMenu);
-    }
-    
-    // 알림 버튼
-    const notificationBtn = document.querySelector('.notification-btn');
-    if (notificationBtn) {
-        notificationBtn.addEventListener('click', toggleNotifications);
-    }
-    
-    // 외부 클릭시 드롭다운 닫기 - 백엔드 없는 환경에서는 비활성화
-    // document.addEventListener('click', handleOutsideClick);
-    
-    // 스크롤 이벤트 - 쓰로틀링 적용
-    let isScrolling = false;
-    window.addEventListener('scroll', () => {
-        if (!isScrolling) {
-            requestAnimationFrame(() => {
-                handleScroll();
-                isScrolling = false;
-            });
-            isScrolling = true;
-        }
-    });
-    
-    // 리사이즈 이벤트 - 디바운싱 적용
-    window.addEventListener('resize', debounce(handleResize, 250));
-    
-    // 모든 링크에 부드러운 스크롤 적용
-    setupSmoothScroll();
-    
-    // 네비게이션 초기화
-    initializeNavigation();
-    
-    // 키보드 접근성
-    setupKeyboardNavigation();
-    
-    // 페이지 전환 시 스크롤 최적화
-    setupPageTransitionOptimization();
-    
-    // 동적으로 추가되는 카드들을 위한 이벤트 위임
-    setupDelegatedCardEvents();
-}
-
-// ===== 동적 카드 이벤트 위임 =====
-function setupDelegatedCardEvents() {
-    // 문서 레벨에서 이벤트 위임을 통해 동적으로 추가되는 카드들도 처리
+// ===== 안전한 이벤트 리스너 설정 =====
+function setupSafeEventListeners() {
+    // 안전한 이벤트 위임 - null 체크 강화
     document.addEventListener('click', function(e) {
-        // UP 버튼 클릭 처리
-        if (e.target.closest('.missing-card .stat') && 
-            e.target.closest('.stat').innerHTML.includes('fa-arrow-up')) {
-            handleUpClick(e);
+        // 안전한 타겟 확인
+        if (!e || !e.target) return;
+        
+        try {
+            // UP 버튼 클릭 처리 (안전한 버전)
+            const upButton = e.target.closest('.up-btn');
+            if (upButton) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSafeUpClick(upButton);
+                return;
+            }
+            
+            // 카드 내부 stat 클릭 처리 (안전한 버전)
+            const statElement = e.target.closest('.stat');
+            if (statElement && statElement.innerHTML && statElement.innerHTML.includes('fa-arrow-up')) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSafeUpClick(statElement);
+                return;
+            }
+            
+            // 상세보기 버튼 클릭
+            const detailBtn = e.target.closest('.detail-btn');
+            if (detailBtn) {
+                const card = detailBtn.closest('.missing-card');
+                if (card && card.dataset && card.dataset.id) {
+                    window.location.href = `/missing/${card.dataset.id}`;
+                }
+                return;
+            }
+            
+            // 카드 전체 클릭 (detail-link가 없는 경우)
+            const card = e.target.closest('.missing-card');
+            if (card && !card.querySelector('.detail-link') && card.dataset && card.dataset.id) {
+                // stat 버튼 클릭이 아닌 경우에만
+                if (!e.target.closest('.stat, .up-btn, .card-actions')) {
+                    window.location.href = `/missing/${card.dataset.id}`;
+                }
+                return;
+            }
+            
+        } catch (error) {
+            console.warn('이벤트 처리 중 오류:', error);
         }
     });
     
-    // 호버 효과도 위임으로 처리
+    // 안전한 호버 이벤트 위임
     document.addEventListener('mouseenter', function(e) {
-        if (e.target.classList.contains('missing-card')) {
-            if (typeof gsap !== 'undefined') {
-                gsap.to(e.target, {
+        if (!e || !e.target) return;
+        
+        try {
+            // classList 존재 확인 후 접근
+            if (e.target.classList && e.target.classList.contains('missing-card')) {
+                handleSafeCardHover(e.target, true);
+            }
+        } catch (error) {
+            console.warn('마우스 엔터 이벤트 오류:', error);
+        }
+    }, true);
+    
+    document.addEventListener('mouseleave', function(e) {
+        if (!e || !e.target) return;
+        
+        try {
+            // classList 존재 확인 후 접근
+            if (e.target.classList && e.target.classList.contains('missing-card')) {
+                handleSafeCardHover(e.target, false);
+            }
+        } catch (error) {
+            console.warn('마우스 리브 이벤트 오류:', error);
+        }
+    }, true);
+}
+
+// ===== 안전한 UP 클릭 처리 =====
+function handleSafeUpClick(element) {
+    if (!element) return;
+    
+    try {
+        // 현재 카운트 추출 (안전한 방식)
+        let currentCount = 0;
+        const textContent = element.textContent || element.innerText || '';
+        const countMatch = textContent.match(/\d+/);
+        if (countMatch) {
+            currentCount = parseInt(countMatch[0]) || 0;
+        }
+        
+        const newCount = currentCount + 1;
+        
+        // innerHTML 업데이트 (안전한 방식)
+        if (element.querySelector('i')) {
+            // 기존 아이콘이 있는 경우
+            element.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
+        } else {
+            // 아이콘이 없는 경우
+            element.innerHTML = `<i class="fas fa-arrow-up"></i><span>${newCount}</span>`;
+        }
+        
+        // 애니메이션 효과 (GSAP 사용 가능한 경우)
+        if (window.indexApp.animations.gsapReady && typeof gsap !== 'undefined') {
+            gsap.timeline()
+                .to(element, {
+                    duration: 0.1,
+                    scale: 0.9,
+                    ease: 'power2.in'
+                })
+                .to(element, {
+                    duration: 0.4,
+                    scale: 1.2,
+                    ease: 'elastic.out(1, 0.5)'
+                })
+                .to(element, {
+                    duration: 0.2,
+                    scale: 1,
+                    ease: 'power2.out'
+                });
+            
+            // 파티클 효과
+            createSafeUpParticles(element);
+        }
+        
+        // 알림 표시
+        if (window.showNotification) {
+            window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
+        }
+        
+        // 서버에 UP 정보 전송 (안전한 방식)
+        const card = element.closest('.missing-card');
+        if (card && card.dataset && card.dataset.id) {
+            sendUpToServer(card.dataset.id, newCount);
+        }
+        
+    } catch (error) {
+        console.warn('UP 클릭 처리 중 오류:', error);
+    }
+}
+
+// ===== 안전한 카드 호버 처리 =====
+function handleSafeCardHover(card, isEntering) {
+    if (!card || !window.indexApp.animations.gsapReady) return;
+    
+    try {
+        if (typeof gsap !== 'undefined') {
+            if (isEntering) {
+                gsap.to(card, {
                     duration: 0.3,
                     y: -4,
                     boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
                     ease: 'power2.out'
                 });
-            }
-        }
-    }, true);
-    
-    document.addEventListener('mouseleave', function(e) {
-        if (e.target.classList.contains('missing-card')) {
-            if (typeof gsap !== 'undefined') {
-                gsap.to(e.target, {
+            } else {
+                gsap.to(card, {
                     duration: 0.3,
                     y: 0,
                     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
@@ -419,629 +250,494 @@ function setupDelegatedCardEvents() {
                 });
             }
         }
-    }, true);
+    } catch (error) {
+        console.warn('카드 호버 애니메이션 오류:', error);
+    }
 }
 
-// ===== 페이지 전환 최적화 =====
-function setupPageTransitionOptimization() {
-    // 모든 내부 링크에 최적화 적용
-    const internalLinks = document.querySelectorAll('a[href^="/"], a[href^="./"], a[href^="../"]');
+// ===== 안전한 UP 파티클 효과 =====
+function createSafeUpParticles(element) {
+    if (!element || !window.indexApp.animations.gsapReady || typeof gsap === 'undefined') return;
     
-    internalLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            // 페이지 전환 시 상단으로 스크롤 준비
-            if ('scrollRestoration' in history) {
-                history.scrollRestoration = 'manual';
-            }
-        });
-    });
-    
-    // popstate 이벤트에서 스크롤 최적화
-    window.addEventListener('popstate', function() {
-        setTimeout(() => {
-            window.scrollTo(0, 0);
-        }, 0);
-    });
-}
-
-// ===== 키보드 접근성 설정 =====
-function setupKeyboardNavigation() {
-    document.addEventListener('keydown', function(e) {
-        // ESC 키로 모든 드롭다운 닫기
-        if (e.key === 'Escape') {
-            closeAllDropdowns();
-            document.activeElement?.blur();
-        }
-        
-        // Tab 키 네비게이션 향상
-        if (e.key === 'Tab') {
-            document.body.classList.add('keyboard-nav');
-        }
-    });
-    
-    // 마우스 사용 시 키보드 네비게이션 스타일 제거
-    document.addEventListener('mousedown', function() {
-        document.body.classList.remove('keyboard-nav');
-    });
-}
-
-// ===== 네비게이션 초기화 =====
-function initializeNavigation() {
-    // 현재 페이지에 따른 네비게이션 활성화
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href === currentPath || (currentPath === '/' && href === '/index')) {
-            link.classList.add('active');
-            link.setAttribute('aria-current', 'page');
-        }
-    });
-}
-
-// ===== 사용자 인증 상태 확인 =====
-function checkAuthStatus() {
-    // 실제 구현에서는 서버 API 호출
-    // 현재는 localStorage 시뮬레이션
     try {
-        const token = localStorage.getItem('authToken');
-        const userData = localStorage.getItem('userData');
+        const rect = element.getBoundingClientRect();
+        const particles = 6;
         
-        if (token && userData) {
-            window.APP.isLoggedIn = true;
-            window.APP.user = JSON.parse(userData);
-            updateUIForLoggedUser();
-        } else {
-            window.APP.isLoggedIn = false;
-            updateUIForGuestUser();
+        for (let i = 0; i < particles; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'up-particle';
+            particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            particle.style.cssText = `
+                position: fixed;
+                left: ${rect.left + rect.width / 2}px;
+                top: ${rect.top + rect.height / 2}px;
+                color: #22c55e;
+                font-size: 14px;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            
+            document.body.appendChild(particle);
+            
+            const angle = (i / particles) * Math.PI * 2;
+            const distance = 30 + Math.random() * 30;
+            
+            gsap.to(particle, {
+                duration: 1,
+                x: Math.cos(angle) * distance,
+                y: Math.sin(angle) * distance - 30,
+                opacity: 0,
+                scale: 0.3,
+                rotation: 180,
+                ease: 'power2.out',
+                onComplete: () => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }
+            });
         }
     } catch (error) {
-        window.APP.isLoggedIn = false;
-        updateUIForGuestUser();
+        console.warn('파티클 효과 생성 오류:', error);
     }
 }
 
-// ===== 로그인 사용자 UI 업데이트 =====
-function updateUIForLoggedUser() {
-    // 로그인 필요 요소 표시
-    const authRequired = document.querySelectorAll('.auth-required');
-    authRequired.forEach(el => {
-        el.style.display = 'flex';
-        el.setAttribute('aria-hidden', 'false');
-    });
+// ===== 서버에 UP 정보 전송 =====
+function sendUpToServer(cardId, newCount) {
+    if (!cardId) return;
     
-    // 게스트 전용 요소 숨김
-    const guestActions = document.querySelectorAll('.guest-actions');
-    guestActions.forEach(el => {
-        el.style.display = 'none';
-        el.setAttribute('aria-hidden', 'true');
-    });
+    try {
+        fetch(`/api/missing/${cardId}/up`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                count: newCount 
+            })
+        }).catch(error => {
+            console.warn('서버 전송 오류:', error);
+        });
+    } catch (error) {
+        console.warn('UP 서버 전송 중 오류:', error);
+    }
+}
+
+// ===== 페이지 애니메이션 초기화 =====
+function initializePageAnimations() {
+    if (!window.indexApp.animations.gsapReady) return;
     
-    // 사용자 정보 업데이트
-    if (window.APP.user) {
-        const userNameEl = document.querySelector('.user-name');
-        const userPointsEl = document.querySelector('.user-points');
+    try {
+        // 히어로 섹션 애니메이션
+        gsap.timeline()
+            .from('.hero-title', {
+                duration: 1,
+                y: 60,
+                opacity: 0,
+                ease: 'power3.out'
+            })
+            .from('.hero-description', {
+                duration: 0.8,
+                y: 40,
+                opacity: 0,
+                ease: 'power2.out'
+            }, '-=0.5')
+            .from('.hero-buttons', {
+                duration: 0.6,
+                y: 30,
+                opacity: 0,
+                ease: 'power2.out'
+            }, '-=0.3')
+            .from('.ranking-display', {
+                duration: 1,
+                x: 80,
+                opacity: 0,
+                ease: 'power2.out'
+            }, '-=0.7');
         
-        if (userNameEl) userNameEl.textContent = window.APP.user.name || '사용자';
-        if (userPointsEl) userPointsEl.textContent = `${(window.APP.user.points || 0).toLocaleString()}P`;
-    }
-    
-    // body 클래스 업데이트
-    document.body.classList.add('user-authenticated');
-    document.body.classList.remove('user-guest');
-}
-
-// ===== 게스트 사용자 UI 업데이트 =====
-function updateUIForGuestUser() {
-    // 로그인 필요 요소 숨김
-    const authRequired = document.querySelectorAll('.auth-required');
-    authRequired.forEach(el => {
-        el.style.display = 'none';
-        el.setAttribute('aria-hidden', 'true');
-    });
-    
-    // 게스트 전용 요소 표시
-    const guestActions = document.querySelectorAll('.guest-actions');
-    guestActions.forEach(el => {
-        el.style.display = 'flex';
-        el.setAttribute('aria-hidden', 'false');
-    });
-    
-    // body 클래스 업데이트
-    document.body.classList.add('user-guest');
-    document.body.classList.remove('user-authenticated');
-}
-
-// ===== 모바일 메뉴 토글 =====
-function toggleMobileMenu() {
-    const mobileNav = document.querySelector('.mobile-nav');
-    const toggle = document.querySelector('.mobile-menu-btn');
-    
-    if (!mobileNav || !toggle) return;
-    
-    const isOpen = mobileNav.classList.contains('active');
-    
-    if (isOpen) {
-        // 메뉴 닫기
-        mobileNav.classList.remove('active');
-        toggle.classList.remove('active');
-        toggle.setAttribute('aria-expanded', 'false');
-        mobileNav.style.display = 'none';
-    } else {
-        // 메뉴 열기
-        mobileNav.classList.add('active');
-        toggle.classList.add('active');
-        toggle.setAttribute('aria-expanded', 'true');
-        mobileNav.style.display = 'block';
+        // 스크롤 기반 애니메이션
+        setupScrollAnimations();
         
-        // 포커스를 첫 번째 링크로 이동
-        const firstLink = mobileNav.querySelector('a');
-        if (firstLink) firstLink.focus();
+    } catch (error) {
+        console.warn('페이지 애니메이션 초기화 오류:', error);
     }
 }
 
-// ===== 사용자 메뉴 토글 =====
-function toggleUserMenu() {
-    const dropdown = document.getElementById('userMenuDropdown');
+// ===== 스크롤 애니메이션 설정 =====
+function setupScrollAnimations() {
+    if (!window.indexApp.animations.gsapReady || typeof ScrollTrigger === 'undefined') return;
     
-    if (!dropdown) return;
-    
-    const isOpen = dropdown.classList.contains('show');
-    
-    if (isOpen) {
-        dropdown.classList.remove('show');
-        dropdown.setAttribute('aria-hidden', 'true');
-    } else {
-        // 다른 드롭다운 닫기
-        closeAllDropdowns();
-        dropdown.classList.add('show');
-        dropdown.setAttribute('aria-hidden', 'false');
-    }
-}
-
-// ===== 알림 토글 =====
-function toggleNotifications() {
-    const dropdown = document.getElementById('notificationDropdown');
-    
-    if (!dropdown) return;
-    
-    const isOpen = dropdown.classList.contains('show');
-    
-    if (isOpen) {
-        dropdown.classList.remove('show');
-        dropdown.setAttribute('aria-hidden', 'true');
-    } else {
-        // 다른 드롭다운 닫기
-        closeAllDropdowns();
-        dropdown.classList.add('show');
-        dropdown.setAttribute('aria-hidden', 'false');
+    try {
+        // 섹션 헤더 애니메이션
+        gsap.utils.toArray('.section-header').forEach(header => {
+            gsap.from(header, {
+                scrollTrigger: {
+                    trigger: header,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 0.8,
+                y: 50,
+                opacity: 0,
+                ease: 'power2.out'
+            });
+        });
         
-        // 알림 읽음 처리
-        setTimeout(() => markNotificationsAsRead(), 1000);
-    }
-}
-
-// ===== 모든 드롭다운 닫기 =====
-function closeAllDropdowns() {
-    const dropdowns = document.querySelectorAll('.dropdown-menu, .user-dropdown, .notification-dropdown');
-    
-    dropdowns.forEach(dropdown => {
-        if (dropdown) {
-            dropdown.classList.remove('show');
-            dropdown.setAttribute('aria-hidden', 'true');
-        }
-    });
-}
-
-// ===== 외부 클릭 처리 - contains 사용 완전 제거 =====
-function handleOutsideClick(event) {
-    // 백엔드 없는 환경에서는 비활성화
-    return;
-}
-
-// ===== 스크롤 처리 =====
-function handleScroll() {
-    const scrollY = window.scrollY;
-    const header = document.querySelector('.header');
-    
-    // 헤더 스크롤 효과
-    if (header) {
-        if (scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    }
-}
-
-// ===== 리사이즈 처리 =====
-function handleResize() {
-    const width = window.innerWidth;
-    
-    // 모바일/데스크톱 구분
-    if (width <= 768) {
-        document.body.classList.add('mobile');
-        document.body.classList.remove('desktop');
-    } else {
-        document.body.classList.add('desktop');
-        document.body.classList.remove('mobile');
-    }
-    
-    // 데스크톱에서 모바일 메뉴 자동 닫기
-    if (width > 768) {
-        const mobileNav = document.querySelector('.mobile-nav');
-        const toggle = document.querySelector('.mobile-menu-btn');
+        // 실종자 카드 애니메이션
+        gsap.utils.toArray('.missing-card').forEach((card, index) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 0.6,
+                y: 40,
+                opacity: 0,
+                delay: (index % 4) * 0.1,
+                ease: 'power2.out'
+            });
+        });
         
-        if (mobileNav && mobileNav.classList.contains('active')) {
-            mobileNav.classList.remove('active');
-            mobileNav.style.display = 'none';
-        }
-        if (toggle) {
-            toggle.classList.remove('active');
-            toggle.setAttribute('aria-expanded', 'false');
+        // 소개 스텝 애니메이션
+        gsap.utils.toArray('.step').forEach((step, index) => {
+            gsap.from(step, {
+                scrollTrigger: {
+                    trigger: step,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                duration: 0.8,
+                y: 60,
+                opacity: 0,
+                delay: index * 0.2,
+                ease: 'power2.out'
+            });
+        });
+        
+    } catch (error) {
+        console.warn('스크롤 애니메이션 설정 오류:', error);
+    }
+}
+
+// ===== 순위 데이터 초기화 =====
+function initializeRankingData() {
+    try {
+        window.indexApp.rankings = [
+            { position: 1, name: '김희망', points: 2847, reports: 45, witnesses: 23 },
+            { position: 2, name: '박도움', points: 2134, reports: 38, witnesses: 18 },
+            { position: 3, name: '이나눔', points: 1895, reports: 42, witnesses: 15 },
+            { position: 4, name: '최참여', points: 1672, reports: 36, witnesses: 12 },
+            { position: 5, name: '정협력', points: 1543, reports: 29, witnesses: 14 }
+        ];
+        
+        // React 컴포넌트가 사용 가능한 경우 렌더링
+        if (window.indexApp.animations.reactReady) {
+            renderRankingComponent();
         }
         
-        // 모든 드롭다운 닫기
-        closeAllDropdowns();
-    }
-    
-    // 카드 레이아웃 재계산
-    recalculateCardLayouts();
-}
-
-// ===== 카드 레이아웃 재계산 =====
-function recalculateCardLayouts() {
-    // 모든 실종자 카드 컨테이너의 레이아웃 재계산
-    const cardContainers = document.querySelectorAll('.urgent-cards, .related-cards, .missing-grid, .missing-list-view');
-    
-    cardContainers.forEach(container => {
-        // CSS Grid가 자동으로 처리하므로 특별한 작업 불필요
-        // 필요시 강제 reflow
-        container.style.display = 'none';
-        container.offsetHeight; // reflow 강제 실행
-        container.style.display = '';
-    });
-}
-
-// ===== 반응형 처리 =====
-function handleResponsive() {
-    handleResize();
-    
-    // 터치 디바이스 감지
-    if ('ontouchstart' in window) {
-        document.body.classList.add('touch-device');
-    }
-    
-    // 고해상도 디스플레이 감지
-    if (window.devicePixelRatio > 1) {
-        document.body.classList.add('high-dpi');
+    } catch (error) {
+        console.warn('순위 데이터 초기화 오류:', error);
     }
 }
 
-// ===== 부드러운 스크롤 설정 =====
-function setupSmoothScroll() {
-    const scrollLinks = document.querySelectorAll('a[href^="#"]');
+// ===== 긴급 실종자 데이터 초기화 =====
+function initializeUrgentMissingData() {
+    try {
+        window.indexApp.urgentMissing = [
+            { id: 1, name: '김○○', age: 32, date: '2024.05.20', location: '서울시 강남구 역삼동', clothing: '검은색 정장, 갈색 구두', upCount: 246 },
+            { id: 2, name: '박○○', age: 8, date: '2024.05.21', location: '부산시 해운대구 중동', clothing: '파란색 티셔츠, 검은색 반바지', upCount: 189 },
+            { id: 3, name: '최○○', age: 67, date: '2024.05.22', location: '대구시 중구 삼덕동', clothing: '흰색 블라우스, 검은색 바지', upCount: 134 },
+            { id: 4, name: '이○○', age: 45, date: '2024.05.19', location: '인천시 남동구 구월동', clothing: '회색 후드티, 청바지', upCount: 87 },
+            { id: 5, name: '정○○', age: 23, date: '2024.05.18', location: '광주시 서구 상무동', clothing: '분홍색 원피스, 흰색 운동화', upCount: 156 },
+            { id: 6, name: '홍○○', age: 14, date: '2024.05.23', location: '대전시 유성구 봉명동', clothing: '교복, 검은색 가방', upCount: 23 },
+            { id: 7, name: '강○○', age: 28, date: '2024.05.17', location: '울산시 남구 삼산동', clothing: '빨간색 코트, 검은색 부츠', upCount: 98 },
+            { id: 8, name: '윤○○', age: 52, date: '2024.05.16', location: '경기도 성남시 분당구', clothing: '네이비 셔츠, 베이지 바지', upCount: 143 }
+        ];
+        
+        // React 컴포넌트가 사용 가능한 경우 렌더링
+        if (window.indexApp.animations.reactReady) {
+            renderUrgentMissingComponent();
+        }
+        
+    } catch (error) {
+        console.warn('긴급 실종자 데이터 초기화 오류:', error);
+    }
+}
+
+// ===== 통계 카운터 애니메이션 초기화 =====
+function initializeStatCounters() {
+    try {
+        const statItems = document.querySelectorAll('.stat-number');
+        
+        if (statItems.length === 0) return;
+        
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                    animateCounter(entry.target);
+                    entry.target.classList.add('counted');
+                }
+            });
+        }, observerOptions);
+        
+        statItems.forEach(item => observer.observe(item));
+        
+    } catch (error) {
+        console.warn('통계 카운터 초기화 오류:', error);
+    }
+}
+
+// ===== 카운터 애니메이션 =====
+function animateCounter(element) {
+    if (!element) return;
     
-    scrollLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
+    try {
+        const text = element.textContent || element.innerText || '';
+        const target = parseInt(text.replace(/[^\d]/g, '')) || 0;
+        
+        if (target === 0) return;
+        
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
             
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
+            // 원래 텍스트 형식 유지 (%, 숫자 등)
+            if (text.includes('%')) {
+                element.textContent = Math.floor(current) + '%';
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+        
+    } catch (error) {
+        console.warn('카운터 애니메이션 오류:', error);
+    }
+}
+
+// ===== React 순위 컴포넌트 렌더링 =====
+function renderRankingComponent() {
+    if (!window.indexApp.animations.reactReady) return;
+    
+    try {
+        const container = document.getElementById('topRankings');
+        if (!container) return;
+        
+        const RankingComponent = () => {
+            return React.createElement('div', null,
+                window.indexApp.rankings.map(rank => 
+                    React.createElement('div', {
+                        key: rank.position,
+                        className: 'ranking-item'
+                    },
+                        React.createElement('div', { className: 'ranking-position' }, rank.position),
+                        React.createElement('div', { className: 'ranking-info' },
+                            React.createElement('div', { className: 'ranking-left' },
+                                React.createElement('div', { className: 'ranking-name' }, rank.name),
+                                React.createElement('div', { className: 'ranking-points' },
+                                    React.createElement('i', { className: 'fas fa-coins' }),
+                                    ` ${rank.points.toLocaleString()}P`
+                                )
+                            ),
+                            React.createElement('div', { className: 'ranking-stats' },
+                                React.createElement('span', { className: 'stats-text' },
+                                    React.createElement('span', { className: 'stat-reports' }, `제보 ${rank.reports}건`),
+                                    React.createElement('span', { className: 'stats-separator' }, ' / '),
+                                    React.createElement('span', { className: 'stat-witnesses' }, `해결 ${rank.witnesses}건`)
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        };
+        
+        ReactDOM.render(React.createElement(RankingComponent), container);
+        
+    } catch (error) {
+        console.warn('React 순위 컴포넌트 렌더링 오류:', error);
+    }
+}
+
+// ===== React 긴급 실종자 컴포넌트 렌더링 =====
+function renderUrgentMissingComponent() {
+    if (!window.indexApp.animations.reactReady) return;
+    
+    try {
+        const container = document.getElementById('urgentCardsGrid');
+        if (!container) return;
+        
+        const UrgentMissingComponent = () => {
+            return React.createElement('div', { className: 'urgent-cards-react' },
+                window.indexApp.urgentMissing.map(missing => 
+                    React.createElement('div', {
+                        key: missing.id,
+                        className: 'missing-card urgent',
+                        'data-id': missing.id
+                    },
+                        React.createElement('div', { className: 'card-image' },
+                            React.createElement('img', {
+                                src: `/static/images/sample-missing-${missing.id}.jpg`,
+                                alt: '실종자 사진',
+                                onError: (e) => { e.target.src = '/static/images/placeholder.jpg'; }
+                            }),
+                            React.createElement('div', { className: 'danger-level high' }, '긴급')
+                        ),
+                        React.createElement('div', { className: 'card-content' },
+                            React.createElement('h3', null, `${missing.name} (${missing.age}세)`),
+                            React.createElement('div', { className: 'missing-info' },
+                                React.createElement('p', null,
+                                    React.createElement('i', { className: 'fas fa-calendar' }),
+                                    ` ${missing.date} 실종`
+                                ),
+                                React.createElement('p', null,
+                                    React.createElement('i', { className: 'fas fa-map-marker-alt' }),
+                                    ` ${missing.location}`
+                                ),
+                                React.createElement('p', null,
+                                    React.createElement('i', { className: 'fas fa-tshirt' }),
+                                    ` ${missing.clothing}`
+                                )
+                            ),
+                            React.createElement('div', { className: 'card-actions' },
+                                React.createElement('button', {
+                                    className: 'up-btn',
+                                    onClick: (e) => handleSafeUpClick(e.target)
+                                },
+                                    React.createElement('i', { className: 'fas fa-arrow-up' }),
+                                    React.createElement('span', null, missing.upCount)
+                                ),
+                                React.createElement('a', {
+                                    href: `/missing/${missing.id}`,
+                                    className: 'detail-btn'
+                                },
+                                    React.createElement('i', { className: 'fas fa-eye' }),
+                                    ' 상세보기'
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+        };
+        
+        ReactDOM.render(React.createElement(UrgentMissingComponent), container);
+        
+    } catch (error) {
+        console.warn('React 긴급 실종자 컴포넌트 렌더링 오류:', error);
+    }
+}
+
+// ===== 안전한 UP 버튼 이벤트 설정 =====
+function setupSafeUpButtonEvents() {
+    try {
+        // 기존 HTML에 있는 UP 버튼들에 대한 직접적인 이벤트 설정
+        const upButtons = document.querySelectorAll('.up-btn, .card-stats .stat');
+        
+        upButtons.forEach(button => {
+            if (!button || !button.innerHTML) return;
             
-            if (targetElement) {
-                const targetOffset = targetElement.offsetTop - 100;
-                window.scrollTo({
-                    top: targetOffset,
-                    behavior: 'smooth'
+            // fa-arrow-up 아이콘이 있는 경우에만 이벤트 추가
+            if (button.innerHTML.includes('fa-arrow-up')) {
+                // 기존 이벤트 리스너 제거 (중복 방지)
+                button.removeEventListener('click', handleSafeUpClick);
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSafeUpClick(this);
                 });
             }
         });
-    });
+        
+    } catch (error) {
+        console.warn('UP 버튼 이벤트 설정 오류:', error);
+    }
 }
 
-// ===== 알림 읽음 처리 =====
-function markNotificationsAsRead() {
-    const unreadItems = document.querySelectorAll('.notification-item.unread');
-    const notificationBadge = document.querySelector('.notification-badge');
-    
-    if (unreadItems.length > 0) {
-        unreadItems.forEach(item => {
-            item.classList.remove('unread');
+// ===== 안전한 카드 호버 효과 설정 =====
+function setupSafeCardHoverEffects() {
+    try {
+        const cards = document.querySelectorAll('.missing-card');
+        
+        cards.forEach(card => {
+            if (!card) return;
+            
+            card.addEventListener('mouseenter', function() {
+                handleSafeCardHover(this, true);
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                handleSafeCardHover(this, false);
+            });
         });
         
-        if (notificationBadge) {
-            notificationBadge.style.display = 'none';
-        }
+    } catch (error) {
+        console.warn('카드 호버 효과 설정 오류:', error);
     }
 }
 
-// ===== 로딩 인디케이터 =====
-function showLoading(target = 'body', message = '처리 중...') {
-    const targetEl = typeof target === 'string' ? document.querySelector(target) : target;
-    
-    if (!targetEl) return null;
-    
-    // 기존 로딩 제거
-    const existingLoader = targetEl.querySelector('.simple-loading');
-    if (existingLoader) {
-        existingLoader.remove();
-    }
-    
-    const loader = document.createElement('div');
-    loader.className = 'simple-loading';
-    loader.setAttribute('role', 'status');
-    loader.setAttribute('aria-live', 'polite');
-    loader.innerHTML = `
-        <div class="loading-spinner">
-            <div class="spinner-ring"></div>
-            <span class="loading-text">${message}</span>
-        </div>
-    `;
-    
-    // CSS 스타일 추가
-    loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        opacity: 1;
-    `;
-    
-    targetEl.appendChild(loader);
-    return loader;
-}
-
-function hideLoading(loader) {
-    if (!loader || !loader.parentNode) return;
-    
-    if (loader.parentNode) {
-        loader.parentNode.removeChild(loader);
+// ===== 폴백 모드 설정 =====
+function setupFallbackMode() {
+    try {
+        // 기본적인 클릭 이벤트만 설정
+        document.addEventListener('click', function(e) {
+            if (!e || !e.target) return;
+            
+            // UP 버튼 기본 처리
+            if (e.target.classList && (e.target.classList.contains('up-btn') || 
+                (e.target.closest('.stat') && e.target.closest('.stat').innerHTML && 
+                 e.target.closest('.stat').innerHTML.includes('fa-arrow-up')))) {
+                
+                e.preventDefault();
+                const button = e.target.closest('.up-btn, .stat');
+                if (button) {
+                    const count = parseInt(button.textContent.replace(/\D/g, '')) || 0;
+                    button.innerHTML = `<i class="fas fa-arrow-up"></i> ${count + 1}`;
+                }
+            }
+        });
+        
+        console.log('폴백 모드로 실행 중');
+        
+    } catch (error) {
+        console.warn('폴백 모드 설정 오류:', error);
     }
 }
-
-// ===== 알림 시스템 =====
-function showNotification(message, type = 'info', duration = 3000) {
-    // 토스트 컨테이너 확인/생성
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container';
-        toastContainer.setAttribute('role', 'region');
-        toastContainer.setAttribute('aria-label', '알림 메시지');
-        toastContainer.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-            max-width: 400px;
-        `;
-        document.body.appendChild(toastContainer);
-    }
-    
-    const toast = document.createElement('div');
-    toast.className = `notification-toast toast-${type}`;
-    toast.setAttribute('role', 'alert');
-    toast.setAttribute('aria-live', 'assertive');
-    toast.innerHTML = `
-        <div class="toast-content">
-            <i class="fas ${getToastIcon(type)}"></i>
-            <span class="toast-message">${message}</span>
-            <button class="toast-close" onclick="this.parentElement.parentElement.remove()" aria-label="알림 닫기">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    // 토스트 스타일
-    toast.style.cssText = `
-        background: ${getToastBgColor(type)};
-        color: white;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        pointer-events: auto;
-        opacity: 1;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 300px;
-        backdrop-filter: blur(10px);
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    // 자동 제거
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-        }
-    }, duration);
-    
-    return toast;
-}
-
-function getToastIcon(type) {
-    const icons = {
-        'success': 'fa-check-circle',
-        'error': 'fa-exclamation-circle',
-        'warning': 'fa-exclamation-triangle',
-        'info': 'fa-info-circle'
-    };
-    return icons[type] || icons['info'];
-}
-
-function getToastBgColor(type) {
-    const colors = {
-        'success': 'linear-gradient(135deg, #22c55e 0%, #4ade80 100%)',
-        'error': 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
-        'warning': 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-        'info': 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)'
-    };
-    return colors[type] || colors['info'];
-}
-
-// ===== 유틸리티 함수 =====
-function debounce(func, wait, immediate) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            timeout = null;
-            if (!immediate) func(...args);
-        };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func(...args);
-    };
-}
-
-function throttle(func, limit) {
-    let inThrottle;
-    return function(...args) {
-        if (!inThrottle) {
-            func.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
-        }
-    };
-}
-
-// ===== 접근성 개선 함수 =====
-function announceToScreenReader(message) {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
-    announcement.style.cssText = `
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        border: 0;
-    `;
-    announcement.textContent = message;
-    
-    document.body.appendChild(announcement);
-    
-    setTimeout(() => {
-        document.body.removeChild(announcement);
-    }, 1000);
-}
-
-// ===== 에러 처리 - 수정된 버전 =====
-window.addEventListener('error', function(e) {
-    if (window.showNotification) {
-        window.showNotification('일시적인 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
-    }
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    if (window.showNotification) {
-        window.showNotification('요청 처리 중 오류가 발생했습니다.', 'error');
-    }
-    e.preventDefault();
-});
 
 // ===== 전역 함수 내보내기 =====
-window.toggleMobileMenu = toggleMobileMenu;
-window.toggleUserMenu = toggleUserMenu;
-window.toggleNotifications = toggleNotifications;
-window.initializeNavigation = initializeNavigation;
-window.checkAuthStatus = checkAuthStatus;
-window.showLoading = showLoading;
-window.hideLoading = hideLoading;
-window.showNotification = showNotification;
-window.announceToScreenReader = announceToScreenReader;
-window.debounce = debounce;
-window.throttle = throttle;
-window.setupCardEvents = setupCardEvents;
-window.handleUpClick = handleUpClick;
+window.handleSafeUpClick = handleSafeUpClick;
+window.initializeIndexPage = initializeIndexPage;
+window.animateCounter = animateCounter;
 
-// ===== CSS 스타일 주입 (토스트 및 로딩 스피너) =====
-if (!document.querySelector('#dynamic-styles')) {
-    const style = document.createElement('style');
-    style.id = 'dynamic-styles';
-    style.textContent = `
-        .spinner-ring {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
+// ===== 에러 처리 강화 =====
+window.addEventListener('error', function(e) {
+    console.warn('전역 오류 감지:', e.error);
+    if (e.error && e.error.message && e.error.message.includes('contains')) {
+        console.log('contains 관련 오류를 감지했습니다. 폴백 모드로 전환합니다.');
+        setupFallbackMode();
+    }
+});
+
+// ===== 페이지 언로드 시 정리 =====
+window.addEventListener('beforeunload', function() {
+    try {
+        // 이벤트 리스너 정리
+        if (window.indexApp.initialized) {
+            window.indexApp.initialized = false;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            color: #374151;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-        
-        .toast-close {
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            margin-left: auto;
-        }
-        
-        .toast-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .keyboard-nav *:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: 2px;
-        }
-        
-        .sr-only {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            padding: 0 !important;
-            margin: -1px !important;
-            overflow: hidden !important;
-            clip: rect(0, 0, 0, 0) !important;
-            white-space: nowrap !important;
-            border: 0 !important;
-        }
-        
-        .up-particle {
-            position: fixed;
-            pointer-events: none;
-        }
-    `;
-    document.head.appendChild(style);
-}
+    } catch (error) {
+        console.warn('페이지 언로드 정리 오류:', error);
+    }
+});
