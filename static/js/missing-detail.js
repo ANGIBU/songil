@@ -119,26 +119,26 @@ function setupEventListeners() {
     });
 }
 
-// 스크롤 애니메이션 설정 (수정됨)
+// 스크롤 애니메이션 설정 (부드러운 애니메이션으로 수정됨)
 function setupScrollAnimations() {
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-        // 관련 실종자 카드 애니메이션
+        // 관련 실종자 카드 애니메이션 - 부드러운 페이드인으로 변경
         gsap.utils.toArray('.missing-card').forEach((card, index) => {
             gsap.from(card, {
                 scrollTrigger: {
                     trigger: card,
-                    start: 'top 80%',
+                    start: 'top 85%',
                     toggleActions: 'play none none reverse'
                 },
-                duration: 0.6,
-                y: 50,
+                duration: 0.8,
+                y: 20, // 더 작은 이동 거리
                 opacity: 0,
-                delay: index * 0.1,
-                ease: 'power2.out'
+                delay: index * 0.05, // 더 짧은 딜레이
+                ease: 'power1.out' // 더 부드러운 easing
             });
         });
         
-        // 목격 정보 애니메이션
+        // 목격 정보 애니메이션 - 더 부드럽게 수정
         gsap.utils.toArray('.witness-item').forEach((item, index) => {
             gsap.from(item, {
                 scrollTrigger: {
@@ -146,11 +146,11 @@ function setupScrollAnimations() {
                     start: 'top 85%',
                     toggleActions: 'play none none reverse'
                 },
-                duration: 0.6,
-                x: -30,
+                duration: 0.7,
+                x: -20, // 더 작은 이동 거리
                 opacity: 0,
-                delay: index * 0.15,
-                ease: 'power2.out'
+                delay: index * 0.08, // 적절한 딜레이
+                ease: 'power1.out' // 더 부드러운 easing
             });
         });
         
