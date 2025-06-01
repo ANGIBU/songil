@@ -634,38 +634,45 @@ function closeAllDropdowns() {
     });
 }
 
-// ===== 외부 클릭 처리 - 수정된 안전한 버전 =====
+// ===== 외부 클릭 처리 - 완전히 안전한 버전 =====
 function handleOutsideClick(event) {
     if (!event || !event.target) return;
     
-    const userDropdown = document.getElementById('userMenuDropdown');
-    const notificationDropdown = document.getElementById('notificationDropdown');
-    const userBtn = document.querySelector('.profile-btn');
-    const notificationBtn = document.querySelector('.notification-btn');
-    const mobileNav = document.querySelector('.mobile-nav');
-    const mobileBtn = document.querySelector('.mobile-menu-btn');
-    
-    // 사용자 메뉴 외부 클릭 - 안전한 확인
-    if (userDropdown && userDropdown.classList.contains('show') && userBtn) {
-        if (!userBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-            userDropdown.classList.remove('show');
-            userDropdown.setAttribute('aria-hidden', 'true');
+    try {
+        const userDropdown = document.getElementById('userMenuDropdown');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const userBtn = document.querySelector('.profile-btn');
+        const notificationBtn = document.querySelector('.notification-btn');
+        const mobileNav = document.querySelector('.mobile-nav');
+        const mobileBtn = document.querySelector('.mobile-menu-btn');
+        
+        // 사용자 메뉴 외부 클릭 - 완전한 안전 확인
+        if (userDropdown && userDropdown.classList && userDropdown.classList.contains('show') && 
+            userBtn && userBtn.contains && userDropdown.contains) {
+            if (!userBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+                userDropdown.classList.remove('show');
+                userDropdown.setAttribute('aria-hidden', 'true');
+            }
         }
-    }
-    
-    // 알림 드롭다운 외부 클릭 - 안전한 확인
-    if (notificationDropdown && notificationDropdown.classList.contains('show') && notificationBtn) {
-        if (!notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
-            notificationDropdown.classList.remove('show');
-            notificationDropdown.setAttribute('aria-hidden', 'true');
+        
+        // 알림 드롭다운 외부 클릭 - 완전한 안전 확인
+        if (notificationDropdown && notificationDropdown.classList && notificationDropdown.classList.contains('show') && 
+            notificationBtn && notificationBtn.contains && notificationDropdown.contains) {
+            if (!notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                notificationDropdown.classList.remove('show');
+                notificationDropdown.setAttribute('aria-hidden', 'true');
+            }
         }
-    }
-    
-    // 모바일 메뉴 외부 클릭 - 안전한 확인
-    if (mobileNav && mobileNav.classList.contains('active') && mobileBtn) {
-        if (!mobileBtn.contains(event.target) && !mobileNav.contains(event.target)) {
-            toggleMobileMenu();
+        
+        // 모바일 메뉴 외부 클릭 - 완전한 안전 확인
+        if (mobileNav && mobileNav.classList && mobileNav.classList.contains('active') && 
+            mobileBtn && mobileBtn.contains && mobileNav.contains) {
+            if (!mobileBtn.contains(event.target) && !mobileNav.contains(event.target)) {
+                toggleMobileMenu();
+            }
         }
+    } catch (error) {
+        // 조용히 처리 - 백엔드 없는 환경에서는 일부 요소가 없을 수 있음
     }
 }
 
