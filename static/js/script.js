@@ -51,7 +51,7 @@ function initializeApp() {
         
         window.APP.initialized = true;
     } catch (error) {
-        console.error('❌ App initialization error:', error);
+        // 조용히 처리
     }
 }
 
@@ -275,7 +275,7 @@ function sendUpToServer(cardId, newCount) {
             count: newCount 
         })
     }).catch(error => {
-        console.error('UP 전송 실패:', error);
+        // 조용히 처리
     });
 }
 
@@ -497,7 +497,6 @@ function checkAuthStatus() {
             updateUIForGuestUser();
         }
     } catch (error) {
-        console.warn('Auth status check failed:', error);
         window.APP.isLoggedIn = false;
         updateUIForGuestUser();
     }
@@ -635,8 +634,10 @@ function closeAllDropdowns() {
     });
 }
 
-// ===== 외부 클릭 처리 =====
+// ===== 외부 클릭 처리 - 수정된 안전한 버전 =====
 function handleOutsideClick(event) {
+    if (!event || !event.target) return;
+    
     const userDropdown = document.getElementById('userMenuDropdown');
     const notificationDropdown = document.getElementById('notificationDropdown');
     const userBtn = document.querySelector('.profile-btn');
@@ -644,24 +645,27 @@ function handleOutsideClick(event) {
     const mobileNav = document.querySelector('.mobile-nav');
     const mobileBtn = document.querySelector('.mobile-menu-btn');
     
-    // 사용자 메뉴 외부 클릭
-    if (userDropdown && userDropdown.classList.contains('show') && 
-        userBtn && !userBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-        userDropdown.classList.remove('show');
-        userDropdown.setAttribute('aria-hidden', 'true');
+    // 사용자 메뉴 외부 클릭 - 안전한 확인
+    if (userDropdown && userDropdown.classList.contains('show') && userBtn) {
+        if (!userBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+            userDropdown.classList.remove('show');
+            userDropdown.setAttribute('aria-hidden', 'true');
+        }
     }
     
-    // 알림 드롭다운 외부 클릭
-    if (notificationDropdown && notificationDropdown.classList.contains('show') && 
-        notificationBtn && !notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
-        notificationDropdown.classList.remove('show');
-        notificationDropdown.setAttribute('aria-hidden', 'true');
+    // 알림 드롭다운 외부 클릭 - 안전한 확인
+    if (notificationDropdown && notificationDropdown.classList.contains('show') && notificationBtn) {
+        if (!notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+            notificationDropdown.classList.remove('show');
+            notificationDropdown.setAttribute('aria-hidden', 'true');
+        }
     }
     
-    // 모바일 메뉴 외부 클릭
-    if (mobileNav && mobileNav.classList.contains('active') &&
-        mobileBtn && !mobileBtn.contains(event.target) && !mobileNav.contains(event.target)) {
-        toggleMobileMenu();
+    // 모바일 메뉴 외부 클릭 - 안전한 확인
+    if (mobileNav && mobileNav.classList.contains('active') && mobileBtn) {
+        if (!mobileBtn.contains(event.target) && !mobileNav.contains(event.target)) {
+            toggleMobileMenu();
+        }
     }
 }
 
@@ -969,15 +973,17 @@ function announceToScreenReader(message) {
     }, 1000);
 }
 
-// ===== 에러 처리 =====
+// ===== 에러 처리 - 수정된 버전 =====
 window.addEventListener('error', function(e) {
-    console.error('Global error:', e.error);
-    showNotification('일시적인 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+    if (window.showNotification) {
+        window.showNotification('일시적인 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+    }
 });
 
 window.addEventListener('unhandledrejection', function(e) {
-    console.error('Unhandled promise rejection:', e.reason);
-    showNotification('요청 처리 중 오류가 발생했습니다.', 'error');
+    if (window.showNotification) {
+        window.showNotification('요청 처리 중 오류가 발생했습니다.', 'error');
+    }
     e.preventDefault();
 });
 
