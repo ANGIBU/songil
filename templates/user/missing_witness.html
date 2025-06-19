@@ -1,0 +1,399 @@
+{# templates/user/missing_witness.html #}
+{% extends "base.html" %}
+
+{% block title %}손길 - 목격 신고{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 목격 신고 헤더 -->
+<section class="witness-header">
+    <div class="container">
+        <div class="witness-navigation">
+            <a href="{{ url_for('missing_detail', missing_id=missing_id) }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                실종자 정보로 돌아가기
+            </a>
+        </div>
+        
+        <div class="witness-title">
+            <h1><i class="fas fa-eye"></i> 목격 정보 신고</h1>
+            <p>작은 정보도 실종자를 찾는데 큰 도움이 됩니다</p>
+        </div>
+        
+        <!-- 포인트 안내 -->
+        <div class="points-info">
+            <div class="points-card">
+                <div class="points-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="points-details">
+                    <h3>목격 신고 포인트</h3>
+                    <div class="points-range">
+                        <span class="min-points">100P</span>
+                        <div class="points-bar"></div>
+                        <span class="max-points">500P</span>
+                    </div>
+                    <p>정보의 정확성과 유용성에 따라 차등 지급됩니다</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 실종자 정보 요약 -->
+<section class="missing-summary">
+    <div class="container">
+        <div class="summary-card">
+            <div class="summary-image">
+                <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                <div class="danger-level high">긴급</div>
+            </div>
+            <div class="summary-info">
+                <h2>김○○ (32세, 남성)</h2>
+                <div class="summary-details">
+                    <div class="detail-item">
+                        <i class="fas fa-calendar"></i>
+                        2024년 5월 20일 오후 6시경 실종
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        서울시 강남구 역삼동 테헤란로 일대
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-tshirt"></i>
+                        검은색 정장 상하의, 갈색 구두, 검은색 서류가방
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-user"></i>
+                        175cm, 중간체형, 안경 착용
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 목격 신고 폼 -->
+<section class="witness-form-section">
+    <div class="container">
+        <form class="witness-form" id="witnessForm">
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-clock"></i>
+                    목격 일시
+                </h3>
+                <p class="section-description">언제 목격하셨나요?</p>
+                
+                <div class="datetime-inputs">
+                    <div class="form-group">
+                        <label for="witnessDate" class="required">목격 날짜</label>
+                        <input type="date" id="witnessDate" name="witnessDate" required>
+                        <div class="error-message" id="witnessDateError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="witnessTime" class="required">목격 시간</label>
+                        <input type="time" id="witnessTime" name="witnessTime" required>
+                        <div class="error-message" id="witnessTimeError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timeAccuracy">시간 정확도</label>
+                        <select id="timeAccuracy" name="timeAccuracy">
+                            <option value="exact">정확함</option>
+                            <option value="approximate" selected>대략적</option>
+                            <option value="uncertain">불확실</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-map-marker-alt"></i>
+                    목격 장소
+                </h3>
+                <p class="section-description">어디서 목격하셨나요?</p>
+                
+                <div class="location-inputs">
+                    <div class="form-group full-width">
+                        <label for="witnessLocation" class="required">상세 주소</label>
+                        <input type="text" id="witnessLocation" name="witnessLocation" required placeholder="구체적인 주소나 장소명을 입력하세요">
+                        <div class="location-tools">
+                            <button type="button" class="location-btn" onclick="getCurrentLocation()">
+                                <i class="fas fa-crosshairs"></i>
+                                현재 위치 사용
+                            </button>
+                            <button type="button" class="map-btn" onclick="openMapSelector()">
+                                <i class="fas fa-map"></i>
+                                지도에서 선택
+                            </button>
+                        </div>
+                        <div class="error-message" id="witnessLocationError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="locationDetail">장소 세부사항</label>
+                        <input type="text" id="locationDetail" name="locationDetail" placeholder="예: 편의점 앞, 버스정류장 근처">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="locationAccuracy">위치 정확도</label>
+                        <select id="locationAccuracy" name="locationAccuracy">
+                            <option value="exact">정확한 위치</option>
+                            <option value="approximate" selected>대략적인 위치</option>
+                            <option value="area">일대 지역</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-info-circle"></i>
+                    목격 상황
+                </h3>
+                <p class="section-description">어떤 상황이었는지 자세히 알려주세요</p>
+                
+                <div class="situation-inputs">
+                    <div class="form-group full-width">
+                        <label for="witnessDescription" class="required">목격 상황 설명</label>
+                        <textarea id="witnessDescription" name="witnessDescription" rows="5" required placeholder="목격 당시 실종자의 모습, 행동, 상황 등을 구체적으로 설명해주세요&#10;&#10;예시:&#10;- 실종자가 무엇을 하고 있었는지&#10;- 혼자였는지 누군가와 함께였는지&#10;- 어떤 방향으로 이동했는지&#10;- 특이한 행동이나 상태는 없었는지"></textarea>
+                        <div class="error-message" id="witnessDescriptionError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="witnessConfidence">확신 정도</label>
+                        <select id="witnessConfidence" name="witnessConfidence">
+                            <option value="certain">확실함 (100%)</option>
+                            <option value="likely" selected>거의 확실함 (80%)</option>
+                            <option value="possible">가능성 있음 (60%)</option>
+                            <option value="uncertain">불확실함 (40%)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="witnessDistance">목격 거리</label>
+                        <select id="witnessDistance" name="witnessDistance">
+                            <option value="close">가까이 (5m 이내)</option>
+                            <option value="medium" selected>보통 (5-20m)</option>
+                            <option value="far">멀리 (20m 이상)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-camera"></i>
+                    증거 자료
+                </h3>
+                <p class="section-description">사진이나 동영상이 있다면 업로드해주세요 (선택사항)</p>
+                
+                <div class="evidence-upload">
+                    <div class="upload-area" id="evidenceUploadArea">
+                        <div class="upload-placeholder">
+                            <i class="fas fa-camera"></i>
+                            <h4>사진/동영상 업로드</h4>
+                            <p>목격 당시 촬영한 자료가 있다면 업로드해주세요</p>
+                            <button type="button" class="btn btn-outline">
+                                <i class="fas fa-plus"></i>
+                                파일 선택
+                            </button>
+                            <input type="file" id="evidenceInput" name="evidence" accept="image/*,video/*" multiple style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="uploaded-evidence" id="uploadedEvidence">
+                        <!-- 업로드된 파일들이 여기에 표시됩니다 -->
+                    </div>
+                    
+                    <div class="upload-note">
+                        <i class="fas fa-info-circle"></i>
+                        <p>개인정보 보호를 위해 관련 없는 사람의 얼굴은 모자이크 처리해주세요</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-user"></i>
+                    목격자 정보
+                </h3>
+                <p class="section-description">추가 문의가 필요할 수 있습니다</p>
+                
+                <div class="witness-info-inputs">
+                    <div class="form-group">
+                        <label for="witnessName" class="required">성명</label>
+                        <input type="text" id="witnessName" name="witnessName" required placeholder="실명을 입력하세요">
+                        <div class="error-message" id="witnessNameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="witnessPhone" class="required">연락처</label>
+                        <input type="tel" id="witnessPhone" name="witnessPhone" required placeholder="010-0000-0000">
+                        <div class="error-message" id="witnessPhoneError"></div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>
+                            <input type="checkbox" name="agreeContact" required>
+                            수사기관의 추가 문의 연락에 동의합니다
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-shield-alt"></i>
+                    개인정보 및 신고 동의
+                </h3>
+                
+                <div class="agreement-section">
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreeAccuracy" required>
+                            <span class="checkmark"></span>
+                            위 정보는 사실이며, 허위 신고시 법적 책임을 질 수 있음을 이해합니다.
+                        </label>
+                    </div>
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreeProcess" required>
+                            <span class="checkmark"></span>
+                            목격 정보가 수사기관에 전달되어 수사에 활용됨을 동의합니다.
+                        </label>
+                    </div>
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreePrivacy" required>
+                            <span class="checkmark"></span>
+                            개인정보 처리방침에 따른 정보 수집 및 이용에 동의합니다.
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 제출 버튼 -->
+            <div class="form-submit">
+                <div class="submit-info">
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span>검토 시간: 1-2시간</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-coins"></i>
+                        <span>예상 포인트: 100-500P</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-bell"></i>
+                        <span>결과 알림: 문자/앱 알림</span>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    목격 정보 신고하기
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- 지도 모달 -->
+<div class="map-modal" id="mapModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>목격 위치 선택</h3>
+            <button class="close-modal" onclick="closeMapModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="location-map" class="location-map">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>지도가 여기에 표시됩니다</p>
+                    <small>실제 구현시 카카오맵 또는 구글맵 API 사용</small>
+                </div>
+            </div>
+            <div class="map-controls">
+                <input type="text" id="mapSearchInput" placeholder="주소 또는 장소명 검색">
+                <button type="button" class="btn btn-outline" onclick="searchLocation()">
+                    <i class="fas fa-search"></i>
+                    검색
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeMapModal()">취소</button>
+            <button type="button" class="btn btn-primary" onclick="selectMapLocation()">위치 선택</button>
+        </div>
+    </div>
+</div>
+
+<!-- 목격 신고 가이드 -->
+<div class="witness-guide">
+    <div class="container">
+        <h3>목격 신고 가이드</h3>
+        <div class="guide-grid">
+            <div class="guide-item">
+                <div class="guide-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h4>정확한 관찰</h4>
+                <ul>
+                    <li>• 얼굴, 옷차림, 행동 등 자세히 관찰</li>
+                    <li>• 혼자인지 동행인이 있는지 확인</li>
+                    <li>• 이동 방향 및 교통수단 확인</li>
+                </ul>
+            </div>
+            
+            <div class="guide-item">
+                <div class="guide-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h4>시간과 장소</h4>
+                <ul>
+                    <li>• 목격 시간을 최대한 정확히 기록</li>
+                    <li>• 구체적인 위치 정보 제공</li>
+                    <li>• 주변 랜드마크나 특징 언급</li>
+                </ul>
+            </div>
+            
+            <div class="guide-item">
+                <div class="guide-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h4>증거 수집</h4>
+                <ul>
+                    <li>• 가능하면 사진이나 동영상 촬영</li>
+                    <li>• 개인정보 보호에 주의</li>
+                    <li>• 주변 CCTV 위치 확인</li>
+                </ul>
+            </div>
+            
+            <div class="guide-item">
+                <div class="guide-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <h4>즉시 신고</h4>
+                <ul>
+                    <li>• 긴급상황시 112 우선 신고</li>
+                    <li>• 온라인 신고는 추가 정보 제공</li>
+                    <li>• 허위 신고는 법적 처벌 대상</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+<script src="{{ url_for('static', filename='js/missing-witness.js') }}"></script>
+{% endblock %}

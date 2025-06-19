@@ -1,0 +1,142 @@
+{# templates/public/ranking.html #}
+{% extends "base.html" %}
+
+{% block title %}손길 - 순위{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ranking.css') }}">
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r144/three.min.js"></script>
+<!-- GSAP with ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- 순위 헤더 섹션 -->
+<section class="ranking-header">
+    <div class="container">
+        <div class="ranking-title visible-on-load">
+            <h1><i class="fas fa-trophy"></i> 실종자 찾기 순위</h1>
+            <p>실종자 찾기에 기여한 시민들의 참여 건수별 순위를 확인하세요</p>
+        </div>
+        
+        <!-- 순위 통계 -->
+        <div class="ranking-stats">
+            <div class="stat-card visible-on-load">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">15429</div>
+                    <div class="stat-label">총 참여자</div>
+                </div>
+            </div>
+            <div class="stat-card visible-on-load">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">8342</div>
+                    <div class="stat-label">목격 신고</div>
+                </div>
+            </div>
+            <div class="stat-card visible-on-load">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">1203</div>
+                    <div class="stat-label">해결된 사건</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 순위 콘텐츠 섹션 -->
+<section class="ranking-content">
+    <div class="container">
+        <!-- 순위 패널 (React 컴포넌트가 렌더링됩니다) -->
+        <div class="ranking-panel active visible-on-load" id="totalRanking">
+            <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+            
+            <!-- 폴백용 로딩 메시지 -->
+            <div class="ranking-loading" style="text-align: center; padding: 60px 20px; color: #6b7280;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                <p>순위 정보를 불러오는 중...</p>
+            </div>
+        </div>
+        
+        <!-- 개인 순위 안내 -->
+        <div class="personal-ranking-cta">
+            <!-- Three.js 배경 컨테이너 -->
+            <div class="cta-background" id="ctaThreeJSContainer"></div>
+            
+            <div class="cta-content">
+                <div class="cta-text">
+                    <h3>나의 순위가 궁금하신가요?</h3>
+                    <p>로그인 후 개인 순위와 상세한 활동 내역을 확인하세요</p>
+                </div>
+                <div class="cta-actions">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        로그인하기
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline">
+                        <i class="fas fa-user-plus"></i>
+                        회원가입
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 랭킹 혜택 안내 -->
+        <div class="ranking-benefits">
+            <h3>랭킹 혜택</h3>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon gold">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h4>1위 혜택</h4>
+                    <ul>
+                        <li>명예의 전당 등록</li>
+                        <li>특별 배지 지급</li>
+                        <li>50,000P 계정당 1회 지급</li>
+                    </ul>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon silver">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h4>2위 혜택</h4>
+                    <ul>
+                        <li>명예의 전당 등록</li>
+                        <li>특별 배지 지급</li>
+                        <li>30,000P 계정당 1회 지급</li>
+                    </ul>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon bronze">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h4>3위 혜택</h4>
+                    <ul>
+                        <li>명예의 전당 등록</li>
+                        <li>특별 배지 지급</li>
+                        <li>10,000P 계정당 1회 지급</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/ranking.js') }}"></script>
+{% endblock %}
