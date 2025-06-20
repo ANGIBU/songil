@@ -420,46 +420,227 @@ function setupScrollAnimations() {
     }
 }
 
-// ===== 순위 데이터 초기화 =====
-function initializeRankingData() {
+
+// ===== 순위 데이터 초기화 ===== 
+async function initializeRankingData() {
     try {
-        window.indexApp.rankings = [
-            { position: 1, name: '김희망', points: 2847, reports: 45, witnesses: 23 },
-            { position: 2, name: '박도움', points: 2134, reports: 38, witnesses: 18 },
-            { position: 3, name: '이나눔', points: 1895, reports: 42, witnesses: 15 },
-            { position: 4, name: '최참여', points: 1672, reports: 36, witnesses: 12 },
-            { position: 5, name: '정협력', points: 1543, reports: 29, witnesses: 14 }
-        ];
+        // 로딩 상태 표시
+        showRankingLoading();
+        
+        // API에서 실제 순위 데이터 가져오기
+        const rankings = await fetchRankingData();
+        
+        if (rankings && rankings.length > 0) {
+            // API 데이터 사용
+            window.indexApp.rankings = rankings;
+            console.log('실제 순위 데이터 로드 완료:', rankings.length + '개');
+        } else {
+            // API 실패 시 더미 데이터 사용
+            console.warn('API 데이터 없음, 더미 데이터 사용');
+            window.indexApp.rankings = getDummyRankingData();
+        }
         
         // React 컴포넌트가 사용 가능한 경우 렌더링
         if (window.indexApp.animations.reactReady) {
             renderRankingComponent();
         }
         
+        // 로딩 상태 숨기기
+        hideRankingLoading();
+        
     } catch (error) {
-        console.warn('순위 데이터 초기화 오류:', error);
+        console.error('순위 데이터 초기화 오류:', error);
+        
+        // 에러 발생 시 더미 데이터로 대체
+        window.indexApp.rankings = getDummyRankingData();
+        
+        if (window.indexApp.animations.reactReady) {
+            renderRankingComponent();
+        }
+        
+        hideRankingLoading();
     }
 }
 
-// ===== 긴급 실종자 데이터 초기화 =====
-function initializeUrgentMissingData() {
+// API에서 순위 데이터 가져오기
+async function fetchRankingData(limit = 10, period = 'all') {
     try {
-        window.indexApp.urgentMissing = [
-            { id: 1, name: '김○○', age: 32, date: '2024.05.20', location: '서울시 강남구 역삼동', clothing: '검은색 정장, 갈색 구두', upCount: 246 },
-            { id: 2, name: '박○○', age: 8, date: '2024.05.21', location: '부산시 해운대구 중동', clothing: '파란색 티셔츠, 검은색 반바지', upCount: 189 },
-            { id: 3, name: '최○○', age: 67, date: '2024.05.22', location: '대구시 중구 삼덕동', clothing: '흰색 블라우스, 검은색 바지', upCount: 134 },
-            { id: 4, name: '이○○', age: 45, date: '2024.05.19', location: '인천시 남동구 구월동', clothing: '회색 후드티, 청바지', upCount: 87 },
-            { id: 5, name: '정○○', age: 23, date: '2024.05.18', location: '광주시 서구 상무동', clothing: '분홍색 원피스, 흰색 운동화', upCount: 156 },
-            { id: 6, name: '홍○○', age: 14, date: '2024.05.23', location: '대전시 유성구 봉명동', clothing: '교복, 검은색 가방', upCount: 23 },
-            { id: 7, name: '강○○', age: 28, date: '2024.05.17', location: '울산시 남구 삼산동', clothing: '빨간색 코트, 검은색 부츠', upCount: 98 },
-            { id: 8, name: '윤○○', age: 52, date: '2024.05.16', location: '경기도 성남시 분당구', clothing: '네이비 셔츠, 베이지 바지', upCount: 143 }
-        ];
+        const response = await fetch(`/api/rankings?limit=${limit}&period=${period}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
         
-        // React 컴포넌트가 사용 가능한 경우 렌더링
-        if (window.indexApp.animations.reactReady) {
-            renderUrgentMissingComponent();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
+        const data = await response.json();
+        
+        if (data.success && data.rankings) {
+            return data.rankings;
+        } else {
+            console.error('API 응답 오류:', data.error || '알 수 없는 오류');
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('순위 데이터 가져오기 실패:', error);
+        return null;
+    }
+}
+
+// 더미 데이터 (API 실패 시 백업용)
+function getDummyRankingData() {
+    return [
+        { position: 1, name: '김희망', points: 2847, reports: 45, witnesses: 23 },
+        { position: 2, name: '박도움', points: 2134, reports: 38, witnesses: 18 },
+        { position: 3, name: '이나눔', points: 1895, reports: 42, witnesses: 15 },
+        { position: 4, name: '최참여', points: 1672, reports: 36, witnesses: 12 },
+        { position: 5, name: '정협력', points: 1543, reports: 29, witnesses: 14 }
+    ];
+}
+
+// 로딩 상태 표시
+function showRankingLoading() {
+    const rankingContainer = document.querySelector('.ranking-container');
+    if (rankingContainer) {
+        rankingContainer.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>순위 데이터를 불러오는 중...</p>
+            </div>
+        `;
+    }
+}
+
+// 로딩 상태 숨기기
+function hideRankingLoading() {
+    const loadingSpinner = document.querySelector('.loading-spinner');
+    if (loadingSpinner) {
+        loadingSpinner.remove();
+    }
+}
+
+// 순위 데이터 새로고침 (버튼 클릭 시 호출)
+async function refreshRankingData() {
+    console.log('순위 데이터 새로고침 시작');
+    await initializeRankingData();
+}
+
+// 기간별 순위 데이터 가져오기
+async function loadRankingByPeriod(period = 'all') {
+    try {
+        showRankingLoading();
+        
+        const rankings = await fetchRankingData(10, period);
+        
+        if (rankings && rankings.length > 0) {
+            window.indexApp.rankings = rankings;
+            
+            if (window.indexApp.animations.reactReady) {
+                renderRankingComponent();
+            }
+        }
+        
+        hideRankingLoading();
+        
+    } catch (error) {
+        console.error('기간별 순위 데이터 로드 오류:', error);
+        hideRankingLoading();
+    }
+}
+
+// 사용자 개별 순위 조회
+async function getUserRanking(userId) {
+    try {
+        const response = await fetch(`/api/rankings/user/${userId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.user_ranking) {
+            return data.user_ranking;
+        } else {
+            console.error('사용자 순위 조회 실패:', data.error);
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('사용자 순위 조회 오류:', error);
+        return null;
+    }
+}
+
+// 순위 통계 가져오기
+async function getRankingStats() {
+    try {
+        const response = await fetch('/api/rankings/stats', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.stats) {
+            return data.stats;
+        } else {
+            console.error('순위 통계 조회 실패:', data.error);
+            return null;
+        }
+        
+    } catch (error) {
+        console.error('순위 통계 조회 오류:', error);
+        return null;
+    }
+}
+
+// 페이지 로드 시 자동 실행
+document.addEventListener('DOMContentLoaded', function() {
+    // 다른 초기화가 완료된 후 순위 데이터 로드
+    setTimeout(initializeRankingData, 500);
+});
+
+// 전역 함수로 내보내기 (다른 스크립트에서 사용 가능)
+window.rankingAPI = {
+    initialize: initializeRankingData,
+    refresh: refreshRankingData,
+    loadByPeriod: loadRankingByPeriod,
+    getUserRanking: getUserRanking,
+    getStats: getRankingStats
+};
+
+// ===== 긴급 실종자 데이터 초기화 =====
+async function initializeUrgentMissingData() {
+    try {
+        const res = await fetch('/api/missing/recent?limit=5');
+        const result = await res.json();
+
+        if (result.success) {
+            window.indexApp.urgentMissing = result.results;
+
+            if (window.indexApp.animations.reactReady) {
+                renderUrgentMissingComponent();
+            }
+        } else {
+            console.warn('실종자 데이터 로딩 실패:', result.error);
+        }
+
     } catch (error) {
         console.warn('긴급 실종자 데이터 초기화 오류:', error);
     }
@@ -528,16 +709,18 @@ function animateCounter(element) {
 }
 
 // ===== React 순위 컴포넌트 렌더링 =====
+let rankingRoot = null;
+
 function renderRankingComponent() {
     if (!window.indexApp.animations.reactReady) return;
-    
+
     try {
         const container = document.getElementById('topRankings');
         if (!container) return;
-        
+
         const RankingComponent = () => {
             return React.createElement('div', null,
-                window.indexApp.rankings.map(rank => 
+                window.indexApp.rankings.map(rank =>
                     React.createElement('div', {
                         key: rank.position,
                         className: 'ranking-item'
@@ -563,20 +746,22 @@ function renderRankingComponent() {
                 )
             );
         };
-        
-        // React 18 호환성 - createRoot 사용
+
         if (ReactDOM.createRoot) {
-            const root = ReactDOM.createRoot(container);
-            root.render(React.createElement(RankingComponent));
+            if (!rankingRoot) {
+                rankingRoot = ReactDOM.createRoot(container); // ✅ createRoot는 한 번만
+            }
+            rankingRoot.render(React.createElement(RankingComponent));
         } else {
-            // React 17 폴백
             ReactDOM.render(React.createElement(RankingComponent), container);
         }
-        
+
     } catch (error) {
         console.warn('React 순위 컴포넌트 렌더링 오류:', error);
     }
 }
+
+
 
 // ===== React 긴급 실종자 컴포넌트 렌더링 =====
 function renderUrgentMissingComponent() {
@@ -588,19 +773,21 @@ function renderUrgentMissingComponent() {
         
         const UrgentMissingComponent = () => {
             return React.createElement('div', { className: 'urgent-cards-react' },
-                window.indexApp.urgentMissing.map(missing => 
+                window.indexApp.urgentMissing.map((missing, index) =>
                     React.createElement('div', {
-                        key: missing.id,
+                        key: missing.id || `fallback-${index}`,
                         className: 'missing-card urgent',
                         'data-id': missing.id
                     },
                         React.createElement('div', { className: 'card-image' },
                             React.createElement('img', {
-                                src: `/static/images/sample-missing-${missing.id}.jpg`,
+                                src: (missing.image && !missing.image.includes('null'))
+                                        ? missing.image
+                                        : '/static/images/placeholder.jpg',
                                 alt: '실종자 사진',
                                 onError: (e) => { e.target.src = '/static/images/placeholder.jpg'; }
-                            }),
-                            React.createElement('div', { className: 'danger-level high' }, '긴급')
+                                }),
+                            React.createElement('div', { className: 'danger-level high' }, '신규')
                         ),
                         React.createElement('div', { className: 'card-content' },
                             React.createElement('h3', null, `${missing.name} (${missing.age}세)`),
@@ -640,7 +827,7 @@ function renderUrgentMissingComponent() {
             );
         };
         
-        // React 18 호환성 - createRoot 사용
+        
         if (ReactDOM.createRoot) {
             const root = ReactDOM.createRoot(container);
             root.render(React.createElement(UrgentMissingComponent));
@@ -712,7 +899,7 @@ function setupFallbackMode() {
             // UP 버튼 기본 처리
             if (e.target.classList && (e.target.classList.contains('up-btn') || 
                 (e.target.closest('.stat') && e.target.closest('.stat').innerHTML && 
-                 e.target.closest('.stat').innerHTML.includes('fa-arrow-up')))) {
+                e.target.closest('.stat').innerHTML.includes('fa-arrow-up')))) {
                 
                 e.preventDefault();
                 const button = e.target.closest('.up-btn, .stat');

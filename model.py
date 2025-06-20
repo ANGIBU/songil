@@ -33,6 +33,50 @@ class DBManager:
             self.cursor.close()
             self.connection.close()
 
+    # 트랜잭션 관리 메소드들
+    def begin_transaction(self):
+        """트랜잭션 시작"""
+        try:
+            self.cursor.execute("START TRANSACTION")
+        except Exception as e:
+            print(f"트랜잭션 시작 오류: {e}")
+            raise
+    
+    def commit_transaction(self):
+        """트랜잭션 커밋"""
+        try:
+            self.connection.commit()
+        except Exception as e:
+            print(f"트랜잭션 커밋 오류: {e}")
+            raise
+    
+    def rollback_transaction(self):
+        """트랜잭션 롤백"""
+        try:
+            self.connection.rollback()
+        except Exception as e:
+            print(f"트랜잭션 롤백 오류: {e}")
+            raise
+    
+    # 쿼리 실행 메소드
+    def execute_query(self, query, params=None):
+        """쿼리 실행 및 결과 반환"""
+        try:
+            if params:
+                self.cursor.execute(query, params)
+            else:
+                self.cursor.execute(query)
+            
+            # SELECT 쿼리인 경우 결과 반환
+            if query.strip().upper().startswith('SELECT'):
+                return self.cursor.fetchall()
+            else:
+                # INSERT, UPDATE, DELETE인 경우 affected rows 반환
+                return self.cursor.rowcount
+                
+        except Exception as e:
+            print(f"쿼리 실행 오류: {e}")
+            raise
 # 회원가입 
     def insert_user(self, form):
         try:
@@ -76,20 +120,18 @@ class DBManager:
     
     # 아이디 찾기
     def find_email_by_name_phone(self, name, phone):
-        self.connect()
         sql = "SELECT email, created_at FROM users WHERE full_name = %s AND phone = %s"
         self.cursor.execute(sql, (name, phone))
         return self.cursor.fetchone()
     
     # 비밀번호 찾기
     def find_user_by_name_email(self, name, email):
-        self.connect()  # 커넥션 누락 방지
         sql = "SELECT * FROM users WHERE full_name = %s AND email = %s"
         self.cursor.execute(sql, (name, email))
         return self.cursor.fetchone()
     
+    # 비밀번호 변경
     def update_password(self, email, hashed_password):
-        self.connect()
         try:
             sql = "UPDATE users SET password_hash = %s WHERE email = %s"
             self.cursor.execute(sql, (hashed_password, email))
@@ -99,4 +141,6 @@ class DBManager:
             print("비밀번호 업데이트 실패:", e)
             return False
 
-
+# DBManager 인스턴스 생성 및 연결
+db = DBManager()
+db.connect()

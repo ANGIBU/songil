@@ -8,6 +8,13 @@ import os
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
+from datetime import datetime
+from services.ranking_service import RankingService
+import uuid
+
+db = DBManager()
+db.connect()
+ranking_service = RankingService(db)
 app = Flask(__name__)
 app.secret_key = 'songil_secret_key_2024'
 
@@ -25,6 +32,113 @@ def index():
         print(f"Error rendering index: {e}")
         return "페이지를 불러오는 중 오류가 발생했습니다.", 500
 
+# 랭킹 API
+@app.route('/api/rankings')
+def get_rankings_api():
+    try:
+        limit = request.args.get('limit', 10, type=int)
+        period = request.args.get('period', 'all')
+        data = ranking_service.get_rankings(limit=limit, period=period)
+        return jsonify({'success': True, 'rankings': data})
+    except Exception as e:
+        app.logger.error(f"랭킹 API 오류: {e}")
+        return jsonify({'success': False, 'error': '랭킹 정보를 가져오는 중 오류 발생'}), 500
+
+# 랭킹 페이지 렌더링
+@app.route('/api/rankings/user/<int:user_id>', methods=['GET'])
+def get_user_ranking(user_id):
+    """특정 사용자의 순위 정보"""
+    try:
+        user_ranking = ranking_service.get_user_ranking(user_id)
+        
+        if user_ranking:
+            return jsonify({
+                'success': True,
+                'user_ranking': user_ranking
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': '사용자를 찾을 수 없습니다.'
+            }), 404
+            
+    except Exception as e:
+        app.logger.error(f"사용자 랭킹 API 오류: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': '사용자 순위 정보를 불러오는 중 오류가 발생했습니다.'
+        }), 500
+# 랭킹 통계 API
+@app.route('/api/rankings/stats', methods=['GET'])
+def get_ranking_stats():
+    """랭킹 통계 정보"""
+    try:
+        stats = ranking_service.get_ranking_stats()
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
+        })
+        
+    except Exception as e:
+        app.logger.error(f"랭킹 통계 API 오류: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': '통계 정보를 불러오는 중 오류가 발생했습니다.'
+        }), 500
+
+# 최근 실종자 목록 API
+@app.route('/api/missing/recent')
+def get_recent_missing():
+    try:
+        limit = request.args.get('limit', 5, type=int)
+
+        response = requests.get("https://www.safetydata.go.kr/V2/api/DSSP-IF-20597", params={
+            "serviceKey": "3FQG91W954658S1F",
+            "returnType": "json",
+            "pageNo": "1",
+            "numOfRows": "500" 
+        }, verify=False)
+
+        data = response.json()
+        items = data.get("body", [])
+
+        parsed_items = []
+        for item in items:
+            raw_date = item.get("OCRN_DT", "")
+            try:
+                occr_date = datetime.strptime(raw_date, "%Y%m%d")
+            except:
+                occr_date = datetime.min  
+
+            parsed_items.append({
+                "id": item.get("SENU") or f"safe-{uuid.uuid4()}",
+                "name": item.get("FLNM") or "이름없음",
+                "age": item.get("NOW_AGE") or "?",
+                "date": occr_date.strftime("%Y.%m.%d"),
+                "location": item.get("OCRN_PLC") or "미상",
+                "clothing": item.get("PHBB_SPFE") or "정보 없음",
+                "image": "/static/images/placeholder.jpg",
+                "upCount": 0,
+                "sort_date": occr_date  # 정렬용 내부 필드
+            })
+
+        # 테스트가 포함된 항목 필터링
+        filtered_items = [item for item in parsed_items if "테스트" not in item["name"]]
+        
+
+        # 최신 날짜순 정렬
+        sorted_items = sorted(filtered_items, key=lambda x: x["sort_date"], reverse=True)
+
+        # 상위 limit개만 반환
+        final_list = sorted_items[:limit]
+
+        return jsonify({"success": True, "results": final_list})
+
+    except Exception as e:
+        print("❌ 실종자 API 로딩 실패:", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
 # 사이트 소개
 @app.route('/about')
 def about():
@@ -34,7 +148,7 @@ def about():
         print(f"Error rendering about: {e}")
         return redirect(url_for('index'))
 
-# ✅ 실종자 조회 페이지 렌더링
+#  실종자 조회 페이지 렌더링
 @app.route('/search')
 def search():
     try:
@@ -43,7 +157,7 @@ def search():
         print(f"Error rendering search: {e}")
         return redirect(url_for('index'))
 
-# ✅ 실종자 검색 API
+#  실종자 검색 API
 @app.route('/api/missing/search', methods=['POST'])
 def api_missing_search():
     params = {
