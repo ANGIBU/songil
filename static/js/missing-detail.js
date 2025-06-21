@@ -9,27 +9,102 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeMissingDetail() {
-    // 기본 정보 항목들이 확실히 표시되도록 보장
+    const missingId = extractMissingIdFromURL();
+    fetchMissingDetail(missingId);
+
     ensureBasicInfoVisibility();
-    
-    // 페이지 로드 애니메이션 (안전하게 실행)
     setTimeout(() => {
         animatePageLoad();
     }, 100);
-    
-    // 이벤트 리스너 설정
     setupEventListeners();
-    
-    // 스크롤 애니메이션 설정
     setupScrollAnimations();
-    
-    // 이미지 레이지 로딩
     setupLazyLoading();
+}
+
+function extractMissingIdFromURL() {
+    const pathParts = window.location.pathname.split('/');
+    return pathParts[pathParts.length - 1];
+}
+
+let currentMissingPerson = null;  // 전역 변수 추가
+
+async function fetchMissingDetail(id) {
+    try {
+        const res = await fetch(`/api/missing/${id}`);
+        const json = await res.json();
+
+        if (json.success) {
+            currentMissingPerson = json.data; // 전역 변수에 저장
+            applyMissingDetailToPage(json.data);
+        } else {
+            showNotification('실종자 정보를 불러올 수 없습니다.', 'error');
+        }
+    } catch (error) {
+        console.error('API 요청 오류:', error);
+        showNotification('서버와 통신 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+function applyMissingDetailToPage(data) {
+    console.log('받은 데이터:', data); // 디버깅용
+    
+    // 실제 데이터 구조에 맞게 수정
+    const name = data.FLNM || data.nm || '정보없음';
+    const age = data.NOW_AGE || data.ageNow || data.age || '정보없음';
+    const gender = data.GNDR_SE || data.gender || '정보없음';
+    
+    // missingName 요소 안전하게 처리
+    const missingNameEl = document.getElementById('missingName');
+    if (missingNameEl) {
+        missingNameEl.textContent = `${name} (${age}세)`;
+    } else {
+        console.warn('missingName 요소를 찾을 수 없습니다.');
+        // 대체 방법으로 제목 찾기
+        const titleEl = document.querySelector('h1') || document.querySelector('.title') || document.querySelector('.name');
+        if (titleEl) {
+            titleEl.textContent = `${name} (${age}세)`;
+        }
+    }
+
+    // report-id
+    const reportEl = document.querySelector('.report-id');
+    if (reportEl) {
+        reportEl.textContent = `신고번호: ${data.SENU || data.id || 'N/A'}`;
+    }
+
+    // 이미지
+    const mainImage = document.getElementById('mainImage');
+    if (mainImage) {
+        mainImage.src = data.PHOTO_SZ || data.main_image || '/static/images/placeholder.jpg';
+    }
+
+    // info-value들 - 실제 데이터 구조에 맞게 수정
+    const infoData = [
+        data.OCRN_DT || data.missing_datetime || '정보없음',      // 실종일시
+        data.OCRN_PLC || data.location || '정보없음',            // 실종장소  
+        `${gender} / ${age}세`,                                   // 성별/나이
+        data.PHDB_SPFE || data.body_shape || '정보없음',         // 체형특징
+        data.CTHR_MTTR || data.clothes || '정보없음',            // 착용의류
+        data.TRGT_SE || data.characteristics || '정보없음'        // 특징
+    ];
+
+    const infoElements = document.querySelectorAll('.info-value');
+    infoData.forEach((value, index) => {
+        if (infoElements[index]) {
+            infoElements[index].textContent = value;
+        }
+    });
+
+    // 나머지 요소들
+    const dangerEl = document.querySelector('.danger-level');
+    if (dangerEl && data.danger_level) dangerEl.textContent = data.danger_level;
+
+    const periodEl = document.querySelector('.missing-period');
+    if (periodEl && data.missing_days) periodEl.textContent = `${data.missing_days}일째`;
 }
 
 // 기본 정보 가시성 보장 함수 추가
 function ensureBasicInfoVisibility() {
-    // 기본 정보 그리드와 항목들이 확실히 보이도록 설정
     const basicInfoContainer = document.querySelector('.basic-info-container');
     const basicInfoGrid = document.querySelector('.basic-info-grid');
     const infoItems = document.querySelectorAll('.info-item');
@@ -484,16 +559,24 @@ function fallbackCopyTextToClipboard(text) {
     document.body.removeChild(textArea);
 }
 
-// 소셜 공유 함수들
+
 function shareToKakao() {
-    // 카카오 SDK 초기화 필요
     if (window.Kakao && window.Kakao.isInitialized()) {
+        if (!currentMissingPerson) {
+            showNotification('공유할 실종자 정보가 없습니다.', 'error');
+            return;
+        }
+
+        const name = currentMissingPerson.name || '이름없음';
+        const age = currentMissingPerson.age || '?';
+        const imageUrl = window.location.origin + (currentMissingPerson.main_image || '/static/images/placeholder.jpg');
+
         Kakao.Link.sendDefault({
             objectType: 'feed',
             content: {
-                title: '실종자 찾기 - 김○○ (32세)',
+                title: `실종자 찾기 - ${name} (${age}세)`,
                 description: '실종자를 목격하신 분은 신고 부탁드립니다.',
-                imageUrl: window.location.origin + '/static/images/sample-missing-1.jpg',
+                imageUrl: imageUrl,
                 link: {
                     mobileWebUrl: window.location.href,
                     webUrl: window.location.href

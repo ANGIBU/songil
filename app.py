@@ -68,13 +68,15 @@ def get_user_ranking(user_id):
             'success': False,
             'error': '사용자 순위 정보를 불러오는 중 오류가 발생했습니다.'
         }), 500
+        
+        
 # 랭킹 통계 API
 @app.route('/api/rankings/stats', methods=['GET'])
 def get_ranking_stats():
     """랭킹 통계 정보"""
     try:
-        stats = ranking_service.get_ranking_stats()
-        
+        stats = ranking_service.get_ranking_stats() 
+
         return jsonify({
             'success': True,
             'stats': stats
@@ -86,6 +88,7 @@ def get_ranking_stats():
             'success': False,
             'error': '통계 정보를 불러오는 중 오류가 발생했습니다.'
         }), 500
+
 
 # 최근 실종자 목록 API
 @app.route('/api/missing/recent')
@@ -185,6 +188,8 @@ def api_missing_search():
     except Exception as e:
         print(f"[ERROR] /api/missing/search: {e}")
         return jsonify({"success": False, "message": "서버 오류 발생"}), 500
+    
+    
 
 
 # 순위 페이지 (기본)
@@ -399,15 +404,37 @@ def notifications():
         return redirect(url_for('index'))
 
 # 실종자 상세 페이지
+@app.route('/api/missing/<missing_id>', methods=['GET'])
+def api_missing_detail(missing_id):
+    try:
+        params = {
+            "serviceKey": "3FQG91W954658S1F",
+            "returnType": "json",
+            "pageNo": "1",
+            "numOfRows": "500"
+        }
+
+        response = requests.get(API_URL, params=params, verify=False)
+        data = response.json()
+        items = data.get("body", [])
+
+        selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
+
+        if selected:
+            return jsonify({"success": True, "data": selected})
+        else:
+            return jsonify({"success": False, "message": "해당 실종자를 찾을 수 없음"}), 404
+
+    except Exception as e:
+        print(f"상세 API 오류: {e}")
+        return jsonify({"success": False, "message": "서버 오류"}), 500
+
+
+
+# 실종자 상세 페이지 렌더링
 @app.route('/missing/<int:missing_id>')
 def missing_detail(missing_id):
-    try:
-        # TODO: 로그인 체크 로직 추가
-        # TODO: missing_id 유효성 검사
-        return render_template('user/missing_detail.html', missing_id=missing_id)
-    except Exception as e:
-        print(f"Error rendering missing_detail: {e}")
-        return redirect(url_for('search'))
+    return render_template('user/missing_detail.html')
 
 # 실종자 신고 페이지
 @app.route('/missing_report')

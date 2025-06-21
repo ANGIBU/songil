@@ -84,15 +84,15 @@ class DBManager:
                 INSERT INTO users (
                     email, password_hash, nickname, role,
                     full_name, birth_date, phone, gender,
-                    address_main, address_detail, created_at, points
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    address_main, address_detail, created_at, points, alert_report_count
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             hashed_pw = generate_password_hash(form['password'])
             values = (
                 form['email'],
                 hashed_pw,
                 form['nickname'],
-                'user',
+                'user', # 기본 역할
                 form['fullName'],
                 form['birthDate'],
                 form['phone'],
@@ -100,7 +100,8 @@ class DBManager:
                 form['address'],
                 form['detailAddress'],
                 datetime.now(),
-                100  # 가입 축하 포인트
+                100,  # 가입 축하 포인트
+                0     # 초기 alert_report_count
             )
             self.cursor.execute(sql, values)
             self.connection.commit()

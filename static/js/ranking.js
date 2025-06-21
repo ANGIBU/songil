@@ -3,89 +3,34 @@
 // React 컴포넌트 활용
 const { useState, useEffect, useCallback } = React;
 
-// 전체 순위 데이터 (건수 기준)
-const rankingData = [
-    {
-        rank: 1,
-        username: "시민영웅★★★",
-        points: 89,
-        change: { type: 'up', value: 2 },
-        stats: { reports: 23, witnesses: 66 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 2,
-        username: "따뜻한마음",
-        points: 72,
-        change: { type: 'down', value: 1 },
-        stats: { reports: 15, witnesses: 57 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 3,
-        username: "도움이되고싶어요",
-        points: 68,
-        change: { type: 'up', value: 1 },
-        stats: { reports: 8, witnesses: 60 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 4,
-        username: "정의의사자",
-        points: 58,
-        change: { type: 'same', value: 0 },
-        stats: { reports: 12, witnesses: 46 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 5,
-        username: "희망의빛",
-        points: 52,
-        change: { type: 'up', value: 3 },
-        stats: { reports: 6, witnesses: 46 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 6,
-        username: "착한시민",
-        points: 47,
-        change: { type: 'down', value: 2 },
-        stats: { reports: 9, witnesses: 38 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 7,
-        username: "사랑나눔",
-        points: 43,
-        change: { type: 'same', value: 0 },
-        stats: { reports: 4, witnesses: 39 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 8,
-        username: "관찰자",
-        points: 39,
-        change: { type: 'up', value: 1 },
-        stats: { reports: 2, witnesses: 37 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 9,
-        username: "경찰아저씨",
-        points: 35,
-        change: { type: 'down', value: 1 },
-        stats: { reports: 11, witnesses: 24 },
-        avatar: "fas fa-user-circle"
-    },
-    {
-        rank: 10,
-        username: "평범한사람",
-        points: 31,
-        change: { type: 'new', value: 0 },
-        stats: { reports: 5, witnesses: 26 },
-        avatar: "fas fa-user-circle"
+async function initializeRankingData() {
+    if (!window.indexApp) {
+        window.indexApp = {};
     }
-];
+
+    try {
+        const data = await fetch('/api/rankings');
+        const result = await data.json();
+
+        if (result.success && result.rankings) {
+            window.indexApp.rankings = result.rankings.map(user => ({
+                rank: user.position,
+                username: user.name,
+                points: user.points,
+                stats: {
+                    reports: user.reports
+                },
+                change: { type: 'same', value: 0 },
+                avatar: "fas fa-user-circle"
+            }));
+        } else {
+            console.warn('API 실패, 데이터 없음');
+        }
+
+    } catch (err) {
+        console.error('API 오류:', err);
+    }
+}
 
 // 순위 아이템 React 컴포넌트
 function RankingItem({ data, index }) {
@@ -111,7 +56,7 @@ function RankingItem({ data, index }) {
     };
 
     const getStatsText = (stats) => {
-        return `신고 ${stats.reports}건, 목격 ${stats.witnesses}건`;
+        return `신고 ${stats.reports}건`;
     };
 
     useEffect(() => {
@@ -119,7 +64,7 @@ function RankingItem({ data, index }) {
         const pointsElement = document.querySelector(`.ranking-item[data-rank="${data.rank}"] .points`);
         if (pointsElement) {
             let currentValue = 0;
-            const targetValue = data.points;
+            const targetValue = data.stats.reports;
             const increment = targetValue / 60; // 60단계로 부드럽게
             const stepTime = 1500 / 60; // 1.5초
             
@@ -207,31 +152,68 @@ function RankingPanel({ data }) {
 }
 
 // 통계 수치 카운트업 효과
-function animateStatNumbers() {
-    const statData = [15429, 8342, 1203];
-    const statNumbers = document.querySelectorAll('.stat-number');
-    
-    statNumbers.forEach((numberEl, index) => {
-        if (!statData[index]) return;
-        
-        const targetValue = statData[index];
-        let currentValue = 0;
-        const increment = targetValue / 100; // 100단계로 나누어 부드럽게
-        const duration = 2000; // 2초
-        const stepTime = duration / 100;
-        
-        numberEl.textContent = '0';
-        
-        const counter = setInterval(() => {
-            currentValue += increment;
-            if (currentValue >= targetValue) {
-                currentValue = targetValue;
-                clearInterval(counter);
-            }
-            numberEl.textContent = Math.floor(currentValue).toLocaleString();
-        }, stepTime);
-    });
+async function animateStatNumbersFromAPI() {
+    try {
+        const response = await fetch('/api/rankings/stats');
+        const result = await response.json();
+
+        if (!result.success) {
+            console.warn("API 호출 실패");
+            return;
+        }
+
+        const statData = [
+            result.stats.total_users,   // 총 참여자 수
+            result.stats.total_reports  // 총 신고 건수
+        ];
+
+        const statNumbers = document.querySelectorAll('.stat-number');
+
+        statNumbers.forEach((numberEl, index) => {
+            const targetValue = statData[index];
+            let currentValue = 0;
+            const increment = targetValue / 100;
+            const stepTime = 20;
+
+            numberEl.textContent = '0';
+
+            const counter = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(counter);
+                }
+                numberEl.textContent = Math.floor(currentValue).toLocaleString();
+            }, stepTime);
+        });
+
+    } catch (err) {
+        console.error("API 오류:", err);
+    }
 }
+
+
+async function loadRankingStats() {
+    try {
+        const res = await fetch('/api/rankings/stats');
+        const json = await res.json();
+
+        if (json.success) {
+            const { total_users, total_reports } = json.stats;
+
+            const numberEls = document.querySelectorAll('.stat-number');
+            if (numberEls[0]) numberEls[0].textContent = Number(total_users ?? 0).toLocaleString();
+            if (numberEls[1]) numberEls[1].textContent = Number(total_reports ?? 0).toLocaleString();
+        } else {
+            console.warn('통계 불러오기 실패:', json);
+        }
+
+    } catch (err) {
+        console.error('통계 API 오류:', err);
+    }
+}
+
+
 
 // CTA 배경 Three.js 효과 (애니메이션 없이)
 function initializeCTABackground() {
@@ -365,11 +347,10 @@ class RankingPage {
         }
     }
 
-    setup() {
-        // 통계 수치 카운트업 애니메이션
-        setTimeout(() => {
-            animateStatNumbers();
-        }, 300);
+    async setup() {
+
+        // ✅ 통계 수치 적용 (참여자 수, 신고 건수)
+        await loadRankingStats();
         
         // 순위 패널 렌더링
         this.renderRankingPanel();
@@ -401,25 +382,35 @@ class RankingPage {
 
     renderRankingPanel() {
         const container = document.getElementById('totalRanking');
-        
         if (!container) return;
-        
+
+        // ✅ 데이터 존재 확인
+        if (
+            !window.indexApp ||
+            !Array.isArray(window.indexApp.rankings) ||
+            window.indexApp.rankings.length === 0
+        ) {
+            console.warn('랭킹 데이터가 아직 준비되지 않았습니다.');
+            return;
+        }
+
+
         // 로딩 메시지 제거
         const loadingElement = container.querySelector('.ranking-loading');
         if (loadingElement) {
             loadingElement.remove();
         }
-        
+
         // React 렌더링
         if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
             const root = ReactDOM.createRoot(container);
             root.render(
                 React.createElement(RankingPanel, {
-                    data: rankingData
+                    data: window.indexApp.rankings
                 })
             );
         } else {
-            this.renderWithVanilla(rankingData, container);
+            this.renderWithVanilla(window.indexApp.rankings, container);
         }
     }
 
@@ -516,4 +507,6 @@ class RankingPage {
 }
 
 // 페이지 로드 시 자동 초기화
-const rankingPage = new RankingPage();
+initializeRankingData().then(() => {
+    const rankingPage = new RankingPage();
+});

@@ -728,17 +728,11 @@ function renderRankingComponent() {
                         React.createElement('div', { className: 'ranking-position' }, rank.position),
                         React.createElement('div', { className: 'ranking-info' },
                             React.createElement('div', { className: 'ranking-left' },
-                                React.createElement('div', { className: 'ranking-name' }, rank.name),
-                                React.createElement('div', { className: 'ranking-points' },
-                                    React.createElement('i', { className: 'fas fa-coins' }),
-                                    ` ${rank.points.toLocaleString()}P`
-                                )
+                                React.createElement('div', { className: 'ranking-name' }, rank.name)
                             ),
                             React.createElement('div', { className: 'ranking-stats' },
                                 React.createElement('span', { className: 'stats-text' },
                                     React.createElement('span', { className: 'stat-reports' }, `제보 ${rank.reports}건`),
-                                    React.createElement('span', { className: 'stats-separator' }, ' / '),
-                                    React.createElement('span', { className: 'stat-witnesses' }, `해결 ${rank.witnesses}건`)
                                 )
                             )
                         )
