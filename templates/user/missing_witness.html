@@ -5,6 +5,17 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<script
+  type="text/javascript"
+  src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services">
+</script>
+<script>
+    window.onload = function () {
+        kakao.maps.load(function () {
+            // 이 시점부터 kakao 객체 사용 가능
+        });
+    };
+</script>
 {% endblock %}
 
 {% block content %}
@@ -48,27 +59,31 @@
     <div class="container">
         <div class="summary-card">
             <div class="summary-image">
-                <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                <img src="{{ missing.PHOTO_SZ or url_for('static', filename='images/placeholder.jpg') }}" 
+                    alt="실종자 사진" 
+                    onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
                 <div class="danger-level high">긴급</div>
             </div>
             <div class="summary-info">
-                <h2>김○○ (32세, 남성)</h2>
+                <h2>{{ missing.FLNM or '이름없음' }} ({{ missing.NOW_AGE or '?' }}세, {{ '남성' if missing.GNDR_SE == '남' else '여성' }})</h2>
                 <div class="summary-details">
                     <div class="detail-item">
                         <i class="fas fa-calendar"></i>
-                        2024년 5월 20일 오후 6시경 실종
+                        {{ missing.OCRN_DT[:4] }}년 {{ missing.OCRN_DT[4:6] }}월 {{ missing.OCRN_DT[6:8] }}일 실종
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-map-marker-alt"></i>
-                        서울시 강남구 역삼동 테헤란로 일대
+                        {{ missing.OCRN_PLC or '장소 미상' }}
                     </div>
                     <div class="detail-item">
-                        <i class="fas fa-tshirt"></i>
-                        검은색 정장 상하의, 갈색 구두, 검은색 서류가방
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-user"></i>
-                        175cm, 중간체형, 안경 착용
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% set clothing = missing.PHBB_SPFE or '' %}
+                        {% set feature = missing.PHYSCL_FEATR or '' %}
+                        {% if clothing or feature %}
+                            {{ clothing }}{% if clothing and feature %}, {% endif %}{{ feature }}
+                        {% else %}
+                            특이사항 없음
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -122,6 +137,10 @@
                     <div class="form-group full-width">
                         <label for="witnessLocation" class="required">상세 주소</label>
                         <input type="text" id="witnessLocation" name="witnessLocation" required placeholder="구체적인 주소나 장소명을 입력하세요">
+                        <input type="hidden" name="witnessLat" id="witnessLat">
+                        <input type="hidden" name="witnessLng" id="witnessLng">
+                        <input type="hidden" name="userLat" id="userLat">
+                        <input type="hidden" name="userLng" id="userLng">
                         <div class="location-tools">
                             <button type="button" class="location-btn" onclick="getCurrentLocation()">
                                 <i class="fas fa-crosshairs"></i>
@@ -314,13 +333,8 @@
             </button>
         </div>
         <div class="modal-body">
-            <div id="location-map" class="location-map">
-                <div class="map-placeholder">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <p>지도가 여기에 표시됩니다</p>
-                    <small>실제 구현시 카카오맵 또는 구글맵 API 사용</small>
-                </div>
-            </div>
+            <div id="location-map" class="location-map" style="width: 100%; height: 400px;"></div>
+
             <div class="map-controls">
                 <input type="text" id="mapSearchInput" placeholder="주소 또는 장소명 검색">
                 <button type="button" class="btn btn-outline" onclick="searchLocation()">
@@ -395,5 +409,5 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/user.js') }}"></script>
-<script src="{{ url_for('static', filename='js/missing-witness.js') }}"></script>
+<script src="{{ url_for('static', filename='js/missing-witness.js') }}"defer></script>
 {% endblock %}

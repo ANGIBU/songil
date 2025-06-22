@@ -222,6 +222,7 @@ def login():
         return redirect(url_for('login'))
 
     if check_password_hash(user['password_hash'], password):
+        session['user_id'] = user['id']
         session['email'] = user['email']
         session['nickname'] = user['nickname']
         flash("로그인 성공!")
@@ -230,6 +231,11 @@ def login():
         flash("이메일 또는 비밀번호가 잘못되었습니다.")
         return redirect(url_for('login'))
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("로그아웃 되었습니다.")
+    return redirect(url_for('index'))
     
 
 
@@ -420,21 +426,80 @@ def api_missing_detail(missing_id):
 
         selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
 
-        if selected:
-            return jsonify({"success": True, "data": selected})
-        else:
+        if not selected:
             return jsonify({"success": False, "message": "해당 실종자를 찾을 수 없음"}), 404
+
+        selected_gender = selected.get("GNDR_SE")
+        selected_age = int(selected.get("NOW_AGE", -1)) if selected.get("NOW_AGE") else -1
+
+        related = []
+        for item in items:
+            if item == selected:
+                continue
+            age = int(item.get("NOW_AGE", -1)) if item.get("NOW_AGE") else -1
+            if item.get("GNDR_SE") == selected_gender and age != -1 and selected_age != -1 and abs(age - selected_age) <= 3:
+                related.append({
+                    "id": item.get("SENU"),
+                    "name": item.get("FLNM", "이름없음"),
+                    "age": age,
+                    "gender": item.get("GNDR_SE"),
+                    "main_image": item.get("PHOTO_SZ"),
+                    "location": item.get("OCRN_PLC"),
+                    "missing_date": item.get("OCRN_DT"),
+                    "danger_level": "관심",  
+                    "recommend_count": 0,  
+                    "witness_count": 0     
+                })
+
+        # 최대 3개만 추출
+        selected["related"] = related[:3]
+
+        return jsonify({"success": True, "data": selected})
 
     except Exception as e:
         print(f"상세 API 오류: {e}")
         return jsonify({"success": False, "message": "서버 오류"}), 500
 
-
-
 # 실종자 상세 페이지 렌더링
 @app.route('/missing/<int:missing_id>')
 def missing_detail(missing_id):
-    return render_template('user/missing_detail.html')
+    try:
+        params = {
+            "serviceKey": "3FQG91W954658S1F",
+            "returnType": "json",
+            "pageNo": "1",
+            "numOfRows": "500"
+        }
+
+        response = requests.get(API_URL, params=params, verify=False)
+        data = response.json()
+        items = data.get("body", [])
+
+        selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
+
+        if not selected:
+            flash("해당 실종자를 찾을 수 없습니다.")
+            return redirect(url_for('search'))
+
+        # 관련 실종자 정보도 추가
+        selected_gender = selected.get("GNDR_SE")
+        selected_age = int(selected.get("NOW_AGE", -1)) if selected.get("NOW_AGE") else -1
+
+        related = []
+        for item in items:
+            if item == selected:
+                continue
+            age = int(item.get("NOW_AGE", -1)) if item.get("NOW_AGE") else -1
+            if item.get("GNDR_SE") == selected_gender and age != -1 and selected_age != -1 and abs(age - selected_age) <= 3:
+                related.append(item)
+
+        selected["related"] = related[:3]
+
+        return render_template("user/missing_detail.html", missing_id=missing_id, missing=selected)
+
+    except Exception as e:
+        print(f"Error rendering missing_detail: {e}")
+        return redirect(url_for('search'))
 
 # 실종자 신고 페이지
 @app.route('/missing_report')
@@ -455,9 +520,25 @@ def report_redirect():
 @app.route('/witness/<int:missing_id>')
 def witness_report(missing_id):
     try:
-        # TODO: 로그인 체크 로직 추가
-        # TODO: missing_id 유효성 검사
-        return render_template('user/missing_witness.html', missing_id=missing_id)
+        # Safe API 호출
+        params = {
+            "serviceKey": "3FQG91W954658S1F",
+            "returnType": "json",
+            "pageNo": "1",
+            "numOfRows": "500"
+        }
+        response = requests.get(API_URL, params=params, verify=False)
+        data = response.json()
+        items = data.get("body", [])
+
+        selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
+
+        if not selected:
+            flash("해당 실종자를 찾을 수 없습니다.")
+            return redirect(url_for('search'))
+
+        return render_template('user/missing_witness.html', missing=selected, missing_id=missing_id)
+
     except Exception as e:
         print(f"Error rendering witness_report: {e}")
         return redirect(url_for('search'))
@@ -518,11 +599,62 @@ def api_missing_report():
 @app.route('/api/witness/report', methods=['POST'])
 def api_witness_report():
     try:
-        # TODO: 목격 신고 로직 구현
-        return jsonify({"status": "success", "message": "목격 신고 접수 완료"})
+        # 로그인 사용자 정보 가져오기
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'status': 'error', 'message': '로그인이 필요합니다.'}), 401
+
+        form = request.form
+
+        # 날짜 + 시간 결합
+        witness_datetime = f"{form.get('witnessDate')} {form.get('witnessTime')}"
+
+        witness_lat = form.get("witnessLat")
+        witness_lng = form.get("witnessLng")
+        user_lat = form.get("userLat")
+        user_lng = form.get("userLng")
+
+        # 파일 업로드 처리 (image_urls는 문자열로 저장)
+        uploaded_files = request.files
+        saved_urls = []
+        for key in uploaded_files:
+            file = uploaded_files[key]
+            if file and file.filename:
+                filename = f"witness_{uuid.uuid4().hex}_{file.filename}"
+                filepath = os.path.join('static', 'uploads', filename)
+                file.save(filepath)
+                saved_urls.append('/' + filepath.replace('\\', '/'))
+
+        # DB에 저장
+        db = DBManager()
+        db.connect()
+        db.insert_witness_report({
+            "user_id": user_id,
+            "missing_id": form.get("missing_id"),
+            "witness_datetime": witness_datetime,
+            "time_accuracy": form.get("timeAccuracy"),
+            "location": form.get("witnessLocation"),
+            "location_detail": form.get("locationDetail"),
+            "location_accuracy": form.get("locationAccuracy"),
+            "description": form.get("witnessDescription"),
+            "confidence": form.get("witnessConfidence"),
+            "distance": form.get("witnessDistance"),
+            "image_urls": ','.join(saved_urls),
+            "witness_name": form.get("witnessName"),
+            "witness_phone": form.get("witnessPhone"),
+            "agree_contact": int(bool(form.get("agreeContact"))),
+             "witness_lat": witness_lat,
+            "witness_lng": witness_lng,
+            "user_lat": user_lat,
+            "user_lng": user_lng
+        })
+        db.disconnect()
+
+        return jsonify({"status": "success", "message": "신고가 저장되었습니다."})
+
     except Exception as e:
         print(f"API witness report error: {e}")
-        return jsonify({"status": "error", "message": "목격 신고 처리 중 오류가 발생했습니다."}), 500
+        return jsonify({'status': 'error', 'message': '저장 중 오류가 발생했습니다.'}), 500
 
 # UP 버튼 클릭 API
 @app.route('/api/missing/<int:missing_id>/up', methods=['POST'])
@@ -602,6 +734,33 @@ def handle_exception(error):
     """모든 예외 처리"""
     print(f"Unhandled exception: {error}")
     return redirect(url_for('index'))
+
+
+
+# ==================== 관리자 ==================== ( 추후예정 )
+@app.route('/admin/witness/approve', methods=['POST'])
+def approve_witness_report():
+    try:
+        data = request.json
+        report_id = data.get('report_id')
+        user_id = data.get('user_id')
+
+        db = DBManager()
+        db.connect()
+
+        # 승인 처리
+        db.execute_query("UPDATE witness_reports SET is_approved = 1 WHERE id = %s", (report_id,))
+
+        # 포인트 지급
+        ranking_service = RankingService(db)
+        ranking_service.award_points_for_report(user_id)
+
+        db.disconnect()
+
+        return jsonify({'status': 'success', 'message': '신고가 승인되었습니다.'})
+    except Exception as e:
+        print(f"승인 처리 오류: {e}")
+        return jsonify({'status': 'error', 'message': '승인 처리 중 오류가 발생했습니다.'}), 500
 
 # ==================== 개발 설정 ====================
 

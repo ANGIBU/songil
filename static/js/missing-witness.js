@@ -3,6 +3,7 @@
 // 목격 신고 페이지 JavaScript
 let uploadedFiles = [];
 let selectedLocation = null;
+let placeService = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeWitnessForm();
@@ -159,19 +160,38 @@ function getCurrentLocation() {
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 위치 확인 중...';
         btn.disabled = true;
-        
+
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
-                
-                // 실제로는 역지오코딩 API를 사용해 주소로 변환
-                document.getElementById('witnessLocation').value = `위도: ${lat.toFixed(6)}, 경도: ${lng.toFixed(6)}`;
-                
-                if (window.showNotification) {
-                    window.showNotification('현재 위치가 설정되었습니다.', 'success');
-                }
-                
+
+                // 좌표 저장 (숨겨진 input 필드)
+                document.getElementById('witnessLat').value = lat;
+                document.getElementById('witnessLng').value = lng;
+                document.getElementById('userLat').value = lat;
+                document.getElementById('userLng').value = lng;
+
+                // ✅ 카카오 지도 역지오코딩 (사람이 알아볼 주소로 변환)
+                const geocoder = new kakao.maps.services.Geocoder();
+                const coord = new kakao.maps.LatLng(lat, lng);
+
+                geocoder.coord2Address(lng, lat, function(result, status) {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const address = result[0].road_address 
+                            ? result[0].road_address.address_name 
+                            : result[0].address.address_name;
+
+                        document.getElementById('witnessLocation').value = address;
+
+                        if (window.showNotification) {
+                            window.showNotification('현재 위치가 자동으로 입력되었습니다.', 'success');
+                        }
+                    } else {
+                        document.getElementById('witnessLocation').value = `위도: ${lat.toFixed(6)}, 경도: ${lng.toFixed(6)}`;
+                    }
+                });
+
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             },
@@ -189,8 +209,11 @@ function getCurrentLocation() {
 // 지도 선택 모달 열기
 function openMapSelector() {
     document.getElementById('mapModal').style.display = 'flex';
-    
-    // 모달 애니메이션
+
+    kakao.maps.load(() => {
+        initializeKakaoMap();
+    });
+
     if (typeof gsap !== 'undefined') {
         gsap.from('.modal-content', {
             duration: 0.3,
@@ -201,6 +224,8 @@ function openMapSelector() {
     }
 }
 
+
+
 // 지도 모달 닫기
 function closeMapModal() {
     document.getElementById('mapModal').style.display = 'none';
@@ -210,8 +235,10 @@ function closeMapModal() {
 function selectMapLocation() {
     if (selectedLocation) {
         document.getElementById('witnessLocation').value = selectedLocation.address;
+        document.getElementById('witnessLat').value = selectedLocation.lat;
+        document.getElementById('witnessLng').value = selectedLocation.lng;
         closeMapModal();
-        
+
         if (window.showNotification) {
             window.showNotification('위치가 선택되었습니다.', 'success');
         }
@@ -222,24 +249,54 @@ function selectMapLocation() {
     }
 }
 
+
 // 위치 검색
 function searchLocation() {
     const searchInput = document.getElementById('mapSearchInput');
     const query = searchInput.value.trim();
-    
+
     if (!query) {
         if (window.showNotification) {
             window.showNotification('검색어를 입력해주세요.', 'warning');
         }
         return;
     }
-    
-    // 실제로는 지도 API의 검색 기능 사용
-    console.log('위치 검색:', query);
-    
-    if (window.showNotification) {
-        window.showNotification('검색 기능은 지도 API 연동 후 사용 가능합니다.', 'info');
+
+    if (!placeService) {
+        console.error("placeService가 초기화되지 않았습니다.");
+        return;
     }
+
+    placeService.keywordSearch(query, function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+            const place = result[0]; // 첫 번째 결과 사용
+            const lat = parseFloat(place.y);
+            const lng = parseFloat(place.x);
+
+            const newPosition = new kakao.maps.LatLng(lat, lng);
+
+            // ✅ 기존 지도와 마커를 활용해서 위치 이동
+            window.kakaoMap.setCenter(newPosition);
+            window.kakaoMarker.setPosition(newPosition);
+
+            // ✅ 주소 입력창과 selectedLocation 갱신
+            document.getElementById('witnessLocation').value = place.place_name;
+
+            selectedLocation = {
+                lat: lat,
+                lng: lng,
+                address: place.place_name
+            };
+
+            if (window.showNotification) {
+                window.showNotification('장소 검색 완료', 'success');
+            }
+        } else {
+            if (window.showNotification) {
+                window.showNotification('검색 결과가 없습니다.', 'error');
+            }
+        }
+    });
 }
 
 // 폼 유효성 검사 설정
@@ -394,11 +451,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     formData.append(`evidence_${index}`, file);
                 });
                 
-                // API 호출 시뮬레이션
-                await simulateAPICall(2000);
-                
-                // 성공 처리
-                showSuccessPage();
+                // 실제 API 호출
+                const response = await fetch('/api/witness/report', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showSuccessPage();
+                } else {
+                    window.showNotification(result.message || '신고 처리 중 오류가 발생했습니다.', 'error');
+                }
                 
             } catch (error) {
                 if (window.showNotification) {
@@ -523,3 +587,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function initializeKakaoMap() {
+    const mapContainer = document.getElementById('location-map');
+    const mapOption = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780),
+        level: 3
+    };
+
+    const map = new kakao.maps.Map(mapContainer, mapOption);
+    window.kakaoMap = map;
+
+    const geocoder = new kakao.maps.services.Geocoder();
+    const marker = new kakao.maps.Marker({
+        position: map.getCenter(),
+        map: map
+    });
+    window.kakaoMarker = marker;
+
+    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+        const latlng = mouseEvent.latLng;
+
+        marker.setPosition(latlng);
+
+        geocoder.coord2Address(latlng.getLng(), latlng.getLat(), function(result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                const address = result[0].road_address 
+                    ? result[0].road_address.address_name 
+                    : result[0].address.address_name;
+
+                document.getElementById('witnessLocation').value = address;
+                selectedLocation = {
+                    lat: latlng.getLat(),
+                    lng: latlng.getLng(),
+                    address: address
+                };
+                if (window.showNotification) {
+                    window.showNotification('위치가 선택되었습니다.', 'success');
+                }
+            }
+        });
+    });
+}
+
+window.openMapSelector = openMapSelector;

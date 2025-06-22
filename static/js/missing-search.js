@@ -930,7 +930,7 @@ class SearchManager {
             
             if (result.success && Array.isArray(result.results)) {
                 this.data = result.results.map((item, index) => ({
-                    id: index + 1,
+                    id: item.SENU,
                     name: item.FLNM || '이름 없음',
                     age: item.NOW_AGE ? parseInt(item.NOW_AGE) : 0,
                     gender: item.GENDER_SE === '남자' ? '남성' : '여성',

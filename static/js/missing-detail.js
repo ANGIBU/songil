@@ -82,10 +82,8 @@ function applyMissingDetailToPage(data) {
     const infoData = [
         data.OCRN_DT || data.missing_datetime || '정보없음',      // 실종일시
         data.OCRN_PLC || data.location || '정보없음',            // 실종장소  
-        `${gender} / ${age}세`,                                   // 성별/나이
-        data.PHDB_SPFE || data.body_shape || '정보없음',         // 체형특징
-        data.CTHR_MTTR || data.clothes || '정보없음',            // 착용의류
-        data.TRGT_SE || data.characteristics || '정보없음'        // 특징
+        `${gender}`,                              // 성별                     
+        `${age}세`                                // 나이
     ];
 
     const infoElements = document.querySelectorAll('.info-value');
@@ -101,6 +99,54 @@ function applyMissingDetailToPage(data) {
 
     const periodEl = document.querySelector('.missing-period');
     if (periodEl && data.missing_days) periodEl.textContent = `${data.missing_days}일째`;
+
+    const situationEl = document.getElementById('missingSituation');
+    if (situationEl) {
+        situationEl.textContent = data.PHBB_SPFE || '특이사항 없음';
+    }
+    applyWitnessStatsToPage(data.witness_stats || {});
+    applyRelatedMissingPersons(data.related || []);
+}
+// 목격 정보 통계 적용 함수
+function applyWitnessStatsToPage(stats) {
+    const totalEl = document.getElementById('witnessTotal');
+    const pendingEl = document.getElementById('witnessPending');
+    const verifiedEl = document.getElementById('witnessVerified');
+
+    if (totalEl) totalEl.textContent = `${stats.total || 0}건`;
+    if (pendingEl) pendingEl.textContent = `${stats.pending || 0}건`;
+    if (verifiedEl) verifiedEl.textContent = `${stats.verified || 0}건`;
+}
+
+function applyRelatedMissingPersons(relatedList) {
+    const container = document.querySelector('.related-cards');
+    if (!container || !Array.isArray(relatedList)) return;
+
+    container.innerHTML = '';  // 기존 카드 초기화
+
+    relatedList.forEach(person => {
+        const div = document.createElement('div');
+        div.className = 'missing-card';
+        div.innerHTML = `
+            <div class="card-image">
+                <img src="${person.main_image || '/static/images/placeholder.jpg'}" alt="실종자 사진">
+                <div class="danger-level">${person.danger_level || '관심'}</div>
+            </div>
+            <div class="card-content">
+                <h4>${person.name} (${person.age}세)</h4>
+                <p class="location"><i class="fas fa-map-marker-alt"></i> ${person.location}</p>
+                <p class="date"><i class="fas fa-calendar"></i> ${person.missing_date}</p>
+                <div class="card-stats">
+                    <span class="stat"><i class="fas fa-arrow-up"></i> ${person.recommend_count}</span>
+                    <span class="stat"><i class="fas fa-eye"></i> ${person.witness_count}건</span>
+                </div>
+            </div>
+            <a href="/missing/${person.id}" class="detail-link">
+                상세보기 <i class="fas fa-arrow-right"></i>
+            </a>
+        `;
+        container.appendChild(div);
+    });
 }
 
 // 기본 정보 가시성 보장 함수 추가

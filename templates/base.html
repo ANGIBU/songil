@@ -8,6 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}손길 - 함께 찾아요, 소중한 사람을{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+
+    <!-- 카카오 지도 API -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services"></script>
     
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -116,18 +119,30 @@
 
                 <!-- 사용자 메뉴 -->
                 <div class="user-menu">
-                    <div class="auth-required user-actions">
-                        <a href="{{ url_for('notifications') }}" class="notification-btn">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </a>
-                        <a href="{{ url_for('mypage') }}" class="profile-btn">
-                            <i class="fas fa-user-circle"></i>
-                        </a>
-                    </div>
-                    <div class="guest-actions">
-                        <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
-                    </div>
+                    {% if session.get('user_id') %}
+                        <div class="welcome-message">
+                            <span>
+                                <i class="fas fa-smile-beam smile-icon"></i>
+                                {{ session.get('nickname') }}님, 환영합니다!
+                            </span>
+                            <a href="{{ url_for('logout') }}" class="welcome-btn">
+                                로그아웃
+                            </a>
+                        </div>
+                        <div class="auth-required user-actions">
+                            <a href="{{ url_for('notifications') }}" class="notification-btn">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </a>
+                            <a href="{{ url_for('mypage') }}" class="profile-btn">
+                                <i class="fas fa-user-circle"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="guest-actions">
+                            <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <!-- 모바일 메뉴 버튼 -->

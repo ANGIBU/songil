@@ -142,6 +142,31 @@ class DBManager:
             print("비밀번호 업데이트 실패:", e)
             return False
 
+    # 목격자 정보 삽입
+    def insert_witness_report(self, report):
+        try:
+            sql = """
+                INSERT INTO witness_reports (
+                    user_id, missing_id, witness_datetime, time_accuracy,
+                    location, location_detail, location_accuracy,
+                    description, confidence, distance,
+                    image_urls, witness_name, witness_phone, agree_contact,
+                    witness_lat, witness_lng, user_lat, user_lng
+                ) VALUES (
+                    %(user_id)s, %(missing_id)s, %(witness_datetime)s, %(time_accuracy)s,
+                    %(location)s, %(location_detail)s, %(location_accuracy)s,
+                    %(description)s, %(confidence)s, %(distance)s,
+                    %(image_urls)s, %(witness_name)s, %(witness_phone)s, %(agree_contact)s,
+                    %(witness_lat)s, %(witness_lng)s, %(user_lat)s, %(user_lng)s
+                )
+            """
+            self.cursor.execute(sql, report)
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print("목격 신고 삽입 실패:", e)
+            return False
+
 # DBManager 인스턴스 생성 및 연결
 db = DBManager()
 db.connect()

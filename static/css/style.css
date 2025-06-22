@@ -417,6 +417,116 @@ body.modal-open {
     transition: var(--transition-fast);
 }
 
+.smile-icon {
+    color: #f97316;
+    margin-right: 5px;
+}
+
+.welcome-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    color: #1f2937; /* 텍스트 색상 */
+    font-size: 0.95rem;
+}
+
+.smile-icon {
+    color: #f97316; /* 주황색 */
+    margin-right: 5px;
+}
+
+.welcome-btn {
+    background-color: #f97316; /* 주황색 */
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.welcome-btn:hover {
+    background-color: #ea580c; /* 조금 더 진한 주황 */
+}
+
+
+.map-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* 어두운 배경 */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    width: 500px;
+    max-width: 90%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-header, .modal-footer {
+    padding: 1rem;
+    background: #f8f8f8;
+}
+
+.modal-header {
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-footer {
+    border-top: 1px solid #ddd;
+    text-align: right;
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.location-map {
+    width: 100%;
+    height: 350px;
+}
+
+.map-controls {
+    padding: 1rem;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #eee;
+}
+
+#mapSearchInput {
+    flex: 1;
+    padding: 8px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.close-modal:hover {
+    color: #222;
+}
+
 .mobile-menu-btn:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
