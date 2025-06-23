@@ -6,13 +6,12 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <script
-  type="text/javascript"
-  src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services">
+    type="text/javascript"
+    src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services">
 </script>
 <script>
     window.onload = function () {
         kakao.maps.load(function () {
-            // 이 시점부터 kakao 객체 사용 가능
         });
     };
 </script>
@@ -206,16 +205,10 @@
             </div>
             
             <div class="form-section">
-                <h3>
-                    <i class="fas fa-camera"></i>
-                    증거 자료
-                </h3>
-                <p class="section-description">사진이나 동영상이 있다면 업로드해주세요 (선택사항)</p>
                 
                 <div class="evidence-upload">
                     <div class="upload-area" id="evidenceUploadArea">
                         <div class="upload-placeholder">
-                            <i class="fas fa-camera"></i>
                             <h4>사진/동영상 업로드</h4>
                             <p>목격 당시 촬영한 자료가 있다면 업로드해주세요</p>
                             <button type="button" class="btn btn-outline">
@@ -232,39 +225,10 @@
                     
                     <div class="upload-note">
                         <i class="fas fa-info-circle"></i>
-                        <p>개인정보 보호를 위해 관련 없는 사람의 얼굴은 모자이크 처리해주세요</p>
                     </div>
                 </div>
             </div>
             
-            <div class="form-section">
-                <h3>
-                    <i class="fas fa-user"></i>
-                    목격자 정보
-                </h3>
-                <p class="section-description">추가 문의가 필요할 수 있습니다</p>
-                
-                <div class="witness-info-inputs">
-                    <div class="form-group">
-                        <label for="witnessName" class="required">성명</label>
-                        <input type="text" id="witnessName" name="witnessName" required placeholder="실명을 입력하세요">
-                        <div class="error-message" id="witnessNameError"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="witnessPhone" class="required">연락처</label>
-                        <input type="tel" id="witnessPhone" name="witnessPhone" required placeholder="010-0000-0000">
-                        <div class="error-message" id="witnessPhoneError"></div>
-                    </div>
-                    
-                    <div class="form-group full-width">
-                        <label>
-                            <input type="checkbox" name="agreeContact" required>
-                            수사기관의 추가 문의 연락에 동의합니다
-                        </label>
-                    </div>
-                </div>
-            </div>
             
             <div class="form-section">
                 <h3>
@@ -273,13 +237,6 @@
                 </h3>
                 
                 <div class="agreement-section">
-                    <div class="agreement-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="agreeAccuracy" required>
-                            <span class="checkmark"></span>
-                            위 정보는 사실이며, 허위 신고시 법적 책임을 질 수 있음을 이해합니다.
-                        </label>
-                    </div>
                     <div class="agreement-item">
                         <label class="checkbox-label">
                             <input type="checkbox" name="agreeProcess" required>
@@ -336,7 +293,7 @@
             <div id="location-map" class="location-map" style="width: 100%; height: 400px;"></div>
 
             <div class="map-controls">
-                <input type="text" id="mapSearchInput" placeholder="주소 또는 장소명 검색">
+                <input type="text" id="mapSearchInput" placeholder="주소 또는 장소명 검색" onkeypress="if(event.key==='Enter') searchLocation()">
                 <button type="button" class="btn btn-outline" onclick="searchLocation()">
                     <i class="fas fa-search"></i>
                     검색

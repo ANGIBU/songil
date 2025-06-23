@@ -62,10 +62,40 @@
         </div>
         
         <!-- 개인 순위 안내 -->
+        <div class="ranking-list">
+        {% for user in rankings %}
+            <div class="ranking-card {% if user.user_id == session.get('user_id') %}my-rank{% endif %}">
+            <div class="rank-position">
+                {% if user.position == 1 %}
+                🥇
+                {% elif user.position == 2 %}
+                🥈
+                {% elif user.position == 3 %}
+                🥉
+                {% else %}
+                #{{ user.position }}
+                {% endif %}
+            </div>
+
+            <div class="rank-info">
+                <div class="rank-name">
+                {{ user.name }}
+                {% if user.user_id == session.get('user_id') %}
+                    <span class="my-rank-label">내 순위</span>
+                {% endif %}
+                </div>
+                <div class="rank-stats">
+                <span class="badge green">신고 {{ user.reports }}건</span>
+                </div>
+            </div>
+            </div>
+        {% endfor %}
+        </div>
+
+        <!-- 로그인 안내 CTA (비로그인 사용자만 보임) -->
+        {% if not session.get('user_id') %}
         <div class="personal-ranking-cta">
-            <!-- Three.js 배경 컨테이너 -->
             <div class="cta-background" id="ctaThreeJSContainer"></div>
-            
             <div class="cta-content">
                 <div class="cta-text">
                     <h3>나의 순위가 궁금하신가요?</h3>
@@ -83,6 +113,9 @@
                 </div>
             </div>
         </div>
+        {% endif %}
+
+
         
         <!-- 랭킹 혜택 안내 -->
         <div class="ranking-benefits">

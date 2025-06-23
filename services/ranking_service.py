@@ -66,7 +66,7 @@ class RankingService:
         try:
             query = """
                 SELECT 
-                    user_rank.rank,
+                    user_rank.`rank`,
                     user_rank.points,
                     user_rank.reports,
                     user_rank.nickname
@@ -76,18 +76,18 @@ class RankingService:
                         u.nickname,
                         u.points,
                         COALESCE(r.report_count, 0) as reports,
-                        ROW_NUMBER() OVER (ORDER BY u.points DESC) as rank
+                        ROW_NUMBER() OVER (ORDER BY u.points DESC) as `rank`
                     FROM users u
                     LEFT JOIN (
                         SELECT user_id, COUNT(*) as report_count
-                        FROM reports 
+                        FROM witness_reports
                         WHERE is_approved = 1
                         GROUP BY user_id
                     ) r ON u.id = r.user_id
                     WHERE u.points > 0
                 ) user_rank
                 WHERE user_rank.id = %s
-            """
+"""
             
             result = self.db.execute_query(query, (user_id,))
             

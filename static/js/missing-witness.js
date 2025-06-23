@@ -237,64 +237,38 @@ function selectMapLocation() {
         document.getElementById('witnessLocation').value = selectedLocation.address;
         document.getElementById('witnessLat').value = selectedLocation.lat;
         document.getElementById('witnessLng').value = selectedLocation.lng;
+        
         closeMapModal();
-
+        
         if (window.showNotification) {
-            window.showNotification('위치가 선택되었습니다.', 'success');
+            window.showNotification('목격 위치가 설정되었습니다.', 'success');
         }
     } else {
-        if (window.showNotification) {
-            window.showNotification('위치를 선택해주세요.', 'warning');
-        }
+        alert('지도에서 위치를 선택해주세요.');
     }
 }
 
 
 // 위치 검색
 function searchLocation() {
-    const searchInput = document.getElementById('mapSearchInput');
-    const query = searchInput.value.trim();
-
-    if (!query) {
-        if (window.showNotification) {
-            window.showNotification('검색어를 입력해주세요.', 'warning');
-        }
+    const keyword = document.getElementById('mapSearchInput').value.trim();
+    if (!keyword) {
+        alert('검색어를 입력하세요');
         return;
     }
-
-    if (!placeService) {
-        console.error("placeService가 초기화되지 않았습니다.");
+    
+    if (!window.placesService) {
+        alert('지도 서비스가 준비되지 않았습니다. 잠시 후 다시 시도해주세요.');
         return;
     }
-
-    placeService.keywordSearch(query, function(result, status) {
+    
+    window.placesService.keywordSearch(keyword, function(data, status) {
         if (status === kakao.maps.services.Status.OK) {
-            const place = result[0]; // 첫 번째 결과 사용
-            const lat = parseFloat(place.y);
-            const lng = parseFloat(place.x);
-
-            const newPosition = new kakao.maps.LatLng(lat, lng);
-
-            // ✅ 기존 지도와 마커를 활용해서 위치 이동
-            window.kakaoMap.setCenter(newPosition);
-            window.kakaoMarker.setPosition(newPosition);
-
-            // ✅ 주소 입력창과 selectedLocation 갱신
-            document.getElementById('witnessLocation').value = place.place_name;
-
-            selectedLocation = {
-                lat: lat,
-                lng: lng,
-                address: place.place_name
-            };
-
-            if (window.showNotification) {
-                window.showNotification('장소 검색 완료', 'success');
-            }
-        } else {
-            if (window.showNotification) {
-                window.showNotification('검색 결과가 없습니다.', 'error');
-            }
+            displaySearchResults(data);
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+            alert('검색 결과가 없습니다.');
+        } else if (status === kakao.maps.services.Status.ERROR) {
+            alert('검색 중 오류가 발생했습니다.');
         }
     });
 }
@@ -311,21 +285,6 @@ function setupFormValidation() {
         input.addEventListener('input', function() {
             clearFieldError(this);
         });
-    });
-    
-    // 휴대폰 번호 자동 포맷팅
-    const phoneInput = document.getElementById('witnessPhone');
-    phoneInput.addEventListener('input', function() {
-        let value = this.value.replace(/\D/g, '');
-        if (value.length >= 11) {
-            value = value.substring(0, 11);
-            value = value.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-        } else if (value.length >= 7) {
-            value = value.replace(/(\d{3})(\d{3,4})(\d{0,4})/, '$1-$2-$3');
-        } else if (value.length >= 3) {
-            value = value.replace(/(\d{3})(\d{0,4})/, '$1-$2');
-        }
-        this.value = value;
     });
 }
 
@@ -405,13 +364,13 @@ function validateField(field) {
 
 // 폼 제출 처리
 document.addEventListener('DOMContentLoaded', function() {
-    const witnessForm = document.getElementById('witnessForm');
-    if (witnessForm) {
-        witnessForm.addEventListener('submit', async function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async function(e) {
             e.preventDefault();
             
-            // 전체 폼 유효성 검사
-            const requiredFields = this.querySelectorAll('input[required], textarea[required], select[required]');
+            // 전체 폼 유효성 검사 (document에서 직접 찾기)
+            const requiredFields = document.querySelectorAll('input[required], textarea[required], select[required]');
             let isValid = true;
             
             requiredFields.forEach(field => {
@@ -420,8 +379,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // 체크박스 검사
-            const agreements = this.querySelectorAll('input[type="checkbox"][required]');
+            // 체크박스 검사 (document에서 직접 찾기)
+            const agreements = document.querySelectorAll('input[type="checkbox"][required]');
             agreements.forEach(checkbox => {
                 if (!checkbox.checked) {
                     if (window.showNotification) {
@@ -435,7 +394,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
             
             // 로딩 상태
@@ -443,12 +401,40 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             
             try {
-                // 폼 데이터 수집
-                const formData = new FormData(this);
+                // 폼 데이터 수집 (새로운 방식)
+                const formData = new FormData();
                 
-                // 파일 데이터 추가
-                uploadedFiles.forEach((file, index) => {
-                    formData.append(`evidence_${index}`, file);
+                // 모든 입력 필드 수집
+                const inputs = document.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    if (input.name) {
+                        if (input.type === 'checkbox' || input.type === 'radio') {
+                            if (input.checked) {
+                                formData.append(input.name, input.value);
+                            }
+                        } else if (input.type !== 'file') {
+                            if (input.value.trim() !== '') {
+                                formData.append(input.name, input.value);
+                            }
+                        }
+                    }
+                });
+                
+                // 파일 데이터 추가 (uploadedFiles가 정의되어 있다면)
+                if (typeof uploadedFiles !== 'undefined' && uploadedFiles.length > 0) {
+                    uploadedFiles.forEach((file, index) => {
+                        formData.append(`evidence_${index}`, file);
+                    });
+                }
+                
+                // 파일 input에서 직접 파일 수집 (대안)
+                const fileInputs = document.querySelectorAll('input[type="file"]');
+                fileInputs.forEach((fileInput, inputIndex) => {
+                    if (fileInput.files && fileInput.files.length > 0) {
+                        Array.from(fileInput.files).forEach((file, fileIndex) => {
+                            formData.append(`file_${inputIndex}_${fileIndex}`, file);
+                        });
+                    }
                 });
                 
                 // 실제 API 호출
@@ -456,15 +442,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     body: formData
                 });
-
+                
                 const result = await response.json();
                 if (result.status === 'success') {
-                    showSuccessPage();
+                    if (typeof showSuccessPage === 'function') {
+                        showSuccessPage();
+                    } else {
+                        if (window.showNotification) {
+                            window.showNotification('목격 신고가 성공적으로 접수되었습니다.', 'success');
+                        }
+                        // 페이지 리디렉션 또는 다른 처리
+                        setTimeout(() => {
+                            window.location.href = '/success';
+                        }, 2000);
+                    }
                 } else {
-                    window.showNotification(result.message || '신고 처리 중 오류가 발생했습니다.', 'error');
+                    if (window.showNotification) {
+                        window.showNotification(result.message || '신고 처리 중 오류가 발생했습니다.', 'error');
+                    }
                 }
                 
             } catch (error) {
+                console.error('Submit error:', error);
                 if (window.showNotification) {
                     window.showNotification('목격 신고 접수 중 오류가 발생했습니다.', 'error');
                 }
@@ -475,6 +474,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// validateField 함수가 없다면 기본 구현 추가
+if (typeof validateField === 'undefined') {
+    function validateField(field) {
+        if (field.hasAttribute('required')) {
+            if (field.type === 'checkbox' || field.type === 'radio') {
+                return field.checked;
+            } else {
+                return field.value.trim() !== '';
+            }
+        }
+        return true;
+    }
+}
 
 // 성공 페이지 표시
 function showSuccessPage() {
@@ -590,15 +603,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeKakaoMap() {
     const mapContainer = document.getElementById('location-map');
+    if (!mapContainer) {
+        console.error("Map container 'location-map' not found.");
+        return;
+    }
     const mapOption = {
         center: new kakao.maps.LatLng(37.5665, 126.9780),
         level: 3
     };
-
+    if (window.kakaoMap && mapContainer.querySelector('.KaKaoMap')) {
+        window.kakaoMap.relayout(); // 지도가 숨겨져 있다 나타날 때 지도가 깨지는 현상 방지
+        return;
+    }
     const map = new kakao.maps.Map(mapContainer, mapOption);
     window.kakaoMap = map;
 
     const geocoder = new kakao.maps.services.Geocoder();
+    // Places 서비스 추가
+    const ps = new kakao.maps.services.Places();
+    window.placesService = ps;
+    
     const marker = new kakao.maps.Marker({
         position: map.getCenter(),
         map: map
@@ -628,6 +652,81 @@ function initializeKakaoMap() {
             }
         });
     });
+
+    // 검색 기능 설정
+    setupMapSearch(map, marker, geocoder);
+}
+
+// 검색 기능 설정 함수
+function setupMapSearch(map, marker, geocoder) {
+    window.searchPlaces = function() {
+        const keywordInput = document.getElementById('keyword') || document.querySelector('input[placeholder*="검색"]');
+        if (!keywordInput) {
+            console.error('검색 입력 필드를 찾을 수 없습니다.');
+            return;
+        }
+        
+        const keyword = keywordInput.value.trim();
+        if (!keyword) {
+            alert('검색어를 입력하세요');
+            return;
+        }
+
+        window.placesService.keywordSearch(keyword, function(data, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                displaySearchResults(data, map, marker, geocoder);
+            } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+                alert('검색 결과가 없습니다.');
+            } else if (status === kakao.maps.services.Status.ERROR) {
+                alert('검색 중 오류가 발생했습니다.');
+            }
+        });
+    };
+}
+
+// 검색 결과 표시 함수
+function displaySearchResults(places) {
+    if (places.length === 0) return;
+
+    const firstPlace = places[0];
+    const position = new kakao.maps.LatLng(firstPlace.y, firstPlace.x);
+    
+    // 지도 중심 이동
+    window.kakaoMap.setCenter(position);
+    window.kakaoMap.setLevel(3);
+    
+    // 마커 이동
+    window.kakaoMarker.setPosition(position);
+    
+    // 주소 정보 업데이트
+    const address = firstPlace.road_address_name || firstPlace.address_name;
+    
+    // selectedLocation 업데이트
+    selectedLocation = {
+        lat: parseFloat(firstPlace.y),
+        lng: parseFloat(firstPlace.x),
+        address: address
+    };
+    
+    if (window.showNotification) {
+        window.showNotification(`'${firstPlace.place_name}' 위치로 이동했습니다.`, 'success');
+    }
+    
+    // 여러 결과가 있을 경우 콘솔에 출력
+    if (places.length > 1) {
+        console.log('추가 검색 결과:', places.slice(1).map(p => p.place_name));
+    }
+}
+
+const btn = document.getElementById('submitBtn');
+if (btn) {
+    btn.onclick = function() {
+        alert('버튼이 클릭되었습니다!');
+        console.log('클릭 이벤트 작동');
+    };
+    console.log('클릭 이벤트 등록 완료');
+} else {
+    console.log('submitBtn을 찾을 수 없습니다');
 }
 
 window.openMapSelector = openMapSelector;

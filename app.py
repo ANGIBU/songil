@@ -31,7 +31,25 @@ def index():
     except Exception as e:
         print(f"Error rendering index: {e}")
         return "페이지를 불러오는 중 오류가 발생했습니다.", 500
+    
+# 순위 페이지 (기본)
+@app.route('/ranking')
+def ranking():
+    try:
+        user_id = session.get('user_id')
+        rank_info = None
 
+        if user_id:
+            # 사용자 순위 정보 가져오기 (API가 아니라 내부 서비스 호출)
+            rank_info = ranking_service.get_user_ranking(user_id)
+            print("🔍 get_user_ranking 결과:", rank_info)
+
+        return render_template('public/ranking.html', rank_info=rank_info)
+
+    except Exception as e:
+        print(f"Error rendering ranking: {e}")
+        return redirect(url_for('index'))
+    
 # 랭킹 API
 @app.route('/api/rankings')
 def get_rankings_api():
@@ -190,17 +208,6 @@ def api_missing_search():
         return jsonify({"success": False, "message": "서버 오류 발생"}), 500
     
     
-
-
-# 순위 페이지 (기본)
-@app.route('/ranking')
-def ranking():
-    try:
-        return render_template('public/ranking.html')
-    except Exception as e:
-        print(f"Error rendering ranking: {e}")
-        return redirect(url_for('index'))
-
 # ==================== AUTH 페이지 (인증 관련) ====================
 
 # 로그인 페이지
