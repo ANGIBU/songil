@@ -94,6 +94,14 @@
 <section class="witness-form-section">
     <div class="container">
         <form class="witness-form" id="witnessForm">
+            <input type="hidden" name="missing_id" value="{{ missing.SENU or '' }}">
+            <input type="hidden" name="missingPersonName" value="{{ missing.FLNM or '이름없음' }}">
+            <input type="hidden" name="missingPersonAge" value="{{ missing.NOW_AGE or 0 }}">
+            <input type="hidden" name="missingPersonGender" value="{% if missing.GNDR_SE == '남' %}남성{% elif missing.GNDR_SE == '여' %}여성{% else %}남성{% endif %}">
+            <input type="hidden" name="missingDate" value="{% if missing.OCRN_DT %}{{ missing.OCRN_DT[:4] }}-{{ missing.OCRN_DT[4:6] }}-{{ missing.OCRN_DT[6:8] }}{% else %}2000-01-01{% endif %}">
+            <input type="hidden" name="missingLocation" value="{{ missing.OCRN_PLC or '장소 미상' }}">
+            <input type="hidden" name="missingFeatures" value="{{ missing.PHBB_SPFE or '' }}{% if missing.PHBB_SPFE and missing.PHYSCL_FEATR %}, {% endif %}{{ missing.PHYSCL_FEATR or '' }}">
+
             <div class="form-section">
                 <h3>
                     <i class="fas fa-clock"></i>
@@ -136,10 +144,7 @@
                     <div class="form-group full-width">
                         <label for="witnessLocation" class="required">상세 주소</label>
                         <input type="text" id="witnessLocation" name="witnessLocation" required placeholder="구체적인 주소나 장소명을 입력하세요">
-                        <input type="hidden" name="witnessLat" id="witnessLat">
-                        <input type="hidden" name="witnessLng" id="witnessLng">
-                        <input type="hidden" name="userLat" id="userLat">
-                        <input type="hidden" name="userLng" id="userLng">
+                        
                         <div class="location-tools">
                             <button type="button" class="location-btn" onclick="getCurrentLocation()">
                                 <i class="fas fa-crosshairs"></i>

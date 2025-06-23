@@ -62,53 +62,32 @@
         </div>
         
         <!-- 개인 순위 안내 -->
-        <div class="ranking-list">
-        {% for user in rankings %}
-            <div class="ranking-card {% if user.user_id == session.get('user_id') %}my-rank{% endif %}">
-            <div class="rank-position">
-                {% if user.position == 1 %}
-                🥇
-                {% elif user.position == 2 %}
-                🥈
-                {% elif user.position == 3 %}
-                🥉
-                {% else %}
-                #{{ user.position }}
-                {% endif %}
-            </div>
-
-            <div class="rank-info">
-                <div class="rank-name">
-                {{ user.name }}
-                {% if user.user_id == session.get('user_id') %}
-                    <span class="my-rank-label">내 순위</span>
-                {% endif %}
+        {% if session.get('user_id') and rank_info %}
+        <div class="personal-ranking-box">
+            <div class="ranking-summary">
+                <h3>나의 순위</h3>
+                <p><strong>{{ rank_info.nickname }}</strong> 님의 현재 순위는</p>
+                <div class="my-rank">
+                    🏅 <strong>#{{ rank_info.rank }}</strong> 위
                 </div>
-                <div class="rank-stats">
-                <span class="badge green">신고 {{ user.reports }}건</span>
-                </div>
+                <p>보유 포인트: <strong>{{ rank_info.points }}P</strong></p>
+                <p>총 기여 건수: <strong>{{ rank_info.reports }}건</strong></p>
             </div>
-            </div>
-        {% endfor %}
         </div>
-
-        <!-- 로그인 안내 CTA (비로그인 사용자만 보임) -->
-        {% if not session.get('user_id') %}
+        {% else %}
         <div class="personal-ranking-cta">
             <div class="cta-background" id="ctaThreeJSContainer"></div>
+
             <div class="cta-content">
-                <div class="cta-text">
-                    <h3>나의 순위가 궁금하신가요?</h3>
-                    <p>로그인 후 개인 순위와 상세한 활동 내역을 확인하세요</p>
-                </div>
+                <h3 class="cta-title">나의 순위가 궁금하신가요?</h3>
+                <p class="cta-description">로그인 후 개인 순위와 상세한 활동 내역을 확인하세요</p>
+
                 <div class="cta-actions">
                     <a href="{{ url_for('login') }}" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt"></i>
-                        로그인하기
+                        <i class="fas fa-sign-in-alt"></i> 로그인하기
                     </a>
                     <a href="{{ url_for('register') }}" class="btn btn-outline">
-                        <i class="fas fa-user-plus"></i>
-                        회원가입
+                        <i class="fas fa-user-plus"></i> 회원가입
                     </a>
                 </div>
             </div>

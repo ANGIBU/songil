@@ -1,10 +1,6 @@
 import mysql.connector 
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import jsonify
-import json
-import requests
-import re
-import math # 수학함수 사용
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class DBManager:
@@ -32,6 +28,13 @@ class DBManager:
         if self.connection and self.connection.is_connected():
             self.cursor.close()
             self.connection.close()
+
+    # 쿼리 실행 메소드
+    def execute(self, query, params=None, commit=False):
+        self.cursor.execute(query, params)
+        if commit:
+            self.connection.commit()  
+        return self.cursor
 
     # 트랜잭션 관리 메소드들
     def begin_transaction(self):
@@ -147,17 +150,19 @@ class DBManager:
         try:
             sql = """
                 INSERT INTO witness_reports (
-                    user_id, missing_id, witness_datetime, time_accuracy,
+                    user_id, missing_id, missing_person_name, missing_person_age,
+                    missing_person_gender, missing_date, missing_location,
+                    witness_datetime, time_accuracy,
                     location, location_detail, location_accuracy,
                     description, confidence, distance,
-                    image_urls, witness_name, witness_phone, agree_contact,
-                    witness_lat, witness_lng, user_lat, user_lng
+                    image_urls, witness_name, witness_phone, agree_contact
                 ) VALUES (
-                    %(user_id)s, %(missing_id)s, %(witness_datetime)s, %(time_accuracy)s,
+                    %(user_id)s, %(missing_id)s, %(missing_person_name)s, %(missing_person_age)s,
+                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s,
+                    %(witness_datetime)s, %(time_accuracy)s,
                     %(location)s, %(location_detail)s, %(location_accuracy)s,
                     %(description)s, %(confidence)s, %(distance)s,
-                    %(image_urls)s, %(witness_name)s, %(witness_phone)s, %(agree_contact)s,
-                    %(witness_lat)s, %(witness_lng)s, %(user_lat)s, %(user_lng)s
+                    %(image_urls)s, %(witness_name)s, %(witness_phone)s, %(agree_contact)s
                 )
             """
             self.cursor.execute(sql, report)
@@ -167,6 +172,22 @@ class DBManager:
             print("목격 신고 삽입 실패:", e)
             return False
 
+
+def insert_witness_report(self, data):
+    try:
+        columns = ', '.join(data.keys())
+        placeholders = ', '.join(['%s'] * len(data))
+        values = list(data.values())
+
+        query = f"INSERT INTO witness_reports ({columns}) VALUES ({placeholders})"
+        self.execute_query(query, values)
+
+        # 마지막 삽입 ID 반환
+        return self.cursor.lastrowid
+    except Exception as e:
+        print(f"[ERROR] insert_witness_report: {e}")
+        return False
+    
 # DBManager 인스턴스 생성 및 연결
 db = DBManager()
 db.connect()

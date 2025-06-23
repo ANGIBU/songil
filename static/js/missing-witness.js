@@ -166,12 +166,6 @@ function getCurrentLocation() {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
 
-                // 좌표 저장 (숨겨진 input 필드)
-                document.getElementById('witnessLat').value = lat;
-                document.getElementById('witnessLng').value = lng;
-                document.getElementById('userLat').value = lat;
-                document.getElementById('userLng').value = lng;
-
                 // ✅ 카카오 지도 역지오코딩 (사람이 알아볼 주소로 변환)
                 const geocoder = new kakao.maps.services.Geocoder();
                 const coord = new kakao.maps.LatLng(lat, lng);
@@ -206,6 +200,7 @@ function getCurrentLocation() {
     }
 }
 
+
 // 지도 선택 모달 열기
 function openMapSelector() {
     document.getElementById('mapModal').style.display = 'flex';
@@ -235,11 +230,9 @@ function closeMapModal() {
 function selectMapLocation() {
     if (selectedLocation) {
         document.getElementById('witnessLocation').value = selectedLocation.address;
-        document.getElementById('witnessLat').value = selectedLocation.lat;
-        document.getElementById('witnessLng').value = selectedLocation.lng;
-        
+
         closeMapModal();
-        
+
         if (window.showNotification) {
             window.showNotification('목격 위치가 설정되었습니다.', 'success');
         }
@@ -247,6 +240,7 @@ function selectMapLocation() {
         alert('지도에서 위치를 선택해주세요.');
     }
 }
+
 
 
 // 위치 검색
@@ -327,8 +321,8 @@ function validateField(field) {
             if (!value) {
                 message = '목격 상황을 설명해주세요.';
                 isValid = false;
-            } else if (value.length < 20) {
-                message = '더 자세한 설명을 입력해주세요. (최소 20자)';
+            } else if (value.length < 5) {
+                message = '더 자세한 설명을 입력해주세요. ';
                 isValid = false;
             }
             break;
@@ -363,119 +357,106 @@ function validateField(field) {
 }
 
 // 폼 제출 처리
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('witnessForm');
     const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-        submitBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            
-            // 전체 폼 유효성 검사 (document에서 직접 찾기)
-            const requiredFields = document.querySelectorAll('input[required], textarea[required], select[required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!validateField(field)) {
-                    isValid = false;
-                }
-            });
-            
-            // 체크박스 검사 (document에서 직접 찾기)
-            const agreements = document.querySelectorAll('input[type="checkbox"][required]');
-            agreements.forEach(checkbox => {
-                if (!checkbox.checked) {
-                    if (window.showNotification) {
-                        window.showNotification('모든 필수 동의사항에 체크해주세요.', 'error');
-                    }
-                    isValid = false;
-                }
-            });
-            
-            if (!isValid) {
-                return;
-            }
-            
-            const originalText = submitBtn.innerHTML;
-            
-            // 로딩 상태
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 신고 접수 중...';
-            submitBtn.disabled = true;
-            
-            try {
-                // 폼 데이터 수집 (새로운 방식)
-                const formData = new FormData();
-                
-                // 모든 입력 필드 수집
-                const inputs = document.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    if (input.name) {
-                        if (input.type === 'checkbox' || input.type === 'radio') {
-                            if (input.checked) {
-                                formData.append(input.name, input.value);
-                            }
-                        } else if (input.type !== 'file') {
-                            if (input.value.trim() !== '') {
-                                formData.append(input.name, input.value);
-                            }
-                        }
-                    }
-                });
-                
-                // 파일 데이터 추가 (uploadedFiles가 정의되어 있다면)
-                if (typeof uploadedFiles !== 'undefined' && uploadedFiles.length > 0) {
-                    uploadedFiles.forEach((file, index) => {
-                        formData.append(`evidence_${index}`, file);
-                    });
-                }
-                
-                // 파일 input에서 직접 파일 수집 (대안)
-                const fileInputs = document.querySelectorAll('input[type="file"]');
-                fileInputs.forEach((fileInput, inputIndex) => {
-                    if (fileInput.files && fileInput.files.length > 0) {
-                        Array.from(fileInput.files).forEach((file, fileIndex) => {
-                            formData.append(`file_${inputIndex}_${fileIndex}`, file);
-                        });
-                    }
-                });
-                
-                // 실제 API 호출
-                const response = await fetch('/api/witness/report', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.json();
-                if (result.status === 'success') {
-                    if (typeof showSuccessPage === 'function') {
-                        showSuccessPage();
-                    } else {
-                        if (window.showNotification) {
-                            window.showNotification('목격 신고가 성공적으로 접수되었습니다.', 'success');
-                        }
-                        // 페이지 리디렉션 또는 다른 처리
-                        setTimeout(() => {
-                            window.location.href = '/success';
-                        }, 2000);
-                    }
-                } else {
-                    if (window.showNotification) {
-                        window.showNotification(result.message || '신고 처리 중 오류가 발생했습니다.', 'error');
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Submit error:', error);
-                if (window.showNotification) {
-                    window.showNotification('목격 신고 접수 중 오류가 발생했습니다.', 'error');
-                }
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+
+    if (!form || !submitBtn) {
+        console.error("❌ 폼이나 제출 버튼을 찾을 수 없습니다.");
+        return;
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        console.log("🚨 폼 submit 이벤트 발동");
+
+        let isValid = true;
+
+        // 필수 필드 유효성 검사
+        const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        requiredFields.forEach(field => {
+            if (!validateField(field)) {
+                console.warn(`⚠️ 필드 유효성 실패: ${field.name}`, field.value);
+                isValid = false;
             }
         });
-    }
+
+        // 필수 동의 체크박스 확인
+        const agreements = form.querySelectorAll('input[type="checkbox"][required]');
+        agreements.forEach(checkbox => {
+            if (!checkbox.checked) {
+                console.warn(`⚠️ 필수 체크박스 미체크: ${checkbox.name}`);
+                if (window.showNotification) {
+                    window.showNotification('모든 필수 동의사항에 체크해주세요.', 'error');
+                }
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            console.log("🚫 유효성 검사 실패로 전송 중단");
+            return;
+        }
+
+        // UI 처리
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 신고 접수 중...';
+        submitBtn.disabled = true;
+
+        try {
+            const formData = new FormData(form);
+            console.log("📦 FormData 생성 완료");
+
+            // 증거 파일 추가
+            if (uploadedFiles && uploadedFiles.length > 0) {
+                uploadedFiles.forEach((file, index) => {
+                    formData.append(`evidence_${index}`, file);
+                });
+                console.log(`📎 첨부 파일 수: ${uploadedFiles.length}`);
+            }
+
+            // 서버 요청
+            const res = await fetch('/api/witness/report', {
+                method: 'POST',
+                body: formData
+            });
+
+            const text = await res.text();
+            console.log("📨 서버 응답 텍스트:", text);
+
+            let result = {};
+            try {
+                result = JSON.parse(text);
+            } catch (e) {
+                console.error('❌ 응답 JSON 파싱 실패:', e);
+                if (window.showNotification) {
+                    window.showNotification('서버 응답이 올바르지 않습니다. 관리자에게 문의해주세요.', 'error');
+                }
+                return;
+            }
+
+            if (result.status === 'success') {
+                showSuccessPage();
+            } else {
+                console.warn("⚠️ 서버 오류 메시지:", result.message);
+                if (window.showNotification) {
+                    window.showNotification(result.message || '신고 처리 중 오류가 발생했습니다.', 'error');
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ 신고 실패:', error);
+            if (window.showNotification) {
+                window.showNotification('신고 중 오류가 발생했습니다.', 'error');
+            }
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
 });
 
-// validateField 함수가 없다면 기본 구현 추가
+// 기본 유효성 검사 함수
 if (typeof validateField === 'undefined') {
     function validateField(field) {
         if (field.hasAttribute('required')) {
@@ -488,6 +469,7 @@ if (typeof validateField === 'undefined') {
         return true;
     }
 }
+
 
 // 성공 페이지 표시
 function showSuccessPage() {
@@ -718,15 +700,6 @@ function displaySearchResults(places) {
     }
 }
 
-const btn = document.getElementById('submitBtn');
-if (btn) {
-    btn.onclick = function() {
-        alert('버튼이 클릭되었습니다!');
-        console.log('클릭 이벤트 작동');
-    };
-    console.log('클릭 이벤트 등록 완료');
-} else {
-    console.log('submitBtn을 찾을 수 없습니다');
-}
+
 
 window.openMapSelector = openMapSelector;

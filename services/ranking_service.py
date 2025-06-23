@@ -62,11 +62,11 @@ class RankingService:
             return { 'total_users': 0, 'total_reports': 0 }
     
     def get_user_ranking(self, user_id):
-        """특정 사용자의 순위 정보"""
+        """특정 사용자의 순위 정보 (users.alert_report_count 기준)"""
         try:
             query = """
                 SELECT 
-                    user_rank.`rank`,
+                    user_rank.rank,
                     user_rank.points,
                     user_rank.reports,
                     user_rank.nickname
@@ -75,19 +75,12 @@ class RankingService:
                         u.id,
                         u.nickname,
                         u.points,
-                        COALESCE(r.report_count, 0) as reports,
-                        ROW_NUMBER() OVER (ORDER BY u.points DESC) as `rank`
+                        u.alert_report_count AS reports,
+                        ROW_NUMBER() OVER (ORDER BY u.alert_report_count DESC) AS rank
                     FROM users u
-                    LEFT JOIN (
-                        SELECT user_id, COUNT(*) as report_count
-                        FROM witness_reports
-                        WHERE is_approved = 1
-                        GROUP BY user_id
-                    ) r ON u.id = r.user_id
-                    WHERE u.points > 0
                 ) user_rank
                 WHERE user_rank.id = %s
-"""
+            """
             
             result = self.db.execute_query(query, (user_id,))
             

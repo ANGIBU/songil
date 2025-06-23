@@ -11,6 +11,11 @@ import requests
 from datetime import datetime
 from services.ranking_service import RankingService
 import uuid
+import json
+from apscheduler.schedulers.background import BackgroundScheduler
+from sync_api import sync_missing_api_data
+import atexit
+
 
 db = DBManager()
 db.connect()
@@ -37,14 +42,21 @@ def index():
 def ranking():
     try:
         user_id = session.get('user_id')
+        rankings = ranking_service.get_rankings(limit=1000)  # 최대 100위까지 받아온다고 가정
         rank_info = None
 
         if user_id:
-            # 사용자 순위 정보 가져오기 (API가 아니라 내부 서비스 호출)
-            rank_info = ranking_service.get_user_ranking(user_id)
-            print("🔍 get_user_ranking 결과:", rank_info)
+            for idx, row in enumerate(rankings, start=1):
+                if str(row['user_id']) == str(user_id):
+                    rank_info = {
+                        'rank': idx,
+                        'points': row['points'],
+                        'reports': row['reports'],
+                        'nickname': row['name']
+                    }
+                    break
 
-        return render_template('public/ranking.html', rank_info=rank_info)
+        return render_template('public/ranking.html', rankings=rankings, rank_info=rank_info)
 
     except Exception as e:
         print(f"Error rendering ranking: {e}")
@@ -605,73 +617,135 @@ def api_missing_report():
 # 목격 신고 API
 @app.route('/api/witness/report', methods=['POST'])
 def api_witness_report():
+    db = None
     try:
-        # 로그인 사용자 정보 가져오기
         user_id = session.get('user_id')
         if not user_id:
             return jsonify({'status': 'error', 'message': '로그인이 필요합니다.'}), 401
 
         form = request.form
+        required_fields = ['witnessDate', 'witnessTime', 'witnessLocation', 'witnessDescription']
+        missing_fields = [f for f in required_fields if not form.get(f)]
+        if missing_fields:
+            return jsonify({'status': 'error', 'message': f'필수 항목 누락: {", ".join(missing_fields)}'}), 400
 
-        # 날짜 + 시간 결합
-        witness_datetime = f"{form.get('witnessDate')} {form.get('witnessTime')}"
+        # 날짜/시간 처리
+        try:
+            witness_datetime_str = f"{form.get('witnessDate')} {form.get('witnessTime')}"
+            witness_datetime = datetime.strptime(witness_datetime_str, '%Y-%m-%d %H:%M')
+            if witness_datetime > datetime.now():
+                return jsonify({'status': 'error', 'message': '목격 시간은 미래일 수 없습니다.'}), 400
+        except ValueError:
+            return jsonify({'status': 'error', 'message': '날짜 또는 시간 형식이 잘못되었습니다.'}), 400
 
-        witness_lat = form.get("witnessLat")
-        witness_lng = form.get("witnessLng")
-        user_lat = form.get("userLat")
-        user_lng = form.get("userLng")
+        # 좌표 유효성 검사
+        def validate_coord(lat, lng):
+            try:
+                lat, lng = float(lat), float(lng)
+                return (-90 <= lat <= 90) and (-180 <= lng <= 180)
+            except:
+                return False
 
-        # 파일 업로드 처리 (image_urls는 문자열로 저장)
+        # 파일 처리
         uploaded_files = request.files
         saved_urls = []
+        allowed_ext = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+        max_size = 5 * 1024 * 1024
+
         for key in uploaded_files:
             file = uploaded_files[key]
-            if file and file.filename:
-                filename = f"witness_{uuid.uuid4().hex}_{file.filename}"
-                filepath = os.path.join('static', 'uploads', filename)
+            if file and file.filename and '.' in file.filename:
+                ext = file.filename.rsplit('.', 1)[1].lower()
+                if ext not in allowed_ext:
+                    return jsonify({'status': 'error', 'message': f'허용되지 않는 확장자: {ext}'}), 400
+                file.seek(0, 2)
+                if file.tell() > max_size:
+                    return jsonify({'status': 'error', 'message': '파일은 5MB를 초과할 수 없습니다.'}), 400
+                file.seek(0)
+                filename = f"witness_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.{ext}"
+                upload_dir = os.path.join('static', 'uploads')
+                os.makedirs(upload_dir, exist_ok=True)
+                filepath = os.path.join(upload_dir, filename)
                 file.save(filepath)
                 saved_urls.append('/' + filepath.replace('\\', '/'))
 
-        # DB에 저장
-        db = DBManager()
-        db.connect()
-        db.insert_witness_report({
+        # 실종자 기본정보 자동조회
+        missing_person_data = {}
+        missing_id = form.get("missing_id")
+        if missing_id:
+            try:
+                safe_api_url = f"{API_URL}?serviceKey={SERVICE_KEY}&returnType=json&pageNo=1&numOfRows=500"
+                response = requests.get(safe_api_url, verify=False)
+                data = response.json()
+                items = data.get('body', [])
+                found = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
+                if found:
+                    missing_person_data = {
+                        "missing_person_name": found.get("nm", ""),
+                        "missing_person_age": int(found.get("ageNow") or 0),
+                        "missing_person_gender": found.get("sexdstn", "남성"),
+                        "missing_date": found.get("occrde", "2000-01-01"),
+                        "missing_location": found.get("occrAdres", "")
+                    }
+            except Exception as e:
+                print("실종자 정보 조회 실패:", e)
+
+        def is_valid_missing_date(date_str):
+            return date_str and date_str != "2000-01-01"
+
+        # 신고 데이터 구성
+        report_data = {
             "user_id": user_id,
-            "missing_id": form.get("missing_id"),
+            "missing_id": missing_id,
+            "missing_person_name": missing_person_data.get("missing_person_name") or form.get("missingPersonName", ""),
+            "missing_person_age": missing_person_data.get("missing_person_age") or int(form.get("missingPersonAge", 0)),
+            "missing_person_gender": missing_person_data.get("missing_person_gender") or form.get("missingPersonGender", "남성"),
+            "missing_date": (
+                missing_person_data.get("missing_date")
+                if is_valid_missing_date(missing_person_data.get("missing_date"))
+                else form.get("missingDate")
+            ),
+            "missing_location": missing_person_data.get("missing_location") or form.get("missingLocation", ""),
+            "missing_features": form.get("missingFeatures", ""),
             "witness_datetime": witness_datetime,
-            "time_accuracy": form.get("timeAccuracy"),
+            "time_accuracy": form.get("timeAccuracy", "approximate"),
             "location": form.get("witnessLocation"),
             "location_detail": form.get("locationDetail"),
-            "location_accuracy": form.get("locationAccuracy"),
+            "location_accuracy": form.get("locationAccuracy", "approximate"),
             "description": form.get("witnessDescription"),
-            "confidence": form.get("witnessConfidence"),
-            "distance": form.get("witnessDistance"),
-            "image_urls": ','.join(saved_urls),
+            "confidence": form.get("witnessConfidence", None),
+            "distance": form.get("witnessDistance", None),
+            "image_urls": json.dumps(saved_urls) if saved_urls else None,
             "witness_name": form.get("witnessName"),
             "witness_phone": form.get("witnessPhone"),
-            "agree_contact": int(bool(form.get("agreeContact"))),
-             "witness_lat": witness_lat,
-            "witness_lng": witness_lng,
-            "user_lat": user_lat,
-            "user_lng": user_lng
-        })
-        db.disconnect()
+            "agree_contact": 1 if form.get("agreeContact") else 0,
+            "privacy_agree": 1 if form.get("privacyAgree") else 0,
+            "status": "pending"
+        }
+        print("missing_date from API:", missing_person_data.get("missing_date"))
+        print("missing_date from form:", form.get("missingDate"))
+        print("final missing_date:", missing_person_data.get("missing_date") or form.get("missingDate"))
+        # DB 저장
+        db = DBManager()
+        db.connect()
+        report_id = db.insert_witness_report(report_data)
 
-        return jsonify({"status": "success", "message": "신고가 저장되었습니다."})
+        return jsonify({"status": "success", "message": "신고가 저장되었습니다.", "report_id": report_id})
 
     except Exception as e:
-        print(f"API witness report error: {e}")
-        return jsonify({'status': 'error', 'message': '저장 중 오류가 발생했습니다.'}), 500
+        print("신고 저장 오류:", e)
+        for url in saved_urls:
+            try:
+                path = url[1:]
+                if os.path.exists(path):
+                    os.remove(path)
+            except:
+                pass
+        return jsonify({'status': 'error', 'message': '신고 저장 실패'}), 500
+    finally:
+        if db:
+            db.disconnect()
 
-# UP 버튼 클릭 API
-@app.route('/api/missing/<int:missing_id>/up', methods=['POST'])
-def api_missing_up(missing_id):
-    try:
-        # TODO: UP 카운트 증가 로직 구현
-        return jsonify({"status": "success", "message": "UP 완료", "new_count": 0})
-    except Exception as e:
-        print(f"API missing up error: {e}")
-        return jsonify({"status": "error", "message": "처리 중 오류가 발생했습니다."}), 500
 
 # 헬스체크 엔드포인트
 @app.route('/health')
@@ -768,6 +842,15 @@ def approve_witness_report():
     except Exception as e:
         print(f"승인 처리 오류: {e}")
         return jsonify({'status': 'error', 'message': '승인 처리 중 오류가 발생했습니다.'}), 500
+
+
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(sync_missing_api_data, 'interval', hours=1)
+sync_missing_api_data()
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown())
 
 # ==================== 개발 설정 ====================
 
