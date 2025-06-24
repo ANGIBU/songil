@@ -58,28 +58,27 @@
     <div class="container">
         <div class="summary-card">
             <div class="summary-image">
-                <img src="{{ missing.PHOTO_SZ or url_for('static', filename='images/placeholder.jpg') }}" 
-                    alt="실종자 사진" 
-                    onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                <img src="{{ missing.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
+                     alt="실종자 사진" 
+                     onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
                 <div class="danger-level high">긴급</div>
             </div>
             <div class="summary-info">
-                <h2>{{ missing.FLNM or '이름없음' }} ({{ missing.NOW_AGE or '?' }}세, {{ '남성' if missing.GNDR_SE == '남' else '여성' }})</h2>
+                <h2>{{ missing.nm or '이름없음' }} ({{ missing.ageNow or '?' }}세, {{ missing.sexdstn }})</h2>
                 <div class="summary-details">
                     <div class="detail-item">
                         <i class="fas fa-calendar"></i>
-                        {{ missing.OCRN_DT[:4] }}년 {{ missing.OCRN_DT[4:6] }}월 {{ missing.OCRN_DT[6:8] }}일 실종
+                        {{ missing.occrde }} 실종
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-map-marker-alt"></i>
-                        {{ missing.OCRN_PLC or '장소 미상' }}
+                        {{ missing.occrAdres or '장소 미상' }}
                     </div>
                     <div class="detail-item">
                         <i class="fas fa-exclamation-circle"></i>
-                        {% set clothing = missing.PHBB_SPFE or '' %}
-                        {% set feature = missing.PHYSCL_FEATR or '' %}
-                        {% if clothing or feature %}
-                            {{ clothing }}{% if clothing and feature %}, {% endif %}{{ feature }}
+                        {% set features = missing.features or '' %}
+                        {% if features %}
+                            {{ features }}
                         {% else %}
                             특이사항 없음
                         {% endif %}
@@ -95,12 +94,12 @@
     <div class="container">
         <form class="witness-form" id="witnessForm">
             <input type="hidden" name="missing_id" value="{{ missing.SENU or '' }}">
-            <input type="hidden" name="missingPersonName" value="{{ missing.FLNM or '이름없음' }}">
-            <input type="hidden" name="missingPersonAge" value="{{ missing.NOW_AGE or 0 }}">
-            <input type="hidden" name="missingPersonGender" value="{% if missing.GNDR_SE == '남' %}남성{% elif missing.GNDR_SE == '여' %}여성{% else %}남성{% endif %}">
-            <input type="hidden" name="missingDate" value="{% if missing.OCRN_DT %}{{ missing.OCRN_DT[:4] }}-{{ missing.OCRN_DT[4:6] }}-{{ missing.OCRN_DT[6:8] }}{% else %}2000-01-01{% endif %}">
-            <input type="hidden" name="missingLocation" value="{{ missing.OCRN_PLC or '장소 미상' }}">
-            <input type="hidden" name="missingFeatures" value="{{ missing.PHBB_SPFE or '' }}{% if missing.PHBB_SPFE and missing.PHYSCL_FEATR %}, {% endif %}{{ missing.PHYSCL_FEATR or '' }}">
+            <input type="hidden" name="missingPersonName" value="{{ missing.nm or '이름없음' }}">
+            <input type="hidden" name="missingPersonAge" value="{{ missing.ageNow or 0 }}">
+            <input type="hidden" name="missingPersonGender" value="{{ missing.sexdstn or '남성' }}"> 
+            <input type="hidden" name="missingDate" value="{% if missing.occrde %}{{ missing.occrde | replace('.', '-') }}{% else %}2000-01-01{% endif %}">
+            <input type="hidden" name="missingLocation" value="{{ missing.occrAdres or '장소 미상' }}">
+            <input type="hidden" name="missingFeatures" value="{{ missing.features or '' }}">
 
             <div class="form-section">
                 <h3>
@@ -225,8 +224,7 @@
                     </div>
                     
                     <div class="uploaded-evidence" id="uploadedEvidence">
-                        <!-- 업로드된 파일들이 여기에 표시됩니다 -->
-                    </div>
+                        </div>
                     
                     <div class="upload-note">
                         <i class="fas fa-info-circle"></i>
@@ -259,7 +257,6 @@
                 </div>
             </div>
             
-            <!-- 제출 버튼 -->
             <div class="form-submit">
                 <div class="submit-info">
                     <div class="info-item">

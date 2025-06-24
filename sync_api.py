@@ -1,37 +1,296 @@
-# sync_api.py
-from model import DBManager # DBManager 임포트
+import os
+import joblib
+import pandas as pd
+import numpy as np
+import re
 import requests
 from datetime import datetime, date
 import traceback
-import uuid # ID 생성에 필요
+import uuid
+from typing import Dict, List, Tuple
+from model import DBManager
+import warnings
+import json # json 모듈 추가
+
+# sklearn.utils.validation에서 발생하는 특정 UserWarning을 무시
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn.utils.validation')
+
+# --- 절대 경로 설정 (이 부분을 정확히 확인합니다) ---
+BASE_DIR = "C:/Users/study/파일/coding/python/songil-main"
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+RF_MODEL_PATH = os.path.join(MODELS_DIR, "rf_model.pkl")
+KEYWORD_SCORES_PATH = os.path.join(MODELS_DIR, "keyword_scores_diff.pkl")
+
+# --- 디버깅 코드 추가 ---
+print(f"현재 작업 디렉토리: {os.getcwd()}")
+print(f"BASE_DIR 설정: {BASE_DIR}")
+print(f"MODELS_DIR 설정: {MODELS_DIR}")
+print(f"RF 모델 예상 경로: {RF_MODEL_PATH}")
+print(f"키워드 점수 예상 경로: {KEYWORD_SCORES_PATH}")
+
+if os.path.exists(RF_MODEL_PATH):
+    print(f"[디버그] RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재합니다.")
+else:
+    print(f"[디버그] !!! 경고: RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재하지 않습니다. !!!")
+
+if os.path.exists(KEYWORD_SCORES_PATH):
+    print(f"[디버그] 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재합니다.")
+else:
+    print(f"[디버그] !!! 경고: 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재하지 않습니다. !!!")
+# --- 디버깅 코드 끝 ---
 
 
-# --- 더미 함수 (실제 구현으로 교체 필요) ---
-def predict_danger_level(data):
+# --- 전처리 및 피처 생성 함수들 ---
 
-    age = data.get('age', 0)
-    gender = data.get('gender', 'unknown')
-    keywords = data.get('keywords', '')
+try:
+    keyword_scores = joblib.load(KEYWORD_SCORES_PATH)
+    print(f"[모델 로드] {KEYWORD_SCORES_PATH} 로드 성공.")
+except Exception as e:
+    print(f"[경고] '{KEYWORD_SCORES_PATH}' 로드 실패: {e}. 임시 기본 키워드 점수를 사용합니다.")
+    keyword_scores = {
+        '치매': 0.4, '기억력 저하': 0.4, '이름 되묻기': 0.4,
+        '지적장애': 0.37, '정신질환': 0.38, '시각장장애': 0.32,
+        '청각장애': 0.3, '보행장애': 0.34, '우울감': 0.22,
+        '알츠하이머': 0.4, '파킨슨': 0.35, '뇌경색': 0.3,
+        '자폐': 0.35, '발달장애': 0.35, '건망증': 0.2,
+        '불안': 0.2, '공황': 0.25, '조현병': 0.38,
+        '양극성': 0.3, '우울증': 0.22
+    }
 
-    if isinstance(age, str) and age.isdigit():
-        age = int(age)
-    elif isinstance(age, int):
-        pass
+writng_code_info = {
+    '060': {'desc': '치매', 'score': 0.0},
+    '061': {'desc': '지적장애', 'score': 0.0},
+    '062': {'desc': '정신질환', 'score': 0.0},
+    '063': {'desc': '만성질환', 'score': 0.0},
+    '070': {'desc': '고령자', 'score': 0.0},
+    '071': {'desc': '아동', 'score': 0.0},
+    '072': {'desc': '일반', 'score': 0.0},
+}
+
+for code, info in writng_code_info.items():
+    keyword = info["desc"]
+    if keyword in keyword_scores:
+        writng_code_info[code]["score"] = keyword_scores[keyword]
+
+def normalize_text(text: str) -> str:
+    if pd.isna(text) or text == '':
+        return ''
+    text = str(text).strip()
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'[\n\r\t]', ' ', text)
+    text = re.sub(r'[^\w\s가-힣.,!?()-]', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+def extract_keyword_scores(text: str, keyword_dict: Dict[str, float], top_n: int = 2) -> Tuple[List[str], float]:
+    if pd.isna(text) or text == '':
+        return [], 0.0
+
+    normalized_text = normalize_text(text)
+    keyword_matches = []
+    sorted_keywords = sorted(keyword_dict.keys(), key=len, reverse=True)
+
+    for keyword in sorted_keywords:
+        patterns = [
+            r'(?:^|[\s.,!?()[\]{}"-])' + re.escape(keyword) + r'(?=[\s.,!?()[\]{}"-]|$)',
+            r'(?:^|[^가-힣])' + re.escape(keyword) + r'(?=[^가-힣]|$)',
+            re.escape(keyword)
+        ]
+
+        matched = False
+        for pattern in patterns:
+            try:
+                if re.search(pattern, normalized_text):
+                    keyword_matches.append(keyword)
+                    matched = True
+                    break
+            except re.error:
+                continue
+
+        if matched:
+            continue
+
+    unique_keywords = list(set(keyword_matches))
+    keyword_scores_found = [keyword_dict[kw] for kw in unique_keywords]
+    top_scores = sorted(keyword_scores_found, reverse=True)[:top_n]
+    total_score = sum(top_scores)
+
+    return unique_keywords, total_score
+
+def get_age_score(age: int) -> float:
+    if pd.isna(age):
+        return 0.0
+    if age <= 6:
+        return 0.25
+    elif age <= 18:
+        return 0.2
+    elif age >= 80:
+        return 0.25
+    elif age >= 65:
+        return 0.2
     else:
-        age = 0
+        return 0.0
 
-    if '정신지체' in keywords or '치매' in keywords or age > 65:
-        return '위험'
-    elif 0 < age < 10:
-        return '보통'
+def get_gender_score(gender_encoded: int) -> float:
+    if pd.isna(gender_encoded):
+        return 0.0
+    if gender_encoded == 1: # 남성
+        return 0.05
+    elif gender_encoded == 0: # 여성
+        return 0.0
+    return 0.0
+
+def get_code_score_with_complement(code: str, text_keywords: List[str], code_info_dict: Dict) -> Tuple[float, str, str]:
+    code = str(code).strip()
+    if code not in code_info_dict:
+        return 0.0, '기타', 'unknown_code'
+    info = code_info_dict[code]
+    code_desc = info['desc'].strip()
+    code_score = info['score']
+    text_keywords_clean = [kw.strip() for kw in text_keywords]
+    if code_desc in text_keywords_clean:
+        return 0.0, code_desc, 'duplicate_from_text'
     else:
-        return '보통'
+        if code_score > 0:
+            return code_score, code_desc, 'complement_from_code'
+        else:
+            return 0.0, code_desc, 'no_score'
+
+def infer_writng_trget_dscd(age: int, features_text: str, code_info_dict: Dict) -> str:
+    features_text = normalize_text(features_text)
+
+    sorted_code_descs = sorted(
+        [info['desc'] for info in code_info_dict.values() if info['desc'] != '일반'],
+        key=len, reverse=True
+    )
+
+    for desc in sorted_code_descs:
+        if desc in features_text:
+            for code, info in code_info_dict.items():
+                if info['desc'] == desc:
+                    return code
+
+    if age is not None:
+        if age <= 18:
+            return '071' # 아동
+        elif age >= 65:
+            return '070' # 고령자
+
+    return '072' # 일반
+
+def calculate_all_scores(data: Dict) -> Dict:
+    total_score = 0.0
+    details = {}
+
+    age = data.get('age')
+    gender_raw = data.get('gender')
+    features = data.get('keywords', '')
+
+    gender_encoded = None
+    if isinstance(gender_raw, str):
+        if gender_raw.upper() == '남' or gender_raw.upper() == 'MALE':
+            gender_encoded = 1
+        elif gender_raw.upper() == '여' or gender_raw.upper() == 'FEMALE':
+            gender_encoded = 0
+
+    gender_score = get_gender_score(gender_encoded)
+    total_score += gender_score
+    details['gender_score'] = gender_score
+
+    age_score = get_age_score(age)
+    total_score += age_score
+    details['age_score'] = age_score
+
+    matched_keywords, keyword_score = extract_keyword_scores(features, keyword_scores, top_n=2)
+    total_score += keyword_score
+    details['keyword_score'] = keyword_score
+    details['matched_keywords'] = matched_keywords
+
+    inferred_code = infer_writng_trget_dscd(age, features, writng_code_info)
+
+    code_score, code_desc, process_type = get_code_score_with_complement(
+        inferred_code, matched_keywords, writng_code_info
+    )
+    total_score += code_score
+    details['code_score'] = code_score
+    details['code_desc'] = code_desc
+    details['code_process_type'] = process_type
+
+    final_score = round(min(total_score, 1.0), 3) # 점수 상한선을 1.0으로 설정
+    details['total_score'] = final_score
+
+    return details
+
+# --- 모델 로드 ---
+model_rf = None
+try:
+    model_rf = joblib.load(RF_MODEL_PATH)
+    print(f"[모델 로드] {RF_MODEL_PATH} 로드 성공.")
+except Exception as e:
+    print(f"[오류] '{RF_MODEL_PATH}' 로드 실패: {e}")
+    traceback.print_exc()
+    print("[심각 오류] Random Forest 모델 로드에 실패하여 애플리케이션을 종료합니다.")
+    exit(1)
+
+
+# --- predict_danger_level 함수 (핵심) ---
+def predict_danger_level(data_list: List[Dict]) -> List[str]:
+
+    if model_rf is None:
+        print("[심각 오류] Random Forest 모델이 로드되지 않았습니다. 예측을 수행할 수 없습니다.")
+        return ["예측 불가"] * len(data_list)
+
+    predictions = []
+
+    try:
+        features_for_prediction = []
+        for data in data_list:
+            age = data.get('age')
+            gender_raw = data.get('gender')
+            keywords_text = data.get('keywords', '')
+
+            # gender_encoded 계산
+            gender_encoded = None
+            if isinstance(gender_raw, str):
+                if gender_raw.upper() == '남' or gender_raw.upper() == 'MALE':
+                    gender_encoded = 1
+                elif gender_raw.upper() == '여' or gender_raw.upper() == 'FEMALE':
+                    gender_encoded = 0
+
+            
+            if gender_encoded is None: 
+                gender_encoded = 2 
+
+            _, keyword_score_sum = extract_keyword_scores(keywords_text, keyword_scores, top_n=2)
+
+
+            model_feature_names = ['age', 'gender_encoded', 'keyword_score_sum']
+
+            features_for_prediction.append([age if age is not None else 0, gender_encoded, keyword_score_sum])
+
+        features_df = pd.DataFrame(features_for_prediction, columns=model_feature_names)
+
+        batch_predictions = model_rf.predict(features_df)
+
+        class_mapping = {
+            0: '보통',
+            1: '위험'
+        }
+
+        for pred_val in batch_predictions:
+            predictions.append(class_mapping.get(pred_val, '알 수 없음'))
+
+    except Exception as e:
+        print(f"[오류] predict_danger_level 함수에서 예측 실패: {e}")
+        traceback.print_exc()
+        # 오류 발생 시 모든 항목에 대해 '예측 실패 (내부 오류)'를 반환하여 길이를 맞춤
+        return ["예측 실패 (내부 오류)"] * len(data_list)
+
+    return predictions
+
 
 def calculate_age(birth_date_str):
-    """
-    생년월일 문자열(YYYYMMDD)로부터 나이를 계산합니다.
-    유효하지 않거나 누락된 경우 None을 반환합니다.
-    """
     if not birth_date_str:
         return None
     try:
@@ -41,23 +300,17 @@ def calculate_age(birth_date_str):
         return age
     except ValueError:
         print(f"경고: 생년월일 '{birth_date_str}'을(를) 파싱할 수 없습니다.")
-        return None
+    return None
 
 def parse_date(date_str):
-    """
-    날짜 문자열(YYYYMMDD)을 datetime.date 객체로 파싱합니다.
-    유효하지 않거나 비어있는 경우 None을 반환합니다.
-    """
     if not date_str:
         return None
     try:
         return datetime.strptime(date_str, "%Y%m%d").date()
     except ValueError:
         print(f"경고: 날짜 '{date_str}'을(를) 파싱할 수 없습니다.")
-        return None
-# --- 더미 함수 끝 ---
+    return None
 
-# DBManager 인스턴스 생성 및 연결
 db = DBManager()
 try:
     db.connect()
@@ -65,104 +318,152 @@ try:
 except Exception as e:
     print(f"[오류] sync_api.py: 데이터베이스 연결 실패: {e}")
     traceback.print_exc()
-    # 데이터베이스 연결 실패 시 스크립트 종료
     exit(1)
 
 
 def sync_missing_api_data():
-    """
-    실종자 데이터를 외부 API에서 가져와 로컬 데이터베이스에 동기화합니다.
-    이제 safetydata.go.kr V2/api/DSSP-IF-20597 API를 사용합니다.
-    """
     API_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-20597"
     params = {
-        "serviceKey": "3FQG91W954658S1F",  # <<< 이미지에서 확인된 서비스 키입니다.
+        "serviceKey": "3FQG91W954658S1F",
         "returnType": "json",
         "pageNo": "1",
         "numOfRows": "500"
     }
+
+    BATCH_SIZE = 20
 
     try:
         print(f"[동기화] {API_URL}에서 데이터 동기화를 시도합니다...")
         response = requests.get(API_URL, params=params, verify=False)
         response.raise_for_status()
         data = response.json()
-        # safetydata.go.kr API는 "body" 키 안에 데이터가 있습니다.
+
+        # --- API 응답 전체를 파일로 저장하는 디버깅 코드 추가 ---
+        with open("api_response_full.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        print("[DEBUG] API 응답 전체가 'api_response_full.json' 파일로 저장되었습니다.")
+        # --- 디버깅 코드 끝 ---
+
         items = data.get('body', [])
 
-        current_external_ids = []
+        # API 응답에 존재하는 모든 external_id를 추적
+        current_external_ids_from_api = []
 
-        for item in items:
-            # safetydata.go.kr API의 고유 ID는 "SENU"로 보입니다.
+        batch_items = []
+
+        print(f"[동기화] 총 {len(items)}개의 항목을 가져왔습니다. {BATCH_SIZE}개 단위로 처리합니다.")
+
+        for i, item in enumerate(items):
             external_id = item.get("SENU")
-            # 만약 SENU가 없다면 UUID를 생성하여 고유성을 확보합니다.
             if not external_id:
                 external_id = f"gen-{uuid.uuid4()}"
-                print(f"[동기화] 'SENU' (external_id)이(가) 없어 UUID를 생성했습니다: {external_id}, Item: {item}")
-            current_external_ids.append(external_id)
+            current_external_ids_from_api.append(external_id)
 
-            # safetydata.go.kr API의 필드 매핑
-            name = item.get("FLNM", "이름없음")
-            
-            # NOW_AGE는 이미 나이이므로 calculate_age 호출 불필요. int로 변환 시도.
-            age_raw = item.get("NOW_AGE")
-            age_to_store = None
-            if age_raw is not None:
-                try:
-                    age_to_store = int(age_raw)
-                except ValueError:
-                    age_to_store = None # 변환 실패 시 None
+            # [DEBUG_GENDER] 로그도 GNDR_SE로 변경
+            raw_gender_from_api = item.get("GNDR_SE", "필드_없음_또는_None") # <-- 여기서 GNDR_SE로 변경
+            print(f"[DEBUG_GENDER] external_id: {external_id}, Raw Gender from API: '{raw_gender_from_api}'")
+
+            processed_item_data = {
+                'external_id': external_id,
+                'name': item.get("FLNM", "이름없음"),
+                'age': int(item.get("NOW_AGE")) if item.get("NOW_AGE") and str(item.get("NOW_AGE")).isdigit() else None,
+                'gender': item.get("GNDR_SE", None), # <-- 여기서 SEXDSTN_DSC 대신 GNDR_SE로 변경!
+                'missing_date': parse_date(item.get("OCRN_DT")),
+                'missing_location': item.get("OCRN_PLC", "미상"),
+                'keywords': item.get("PHBB_SPFE", "정보 없음"),
+                'image_url': "/static/images/placeholder.jpg"
+            }
+            batch_items.append(processed_item_data)
+
+            # 배치 처리 또는 마지막 항목인 경우 처리
+            if (i + 1) % BATCH_SIZE == 0 or (i + 1) == len(items):
+                print(f"[동기화 진행] {i + 1} / {len(items)} 항목 처리 중...")
+
+                # predict_danger_level에 필요한 최소한의 원본 데이터만 전달
+                danger_levels = predict_danger_level([
+                    {'age': d['age'], 'gender': d['gender'], 'keywords': d['keywords']}
+                    for d in batch_items
+                ])
+
+                for j, processed_data in enumerate(batch_items):
+                    external_id_to_use = processed_data['external_id']
+                    name = processed_data['name']
+                    age_to_store = processed_data['age']
+                    gender_api = processed_data['gender']
+
+                    gender_api = processed_data['gender']
+
+                    gender_to_store = None
+                    if gender_api is not None:
+                        cleaned_gender = str(gender_api).strip().upper() 
+                        
+                        if cleaned_gender == '남' or cleaned_gender == 'MALE' or cleaned_gender == '남자': # '남자' 추가
+                            gender_to_store = 1
+                        elif cleaned_gender == '여' or cleaned_gender == 'FEMALE' or cleaned_gender == '여자': # '여자' 추가
+                            gender_to_store = 0
+                        else:
+                            gender_to_store = 2 # 인식 불가 문자열
+                            print(f"[경고] 알 수 없는 성별 값: '{gender_api}'. 2으로 처리합니다.")
+                    else:
+                        gender_to_store = 2 # gender_api가 None인 경우
+                        print(f"[경고] 성별 정보가 None입니다. 2으로 처리합니다.")
 
 
-            gender = None 
 
+                    missing_date = processed_data['missing_date']
+                    missing_location = processed_data['missing_location']
+                    features = processed_data['keywords']
+                    image_url = processed_data['image_url']
+                    danger_level = danger_levels[j] # 예측된 위험 수준
 
+                    print(f"\n--- 현재 처리 중인 API 데이터 ---")
+                    print(f"  external_id: {external_id_to_use}")
+                    # 로그 출력 시 gender_to_store 사용
+                    print(f"  검색 키: name='{name}', age={age_to_store}, gender={gender_to_store}, missing_date={missing_date}")
+                    print(f"--- DB에서 기존 레코드 검색 시도 중 ---")
 
-            # 발생일시 (OCRN_DT)는 YYYYMMDD 형태이므로 parse_date 사용
-            missing_date = parse_date(item.get("OCRN_DT"))
-            missing_location = item.get("OCRN_PLC", "미상")
-            features = item.get("PHBB_SPFE", "정보 없음") # 신체 특징 / 특이사항
-            # image_url 필드는 이 API에서 직접 제공되지 않는 것으로 보입니다.
-            # placeholder 이미지를 사용하거나, 별도 이미지 URL을 얻는 로직이 필요합니다.
-            image_url = "/static/images/placeholder.jpg" # 기본 이미지 경로 사용
+                    # 기존 레코드 존재 여부 확인 (name, age, gender, missing_date 조합으로)
+                    existing_record = db.execute(f"""
+                        SELECT id, external_id FROM api_missing_data
+                        WHERE name = %s AND age = %s AND gender = %s AND missing_date = %s
+                    """, (name, age_to_store, gender_to_store, missing_date)).fetchone()
 
-            danger_level = predict_danger_level({
-                'age': age_to_store,
-                'gender': gender,
-                'keywords': features
-            })
+                    if existing_record:
+                        # existing_record가 딕셔너리 형태일 것이므로 키로 접근
+                        print(f"  [FOUND] 기존 레코드 발견: id={existing_record['id']}, external_id={existing_record['external_id']}")
+                        print(f"  [스킵] 중복 레코드를 발견했습니다. (ID: {existing_record['id']}). 업데이트하지 않고 다음으로 넘어갑니다.")
+                        continue # 이 항목은 스킵하고 다음 항목으로 넘어갑니다.
+                    else:
+                        print(f"  [NOT FOUND] 기존 레코드 없음. 새 레코드 삽입 예정.")
 
-            db.execute("""
-                INSERT INTO api_missing_data (
-                    external_id, name, age, gender, missing_date,
-                    missing_location, features, image_url, danger_level,
-                    status, registered_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'active', NOW())
-                ON DUPLICATE KEY UPDATE
-                    name = VALUES(name),
-                    age = VALUES(age),
-                    gender = VALUES(gender),
-                    missing_date = VALUES(missing_date),
-                    missing_location = VALUES(missing_location),
-                    features = VALUES(features),
-                    image_url = VALUES(image_url),
-                    danger_level = VALUES(danger_level),
-                    status = 'active'
-            """, (
-                external_id, name, age_to_store, gender, missing_date,
-                missing_location, features, image_url, danger_level
-            ), commit=True)
+                    # 기존 레코드가 없다면 삽입
+                    db.execute("""
+                        INSERT INTO api_missing_data (
+                            external_id, name, age, gender, missing_date,
+                            missing_location, features, image_url, danger_level,
+                            status, registered_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'active', NOW())
+                    """, (
+                        external_id_to_use, name, age_to_store, gender_to_store, missing_date,
+                        missing_location, features, image_url, danger_level
+                    ), commit=True)
+                    print(f"  [삽입] 새로운 레코드 삽입 완료 (external_id: {external_id_to_use}).")
 
-        if current_external_ids:
-            placeholders = ",".join(["%s"] * len(current_external_ids))
+                # 배치 처리 후 다음 배치를 위해 리스트 초기화
+                batch_items = []
+
+        # API 응답에 없는 레코드 'hidden' 처리
+        if current_external_ids_from_api:
+            # 현재 API 응답에 있는 모든 external_id를 이용해 플레이스홀더 생성
+            placeholders = ",".join(["%s"] * len(current_external_ids_from_api))
             db.execute(f"""
                 UPDATE api_missing_data
-                SET status = 'hidden'
+                SET status = 'hidden', updated_at = NOW()
                 WHERE external_id NOT IN ({placeholders}) AND status = 'active'
-            """, tuple(current_external_ids), commit=True)
-            print(f"[동기화] API에서 {len(items)}개의 항목을 처리했습니다. 현재 응답에 없는 레코드는 숨김 처리되었습니다.")
+            """, tuple(current_external_ids_from_api), commit=True)
+            print(f"[동기화] API에서 {len(items)}개의 항목을 처리했습니다. 현재 응답에 없는 external_id를 가진 레코드는 숨김 처리되었습니다.")
         else:
-            db.execute("UPDATE api_missing_data SET status = 'hidden' WHERE status = 'active'", commit=True)
+            db.execute("UPDATE api_missing_data SET status = 'hidden', updated_at = NOW() WHERE status = 'active'", commit=True)
             print("[동기화] API에서 항목을 수신하지 못했습니다. 모든 기존 활성 레코드는 숨김 처리되었습니다.")
 
         print(f"[✓] 동기화 완료 - {len(items)}건 처리됨 at {datetime.now()}")
@@ -176,3 +477,5 @@ def sync_missing_api_data():
     finally:
         db.disconnect()
 
+if __name__ == "__main__":
+    sync_missing_api_data()

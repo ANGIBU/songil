@@ -46,44 +46,53 @@ async function fetchMissingDetail(id) {
 }
 
 function applyMissingDetailToPage(data) {
-    console.log('받은 데이터:', data); // 디버깅용
-    
-    // 실제 데이터 구조에 맞게 수정
-    const name = data.FLNM || data.nm || '정보없음';
-    const age = data.NOW_AGE || data.ageNow || data.age || '정보없음';
-    const gender = data.GNDR_SE || data.gender || '정보없음';
-    
-    // missingName 요소 안전하게 처리
+    console.log("🔥 받은 데이터:", data);  // 디버깅 로그
+
+    const name = data.name || '정보없음';
+    const age = data.age !== undefined ? data.age : '정보없음';
+
+    let gender = '정보없음';
+    if (data.gender === 0) {
+        gender = '여성';
+    } else if (data.gender === 1) {
+        gender = '남성';
+    }
+
+    // 이름 + 나이
     const missingNameEl = document.getElementById('missingName');
     if (missingNameEl) {
         missingNameEl.textContent = `${name} (${age}세)`;
-    } else {
-        console.warn('missingName 요소를 찾을 수 없습니다.');
-        // 대체 방법으로 제목 찾기
-        const titleEl = document.querySelector('h1') || document.querySelector('.title') || document.querySelector('.name');
-        if (titleEl) {
-            titleEl.textContent = `${name} (${age}세)`;
-        }
     }
 
-    // report-id
+    // 신고번호
     const reportEl = document.querySelector('.report-id');
     if (reportEl) {
-        reportEl.textContent = `신고번호: ${data.SENU || data.id || 'N/A'}`;
+        reportEl.textContent = `신고번호: ${data.external_id || 'N/A'}`;
     }
 
     // 이미지
     const mainImage = document.getElementById('mainImage');
     if (mainImage) {
-        mainImage.src = data.PHOTO_SZ || data.main_image || '/static/images/placeholder.jpg';
+        mainImage.src = data.image_url || '/static/images/placeholder.jpg';
     }
 
-    // info-value들 - 실제 데이터 구조에 맞게 수정
+    // 날짜 포맷 (날짜 객체 → YYYY.MM.DD)
+    let dateFormatted = '정보없음';
+    if (data.missing_date) {
+        try {
+            const d = new Date(data.missing_date);
+            dateFormatted = `${d.getFullYear()}.${d.getMonth() + 1}`.padStart(2, '0') + `.${d.getDate().toString().padStart(2, '0')}`;
+        } catch {
+            dateFormatted = data.missing_date;
+        }
+    }
+
+    // 기본 정보: 실종일시 / 장소 / 성별 / 나이
     const infoData = [
-        data.OCRN_DT || data.missing_datetime || '정보없음',      // 실종일시
-        data.OCRN_PLC || data.location || '정보없음',            // 실종장소  
-        `${gender}`,                              // 성별                     
-        `${age}세`                                // 나이
+        dateFormatted,
+        data.missing_location || '정보없음',
+        gender,
+        `${age}세`
     ];
 
     const infoElements = document.querySelectorAll('.info-value');
@@ -93,20 +102,43 @@ function applyMissingDetailToPage(data) {
         }
     });
 
-    // 나머지 요소들
-    const dangerEl = document.querySelector('.danger-level');
-    if (dangerEl && data.danger_level) dangerEl.textContent = data.danger_level;
+    // 위험도
+    const dangerBox = document.querySelector('.danger-level');
+    if (dangerBox) {
+        if (data.danger_level === '위험') {
+            dangerBox.style.display = 'block';
+            dangerBox.textContent = '긴급';
+            dangerBox.classList.add('high'); // CSS 스타일용
+        } else {
+            dangerBox.style.display = 'none';
+        }
+    }
 
+    // 실종일로부터 경과일 계산 값이 있다면
     const periodEl = document.querySelector('.missing-period');
-    if (periodEl && data.missing_days) periodEl.textContent = `${data.missing_days}일째`;
+    if (periodEl && data.missing_days) {
+        periodEl.textContent = `${data.missing_days}일째`;
+    }
 
+    // 특이사항
     const situationEl = document.getElementById('missingSituation');
     if (situationEl) {
-        situationEl.textContent = data.PHBB_SPFE || '특이사항 없음';
+        situationEl.textContent = data.features || '특이사항 없음';
     }
+
+    // 관련 실종자 및 목격 정보
     applyWitnessStatsToPage(data.witness_stats || {});
     applyRelatedMissingPersons(data.related || []);
+
+    // 목격 신고 버튼 링크도 업데이트
+    const witnessBtn = document.getElementById('witnessReportBtn');
+    if (witnessBtn && data.external_id) {
+        witnessBtn.href = `/witness/${data.external_id}`;
+    }
 }
+
+
+
 // 목격 정보 통계 적용 함수
 function applyWitnessStatsToPage(stats) {
     const totalEl = document.getElementById('witnessTotal');
@@ -127,10 +159,17 @@ function applyRelatedMissingPersons(relatedList) {
     relatedList.forEach(person => {
         const div = document.createElement('div');
         div.className = 'missing-card';
+
+        // 위험도 표시 조건부 구성
+        let dangerBadgeHTML = '';
+        if (person.danger_level === '위험') {
+            dangerBadgeHTML = `<div class="danger-level high">긴급</div>`;
+        }
+
         div.innerHTML = `
             <div class="card-image">
                 <img src="${person.main_image || '/static/images/placeholder.jpg'}" alt="실종자 사진">
-                <div class="danger-level">${person.danger_level || '관심'}</div>
+                ${dangerBadgeHTML}
             </div>
             <div class="card-content">
                 <h4>${person.name} (${person.age}세)</h4>
@@ -148,6 +187,7 @@ function applyRelatedMissingPersons(relatedList) {
         container.appendChild(div);
     });
 }
+
 
 // 기본 정보 가시성 보장 함수 추가
 function ensureBasicInfoVisibility() {

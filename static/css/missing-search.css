@@ -784,16 +784,8 @@ html {
     z-index: 2;
 }
 
-.danger-level.high {
-    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-}
-
-.danger-level.medium {
-    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
-}
-
-.danger-level.low {
-    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+.danger-level.emergency {
+    background: linear-gradient(135deg, crimson 0%, #ff6b6b 100%);
 }
 
 .missing-period {

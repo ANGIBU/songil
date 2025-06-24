@@ -146,47 +146,50 @@ class DBManager:
             return False
 
     # 목격자 정보 삽입
-    def insert_witness_report(self, report):
+    def insert_witness_report(self, report_data):
         try:
             sql = """
                 INSERT INTO witness_reports (
-                    user_id, missing_id, missing_person_name, missing_person_age,
-                    missing_person_gender, missing_date, missing_location,
-                    witness_datetime, time_accuracy,
+                    user_id, missing_person_name, missing_person_age,
+                    missing_person_gender, missing_date, missing_location, -- <--- ★ 이 두 부분이 이렇게 되어야 합니다 ★
+                    missing_features, witness_datetime, time_accuracy,
                     location, location_detail, location_accuracy,
                     description, confidence, distance,
-                    image_urls, witness_name, witness_phone, agree_contact
+                    image_urls, status,
+                    created_at, updated_at
                 ) VALUES (
-                    %(user_id)s, %(missing_id)s, %(missing_person_name)s, %(missing_person_age)s,
-                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s,
-                    %(witness_datetime)s, %(time_accuracy)s,
+                    %(user_id)s, %(missing_person_name)s, %(missing_person_age)s,
+                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s, -- <--- ★ 이 두 부분도 이렇게 되어야 합니다 ★
+                    %(missing_features)s, %(witness_datetime)s, %(time_accuracy)s,
                     %(location)s, %(location_detail)s, %(location_accuracy)s,
                     %(description)s, %(confidence)s, %(distance)s,
-                    %(image_urls)s, %(witness_name)s, %(witness_phone)s, %(agree_contact)s
+                    %(image_urls)s, %(status)s,
+                    NOW(), NOW()
                 )
             """
-            self.cursor.execute(sql, report)
+            print(f"[디버그] 실행될 SQL 쿼리: {sql}") # ★ 이 줄을 추가하여 어떤 SQL이 실행되는지 확인하세요. ★
+            print(f"[디버그] SQL 파라미터: {report_data}") # ★ 이 줄도 추가하여 어떤 데이터가 넘어가는지 확인하세요. ★
+
+            self.cursor.execute(sql, report_data)
             self.connection.commit()
             return True
         except Exception as e:
-            print("목격 신고 삽입 실패:", e)
+            self.connection.rollback()
+            print(f"목격 신고 삽입 실패: MySQL 오류 - {e}")
             return False
 
-
-def insert_witness_report(self, data):
-    try:
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join(['%s'] * len(data))
-        values = list(data.values())
-
-        query = f"INSERT INTO witness_reports ({columns}) VALUES ({placeholders})"
-        self.execute_query(query, values)
-
-        # 마지막 삽입 ID 반환
-        return self.cursor.lastrowid
-    except Exception as e:
-        print(f"[ERROR] insert_witness_report: {e}")
-        return False
+    def get_missing_person_by_external_id(self, external_id):
+        try:
+            query = "SELECT external_id, name, age, gender, missing_date, missing_location, features FROM api_missing_data WHERE external_id = %s AND status = 'active'"
+            self.cursor.execute(query, (external_id,))
+            result = self.cursor.fetchone()
+            if result:
+                return result
+            else:
+                return None
+        except Exception as e:
+            print(f"[에러] DB에서 실종자 정보 조회 중 오류 발생 ({external_id}): {e}")
+            return None
     
 # DBManager 인스턴스 생성 및 연결
 db = DBManager()

@@ -817,20 +817,10 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
         setTimeout(() => setIsAnimating(false), 300);
     }, [isAnimating, onUpClick, data.id]);
 
-    const getDangerLevelText = useCallback((level) => {
-        const levels = {
-            'high': '긴급',
-            'medium': '주의',
-            'low': '관심'
-        };
-        return levels[level] || '일반';
-    }, []);
-
     const formatDate = useCallback((dateStr) => {
         return dateStr.replace(/-/g, '.');
     }, []);
 
-    // 통일된 카드 구조 - style.css의 .missing-card와 완전히 동일
     return React.createElement('div', {
         className: `missing-card ${isAnimating ? 'animating' : ''}`,
         'data-id': data.id
@@ -844,10 +834,12 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
                 },
                 key: 'img'
             }),
+            // ✅ dangerLevel이 '위험'일 때만 긴급 배지 표시
+            data.dangerLevel === '위험' &&
             React.createElement('div', {
-                className: `danger-level ${data.dangerLevel}`,
+                className: 'danger-level emergency',
                 key: 'danger'
-            }, getDangerLevelText(data.dangerLevel))
+            }, '긴급')
         ]),
         React.createElement('div', { className: 'card-content', key: 'content' }, [
             React.createElement('h4', { key: 'title' }, `${data.name} (${data.age}세)`),
@@ -901,71 +893,97 @@ function parseItem(raw) {
     };
 }
 
-
-// 검색 및 필터 관리 클래스
+// SearchManager 클래스
 class SearchManager {
     constructor() {
         this.filters = this.loadFilters();
-        this.data = [];
-        this.filteredData = [];
+        this.data = []; // DB에서 가져온 원본 데이터
+        this.filteredData = []; // 필터링된 데이터
         this.callbacks = [];
+
+        // 초기 필터 설정 (팝업 매니저의 기본값과 일치시킵니다)
+        if (!this.filters.sort) this.filters.sort = 'danger';
+        if (!this.filters.region) this.filters.region = '';
+        if (!this.filters.age) this.filters.age = '';
+        if (!this.filters.period) this.filters.period = '';
+        // searchTerm은 외부에서 업데이트 되므로 기본값 설정하지 않음.
     }
+
     async init() {
         await this.fetchDataFromAPI();
-        this.applyFilters();  // 데이터를 다 받고 나서 필터 적용
+        this.applyFilters(); // 데이터를 다 받고 나서 필터 적용
     }
 
     async fetchDataFromAPI() {
-        
+        console.log('--- fetchDataFromAPI 호출 시작 ---');
         try {
             const response = await fetch('/api/missing/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                // 현재는 프론트엔드에서 필터링하므로, 키워드를 빈 문자열로 보냄
+                // 백엔드에서 키워드 검색을 지원한다면, this.filters.searchTerm을 보내도 됨
                 body: JSON.stringify({ keyword: '' })
             });
-            
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
             const result = await response.json();
-            
-            
+            console.log('API 응답 결과:', result);
+
             if (result.success && Array.isArray(result.results)) {
-                this.data = result.results.map((item, index) => ({
-                    id: item.SENU,
-                    name: item.FLNM || '이름 없음',
-                    age: item.NOW_AGE ? parseInt(item.NOW_AGE) : 0,
-                    gender: item.GENDER_SE === '남자' ? '남성' : '여성',
-                    date: item.OCRN_DT || '',
-                    location: item.OCRN_PLC || '',
-                    region: extractFullRegion(item.OCRN_PLC || ''),
-                    description: item.PHRB_SPFE || '',
-                    physicalInfo: '',   // 키나 외모 정보 따로 있다면 넣기
-                    dangerLevel: 'medium',
-                    upCount: Math.floor(Math.random() * 200),
-                    witnessCount: Math.floor(Math.random() * 5),
-                    period: '?일째',
-                    image: item.PHOTO || '/static/images/placeholder.jpg'
-                }));
+                this.data = result.results.map((item, index) => {
+                    const mappedItem = {
+                        id: item.id,
+                        name: item.name || '이름 없음',
+                        // age는 숫자로 변환, 유효하지 않으면 0 (또는 적절한 기본값)
+                        age: item.age !== undefined && item.age !== null ? parseInt(item.age) : 0,
+                        gender: item.gender || '알 수 없음', // 백엔드에서 온 값을 그대로 사용
+                        date: item.date || '날짜 미상', // "YYYY.MM.DD" 또는 "YYYYMMDD" 형식 기대
+                        location: item.location || '미상',
+                        region: extractFullRegion(item.location || ''), // 지역 키워드 (예: '서울', '경기')
+                        description: item.description || '',
+                        physicalInfo: '', // 필요하면 추가
+                        dangerLevel: item.dangerLevel || '보통', // 백엔드에서 온 값 ('보통', '위험')
+                        upCount: item.upCount || 0,
+                        witnessCount: Math.floor(Math.random() * 5), // 예시 데이터
+                        image: item.image || '/static/images/placeholder.jpg'
+                    };
 
-
-                console.log('✅ 실종자 데이터:', this.data);
+                    // period 계산 (date가 유효할 경우)
+                    if (mappedItem.date && mappedItem.date !== "날짜 미상") {
+                        const formattedDate = mappedItem.date.replace(/\./g, ''); // "YYYYMMDD" 형식으로 변환
+                        const days = daysSince(formattedDate);
+                        mappedItem.period = `${days}일째`;
+                    } else {
+                        mappedItem.period = '기간 미상'; // 날짜가 없거나 유효하지 않으면
+                    }
+                    return mappedItem;
+                });
+                console.log('✅ DB에서 가져온 후 파싱된 실종자 데이터:', this.data);
             } else {
-                console.warn('API returned no results');
+                console.warn('API 응답에 결과가 없거나 형식이 올바르지 않습니다.');
+                this.data = [];
             }
         } catch (error) {
-            console.error('❌ 실종자 API 호출 실패:', error);
+            console.error('❌ 실종자 데이터를 가져오는 중 오류 발생:', error);
+            this.data = [];
         }
+        console.log('--- fetchDataFromAPI 호출 종료 ---');
     }
-
 
     loadFilters() {
         try {
             const saved = sessionStorage.getItem(STORAGE_KEYS.FILTERS);
-            return saved ? JSON.parse(saved) : {
-                searchTerm: '',
-                sort: 'danger',
-                region: '',
-                age: '',
-                period: ''
+            const filters = saved ? JSON.parse(saved) : {};
+            // 기본값 설정 (필터 팝업 매니저의 초기값과 일치)
+            return {
+                searchTerm: filters.searchTerm || '',
+                sort: filters.sort || 'danger',
+                region: filters.region || '',
+                age: filters.age || '',
+                period: filters.period || ''
             };
         } catch (error) {
             debugWarn('Failed to load filters from storage:', error);
@@ -978,6 +996,7 @@ class SearchManager {
             };
         }
     }
+
     saveFilters() {
         try {
             sessionStorage.setItem(STORAGE_KEYS.FILTERS, JSON.stringify(this.filters));
@@ -1007,8 +1026,10 @@ class SearchManager {
     }
 
     applyFilters() {
+        console.log('--- applyFilters 호출됨. 현재 필터:', this.filters, '---');
         let filtered = [...this.data];
 
+        // 1. 키워드 필터링 (searchTerm)
         if (this.filters.searchTerm) {
             const term = this.filters.searchTerm.toLowerCase();
             filtered = filtered.filter(item =>
@@ -1018,105 +1039,155 @@ class SearchManager {
             );
         }
 
+        // 2. 지역 필터링
         if (this.filters.region) {
+            // filterRegion은 'seoul', 'gyeonggi' 또는 'seoul-강남구' 형태
+            // item.region은 '서울', '경기' 형태 또는 '서울 강남구' (extractFullRegion이 단순 시/도만 반환할 경우)
+            // matchesRegion 함수가 이 차이를 처리해야 함.
             filtered = filtered.filter(item => this.matchesRegion(item.region, this.filters.region));
         }
 
+        // 3. 나이 그룹 필터링
         if (this.filters.age) {
             filtered = filtered.filter(item => this.matchesAgeGroup(item.age, this.filters.age));
         }
 
+        // 4. 실종 기간 필터링
         if (this.filters.period) {
             filtered = filtered.filter(item => this.matchesPeriod(item.date, this.filters.period));
         }
 
+        // 5. 정렬 (가장 마지막에 적용)
         filtered = this.sortData(filtered, this.filters.sort);
 
-        console.log("필터 조건:", this.filters);
+        console.log("필터 조건 적용 후 결과:");
         console.log("원본 데이터 수:", this.data.length);
         console.log("필터링 후 데이터 수:", filtered.length);
 
-
         this.filteredData = filtered;
         this.notify();
-        
     }
+
+    // matchesRegion 함수는 현재 FilterPopupManager의 initRegionData와 연동되어야 함
+    // FilterPopupManager의 initRegionData는 'seoul', 'gyeonggi' 등의 키를 사용하고
+    // districts에 '강남구' 등을 가지고 있음
+    // SearchManager의 matchesRegion도 이 포맷을 이해해야 함.
     matchesRegion(itemRegion, filterRegion) {
-        const regionMap = {
-        seoul: ['서울', '서울특별시'],
-        busan: ['부산', '부산광역시'],
-        daegu: ['대구', '대구광역시'],
-        incheon: ['인천', '인천광역시'],
-        gwangju: ['광주', '광주광역시'],
-        daejeon: ['대전', '대전광역시'],
-        ulsan: ['울산', '울산광역시'],
-        jeju: ['제주', '제주특별자치도'],
+        // filterRegion 예시: 'seoul', 'gyeoul-강남구'
+        // itemRegion 예시: '서울', '부산' (extractFullRegion 결과)
 
-        // 도 단위
-        gyeonggi: ['경기', '경기도'],
-        gangwon: ['강원', '강원도'],
-        chungbuk: ['충북', '충청북도'],
-        chungnam: ['충남', '충청남도'],
-        jeonbuk: ['전북', '전라북도'],
-        jeonnam: ['전남', '전라남도'],
-        gyeongbuk: ['경북', '경상북도'],
-        gyeongnam: ['경남', '경상남도']
-    };
+        if (!filterRegion) return true; // 필터가 없으면 모두 통과
 
-        const keywords = regionMap[filterRegion];
-        if (!keywords) return true;
+        const regionMap = { // FilterPopupManager의 initRegionData와 동일하게 유지
+            seoul: { name: '서울특별시', alias: ['서울'] },
+            gyeonggi: { name: '경기도', alias: ['경기'] },
+            gangwon: { name: '강원도', alias: ['강원'] },
+            busan: { name: '부산광역시', alias: ['부산'] },
+            daegu: { name: '대구광역시', alias: ['대구'] },
+            incheon: { name: '인천광역시', alias: ['인천'] },
+            gwangju: { name: '광주광역시', alias: ['광주'] },
+            대전: { name: '대전광역시', alias: ['대전'] }, // "대전"으로 수정
+            ulsan: { name: '울산광역시', alias: ['울산'] },
+            chungbuk: { name: '충청북도', alias: ['충북'] },
+            chungnam: { name: '충청남도', alias: ['충남'] },
+            jeonbuk: { name: '전라북도', alias: ['전북'] },
+            jeonnam: { name: '전라남도', alias: ['전남'] },
+            yeongbuk: { name: '경상북도', alias: ['경북'] }, // "yeongbuk"으로 수정
+            gyeongnam: { name: '경상남도', alias: ['경남'] },
+            jeju: { name: '제주특별자치도', alias: ['제주'] }
+        };
 
-        const result = keywords.some(keyword => itemRegion.includes(keyword));
+        let primaryRegionCode = filterRegion;
+        let subRegion = '';
 
-        // ✅ 로그로 무조건 확인
-        console.log(`[지역 필터 디버깅] region: "${itemRegion}", filter: "${filterRegion}", keywords: ${keywords.join(', ')}, result: ${result}`);
+        if (filterRegion.includes('-')) {
+            [primaryRegionCode, subRegion] = filterRegion.split('-');
+        }
 
-        return result;
+        const primaryRegionInfo = regionMap[primaryRegionCode];
+        if (!primaryRegionInfo) {
+            console.warn(`[지역 필터] 알 수 없는 1차 지역 코드: ${primaryRegionCode}`);
+            return false;
+        }
+
+        // 1차 지역명 (시/도) 일치 여부 확인
+        const primaryMatch = primaryRegionInfo.alias.some(alias => itemRegion.includes(alias));
+
+        if (!primaryMatch) {
+            return false; // 1차 지역부터 일치하지 않으면 바로 false
+        }
+
+        // 2차 지역 (구/군) 필터링
+        if (subRegion) {
+            // item.location (예: "서울 관악구 신림동")과 subRegion ("강남구") 비교
+            return item.location.includes(subRegion);
+        }
+
+        return true; // 1차 지역만 선택했거나 2차 지역 필터가 없으면 true
     }
+
 
     matchesAgeGroup(age, group) {
+        // age는 정수로 가정 (fetchDataFromAPI에서 parseInt 처리)
+        // age가 유효한 숫자가 아닐 경우 (NaN) 필터링에서 제외
+        if (isNaN(age)) return true; // 또는 false, 요구사항에 따라 달라짐
+
         switch (group) {
             case 'child': return age >= 0 && age <= 12;
             case 'teen': return age >= 13 && age <= 19;
             case 'adult': return age >= 20 && age <= 64;
             case 'senior': return age >= 65;
-            default: return true;
+            default: return true; // 'all' 또는 빈 문자열
         }
     }
 
     matchesPeriod(dateStr, period) {
-        const cardDate = new Date(
-            dateStr.slice(0, 4),
-            parseInt(dateStr.slice(4, 6)) - 1,
-            dateStr.slice(6, 8)
-        );
-        const today = new Date();
-        const diffDays = Math.floor((today - cardDate) / (1000 * 60 * 60 * 24));
+        if (dateStr === '날짜 미상' || !dateStr) {
+            return period === ''; // '기간 미상'인 경우, 필터가 'all' 또는 빈 문자열일 때만 통과
+        }
+
+        // "YYYY.MM.DD" 또는 "YYYYMMDD" 형식을 Date 객체로 파싱
+        const formattedDateForCalc = dateStr.replace(/\./g, ''); // "YYYYMMDD"
+        const days = daysSince(formattedDateForCalc);
+
+        // daysSince가 '기간 미상'을 반환할 수 있으므로 숫자인지 확인
+        if (typeof days !== 'number' || isNaN(days)) {
+            return period === ''; // 날짜 계산이 실패한 경우, 필터가 'all' 또는 빈 문자열일 때만 통과
+        }
 
         switch (period) {
-            case 'today': return diffDays === 0;
-            case 'week': return diffDays <= 7;
-            case 'month': return diffDays <= 30;
-            case '3month': return diffDays <= 90;
-            case 'year': return diffDays <= 365;
-            default: return true;
+            case 'today': return days === 0;
+            case 'week': return days <= 7;
+            case 'month': return days <= 30; // 1개월 (대략 30일)
+            case '3month': return days <= 90; // 3개월 (대략 90일)
+            case 'year': return days <= 365; // 1년
+            default: return true; // 'all' 또는 빈 문자열
         }
     }
 
     sortData(data, sortType) {
-        return data.sort((a, b) => {
+        return [...data].sort((a, b) => {
             switch (sortType) {
-                case 'danger':
-                    return this.getDangerWeight(b) - this.getDangerWeight(a);
+                case 'danger': // 위험도순 (높은 순)
+                    // dangerLevel이 '위험'이 '보통'보다 높은 값
+                    const dangerOrder = { '위험': 2, '보통': 1 };
+                    const valA = dangerOrder[a.dangerLevel] || 0;
+                    const valB = dangerOrder[b.dangerLevel] || 0;
+                    return valB - valA;
 
-                case 'up':
+                case 'up': // UP순 (좋아요 높은 순)
                     return b.upCount - a.upCount;
 
-                case 'recent':
-                    return daysSince(a.date) - daysSince(b.date); // 작을수록 최근
+                case 'recent': // 최신순 (경과일수 적은 순)
+                    // period는 "NNN일째" 또는 "기간 미상"
+                    const daysA = typeof a.period === 'string' && a.period.includes('일째') ? parseInt(a.period.replace('일째', '')) : Infinity;
+                    const daysB = typeof b.period === 'string' && b.period.includes('일째') ? parseInt(b.period.replace('일째', '')) : Infinity;
+                    return daysA - daysB;
 
-                case 'old':
-                    return daysSince(b.date) - daysSince(a.date); // 클수록 오래됨
+                case 'old': // 오래된순 (경과일수 많은 순)
+                    const daysA_old = typeof a.period === 'string' && a.period.includes('일째') ? parseInt(a.period.replace('일째', '')) : -Infinity;
+                    const daysB_old = typeof b.period === 'string' && b.period.includes('일째') ? parseInt(b.period.replace('일째', '')) : -Infinity;
+                    return daysB_old - daysA_old;
 
                 default:
                     return 0;
@@ -1124,15 +1195,12 @@ class SearchManager {
         });
     }
 
-    getDangerWeight(item) {
-        const weights = { 'high': 3, 'medium': 2, 'low': 1 };
-        return weights[item.dangerLevel] || 0;
-    }
+    // getDangerWeight 함수는 sortData에 통합되므로 필요 없음.
 
     resetFilters() {
         this.filters = {
             searchTerm: '',
-            sort: 'danger',
+            sort: 'danger', // 초기 기본값
             region: '',
             age: '',
             period: ''
@@ -1141,6 +1209,55 @@ class SearchManager {
         this.applyFilters();
     }
 }
+
+
+// ======================= 도우미 함수들 (추가 또는 수정될 수 있음) =======================
+
+// 날짜로부터 경과일수 계산 함수
+// "YYYYMMDD" 형식 문자열을 받음
+function daysSince(dateString) {
+    if (!dateString || dateString === '날짜 미상' || dateString.length !== 8) {
+        return '기간 미상'; // 유효하지 않은 형식은 즉시 반환
+    }
+    const year = parseInt(dateString.substring(0, 4));
+    const month = parseInt(dateString.substring(4, 6)) - 1; // 월은 0부터 시작
+    const day = parseInt(dateString.substring(6, 8));
+
+    const targetDate = new Date(year, month, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 오늘 날짜의 자정으로 설정하여 시간 차이 제거
+
+    if (isNaN(targetDate.getTime())) {
+        console.warn(`[daysSince] 유효하지 않은 날짜 형식으로 인해 파싱 실패: ${dateString}`);
+        return '기간 미상';
+    }
+
+    const diffTime = Math.abs(today.getTime() - targetDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 올림하여 현재일 포함
+
+    return diffDays;
+}
+
+// 지역 추출 함수
+// 주어진 location 문자열에서 광역 시/도 이름을 추출
+function extractFullRegion(location) {
+    if (!location) return '기타';
+
+    const regions = [
+        '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
+        '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'
+    ];
+
+    const trimmedLocation = location.trim();
+
+    for (const region of regions) {
+        if (trimmedLocation.includes(region)) {
+            return region; // 예: "서울 관악구" -> "서울" 반환
+        }
+    }
+    return '기타';
+}
+
 
 // 간단한 애니메이션 관리자
 class SimpleAnimations {

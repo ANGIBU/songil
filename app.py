@@ -190,34 +190,66 @@ def search():
         print(f"Error rendering search: {e}")
         return redirect(url_for('index'))
 
-#  실종자 검색 API
+# 실종자 검색 API
 @app.route('/api/missing/search', methods=['POST'])
 def api_missing_search():
-    params = {
-        "serviceKey": '3FQG91W954658S1F',
-        "returnType": "json",
-        "pageNo": "1",
-        "numOfRows": "500"
-    }
-
     try:
-        response = requests.get(API_URL, params=params, verify=False)
-        data = response.json()
-        items = data.get("body", [])
-
-        # 클라이언트가 보낸 키워드
         data_from_client = request.get_json(force=True, silent=True) or {}
-        keyword = data_from_client.get("keyword", "").lower()
+        keyword = data_from_client.get("keyword", "").strip()
 
-        # 키워드 필터링
+        query = """
+            SELECT external_id, name, age, gender, missing_date,
+                   missing_location, features, image_url, danger_level
+            FROM api_missing_data
+            WHERE status = 'active'
+        """
+        query_params = []
+
         if keyword:
-            items = [item for item in items if keyword in str(item).lower()]
+            query += """
+                AND (
+                    LOWER(name) LIKE %s OR
+                    LOWER(features) LIKE %s OR
+                    LOWER(missing_location) LIKE %s
+                )
+            """
+            keyword_like = f"%{keyword.lower()}%"
+            query_params.extend([keyword_like, keyword_like, keyword_like])
+        
+        query += " ORDER BY missing_date DESC, registered_at DESC"
 
-        return jsonify({"success": True, "results": items, "total": len(items)})
+        db_records = db.execute(query, tuple(query_params)).fetchall()
+
+        parsed_items = []
+        for record in db_records:
+            gender_display = ""
+            if record['gender'] == 0:
+                gender_display = "여자"
+            elif record['gender'] == 1:
+                gender_display = "남자"
+            else:
+                gender_display = "알 수 없음"
+
+            # 여기서 JSON 응답의 키 이름을 프론트엔드에서 기대하는 이름으로 변경합니다.
+            parsed_items.append({
+                "id": record['external_id'],
+                "name": record['name'],
+                "age": record['age'] if record['age'] is not None else "?",
+                "gender": gender_display,
+                "date": record['missing_date'].strftime("%Y.%m.%d") if record['missing_date'] else "날짜 미상",
+                "location": record['missing_location'] if record['missing_location'] else "미상",
+                "description": record['features'] if record['features'] else "정보 없음", # <-- 'clothing' 대신 'description'으로 변경
+                "image": record['image_url'] if record['image_url'] else "/static/images/placeholder.jpg",
+                "dangerLevel": record['danger_level'], # <-- 'danger_level' 대신 'dangerLevel' (카멜케이스)로 변경
+                "upCount": 0,
+            })
+
+        return jsonify({"success": True, "results": parsed_items, "total": len(parsed_items)})
 
     except Exception as e:
         print(f"[ERROR] /api/missing/search: {e}")
-        return jsonify({"success": False, "message": "서버 오류 발생"}), 500
+        return jsonify({"success": False, "message": "서버 오류 발생", "error": str(e)}), 500
+
     
     
 # ==================== AUTH 페이지 (인증 관련) ====================
@@ -432,93 +464,61 @@ def notifications():
 @app.route('/api/missing/<missing_id>', methods=['GET'])
 def api_missing_detail(missing_id):
     try:
-        params = {
-            "serviceKey": "3FQG91W954658S1F",
-            "returnType": "json",
-            "pageNo": "1",
-            "numOfRows": "500"
-        }
+        # 실종자 기본 정보
+        query = """
+            SELECT external_id, name, age, gender, missing_date,
+                missing_location, features, image_url, danger_level
+            FROM api_missing_data
+            WHERE external_id = %s AND status = 'active'
+        """
+        result = db.execute(query, (missing_id,)).fetchone()
 
-        response = requests.get(API_URL, params=params, verify=False)
-        data = response.json()
-        items = data.get("body", [])
+        if not result:
+            return jsonify({"success": False, "message": "해당 실종자를 찾을 수 없습니다."}), 404
+    
+        # 관련 실종자 추천
+        related_query = """
+            SELECT external_id, name, age, gender, missing_date,
+                missing_location, features, image_url, danger_level
+            FROM api_missing_data
+            WHERE status = 'active' AND gender = %s
+                AND age BETWEEN %s AND %s
+                AND external_id != %s
+            ORDER BY missing_date DESC
+            LIMIT 3
+        """
+        age = result['age'] or 0
+        related = db.execute(related_query, (result['gender'], age - 3, age + 3, missing_id)).fetchall()
 
-        selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
+        # 추천 데이터 가공
+        related_items = []
+        for r in related:
+            related_items.append({
+                "id": r["external_id"],
+                "name": r["name"],
+                "age": r["age"],
+                "gender": r["gender"],
+                "main_image": r["image_url"],
+                "location": r["missing_location"],
+                "missing_date": r["missing_date"].strftime("%Y.%m.%d") if r["missing_date"] else "정보없음",
+                "danger_level": r["danger_level"],
+                "recommend_count": 0,
+                "witness_count": 0
+            })
 
-        if not selected:
-            return jsonify({"success": False, "message": "해당 실종자를 찾을 수 없음"}), 404
+        result["related"] = related_items
 
-        selected_gender = selected.get("GNDR_SE")
-        selected_age = int(selected.get("NOW_AGE", -1)) if selected.get("NOW_AGE") else -1
-
-        related = []
-        for item in items:
-            if item == selected:
-                continue
-            age = int(item.get("NOW_AGE", -1)) if item.get("NOW_AGE") else -1
-            if item.get("GNDR_SE") == selected_gender and age != -1 and selected_age != -1 and abs(age - selected_age) <= 3:
-                related.append({
-                    "id": item.get("SENU"),
-                    "name": item.get("FLNM", "이름없음"),
-                    "age": age,
-                    "gender": item.get("GNDR_SE"),
-                    "main_image": item.get("PHOTO_SZ"),
-                    "location": item.get("OCRN_PLC"),
-                    "missing_date": item.get("OCRN_DT"),
-                    "danger_level": "관심",  
-                    "recommend_count": 0,  
-                    "witness_count": 0     
-                })
-
-        # 최대 3개만 추출
-        selected["related"] = related[:3]
-
-        return jsonify({"success": True, "data": selected})
+        return jsonify({"success": True, "data": result})
 
     except Exception as e:
-        print(f"상세 API 오류: {e}")
+        print(f"[ERROR] /api/missing/<id>: {e}")
         return jsonify({"success": False, "message": "서버 오류"}), 500
 
+
 # 실종자 상세 페이지 렌더링
-@app.route('/missing/<int:missing_id>')
+@app.route('/missing/<missing_id>')
 def missing_detail(missing_id):
-    try:
-        params = {
-            "serviceKey": "3FQG91W954658S1F",
-            "returnType": "json",
-            "pageNo": "1",
-            "numOfRows": "500"
-        }
-
-        response = requests.get(API_URL, params=params, verify=False)
-        data = response.json()
-        items = data.get("body", [])
-
-        selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
-
-        if not selected:
-            flash("해당 실종자를 찾을 수 없습니다.")
-            return redirect(url_for('search'))
-
-        # 관련 실종자 정보도 추가
-        selected_gender = selected.get("GNDR_SE")
-        selected_age = int(selected.get("NOW_AGE", -1)) if selected.get("NOW_AGE") else -1
-
-        related = []
-        for item in items:
-            if item == selected:
-                continue
-            age = int(item.get("NOW_AGE", -1)) if item.get("NOW_AGE") else -1
-            if item.get("GNDR_SE") == selected_gender and age != -1 and selected_age != -1 and abs(age - selected_age) <= 3:
-                related.append(item)
-
-        selected["related"] = related[:3]
-
-        return render_template("user/missing_detail.html", missing_id=missing_id, missing=selected)
-
-    except Exception as e:
-        print(f"Error rendering missing_detail: {e}")
-        return redirect(url_for('search'))
+    return render_template("user/missing_detail.html", missing_id=missing_id)
 
 # 실종자 신고 페이지
 @app.route('/missing_report')
@@ -538,29 +538,39 @@ def report_redirect():
 # 목격 신고 페이지
 @app.route('/witness/<int:missing_id>')
 def witness_report(missing_id):
+    db = None 
     try:
-        # Safe API 호출
-        params = {
-            "serviceKey": "3FQG91W954658S1F",
-            "returnType": "json",
-            "pageNo": "1",
-            "numOfRows": "500"
-        }
-        response = requests.get(API_URL, params=params, verify=False)
-        data = response.json()
-        items = data.get("body", [])
+        db = DBManager()
+        db.connect()
 
-        selected = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
+        selected = db.get_missing_person_by_external_id(str(missing_id))
+        
+        # 로그 추가: DB 조회 결과 확인
+        print(f"DB에서 조회된 실종자 정보: {selected}")
 
         if not selected:
-            flash("해당 실종자를 찾을 수 없습니다.")
+            flash(f"해당 실종자 (ID: {missing_id})를 찾을 수 없습니다.")
             return redirect(url_for('search'))
 
-        return render_template('user/missing_witness.html', missing=selected, missing_id=missing_id)
+        formatted_selected = {
+            "nm": selected.get("name", "이름 없음"),
+            "ageNow": selected.get("age", 0), # 숫자로 변환 필요할 수 있음
+            "sexdstn": selected.get("gender", "알 수 없음"),
+            "occrde": selected.get("missing_date", "날짜 미상"), # "YYYYMMDD" 형식으로 가정
+            "occrAdres": selected.get("location", "미상"),
+            "SENU": selected.get("id") # DB의 고유 ID를 SENU로 매핑 (필터링 위함)
+        }
+
+
+        return render_template('user/missing_witness.html', missing=formatted_selected, missing_id=missing_id)
 
     except Exception as e:
         print(f"Error rendering witness_report: {e}")
+        flash("목격 신고 페이지를 로드하는 중 오류가 발생했습니다.")
         return redirect(url_for('search'))
+    finally:
+        if db:
+            db.disconnect()
 
 # 포인트샵 페이지
 @app.route('/pointshop')
@@ -618,6 +628,8 @@ def api_missing_report():
 @app.route('/api/witness/report', methods=['POST'])
 def api_witness_report():
     db = None
+    saved_urls = [] # 오류 발생 시 파일 삭제를 위해 saved_urls를 미리 정의
+
     try:
         user_id = session.get('user_id')
         if not user_id:
@@ -638,17 +650,8 @@ def api_witness_report():
         except ValueError:
             return jsonify({'status': 'error', 'message': '날짜 또는 시간 형식이 잘못되었습니다.'}), 400
 
-        # 좌표 유효성 검사
-        def validate_coord(lat, lng):
-            try:
-                lat, lng = float(lat), float(lng)
-                return (-90 <= lat <= 90) and (-180 <= lng <= 180)
-            except:
-                return False
-
-        # 파일 처리
+        # 파일 처리 (이 부분은 변경 없음)
         uploaded_files = request.files
-        saved_urls = []
         allowed_ext = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
         max_size = 5 * 1024 * 1024
 
@@ -669,44 +672,49 @@ def api_witness_report():
                 file.save(filepath)
                 saved_urls.append('/' + filepath.replace('\\', '/'))
 
-        # 실종자 기본정보 자동조회
+        # 실종자 기본정보 DB에서 조회 (API 호출 대신)
         missing_person_data = {}
-        missing_id = form.get("missing_id")
+        missing_id = form.get("missing_id") # 이 missing_id는 external_id에 해당
         if missing_id:
+            db_temp = DBManager() # 임시 DBManager 인스턴스 (아래 db 변수와 분리)
             try:
-                safe_api_url = f"{API_URL}?serviceKey={SERVICE_KEY}&returnType=json&pageNo=1&numOfRows=500"
-                response = requests.get(safe_api_url, verify=False)
-                data = response.json()
-                items = data.get('body', [])
-                found = next((item for item in items if str(item.get("SENU")) == str(missing_id)), None)
-                if found:
+                db_temp.connect()
+                found_person = db_temp.get_missing_person_by_external_id(missing_id)
+                if found_person:
                     missing_person_data = {
-                        "missing_person_name": found.get("nm", ""),
-                        "missing_person_age": int(found.get("ageNow") or 0),
-                        "missing_person_gender": found.get("sexdstn", "남성"),
-                        "missing_date": found.get("occrde", "2000-01-01"),
-                        "missing_location": found.get("occrAdres", "")
+                        "missing_person_name": found_person.get("name", ""),
+                        "missing_person_age": found_person.get("age", 0),
+                        "missing_person_gender": "남성" if found_person.get("gender") == 1 else "여성" if found_person.get("gender") == 0 else "미상",
+                        "missing_date": found_person.get("missing_date", "2000-01-01").strftime('%Y-%m-%d') if found_person.get("missing_date") else "2000-01-01",
+                        "missing_location": found_person.get("missing_location", ""),
+                        "missing_features": found_person.get("features", "")
                     }
+                else:
+                    print(f"DB에서 실종자 ID {missing_id}를 찾을 수 없습니다.")
             except Exception as e:
-                print("실종자 정보 조회 실패:", e)
+                print(f"DB에서 실종자 정보 조회 실패: {e}")
+            finally:
+                db_temp.disconnect()
 
-        def is_valid_missing_date(date_str):
-            return date_str and date_str != "2000-01-01"
-
+        # missing_date 로직 수정: API/DB에서 2000-01-01이 오면 폼 데이터 사용
+        final_missing_date = (
+            missing_person_data.get("missing_date")
+            if missing_person_data.get("missing_date") and missing_person_data.get("missing_date") != "2000-01-01"
+            else form.get("missingDate")
+        )
+        final_missing_location = missing_person_data.get("missing_location") or form.get("missingLocation", "")
+        
         # 신고 데이터 구성
         report_data = {
             "user_id": user_id,
-            "missing_id": missing_id,
             "missing_person_name": missing_person_data.get("missing_person_name") or form.get("missingPersonName", ""),
             "missing_person_age": missing_person_data.get("missing_person_age") or int(form.get("missingPersonAge", 0)),
             "missing_person_gender": missing_person_data.get("missing_person_gender") or form.get("missingPersonGender", "남성"),
-            "missing_date": (
-                missing_person_data.get("missing_date")
-                if is_valid_missing_date(missing_person_data.get("missing_date"))
-                else form.get("missingDate")
-            ),
-            "missing_location": missing_person_data.get("missing_location") or form.get("missingLocation", ""),
-            "missing_features": form.get("missingFeatures", ""),
+            
+            "missing_date": final_missing_date, 
+            "missing_location": final_missing_location, 
+            "missing_features": missing_person_data.get("missing_features") or form.get("missingFeatures", ""),
+
             "witness_datetime": witness_datetime,
             "time_accuracy": form.get("timeAccuracy", "approximate"),
             "location": form.get("witnessLocation"),
@@ -715,37 +723,36 @@ def api_witness_report():
             "description": form.get("witnessDescription"),
             "confidence": form.get("witnessConfidence", None),
             "distance": form.get("witnessDistance", None),
-            "image_urls": json.dumps(saved_urls) if saved_urls else None,
-            "witness_name": form.get("witnessName"),
-            "witness_phone": form.get("witnessPhone"),
-            "agree_contact": 1 if form.get("agreeContact") else 0,
-            "privacy_agree": 1 if form.get("privacyAgree") else 0,
+            "image_urls": json.dumps(saved_urls) if saved_urls else None, # JSON 형태로 저장
             "status": "pending"
         }
-        print("missing_date from API:", missing_person_data.get("missing_date"))
+        
+        print("missing_date from DB:", missing_person_data.get("missing_date"))
         print("missing_date from form:", form.get("missingDate"))
-        print("final missing_date:", missing_person_data.get("missing_date") or form.get("missingDate"))
-        # DB 저장
+        print("final missing_date (for DB):", final_missing_date)
+
+        # DB 저장 (새로운 witness_reports 테이블에 저장)
         db = DBManager()
         db.connect()
+        # insert_witness_report 메서드는 이제 witness_reports 테이블에 데이터를 삽입합니다.
         report_id = db.insert_witness_report(report_data)
 
         return jsonify({"status": "success", "message": "신고가 저장되었습니다.", "report_id": report_id})
 
     except Exception as e:
         print("신고 저장 오류:", e)
+        # 파일 업로드에 성공했으나 DB 저장 실패 시 파일 삭제
         for url in saved_urls:
             try:
-                path = url[1:]
+                path = url[1:] # URL에서 '/' 제거하여 로컬 경로 생성
                 if os.path.exists(path):
                     os.remove(path)
-            except:
-                pass
-        return jsonify({'status': 'error', 'message': '신고 저장 실패'}), 500
+            except Exception as file_e:
+                print(f"파일 삭제 오류: {file_e}")
+        return jsonify({'status': 'error', 'message': f'신고 저장 실패: {e}'}), 500
     finally:
         if db:
             db.disconnect()
-
 
 # 헬스체크 엔드포인트
 @app.route('/health')
@@ -864,4 +871,4 @@ if __name__ == '__main__':
         app.run(debug=False, host='0.0.0.0', port=port)
     else:
         # 로컬 개발 환경
-        app.run(debug=True, host='0.0.0.0', port=port)
+        app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False)
