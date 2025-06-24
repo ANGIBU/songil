@@ -740,7 +740,6 @@ def api_witness_report():
 
     except Exception as e:
         print("신고 저장 오류:", e)
-        # 파일 업로드에 성공했으나 DB 저장 실패 시 파일 삭제
         for url in saved_urls:
             try:
                 path = url[1:] # URL에서 '/' 제거하여 로컬 경로 생성
