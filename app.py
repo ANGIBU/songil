@@ -742,7 +742,7 @@ def api_witness_report():
         print("신고 저장 오류:", e)
         for url in saved_urls:
             try:
-                path = url[1:] # URL에서 '/' 제거하여 로컬 경로 생성
+                path = url[1:] 
                 if os.path.exists(path):
                     os.remove(path)
             except Exception as file_e:
