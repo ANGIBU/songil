@@ -734,7 +734,6 @@ def api_witness_report():
         # DB 저장 (새로운 witness_reports 테이블에 저장)
         db = DBManager()
         db.connect()
-        # insert_witness_report 메서드는 이제 witness_reports 테이블에 데이터를 삽입합니다.
         report_id = db.insert_witness_report(report_data)
 
         return jsonify({"status": "success", "message": "신고가 저장되었습니다.", "report_id": report_id})
