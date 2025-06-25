@@ -557,11 +557,11 @@ def witness_report(missing_id):
             "ageNow": selected.get("age", 0), # 숫자로 변환 필요할 수 있음
             "sexdstn": selected.get("gender", "알 수 없음"),
             "occrde": selected.get("missing_date", "날짜 미상"), # "YYYYMMDD" 형식으로 가정
-            "occrAdres": selected.get("location", "미상"),
-            "SENU": selected.get("id") # DB의 고유 ID를 SENU로 매핑 (필터링 위함)
+            "occrAdres": selected.get("missing_location", "").strip() or "미상",
+            "features": selected.get("features", "").strip() or "특이사항 없음",
+            "SENU": selected.get("external_id")
         }
-
-
+        
         return render_template('user/missing_witness.html', missing=formatted_selected, missing_id=missing_id)
 
     except Exception as e:
