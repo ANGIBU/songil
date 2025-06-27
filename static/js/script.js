@@ -49,9 +49,369 @@ function initializeApp() {
         // 페이지별 카드 초기화
         initializePageCards();
         
+        // 알림 시스템 초기화
+        initializeNotificationSystem();
+        
         window.APP.initialized = true;
     } catch (error) {
         console.warn('앱 초기화 오류:', error);
+    }
+}
+
+// ===== 알림 시스템 초기화 =====
+function initializeNotificationSystem() {
+    try {
+        // 알림 패널 외부 클릭 이벤트
+        document.addEventListener('click', function(e) {
+            const notificationPanel = document.getElementById('notificationPanel');
+            const notificationBtn = document.querySelector('.notification-bell-btn');
+            
+            if (notificationPanel && 
+                !notificationPanel.contains(e.target) && 
+                !notificationBtn.contains(e.target)) {
+                closeNotificationPanel();
+            }
+        });
+        
+        // ESC 키로 알림 패널 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeNotificationPanel();
+            }
+        });
+        
+        // 초기 알림 데이터 로드
+        loadInitialNotifications();
+        
+        // 실시간 알림 시뮬레이션 시작
+        startNotificationSimulation();
+        
+    } catch (error) {
+        console.warn('알림 시스템 초기화 오류:', error);
+    }
+}
+
+// ===== 알림 패널 토글 =====
+function toggleNotificationPanel() {
+    try {
+        const panel = document.getElementById('notificationPanel');
+        const overlay = document.getElementById('notificationOverlay');
+        
+        if (!panel || !overlay) return;
+        
+        const isOpen = panel.classList.contains('show');
+        
+        if (isOpen) {
+            closeNotificationPanel();
+        } else {
+            openNotificationPanel();
+        }
+    } catch (error) {
+        console.warn('알림 패널 토글 오류:', error);
+    }
+}
+
+// ===== 알림 패널 열기 =====
+function openNotificationPanel() {
+    try {
+        const panel = document.getElementById('notificationPanel');
+        const overlay = document.getElementById('notificationOverlay');
+        
+        if (!panel || !overlay) return;
+        
+        panel.classList.add('show');
+        overlay.classList.add('show');
+        
+        // 접근성: 포커스 이동
+        const firstItem = panel.querySelector('.notification-item');
+        if (firstItem) {
+            firstItem.focus();
+        }
+        
+        // 애니메이션 효과
+        if (typeof gsap !== 'undefined') {
+            gsap.from('.notification-item', {
+                duration: 0.3,
+                x: 20,
+                opacity: 0,
+                stagger: 0.05,
+                ease: 'power2.out'
+            });
+        }
+        
+    } catch (error) {
+        console.warn('알림 패널 열기 오류:', error);
+    }
+}
+
+// ===== 알림 패널 닫기 =====
+function closeNotificationPanel() {
+    try {
+        const panel = document.getElementById('notificationPanel');
+        const overlay = document.getElementById('notificationOverlay');
+        
+        if (!panel || !overlay) return;
+        
+        panel.classList.remove('show');
+        overlay.classList.remove('show');
+        
+    } catch (error) {
+        console.warn('알림 패널 닫기 오류:', error);
+    }
+}
+
+// ===== 패널 알림 필터링 =====
+function filterPanelNotifications(category) {
+    try {
+        // 필터 버튼 업데이트
+        document.querySelectorAll('.notification-filters .filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${category}"]`).classList.add('active');
+        
+        // 알림 아이템 필터링
+        const notifications = document.querySelectorAll('.notification-item');
+        notifications.forEach(notification => {
+            if (category === 'all' || notification.dataset.category === category) {
+                notification.style.display = 'flex';
+            } else {
+                notification.style.display = 'none';
+            }
+        });
+        
+        // 애니메이션 효과
+        if (typeof gsap !== 'undefined') {
+            const visibleNotifications = document.querySelectorAll('.notification-item[style*="flex"], .notification-item:not([style*="none"])');
+            gsap.from(visibleNotifications, {
+                duration: 0.4,
+                x: -20,
+                opacity: 0,
+                stagger: 0.05,
+                ease: 'power2.out'
+            });
+        }
+        
+    } catch (error) {
+        console.warn('패널 알림 필터링 오류:', error);
+    }
+}
+
+// ===== 개별 알림을 읽음으로 표시 =====
+function markPanelNotificationAsRead(notificationId) {
+    try {
+        const notification = document.querySelector(`[data-id="${notificationId}"]`);
+        if (!notification) return;
+        
+        notification.classList.remove('unread');
+        notification.classList.add('read');
+        
+        // 읽음 버튼 제거
+        const readBtn = notification.querySelector('.mark-read-btn');
+        if (readBtn) {
+            readBtn.remove();
+        }
+        
+        // 알림 배지 업데이트
+        updateNotificationBadge();
+        
+        if (window.showNotification) {
+            window.showNotification('알림을 읽음으로 표시했습니다.', 'success');
+        }
+        
+    } catch (error) {
+        console.warn('알림 읽음 처리 오류:', error);
+    }
+}
+
+// ===== 모든 알림을 읽음으로 표시 =====
+function markAllNotificationsAsRead() {
+    try {
+        const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+        
+        unreadNotifications.forEach(notification => {
+            notification.classList.remove('unread');
+            notification.classList.add('read');
+            
+            const readBtn = notification.querySelector('.mark-read-btn');
+            if (readBtn) {
+                readBtn.remove();
+            }
+        });
+        
+        updateNotificationBadge();
+        
+        if (window.showNotification && unreadNotifications.length > 0) {
+            window.showNotification(`${unreadNotifications.length}개의 알림을 읽음으로 표시했습니다.`, 'success');
+        }
+        
+    } catch (error) {
+        console.warn('모든 알림 읽음 처리 오류:', error);
+    }
+}
+
+// ===== 알림 배지 업데이트 =====
+function updateNotificationBadge() {
+    try {
+        const badge = document.getElementById('notificationBadge');
+        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+        
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // 필터 카운트 업데이트
+        updateFilterCounts();
+        
+    } catch (error) {
+        console.warn('알림 배지 업데이트 오류:', error);
+    }
+}
+
+// ===== 필터 카운트 업데이트 =====
+function updateFilterCounts() {
+    try {
+        const categories = ['all', 'reports', 'witnesses', 'system'];
+        
+        categories.forEach(category => {
+            let count;
+            if (category === 'all') {
+                count = document.querySelectorAll('.notification-item').length;
+            } else {
+                count = document.querySelectorAll(`.notification-item[data-category="${category}"]`).length;
+            }
+            
+            const countElement = document.getElementById(`${category}Count`);
+            if (countElement) {
+                countElement.textContent = count;
+            }
+        });
+        
+    } catch (error) {
+        console.warn('필터 카운트 업데이트 오류:', error);
+    }
+}
+
+// ===== 새 알림 추가 =====
+function addNewNotification(notificationData) {
+    try {
+        const notificationItems = document.getElementById('notificationItems');
+        if (!notificationItems) return;
+        
+        const newNotification = document.createElement('div');
+        newNotification.className = `notification-item unread`;
+        newNotification.dataset.category = notificationData.category;
+        newNotification.dataset.id = Date.now();
+        
+        const iconClass = getNotificationIconClass(notificationData.category, notificationData.type);
+        
+        newNotification.innerHTML = `
+            <div class="notification-icon ${notificationData.type || 'info'}">
+                <i class="${iconClass}"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${notificationData.title}</div>
+                <div class="notification-message">${notificationData.message}</div>
+                <div class="notification-time">방금 전</div>
+            </div>
+            <div class="notification-actions">
+                <button class="mark-read-btn" onclick="markPanelNotificationAsRead(${Date.now()})">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+        `;
+        
+        // 맨 위에 추가
+        notificationItems.insertBefore(newNotification, notificationItems.firstChild);
+        
+        // 애니메이션 효과
+        if (typeof gsap !== 'undefined') {
+            gsap.from(newNotification, {
+                duration: 0.5,
+                x: 50,
+                opacity: 0,
+                ease: 'power2.out'
+            });
+        }
+        
+        // 알림 배지 업데이트
+        updateNotificationBadge();
+        
+        // 브라우저 알림 표시 (권한이 있는 경우)
+        if (Notification.permission === 'granted') {
+            new Notification(notificationData.title, {
+                body: notificationData.message,
+                icon: '/static/images/favicon.png'
+            });
+        }
+        
+    } catch (error) {
+        console.warn('새 알림 추가 오류:', error);
+    }
+}
+
+// ===== 알림 아이콘 클래스 반환 =====
+function getNotificationIconClass(category, type) {
+    const iconMap = {
+        'reports': 'fas fa-file-alt',
+        'witnesses': 'fas fa-eye',
+        'points': 'fas fa-coins',
+        'system': 'fas fa-megaphone'
+    };
+    
+    return iconMap[category] || 'fas fa-bell';
+}
+
+// ===== 초기 알림 데이터 로드 =====
+function loadInitialNotifications() {
+    try {
+        // 실제로는 서버에서 알림 데이터를 가져와야 함
+        updateNotificationBadge();
+        updateFilterCounts();
+        
+    } catch (error) {
+        console.warn('초기 알림 데이터 로드 오류:', error);
+    }
+}
+
+// ===== 실시간 알림 시뮬레이션 =====
+function startNotificationSimulation() {
+    try {
+        // 개발용 시뮬레이션 - 실제로는 WebSocket이나 Server-Sent Events 사용
+        setInterval(() => {
+            if (Math.random() > 0.98) { // 2% 확률로 새 알림 생성
+                const notifications = [
+                    {
+                        title: '새로운 목격 신고',
+                        message: '김철수님에 대한 새로운 목격 정보가 접수되었습니다.',
+                        category: 'witnesses',
+                        type: 'info'
+                    },
+                    {
+                        title: '포인트 적립',
+                        message: '신고 승인으로 50포인트가 적립되었습니다.',
+                        category: 'points',
+                        type: 'success'
+                    },
+                    {
+                        title: '긴급 실종자',
+                        message: '근처에 새로운 긴급 실종자가 신고되었습니다.',
+                        category: 'reports',
+                        type: 'critical'
+                    }
+                ];
+                
+                const randomNotification = notifications[Math.floor(Math.random() * notifications.length)];
+                addNewNotification(randomNotification);
+            }
+        }, 30000); // 30초마다 체크
+        
+    } catch (error) {
+        console.warn('알림 시뮬레이션 시작 오류:', error);
     }
 }
 
@@ -394,12 +754,6 @@ function setupEventListeners() {
             userBtn.addEventListener('click', toggleUserMenu);
         }
         
-        // 알림 버튼
-        const notificationBtn = document.querySelector('.notification-btn');
-        if (notificationBtn) {
-            notificationBtn.addEventListener('click', toggleNotifications);
-        }
-        
         // 스크롤 이벤트 - 쓰로틀링 적용
         let isScrolling = false;
         window.addEventListener('scroll', () => {
@@ -534,6 +888,7 @@ function setupKeyboardNavigation() {
             // ESC 키로 모든 드롭다운 닫기
             if (e.key === 'Escape') {
                 closeAllDropdowns();
+                closeNotificationPanel();
                 if (document.activeElement && document.activeElement.blur) {
                     document.activeElement.blur();
                 }
@@ -709,28 +1064,6 @@ function toggleUserMenu() {
     }
 }
 
-function toggleNotifications() {
-    try {
-        const dropdown = document.getElementById('notificationDropdown');
-        if (!dropdown) return;
-        
-        const isOpen = dropdown.classList.contains('show');
-        
-        if (isOpen) {
-            dropdown.classList.remove('show');
-            dropdown.setAttribute('aria-hidden', 'true');
-        } else {
-            closeAllDropdowns();
-            dropdown.classList.add('show');
-            dropdown.setAttribute('aria-hidden', 'false');
-            
-            setTimeout(() => markNotificationsAsRead(), 1000);
-        }
-    } catch (error) {
-        console.warn('알림 토글 오류:', error);
-    }
-}
-
 function closeAllDropdowns() {
     try {
         const dropdowns = document.querySelectorAll('.dropdown-menu, .user-dropdown, .notification-dropdown');
@@ -791,6 +1124,7 @@ function handleResize() {
             }
             
             closeAllDropdowns();
+            closeNotificationPanel();
         }
         
         recalculateCardLayouts();
@@ -855,27 +1189,6 @@ function setupSmoothScroll() {
         });
     } catch (error) {
         console.warn('부드러운 스크롤 설정 오류:', error);
-    }
-}
-
-function markNotificationsAsRead() {
-    try {
-        const unreadItems = document.querySelectorAll('.notification-item.unread');
-        const notificationBadge = document.querySelector('.notification-badge');
-        
-        if (unreadItems.length > 0) {
-            unreadItems.forEach(item => {
-                if (item) {
-                    item.classList.remove('unread');
-                }
-            });
-            
-            if (notificationBadge) {
-                notificationBadge.style.display = 'none';
-            }
-        }
-    } catch (error) {
-        console.warn('알림 읽음 처리 오류:', error);
     }
 }
 
@@ -1050,7 +1363,13 @@ function getToastBgColor(type) {
 // ===== 전역 함수 내보내기 =====
 window.toggleMobileMenu = toggleMobileMenu;
 window.toggleUserMenu = toggleUserMenu;
-window.toggleNotifications = toggleNotifications;
+window.toggleNotificationPanel = toggleNotificationPanel;
+window.openNotificationPanel = openNotificationPanel;
+window.closeNotificationPanel = closeNotificationPanel;
+window.filterPanelNotifications = filterPanelNotifications;
+window.markPanelNotificationAsRead = markPanelNotificationAsRead;
+window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+window.addNewNotification = addNewNotification;
 window.initializeNavigation = initializeNavigation;
 window.checkAuthStatus = checkAuthStatus;
 window.showLoading = showLoading;

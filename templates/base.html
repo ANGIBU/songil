@@ -1,5 +1,4 @@
 {# templates/base.html #}
-<!-- 깔끔한 페이지 로드 및 자연스러운 상단 이동 -->
 <!DOCTYPE html>
 <html lang="ko" class="no-js">
 
@@ -9,38 +8,27 @@
     <title>{% block title %}손길 - 함께 찾아요, 소중한 사람을{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 
-    <!-- 카카오 지도 API -->
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services"></script>
     
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- GSAP with ScrollTrigger -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
-    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <!-- JavaScript 활성화 감지 -->
     <script>
-        // JavaScript 활성화 즉시 감지
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js-enabled');
     </script>
 
-    <!-- 페이지 스크롤 최적화 (안전한 버전) -->
     <script>
-        // 페이지 로드 시 자연스럽게 상단으로 이동 - 안전한 방식
         (function() {
             let scrollOptimized = false;
             
-            // 브라우저 스크롤 복원 비활성화
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
             }
@@ -56,34 +44,28 @@
                     });
                     scrollOptimized = true;
                 } catch (error) {
-                    // 폴백 스크롤
                     window.scrollTo(0, 0);
                     scrollOptimized = true;
                 }
             }
             
-            // 즉시 상단으로 (한 번만)
             scrollToTop();
             
-            // 페이지 언로드 시 상단으로
             window.addEventListener('beforeunload', function() {
                 scrollOptimized = false;
                 window.scrollTo(0, 0);
             });
             
-            // 페이지 로드 완료 시 상단으로 (확실히 하기 위해)
             window.addEventListener('load', function() {
                 setTimeout(scrollToTop, 0);
             });
             
-            // DOM 로드 완료 시 상단으로
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', scrollToTop);
             } else {
                 scrollToTop();
             }
             
-            // 뒤로가기/앞으로가기 시 상단으로
             window.addEventListener('popstate', function() {
                 scrollOptimized = false;
                 setTimeout(scrollToTop, 0);
@@ -95,11 +77,9 @@
 </head>
 
 <body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %}">
-    <!-- 헤더 -->
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <!-- 로고 -->
                 <div class="logo">
                     <a href="{{ url_for('index') }}">
                         <i class="fas fa-hands-helping"></i>
@@ -107,7 +87,6 @@
                     </a>
                 </div>
 
-                <!-- 메인 네비게이션 -->
                 <nav class="main-nav">
                     <ul>
                         <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
@@ -118,25 +97,18 @@
                     </ul>
                 </nav>
 
-                <!-- 사용자 메뉴 -->
                 <div class="user-menu">
                     {% if session.get('user_id') %}
-                        <div class="welcome-message">
-                            <span>
-                                <i class="fas fa-smile-beam smile-icon"></i>
-                                {{ session.get('nickname') }}님, 환영합니다!
-                            </span>
-                            <a href="{{ url_for('logout') }}" class="welcome-btn">
-                                로그아웃
-                            </a>
-                        </div>
-                        <div class="auth-required user-actions">
-                            <a href="{{ url_for('notifications') }}" class="notification-btn">
+                        <div class="user-actions">
+                            <button class="notification-bell-btn" onclick="toggleNotificationPanel()" aria-label="알림">
                                 <i class="fas fa-bell"></i>
-                                <span class="notification-badge">3</span>
-                            </a>
+                                <span class="notification-badge" id="notificationBadge">3</span>
+                            </button>
                             <a href="{{ url_for('mypage') }}" class="profile-btn">
                                 <i class="fas fa-user-circle"></i>
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="logout-btn">
+                                로그아웃
                             </a>
                         </div>
                     {% else %}
@@ -146,14 +118,12 @@
                     {% endif %}
                 </div>
 
-                <!-- 모바일 메뉴 버튼 -->
                 <button class="mobile-menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
 
-        <!-- 모바일 네비게이션 -->
         <nav class="mobile-nav">
             <ul>
                 <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
@@ -169,12 +139,134 @@
         </nav>
     </header>
 
-    <!-- 메인 콘텐츠 -->
+    <!-- 알림 패널 -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-panel-header">
+            <h3>
+                <i class="fas fa-bell"></i>
+                알림
+            </h3>
+            <div class="panel-actions">
+                <button class="panel-action-btn" onclick="markAllNotificationsAsRead()" title="모두 읽음">
+                    <i class="fas fa-check-double"></i>
+                </button>
+                <button class="panel-action-btn" onclick="closeNotificationPanel()" title="닫기">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="notification-panel-content">
+            <!-- 알림 필터 -->
+            <div class="notification-filters">
+                <button class="filter-btn active" onclick="filterPanelNotifications('all')" data-filter="all">
+                    전체 <span class="filter-count" id="allCount">5</span>
+                </button>
+                <button class="filter-btn" onclick="filterPanelNotifications('reports')" data-filter="reports">
+                    신고 <span class="filter-count" id="reportsCount">2</span>
+                </button>
+                <button class="filter-btn" onclick="filterPanelNotifications('witnesses')" data-filter="witnesses">
+                    목격 <span class="filter-count" id="witnessesCount">1</span>
+                </button>
+                <button class="filter-btn" onclick="filterPanelNotifications('system')" data-filter="system">
+                    시스템 <span class="filter-count" id="systemCount">2</span>
+                </button>
+            </div>
+
+            <!-- 알림 목록 -->
+            <div class="notification-items" id="notificationItems">
+                <!-- 신고 관련 알림 -->
+                <div class="notification-item unread" data-category="reports" data-id="1">
+                    <div class="notification-icon critical">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">긴급 실종자 신고 접수</div>
+                        <div class="notification-message">새로운 긴급 실종자가 신고되었습니다. 확인이 필요합니다.</div>
+                        <div class="notification-time">5분 전</div>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="mark-read-btn" onclick="markPanelNotificationAsRead(1)">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 목격 신고 알림 -->
+                <div class="notification-item unread" data-category="witnesses" data-id="2">
+                    <div class="notification-icon info">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">새로운 목격 신고</div>
+                        <div class="notification-message">김철수님에 대한 목격 신고가 접수되었습니다.</div>
+                        <div class="notification-time">15분 전</div>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="mark-read-btn" onclick="markPanelNotificationAsRead(2)">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 시스템 알림 -->
+                <div class="notification-item unread" data-category="system" data-id="3">
+                    <div class="notification-icon success">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">포인트 적립</div>
+                        <div class="notification-message">목격 신고 승인으로 100포인트가 적립되었습니다.</div>
+                        <div class="notification-time">1시간 전</div>
+                    </div>
+                    <div class="notification-actions">
+                        <button class="mark-read-btn" onclick="markPanelNotificationAsRead(3)">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 읽은 알림 -->
+                <div class="notification-item read" data-category="reports" data-id="4">
+                    <div class="notification-icon info">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">신고 처리 완료</div>
+                        <div class="notification-message">회원님의 실종자 신고가 처리 완료되었습니다.</div>
+                        <div class="notification-time">2시간 전</div>
+                    </div>
+                </div>
+
+                <div class="notification-item read" data-category="system" data-id="5">
+                    <div class="notification-icon info">
+                        <i class="fas fa-megaphone"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">시스템 공지</div>
+                        <div class="notification-message">손길 플랫폼 업데이트가 완료되었습니다.</div>
+                        <div class="notification-time">1일 전</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 더보기 버튼 -->
+            <div class="notification-panel-footer">
+                <a href="{{ url_for('notifications') }}" class="view-all-btn">
+                    모든 알림 보기
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 패널 배경 오버레이 -->
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotificationPanel()"></div>
+
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 푸터 -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -214,7 +306,6 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
