@@ -107,13 +107,6 @@
     border-color: var(--secondary-green);
 }
 
-.step.completed .step-number::after {
-    content: '✓';
-    position: absolute;
-    font-size: 12px;
-    font-weight: bold;
-}
-
 .step-label {
     font-size: 12px;
     color: var(--gray-600);
