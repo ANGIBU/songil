@@ -139,7 +139,6 @@
         </nav>
     </header>
 
-    <!-- 알림 패널 -->
     <div class="notification-panel" id="notificationPanel">
         <div class="notification-panel-header">
             <h3>
@@ -157,7 +156,6 @@
         </div>
         
         <div class="notification-panel-content">
-            <!-- 알림 필터 -->
             <div class="notification-filters">
                 <button class="filter-btn active" onclick="filterPanelNotifications('all')" data-filter="all">
                     전체 <span class="filter-count" id="allCount">5</span>
@@ -173,9 +171,7 @@
                 </button>
             </div>
 
-            <!-- 알림 목록 -->
             <div class="notification-items" id="notificationItems">
-                <!-- 신고 관련 알림 -->
                 <div class="notification-item unread" data-category="reports" data-id="1">
                     <div class="notification-icon critical">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -192,7 +188,6 @@
                     </div>
                 </div>
 
-                <!-- 목격 신고 알림 -->
                 <div class="notification-item unread" data-category="witnesses" data-id="2">
                     <div class="notification-icon info">
                         <i class="fas fa-eye"></i>
@@ -209,7 +204,6 @@
                     </div>
                 </div>
 
-                <!-- 시스템 알림 -->
                 <div class="notification-item unread" data-category="system" data-id="3">
                     <div class="notification-icon success">
                         <i class="fas fa-coins"></i>
@@ -226,7 +220,6 @@
                     </div>
                 </div>
 
-                <!-- 읽은 알림 -->
                 <div class="notification-item read" data-category="reports" data-id="4">
                     <div class="notification-icon info">
                         <i class="fas fa-file-alt"></i>
@@ -250,7 +243,6 @@
                 </div>
             </div>
 
-            <!-- 더보기 버튼 -->
             <div class="notification-panel-footer">
                 <a href="{{ url_for('notifications') }}" class="view-all-btn">
                     모든 알림 보기
@@ -260,7 +252,6 @@
         </div>
     </div>
 
-    <!-- 알림 패널 배경 오버레이 -->
     <div class="notification-overlay" id="notificationOverlay" onclick="closeNotificationPanel()"></div>
 
     <main class="main-content">

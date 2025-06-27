@@ -203,7 +203,7 @@ body.modal-open {
     font-size: var(--font-size-base);
 }
 
-/* 헤더 */
+/* 헤더 - 3분할 레이아웃으로 변경 */
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--gray-200);
@@ -221,10 +221,15 @@ body.modal-open {
 }
 
 .header-content {
-    display: flex;
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
     align-items: center;
-    justify-content: space-between;
     padding: var(--spacing-4) 0;
+    gap: var(--spacing-4);
+}
+
+.logo {
+    justify-self: start;
 }
 
 .logo a {
@@ -243,10 +248,15 @@ body.modal-open {
     transform: scale(1.05);
 }
 
+.main-nav {
+    justify-self: center;
+}
+
 .main-nav ul {
     display: flex;
     list-style: none;
     gap: var(--spacing-8);
+    justify-content: center;
 }
 
 .main-nav a {
@@ -287,12 +297,15 @@ body.modal-open {
 }
 
 .user-menu {
+    justify-self: end;
     display: flex;
     align-items: center;
-    gap: var(--spacing-4);
+    gap: var(--spacing-3);
+    min-width: 160px;
+    justify-content: flex-end;
 }
 
-/* 알림 종 버튼 스타일 */
+/* 알림 종 버튼 스타일 - hover 크기 고정 */
 .notification-bell-btn {
     position: relative;
     background: none;
@@ -313,7 +326,6 @@ body.modal-open {
 .notification-bell-btn:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
-    transform: none;
 }
 
 .notification-bell-btn .notification-badge {
@@ -368,7 +380,6 @@ body.modal-open {
 .profile-btn:hover {
     color: var(--secondary-green);
     background-color: var(--secondary-green-soft);
-    transform: none;
 }
 
 .logout-btn {
@@ -408,22 +419,23 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
-/* 알림 패널 스타일 */
+/* 알림 패널 스타일 - 반응형 크기 조정 */
 .notification-panel {
     position: fixed;
     top: 80px;
     right: 20px;
-    width: 400px;
+    width: min(400px, calc(100vw - 40px));
+    max-width: 400px;
     max-height: 600px;
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     z-index: var(--z-index-notification-panel);
-    transform: translateX(100%) scale(0.95);
+    transform: translateX(calc(100% + 20px)) scale(0.95);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.98);
     overflow: hidden;
@@ -494,6 +506,12 @@ body.modal-open {
     padding: var(--spacing-3) var(--spacing-4);
     border-bottom: 1px solid var(--gray-100);
     overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.notification-filters::-webkit-scrollbar {
+    display: none;
 }
 
 .filter-btn {
@@ -551,6 +569,8 @@ body.modal-open {
     border-bottom: 1px solid var(--gray-100);
     transition: var(--transition-fast);
     position: relative;
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .notification-item:last-child {
@@ -1609,10 +1629,8 @@ hr {
 
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
-    .hero-content {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-8);
-        text-align: center;
+    .header-content {
+        grid-template-columns: auto 1fr auto;
     }
     
     .urgent-cards {
@@ -1621,32 +1639,32 @@ hr {
     }
     
     .notification-panel {
-        width: 350px;
+        width: min(350px, calc(100vw - 20px));
         right: 10px;
     }
 }
 
 @media (max-width: 768px) {
+    .header-content {
+        grid-template-columns: 1fr auto;
+        gap: var(--spacing-2);
+    }
+    
     .main-nav {
         display: none;
     }
     
     .mobile-menu-btn {
         display: block;
+        grid-column: 2;
+        justify-self: end;
     }
     
-    .hero-title {
-        font-size: var(--font-size-3xl);
-    }
-    
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
+    .user-menu {
+        grid-column: 1;
+        grid-row: 2;
+        justify-self: start;
+        min-width: auto;
     }
     
     .urgent-cards {
@@ -1693,6 +1711,11 @@ hr {
         left: 10px;
     }
     
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
     /* 모바일 토스트 조정 */
     .toast-container {
         top: 10px;
@@ -1708,10 +1731,6 @@ hr {
 }
 
 @media (max-width: 480px) {
-    .hero-title {
-        font-size: var(--font-size-2xl);
-    }
-    
     .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -1769,7 +1788,7 @@ hr {
 .user-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-4);
+    gap: var(--spacing-3);
 }
 
 .guest-actions {
