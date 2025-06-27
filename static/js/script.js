@@ -91,13 +91,21 @@ function initializeNotificationSystem() {
     }
 }
 
-// ===== 알림 패널 토글 =====
+// ===== 알림 패널 토글 - 디버깅 강화 =====
 function toggleNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
         const overlay = document.getElementById('notificationOverlay');
         
-        if (!panel || !overlay) return;
+        if (!panel) {
+            console.warn('알림 패널 엘리먼트를 찾을 수 없습니다.');
+            return;
+        }
+        
+        if (!overlay) {
+            console.warn('알림 오버레이 엘리먼트를 찾을 수 없습니다.');
+            return;
+        }
         
         const isOpen = panel.classList.contains('show');
         
@@ -111,15 +119,30 @@ function toggleNotificationPanel() {
     }
 }
 
-// ===== 알림 패널 열기 - 애니메이션 개선 =====
+// ===== 알림 패널 열기 - 강제 표시 =====
 function openNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
         const overlay = document.getElementById('notificationOverlay');
         
-        if (!panel || !overlay) return;
+        if (!panel || !overlay) {
+            console.warn('알림 패널 또는 오버레이를 찾을 수 없습니다.');
+            return;
+        }
         
-        // 패널과 오버레이 표시
+        // 강제로 스타일 재설정
+        panel.style.display = 'block';
+        panel.style.visibility = 'visible';
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateX(0) scale(1)';
+        panel.style.pointerEvents = 'auto';
+        
+        overlay.style.display = 'block';
+        overlay.style.visibility = 'visible';
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'auto';
+        
+        // 클래스 추가
         panel.classList.add('show');
         overlay.classList.add('show');
         
@@ -167,6 +190,8 @@ function openNotificationPanel() {
                 }
             );
         }
+        
+        console.log('알림 패널이 열렸습니다.');
         
     } catch (error) {
         console.warn('알림 패널 열기 오류:', error);

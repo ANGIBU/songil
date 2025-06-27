@@ -328,25 +328,24 @@ body.modal-open {
     background-color: var(--primary-orange-soft);
 }
 
-/* 알림 배지 위치 조정 - 종 아이콘과 겹치도록 */
+/* 알림 배지 - 빨간색 텍스트만 */
 .notification-bell-btn .notification-badge {
     position: absolute;
     top: 4px;
     right: 6px;
-    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-    color: var(--white);
+    color: var(--danger-red);
     font-size: var(--font-size-xs);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-sm);
-    animation: pulse 2s infinite;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1;
-    border: 2px solid var(--white);
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    pointer-events: none;
+}
+
+.notification-bell-btn:hover .notification-badge {
+    color: var(--danger-red);
 }
 
 @keyframes pulse {
