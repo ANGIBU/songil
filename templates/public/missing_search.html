@@ -1,0 +1,388 @@
+{# templates/public/missing_search.html #}
+{% extends "base.html" %}
+
+{% block title %}손길 - 실종자 조회{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missing-search.css') }}">
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<!-- GSAP ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- 검색 헤더 섹션 -->
+<section class="search-header">
+    <div class="container">
+        <div class="search-title">
+            <h1><i class="fas fa-search"></i> 실종자 조회</h1>
+            <p>실종자 정보를 검색하고 목격 정보를 제보해주세요</p>
+        </div>
+        
+        <!-- 검색 및 필터 -->
+        <div class="search-controls">
+            <div class="search-section">
+                <div class="search-input-container">
+                    <div class="search-input-group">
+                        <input type="text" id="searchInput" placeholder="이름, 특징, 지역으로 검색하세요" class="search-input">
+                        <div class="search-status">검색 중...</div>
+                        <button class="search-btn" onclick="performSearch()">
+                            <i class="fas fa-search"></i>
+                            검색
+                        </button>
+                    </div>
+                    <div class="filter-controls">
+                        <button class="filter-popup-btn" id="filterPopupBtn">
+                            <i class="fas fa-filter"></i>
+                            상세 조회
+                        </button>
+                        <button class="filter-reset-btn" id="filterResetBtn">
+                            <i class="fas fa-undo"></i>
+                            초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="active-filters-container">
+                <div class="active-filters" id="activeFilters">
+                    <!-- 활성화된 필터들이 여기에 표시됩니다 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 검색 결과 정보 -->
+        <div class="search-results-info">
+            <div class="results-count">
+                총 <span id="totalCount"></span>건의 실종자 정보가 있습니다
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="grid" title="카드 형태로 보기" id="gridViewBtn">
+                    <i class="fas fa-th"></i>
+                </button>
+                <button class="view-btn" data-view="list" title="목록 형태로 보기" id="listViewBtn">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 실종자 목록 섹션 -->
+<section class="missing-list">
+    <div class="container">
+        <div class="main-content-area">
+            <div class="view-container">
+                <!-- 그리드 뷰 -->
+                <div class="missing-grid" id="missingGrid">
+                    <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                </div>
+                
+                <!-- 리스트 뷰 -->
+                <div class="missing-list-view" id="missingList">
+                    <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
+                </div>
+            </div>
+            
+            <!-- 로딩 인디케이터 -->
+            <div class="loading-indicator" id="loadingIndicator">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>실종자 정보를 불러오는 중...</span>
+            </div>
+            
+            <!-- 결과 없음 메시지 -->
+            <div class="no-results" id="noResults">
+                <i class="fas fa-search"></i>
+                <h3>검색 결과가 없습니다</h3>
+                <p>다른 검색어나 필터 조건을 시도해보세요</p>
+            </div>
+            
+            <!-- 페이지네이션 -->
+            <div class="pagination" id="pagination">
+                <button class="page-btn prev" id="prevBtn">
+                    <i class="fas fa-chevron-left"></i>
+                    이전
+                </button>
+                <div class="page-numbers" id="pageNumbers">
+                    <!-- 페이지 번호들이 동적으로 생성됩니다 -->
+                </div>
+                <button class="page-btn next" id="nextBtn">
+                    다음
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 상세 조회 팝업 모달 -->
+<div class="filter-popup-overlay" id="filterPopupOverlay">
+    <div class="filter-popup-modal">
+        <div class="filter-popup-header">
+            <h3><i class="fas fa-filter"></i> 상세 필터링</h3>
+            <button class="filter-popup-close" id="filterPopupClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- 필터 카테고리 탭 -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-tab="sort">
+                <i class="fas fa-sort"></i>
+                정렬
+            </button>
+            <button class="filter-tab" data-tab="region">
+                <i class="fas fa-map-marker-alt"></i>
+                지역
+            </button>
+            <button class="filter-tab" data-tab="age">
+                <i class="fas fa-user"></i>
+                연령대
+            </button>
+            <button class="filter-tab" data-tab="period">
+                <i class="fas fa-calendar"></i>
+                기간
+            </button>
+        </div>
+        
+        <div class="filter-popup-body">
+            <!-- 정렬 기준 탭 -->
+            <div class="filter-tab-content active" id="tab-sort">
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="danger" checked>
+                        <span class="checkmark"></span>
+                        위험도순
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="up">
+                        <span class="checkmark"></span>
+                        UP순
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="recent">
+                        <span class="checkmark"></span>
+                        최신순
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="sort" value="old">
+                        <span class="checkmark"></span>
+                        오래된순
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 지역 탭 -->
+            <div class="filter-tab-content" id="tab-region">
+                <div class="region-selector">
+                    <!-- 도/시 선택 -->
+                    <div class="region-level-1" id="regionLevel1">
+                        <div class="region-header">
+                            <h5>시/도 선택</h5>
+                        </div>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="" checked>
+                                <span class="checkmark"></span>
+                                전체 지역
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="seoul">
+                                <span class="checkmark"></span>
+                                서울시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="busan">
+                                <span class="checkmark"></span>
+                                부산광역시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="daegu">
+                                <span class="checkmark"></span>
+                                대구광역시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="incheon">
+                                <span class="checkmark"></span>
+                                인천광역시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gwangju">
+                                <span class="checkmark"></span>
+                                광주광역시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="daejeon">
+                                <span class="checkmark"></span>
+                                대전광역시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="ulsan">
+                                <span class="checkmark"></span>
+                                울산광역시
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gyeonggi">
+                                <span class="checkmark"></span>
+                                경기도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gangwon">
+                                <span class="checkmark"></span>
+                                강원도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="chungbuk">
+                                <span class="checkmark"></span>
+                                충청북도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="chungnam">
+                                <span class="checkmark"></span>
+                                충청남도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="jeonbuk">
+                                <span class="checkmark"></span>
+                                전라북도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="jeonnam">
+                                <span class="checkmark"></span>
+                                전라남도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gyeongbuk">
+                                <span class="checkmark"></span>
+                                경상북도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="gyeongnam">
+                                <span class="checkmark"></span>
+                                경상남도
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="region-level1" value="jeju">
+                                <span class="checkmark"></span>
+                                제주도
+                            </label>
+                        </div>
+                    </div>
+
+                    
+                    <!-- 세부 지역 선택 -->
+                    <div class="region-level-2" id="regionLevel2">
+                        <div class="region-header">
+                            <h5 id="regionLevel2Title">세부 지역 선택</h5>
+                            <button type="button" class="region-back-btn" id="regionBackBtn">
+                                <i class="fas fa-arrow-left"></i>
+                                뒤로가기
+                            </button>
+                        </div>
+                        <div class="filter-options" id="regionLevel2Options">
+                            <!-- 동적으로 생성됩니다 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 연령대 탭 -->
+            <div class="filter-tab-content" id="tab-age">
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="" checked>
+                        <span class="checkmark"></span>
+                        전체 연령
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="child">
+                        <span class="checkmark"></span>
+                        어린이 (0-12세)
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="teen">
+                        <span class="checkmark"></span>
+                        청소년 (13-19세)
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="adult">
+                        <span class="checkmark"></span>
+                        성인 (20-64세)
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="age" value="senior">
+                        <span class="checkmark"></span>
+                        고령자 (65세 이상)
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 실종기간 탭 -->
+            <div class="filter-tab-content" id="tab-period">
+                <div class="filter-options">
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="" checked>
+                        <span class="checkmark"></span>
+                        전체 기간
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="today">
+                        <span class="checkmark"></span>
+                        오늘
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="week">
+                        <span class="checkmark"></span>
+                        최근 1주일
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="month">
+                        <span class="checkmark"></span>
+                        최근 1개월
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="3month">
+                        <span class="checkmark"></span>
+                        최근 3개월
+                    </label>
+                    <label class="filter-option">
+                        <input type="radio" name="period" value="year">
+                        <span class="checkmark"></span>
+                        최근 1년
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-popup-footer">
+            <button class="filter-apply-btn" id="filterApplyBtn">
+                <i class="fas fa-check"></i>
+                필터 적용
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 긴급 신고 플로팅 버튼 -->
+<div class="floating-report-btns">
+    <a href="{{ url_for('missing_report') }}" class="floating-btn main-btn" title="실종자 신고">
+        <i class="fas fa-plus"></i>
+    </a>
+    <div class="floating-sub-btns">
+        <a href="{{ url_for('missing_report') }}" class="floating-btn sub-btn" title="실종자 신고">
+            <i class="fas fa-user-plus"></i>
+            <span>신고</span>
+        </a>
+        <a href="tel:112" class="floating-btn sub-btn emergency" title="긴급신고 112">
+            <i class="fas fa-phone"></i>
+            <span>112</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/missing-search.js') }}"></script>
+{% endblock %}

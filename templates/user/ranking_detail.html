@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}손길 - 실종자 상세정보{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 실종자 기본 정보 -->
+<section class="missing-basic-info">
+    <div class="container">
+        <div class="missing-profile">
+            <!-- 왼쪽: 이미지만 -->
+            <div class="profile-image-section">
+                <div class="main-image">
+                    <img src="" alt="실종자 사진" id="mainImage" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                    <div class="danger-level" id="dangerLevel"></div>
+                    <div class="missing-period" id="missingPeriod"></div>
+                </div>
+                <div class="additional-images" id="additionalImages"></div>
+            </div>
+
+            <!-- 오른쪽: 타이틀과 기본정보 -->
+            <div class="profile-details">
+                <!-- 타이틀 섹션 -->
+                <div class="title-container">
+                    <div class="title-info">
+                        <h1 id="missingName"></h1>
+                        <div class="title-status">
+                            <span class="status-badge urgent">수색 중</span>
+                            <span class="report-id" id="reportId"></span>
+                        </div>
+                    </div>
+                    <div class="title-actions">
+                        <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                        <button class="recommendation-btn" onclick="handleRecommendClick()" title="응원하기">
+                            <div class="recommendation-content">
+                                <i class="fas fa-arrow-up"></i>
+                                <span class="recommendation-count" id="recommendCount">0</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 기본 정보 섹션 -->
+                <div class="basic-info-container">
+                    <div class="info-header">
+                        <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
+                    </div>
+                    <div class="basic-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar"></i>
+                                실종일시
+                            </div>
+                            <div class="info-value" id="missingDateTime"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                실종장소
+                            </div>
+                            <div class="info-value" id="missingLocation"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user"></i>
+                                성별/나이
+                            </div>
+                            <div class="info-value" id="missingGenderAge"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-ruler-vertical"></i>
+                                신체정보
+                            </div>
+                            <div class="info-value" id="missingBody"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-tshirt"></i>
+                                착용의상
+                            </div>
+                            <div class="info-value" id="missingClothes"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-exclamation-circle"></i>
+                                특이사항
+                            </div>
+                            <div class="info-value" id="missingFeatures"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 실종 당시 상황 섹션 (자동 채움 지원 가능) -->
+<section class="situation-section">
+    <div class="container">
+        <div class="situation-content-single">
+            <div class="situation-details-full">
+                <div class="content-header">
+                    <h3><i class="fas fa-info-circle"></i> 실종 당시 상황</h3>
+                </div>
+                <div class="situation-text" id="missingSituation"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 목격 정보 및 관련 실종자 등 나머지 영역은 추후 서버/JS 바인딩 가능 -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+<script src="{{ url_for('static', filename='js/missing-detail.js') }}"></script>
+{% endblock %}

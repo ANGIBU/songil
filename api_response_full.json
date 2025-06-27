@@ -1,0 +1,8 @@
+{
+    "header": {
+        "resultMsg": "UNREGISTERED IP ERROR",
+        "resultCode": "32",
+        "errorMsg": "등록되지 않은 IP"
+    },
+    "body": null
+}

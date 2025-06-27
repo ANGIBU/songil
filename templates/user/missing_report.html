@@ -1,0 +1,449 @@
+{# templates/user/missing_report.html #}
+{% extends "base.html" %}
+
+{% block title %}손길 - 실종자 신고{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missing-report.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 신고 헤더 -->
+<section class="report-header">
+    <div class="container">
+        <div class="report-title">
+            <h1><i class="fas fa-plus-circle"></i> 실종자 신고</h1>
+            <p>정확한 정보 입력이 실종자를 찾는데 큰 도움이 됩니다</p>
+        </div>
+        
+        <!-- 진행률 표시 -->
+        <div class="progress-bar">
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">기본정보</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">실종상황</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">사진업로드</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">연락처</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-number">5</div>
+                    <div class="step-label">최종확인</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 신고 양식 -->
+<section class="report-form-section">
+    <div class="container">
+        <form class="report-form" id="reportForm">
+            <!-- 1단계: 기본정보 -->
+            <div class="form-step active" data-step="1">
+                <div class="step-header">
+                    <h2>실종자 기본정보</h2>
+                    <p>실종자의 기본적인 인적사항을 입력해주세요</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="missingName" class="required">
+                            <i class="fas fa-user"></i>
+                            성명
+                        </label>
+                        <input type="text" id="missingName" name="missingName" required placeholder="실명을 입력하세요">
+                        <div class="error-message" id="missingNameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="missingAge" class="required">
+                            <i class="fas fa-birthday-cake"></i>
+                            나이
+                        </label>
+                        <div class="input-with-unit">
+                            <input type="number" id="missingAge" name="missingAge" required min="0" max="120" placeholder="만 나이">
+                            <span class="unit">세</span>
+                        </div>
+                        <div class="error-message" id="missingAgeError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-venus-mars"></i>
+                            성별
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="male" required>
+                                <span class="radio-custom"></span>
+                                남성
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="female" required>
+                                <span class="radio-custom"></span>
+                                여성
+                            </label>
+                        </div>
+                        <div class="error-message" id="genderError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="height">
+                            <i class="fas fa-ruler-vertical"></i>
+                            키
+                        </label>
+                        <div class="input-with-unit">
+                            <input type="number" id="height" name="height" min="50" max="250" placeholder="예: 170">
+                            <span class="unit">cm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="weight">
+                            <i class="fas fa-weight"></i>
+                            체중
+                        </label>
+                        <div class="input-with-unit">
+                            <input type="number" id="weight" name="weight" min="10" max="200" placeholder="예: 65">
+                            <span class="unit">kg</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bodyType">
+                            <i class="fas fa-user-circle"></i>
+                            체형
+                        </label>
+                        <select id="bodyType" name="bodyType">
+                            <option value="">선택하세요</option>
+                            <option value="thin">마른체형</option>
+                            <option value="normal">보통체형</option>
+                            <option value="heavy">뚱뚱한체형</option>
+                            <option value="muscular">근육질체형</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="physicalFeatures">
+                        <i class="fas fa-eye"></i>
+                        특징
+                    </label>
+                    <textarea id="physicalFeatures" name="physicalFeatures" rows="3" placeholder="얼굴 특징, 머리 스타일, 흉터, 점 등 구체적인 특징을 적어주세요"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                        다음 단계
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 2단계: 실종상황 -->
+            <div class="form-step" data-step="2">
+                <div class="step-header">
+                    <h2>실종 상황</h2>
+                    <p>실종 당시의 상황을 자세히 알려주세요</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="missingDate" class="required">
+                            <i class="fas fa-calendar"></i>
+                            실종 날짜
+                        </label>
+                        <input type="date" id="missingDate" name="missingDate" required>
+                        <div class="error-message" id="missingDateError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="missingTime">
+                            <i class="fas fa-clock"></i>
+                            실종 시간 (대략)
+                        </label>
+                        <input type="time" id="missingTime" name="missingTime">
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="missingLocation" class="required">
+                        <i class="fas fa-map-marker-alt"></i>
+                        실종 장소
+                    </label>
+                    <input type="text" id="missingLocation" name="missingLocation" required placeholder="구체적인 주소나 장소명을 입력하세요">
+                    <div class="location-help">
+                        <button type="button" class="location-btn" onclick="getCurrentLocation()">
+                            <i class="fas fa-crosshairs"></i>
+                            현재 위치 사용
+                        </button>
+                    </div>
+                    <div class="error-message" id="missingLocationError"></div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="clothing" class="required">
+                        <i class="fas fa-tshirt"></i>
+                        착용 의상
+                    </label>
+                    <textarea id="clothing" name="clothing" rows="3" required placeholder="상의, 하의, 신발, 가방 등 착용한 의상을 구체적으로 적어주세요&#10;예: 검은색 후드티, 청바지, 흰색 운동화"></textarea>
+                    <div class="error-message" id="clothingError"></div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="situation">
+                        <i class="fas fa-info-circle"></i>
+                        실종 당시 상황
+                    </label>
+                    <textarea id="situation" name="situation" rows="4" placeholder="실종 전 상황, 마지막 목격 정보, 평소와 다른 행동 등을 자세히 적어주세요"></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="medicalCondition">
+                        <i class="fas fa-heartbeat"></i>
+                        건강상태 / 복용약물
+                    </label>
+                    <textarea id="medicalCondition" name="medicalCondition" rows="2" placeholder="지병, 복용 중인 약물, 정신적 상태 등 (선택사항)"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                        <i class="fas fa-arrow-left"></i>
+                        이전
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                        다음 단계
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 3단계: 사진업로드 -->
+            <div class="form-step" data-step="3">
+                <div class="step-header">
+                    <h2>실종자 사진</h2>
+                    <p>선명한 사진일수록 목격자 신고에 도움이 됩니다</p>
+                </div>
+                
+                <div class="photo-upload-section">
+                    <div class="upload-area" id="photoUploadArea">
+                        <div class="upload-placeholder">
+                            <i class="fas fa-camera"></i>
+                            <h3>사진을 업로드하세요</h3>
+                            <p>드래그 앤 드롭 또는 클릭하여 선택</p>
+                            <button type="button" class="btn btn-outline">
+                                <i class="fas fa-plus"></i>
+                                사진 선택
+                            </button>
+                            <input type="file" id="photoInput" name="photos" accept="image/*" multiple style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="uploaded-photos" id="uploadedPhotos">
+                    </div>
+                    
+                    <div class="upload-guidelines">
+                        <h4>사진 업로드 가이드라인</h4>
+                        <ul>
+                            <li>• 얼굴이 선명하게 보이는 사진을 올려주세요</li>
+                            <li>• 최근 사진일수록 좋습니다</li>
+                            <li>• 여러 각도의 사진을 올리면 더욱 도움이 됩니다</li>
+                            <li>• 지원 형식: JPG, PNG (최대 10MB)</li>
+                            <li>• 최대 5장까지 업로드 가능합니다</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                        <i class="fas fa-arrow-left"></i>
+                        이전
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(4)">
+                        다음 단계
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 4단계: 연락처 -->
+            <div class="form-step" data-step="4">
+                <div class="step-header">
+                    <h2>신고자 연락처</h2>
+                    <p>수사 진행 상황을 알려드리기 위한 연락처입니다</p>
+                </div>
+                
+                <div class="contact-info-notice">
+                    <div class="notice-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <p>연락처는 수사기관에서만 사용되며, 절대 외부에 공개되지 않습니다.</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="reporterName" class="required">
+                            <i class="fas fa-user"></i>
+                            신고자 성명
+                        </label>
+                        <input type="text" id="reporterName" name="reporterName" required placeholder="신고자의 실명">
+                        <div class="error-message" id="reporterNameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="relationship" class="required">
+                            <i class="fas fa-heart"></i>
+                            실종자와의 관계
+                        </label>
+                        <select id="relationship" name="relationship" required>
+                            <option value="">선택하세요</option>
+                            <option value="parent">부모</option>
+                            <option value="child">자녀</option>
+                            <option value="spouse">배우자</option>
+                            <option value="sibling">형제/자매</option>
+                            <option value="relative">친척</option>
+                            <option value="friend">친구</option>
+                            <option value="colleague">동료</option>
+                            <option value="other">기타</option>
+                        </select>
+                        <div class="error-message" id="relationshipError"></div>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="reporterPhone" class="required">
+                            <i class="fas fa-phone"></i>
+                            휴대폰 번호
+                        </label>
+                        <input type="tel" id="reporterPhone" name="reporterPhone" required placeholder="010-0000-0000">
+                        <div class="error-message" id="reporterPhoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="emergencyPhone">
+                            <i class="fas fa-phone-alt"></i>
+                            비상 연락처
+                        </label>
+                        <input type="tel" id="emergencyPhone" name="emergencyPhone" placeholder="다른 가족 연락처 (선택)">
+                    </div>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="additionalInfo">
+                        <i class="fas fa-plus-circle"></i>
+                        추가 정보
+                    </label>
+                    <textarea id="additionalInfo" name="additionalInfo" rows="3" placeholder="수사에 도움이 될 만한 기타 정보가 있다면 적어주세요"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                        <i class="fas fa-arrow-left"></i>
+                        이전
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(5)">
+                        다음 단계
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 5단계: 최종확인 -->
+            <div class="form-step" data-step="5">
+                <div class="step-header">
+                    <h2>신고 내용 확인</h2>
+                    <p>입력하신 내용을 확인하고 신고를 완료해주세요</p>
+                </div>
+                
+                <div class="confirmation-content">
+                    <div class="confirm-section">
+                        <h3>
+                            <i class="fas fa-user"></i>
+                            실종자 정보
+                        </h3>
+                        <div class="confirm-details" id="missingPersonSummary">
+                        </div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <h3>
+                            <i class="fas fa-map-marker-alt"></i>
+                            실종 상황
+                        </h3>
+                        <div class="confirm-details" id="missingSituationSummary">
+                        </div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <h3>
+                            <i class="fas fa-camera"></i>
+                            업로드된 사진
+                        </h3>
+                        <div class="confirm-photos" id="uploadedPhotosSummary">
+                        </div>
+                    </div>
+                    
+                    <div class="confirm-section">
+                        <h3>
+                            <i class="fas fa-phone"></i>
+                            연락처 정보
+                        </h3>
+                        <div class="confirm-details" id="contactSummary">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="final-agreements">
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreeAccuracy" required>
+                            <span class="checkmark"></span>
+                            위 정보는 사실이며, 허위 신고시 법적 책임을 질 수 있음을 이해합니다.
+                        </label>
+                    </div>
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreeProcess" required>
+                            <span class="checkmark"></span>
+                            신고 내용이 경찰청에 전달되어 공식 수사가 진행됨을 동의합니다.
+                        </label>
+                    </div>
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agreePublic" required>
+                            <span class="checkmark"></span>
+                            개인정보 보호 처리 후 플랫폼에 공개됨을 동의합니다.
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(4)">
+                        <i class="fas fa-arrow-left"></i>
+                        이전
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        신고 접수하기
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/missing-report.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,222 @@
+{# templates/base.html #}
+<!-- 깔끔한 페이지 로드 및 자연스러운 상단 이동 -->
+<!DOCTYPE html>
+<html lang="ko" class="no-js">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}손길 - 함께 찾아요, 소중한 사람을{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+
+    <!-- 카카오 지도 API -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services"></script>
+    
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- GSAP with ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- JavaScript 활성화 감지 -->
+    <script>
+        // JavaScript 활성화 즉시 감지
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js-enabled');
+    </script>
+
+    <!-- 페이지 스크롤 최적화 (안전한 버전) -->
+    <script>
+        // 페이지 로드 시 자연스럽게 상단으로 이동 - 안전한 방식
+        (function() {
+            let scrollOptimized = false;
+            
+            // 브라우저 스크롤 복원 비활성화
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            
+            function scrollToTop() {
+                if (scrollOptimized) return;
+                
+                try {
+                    window.scrollTo({
+                        top: 0,
+                        left: 0,
+                        behavior: 'instant'
+                    });
+                    scrollOptimized = true;
+                } catch (error) {
+                    // 폴백 스크롤
+                    window.scrollTo(0, 0);
+                    scrollOptimized = true;
+                }
+            }
+            
+            // 즉시 상단으로 (한 번만)
+            scrollToTop();
+            
+            // 페이지 언로드 시 상단으로
+            window.addEventListener('beforeunload', function() {
+                scrollOptimized = false;
+                window.scrollTo(0, 0);
+            });
+            
+            // 페이지 로드 완료 시 상단으로 (확실히 하기 위해)
+            window.addEventListener('load', function() {
+                setTimeout(scrollToTop, 0);
+            });
+            
+            // DOM 로드 완료 시 상단으로
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', scrollToTop);
+            } else {
+                scrollToTop();
+            }
+            
+            // 뒤로가기/앞으로가기 시 상단으로
+            window.addEventListener('popstate', function() {
+                scrollOptimized = false;
+                setTimeout(scrollToTop, 0);
+            });
+        })();
+    </script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %}">
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- 로고 -->
+                <div class="logo">
+                    <a href="{{ url_for('index') }}">
+                        <i class="fas fa-hands-helping"></i>
+                        <span>손길</span>
+                    </a>
+                </div>
+
+                <!-- 메인 네비게이션 -->
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
+                        <li><a href="{{ url_for('search') }}" class="nav-link {% if request.endpoint == 'search' %}active{% endif %}"><i class="fas fa-search"></i> 실종자 조회</a></li>
+                        <li class="auth-required"><a href="{{ url_for('missing_report') }}" class="nav-link {% if request.endpoint == 'missing_report' %}active{% endif %}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
+                        <li class="auth-required"><a href="{{ url_for('pointshop') }}" class="nav-link {% if request.endpoint == 'pointshop' %}active{% endif %}"><i class="fas fa-gift"></i> 포인트샵</a></li>
+                        <li><a href="{{ url_for('ranking') }}" class="nav-link {% if request.endpoint == 'ranking' %}active{% endif %}"><i class="fas fa-trophy"></i> 순위</a></li>
+                    </ul>
+                </nav>
+
+                <!-- 사용자 메뉴 -->
+                <div class="user-menu">
+                    {% if session.get('user_id') %}
+                        <div class="welcome-message">
+                            <span>
+                                <i class="fas fa-smile-beam smile-icon"></i>
+                                {{ session.get('nickname') }}님, 환영합니다!
+                            </span>
+                            <a href="{{ url_for('logout') }}" class="welcome-btn">
+                                로그아웃
+                            </a>
+                        </div>
+                        <div class="auth-required user-actions">
+                            <a href="{{ url_for('notifications') }}" class="notification-btn">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </a>
+                            <a href="{{ url_for('mypage') }}" class="profile-btn">
+                                <i class="fas fa-user-circle"></i>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="guest-actions">
+                            <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- 모바일 메뉴 버튼 -->
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 모바일 네비게이션 -->
+        <nav class="mobile-nav">
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
+                <li><a href="{{ url_for('search') }}" class="{% if request.endpoint == 'search' %}active{% endif %}"><i class="fas fa-search"></i> 실종자 조회</a></li>
+                <li class="auth-required"><a href="{{ url_for('missing_report') }}" class="{% if request.endpoint == 'missing_report' %}active{% endif %}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
+                <li class="auth-required"><a href="{{ url_for('pointshop') }}" class="{% if request.endpoint == 'pointshop' %}active{% endif %}"><i class="fas fa-gift"></i> 포인트샵</a></li>
+                <li><a href="{{ url_for('ranking') }}" class="{% if request.endpoint == 'ranking' %}active{% endif %}"><i class="fas fa-trophy"></i> 순위</a></li>
+                <li class="auth-required"><a href="{{ url_for('mypage') }}" class="{% if request.endpoint == 'mypage' %}active{% endif %}"><i class="fas fa-user-circle"></i> 마이페이지</a></li>
+                <li class="guest-actions">
+                    <a href="{{ url_for('login') }}">로그인</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>사이트 정보</h4>
+                    <ul>
+                        <li><a href="{{ url_for('about') }}">서비스 소개</a></li>
+                        <li><a href="#how-it-works">이용 방법</a></li>
+                        <li><a href="#faq">자주 묻는 질문</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>경찰청 연계</h4>
+                    <ul>
+                        <li><a href="#police-api">경찰청 API 연동</a></li>
+                        <li><a href="#data-sharing">데이터 공유 정책</a></li>
+                        <li><a href="#privacy">개인정보 보호</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객센터</h4>
+                    <ul>
+                        <li>전화 : 010-7905-5370</li>
+                        <li>이메일 : facecom2000@gmail.com</li>
+                        <li>운영시간 : 오전 10시~오후6시</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>개발팀</h4>
+                    <ul>
+                        <li><i class="fas fa-code team-icon"></i> 안기부 (프론트엔드)</li>
+                        <li><i class="fas fa-users-cog team-icon"></i> 손유빈 (PM)</li>
+                        <li><i class="fas fa-server team-icon"></i> 황수용 (백엔드)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,907 @@
+/* static/css/missing-witness.css */
+
+/* ===== 목격 신고 페이지 전용 스타일 ===== */
+/* 기본 변수는 style.css와 user.css에서 상속 */
+
+/* ============ 목격 신고 헤더 섹션 ============ */
+.witness-header {
+    background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--secondary-green-bg) 100%);
+    padding: 40px 0 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.witness-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.witness-navigation {
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: white;
+    color: var(--gray-700);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--gray-200);
+    font-weight: 500;
+    transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.back-btn:hover {
+    background: var(--gray-50);
+    border-color: var(--primary-orange);
+    color: var(--primary-orange);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.witness-title {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.witness-title h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.witness-title h1 i {
+    color: var(--primary-orange);
+    font-size: 2.2rem;
+}
+
+.witness-title p {
+    font-size: 1.1rem;
+    color: var(--gray-600);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* 포인트 안내 카드 */
+.points-info {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.points-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.points-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: var(--shadow-md);
+}
+
+.points-details h3 {
+    font-size: 18px;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.points-range {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.min-points, .max-points {
+    font-weight: 700;
+    color: var(--warning-amber);
+    font-size: 16px;
+}
+
+.points-bar {
+    flex: 1;
+    height: 4px;
+    background: linear-gradient(90deg, var(--warning-amber) 0%, var(--secondary-green) 100%);
+    border-radius: 2px;
+}
+
+.points-details p {
+    font-size: 13px;
+    color: var(--gray-600);
+    margin: 0;
+}
+
+/* ============ 실종자 정보 요약 ============ */
+.missing-summary {
+    padding: 40px 0;
+    background: white;
+}
+
+.summary-card {
+    background: var(--gray-50);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.summary-image {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+}
+
+.summary-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.danger-level {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    background: var(--danger-red);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+}
+
+.summary-info {
+    flex: 1;
+}
+
+.summary-info h2 {
+    font-size: 22px;
+    color: var(--gray-900);
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--gray-700);
+}
+
+.detail-item i {
+    color: var(--primary-orange);
+    width: 16px;
+    text-align: center;
+}
+
+/* ============ 목격 신고 폼 섹션 ============ */
+.witness-form-section {
+    padding: 40px 0 80px;
+    background: linear-gradient(to bottom, white 0%, var(--gray-50) 100%);
+}
+
+.witness-form {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+}
+
+.form-section {
+    padding: 32px;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section h3 {
+    font-size: 20px;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.form-section h3 i {
+    color: var(--primary-orange);
+    font-size: 18px;
+}
+
+.section-description {
+    color: var(--gray-600);
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+/* 폼 그리드 레이아웃 */
+.datetime-inputs,
+.location-inputs,
+.situation-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-group label.required::after {
+    content: '*';
+    color: var(--danger-red);
+    margin-left: 2px;
+}
+
+/* 입력 필드 스타일 */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    transition: var(--transition-base);
+    background: white;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--gray-400);
+}
+
+/* 위치 관련 버튼 */
+.location-tools {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.location-btn,
+.map-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-base);
+    text-decoration: none;
+}
+
+.location-btn:hover,
+.map-btn:hover {
+    background: var(--primary-orange-soft);
+    color: var(--primary-orange);
+    border-color: var(--primary-orange-light);
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: var(--danger-red);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+    border-color: var(--danger-red);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-group.error .error-message {
+    display: block;
+}
+
+/* ============ 증거 업로드 섹션 ============ */
+.evidence-upload {
+    margin-top: 20px;
+}
+
+.upload-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-md);
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--gray-50);
+    transition: var(--transition-base);
+    cursor: pointer;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-orange);
+    background: var(--primary-orange-bg);
+}
+
+.upload-area.drag-over {
+    border-color: var(--primary-orange);
+    background: var(--primary-orange-bg);
+    transform: scale(1.02);
+}
+
+.upload-placeholder h4 {
+    font-size: 18px;
+    color: var(--gray-800);
+    margin-bottom: 8px;
+}
+
+.upload-placeholder p {
+    color: var(--gray-600);
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.upload-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--gray-600);
+}
+
+.upload-note i {
+    color: var(--primary-orange);
+}
+
+/* 업로드된 파일 미리보기 */
+.uploaded-evidence {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+}
+
+/* ============ 동의 및 제출 섹션 ============ */
+.agreement-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.agreement-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--gray-700);
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    position: relative;
+    transition: var(--transition-base);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-label input[type="checkbox"]:checked ~ .checkmark {
+    background: var(--primary-orange);
+    border-color: var(--primary-orange);
+}
+
+.checkbox-label input[type="checkbox"]:checked ~ .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 제출 섹션 */
+.form-submit {
+    padding: 32px;
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+}
+
+.submit-info {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--gray-600);
+}
+
+.info-item i {
+    color: var(--primary-orange);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-base);
+    text-decoration: none;
+}
+
+.btn-outline {
+    background: white;
+    color: var(--primary-orange);
+    border: 2px solid var(--primary-orange);
+}
+
+.btn-outline:hover {
+    background: var(--primary-orange);
+    color: white;
+}
+
+.btn-large {
+    width: 100%;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: none;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    cursor: pointer;
+    transition: var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-large:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-large:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ============ 지도 모달 ============ */
+.map-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-modal);
+    backdrop-filter: blur(4px);
+}
+
+.map-modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: var(--transition-base);
+}
+
+.map-modal.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    color: var(--gray-900);
+    margin: 0;
+    font-weight: 600;
+}
+
+.close-modal {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: var(--gray-200);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-base);
+    color: var(--gray-600);
+}
+
+.close-modal:hover {
+    background: var(--gray-300);
+    color: var(--gray-800);
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.location-map {
+    width: 100%;
+    height: 400px;
+    border: none;
+}
+
+.map-controls {
+    padding: 20px 24px;
+    border-top: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    display: flex;
+    gap: 12px;
+}
+
+.map-controls input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+}
+
+.map-controls input:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+}
+
+.modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: var(--gray-200);
+    color: var(--gray-700);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.btn-secondary:hover {
+    background: var(--gray-300);
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-base);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-orange-dark) 0%, var(--primary-orange) 100%);
+}
+
+/* ============ 목격 신고 가이드 ============ */
+.witness-guide {
+    padding: 60px 0;
+    background: var(--gray-50);
+}
+
+.witness-guide h3 {
+    text-align: center;
+    font-size: 28px;
+    color: var(--gray-900);
+    margin-bottom: 40px;
+    font-weight: 700;
+}
+
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+}
+
+.guide-item {
+    background: white;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    transition: var(--transition-base);
+}
+
+.guide-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-orange-light);
+}
+
+.guide-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: white;
+    font-size: 24px;
+    box-shadow: var(--shadow-md);
+}
+
+.guide-item h4 {
+    font-size: 18px;
+    color: var(--gray-900);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.guide-item ul {
+    list-style: none;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+}
+
+.guide-item li {
+    color: var(--gray-600);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+/* ============ 반응형 디자인 ============ */
+@media (max-width: 1024px) {
+    .datetime-inputs,
+    .location-inputs,
+    .situation-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .submit-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+    
+    .witness-title h1 {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .form-section {
+        padding: 24px;
+    }
+    
+    .form-submit {
+        padding: 24px;
+    }
+    
+    .points-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .guide-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .map-modal .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .location-map {
+        height: 300px;
+    }
+    
+    .map-controls {
+        flex-direction: column;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .location-tools {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .witness-header {
+        padding: 40px 0 30px;
+    }
+    
+    .witness-title h1 {
+        font-size: 1.75rem;
+    }
+    
+    .form-section {
+        padding: 20px;
+    }
+    
+    .upload-area {
+        padding: 30px 16px;
+    }
+    
+    .summary-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .summary-info h2 {
+        font-size: 18px;
+    }
+    
+    .checkbox-label {
+        font-size: 13px;
+    }
+    
+    .btn-large {
+        font-size: 15px;
+        padding: 14px 24px;
+    }
+}

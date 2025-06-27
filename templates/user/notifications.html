@@ -1,0 +1,502 @@
+{# templates/user/notifications.html #}
+{% extends "base.html" %}
+
+{% block title %}손길 - 알림{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 알림 헤더 -->
+<section class="notifications-header">
+    <div class="container">
+        <div class="notifications-title">
+            <h1><i class="fas fa-bell"></i> 알림</h1>
+            <p>실종자 관련 업데이트와 중요한 소식을 확인하세요</p>
+        </div>
+        
+        <!-- 알림 통계 -->
+        <div class="notifications-stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalNotifications">23</div>
+                <div class="stat-label">전체 알림</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number unread" id="unreadNotifications">5</div>
+                <div class="stat-label">읽지 않음</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number important" id="importantNotifications">2</div>
+                <div class="stat-label">중요 알림</div>
+            </div>
+        </div>
+        
+        <!-- 알림 관리 도구 -->
+        <div class="notifications-tools">
+            <button class="tool-btn" onclick="markAllAsRead()">
+                <i class="fas fa-check-double"></i>
+                모두 읽음 처리
+            </button>
+            <button class="tool-btn" onclick="deleteReadNotifications()">
+                <i class="fas fa-trash"></i>
+                읽은 알림 삭제
+            </button>
+            <button class="tool-btn" onclick="toggleNotificationSettings()">
+                <i class="fas fa-cog"></i>
+                알림 설정
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- 알림 필터 -->
+<section class="notifications-filters">
+    <div class="container">
+        <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all" onclick="filterNotifications('all')">
+                <i class="fas fa-list"></i>
+                전체 알림
+                <span class="count">23</span>
+            </button>
+            <button class="filter-btn" data-filter="reports" onclick="filterNotifications('reports')">
+                <i class="fas fa-file-alt"></i>
+                내 신고 관련
+                <span class="count">8</span>
+            </button>
+            <button class="filter-btn" data-filter="witnesses" onclick="filterNotifications('witnesses')">
+                <i class="fas fa-eye"></i>
+                목격 신고
+                <span class="count">7</span>
+            </button>
+            <button class="filter-btn" data-filter="points" onclick="filterNotifications('points')">
+                <i class="fas fa-coins"></i>
+                포인트
+                <span class="count">4</span>
+            </button>
+            <button class="filter-btn" data-filter="system" onclick="filterNotifications('system')">
+                <i class="fas fa-megaphone"></i>
+                공지사항
+                <span class="count">4</span>
+            </button>
+        </div>
+        
+        <div class="filter-options">
+            <select id="sortOrder" onchange="sortNotifications()">
+                <option value="newest">최신순</option>
+                <option value="oldest">오래된순</option>
+                <option value="importance">중요도순</option>
+            </select>
+            <select id="readStatus" onchange="filterByReadStatus()">
+                <option value="all">전체</option>
+                <option value="unread">읽지 않음</option>
+                <option value="read">읽음</option>
+            </select>
+        </div>
+    </div>
+</section>
+
+<!-- 알림 목록 -->
+<section class="notifications-list">
+    <div class="container">
+        <!-- 오늘 알림 -->
+        <div class="notifications-section">
+            <h3 class="section-title">
+                <i class="fas fa-calendar-day"></i>
+                오늘
+            </h3>
+            
+            <div class="notification-item unread important" data-category="reports" data-id="1">
+                <div class="notification-icon critical">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">실종자 발견 - 긴급</div>
+                    <div class="notification-message">
+                        신고하신 김○○님이 발견되었습니다. 현재 병원으로 이송 중이며 생명에는 지장이 없는 상태입니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">30분 전</span>
+                        <span class="category">실종자 신고</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="viewReportDetail(1)">
+                        <i class="fas fa-eye"></i>
+                        상세보기
+                    </button>
+                    <button class="action-btn" onclick="markAsRead(1)">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(1)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item unread" data-category="witnesses" data-id="2">
+                <div class="notification-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">목격 신고 승인</div>
+                    <div class="notification-message">
+                        박○○님에 대한 목격 신고가 승인되었습니다. 150포인트가 적립되었습니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">2시간 전</span>
+                        <span class="category">목격 신고</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="viewWitnessDetail(2)">
+                        <i class="fas fa-eye"></i>
+                        상세보기
+                    </button>
+                    <button class="action-btn" onclick="markAsRead(2)">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(2)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item unread" data-category="points" data-id="3">
+                <div class="notification-icon info">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">포인트 적립</div>
+                    <div class="notification-message">
+                        실종자 UP 버튼 클릭으로 10포인트가 적립되었습니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">4시간 전</span>
+                        <span class="category">포인트</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn" onclick="markAsRead(3)">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(3)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item read" data-category="system" data-id="4">
+                <div class="notification-icon announcement">
+                    <i class="fas fa-megaphone"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">포인트샵 신상품 출시</div>
+                    <div class="notification-message">
+                        애플 에어팟 3세대가 한정 출시되었습니다. 선착순 10명에게만 제공됩니다!
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">6시간 전</span>
+                        <span class="category">공지사항</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="goToPointShop()">
+                        <i class="fas fa-shopping-cart"></i>
+                        포인트샵
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(4)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 어제 알림 -->
+        <div class="notifications-section">
+            <h3 class="section-title">
+                <i class="fas fa-calendar-minus"></i>
+                어제
+            </h3>
+            
+            <div class="notification-item read" data-category="witnesses" data-id="5">
+                <div class="notification-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">목격 신고 승인</div>
+                    <div class="notification-message">
+                        최○○님에 대한 목격 신고가 승인되었습니다. 300포인트가 적립되었습니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">어제 18:20</span>
+                        <span class="category">목격 신고</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="viewWitnessDetail(5)">
+                        <i class="fas fa-eye"></i>
+                        상세보기
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(5)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item read" data-category="reports" data-id="6">
+                <div class="notification-icon info">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">수사 진행 업데이트</div>
+                    <div class="notification-message">
+                        신고하신 김○○님 사건의 수사가 65% 진행되었습니다. CCTV 분석이 완료되었으며 목격자 조사가 진행 중입니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">어제 14:30</span>
+                        <span class="category">실종자 신고</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="viewReportDetail(6)">
+                        <i class="fas fa-eye"></i>
+                        상세보기
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(6)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item unread important" data-category="system" data-id="7">
+                <div class="notification-icon warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">새로운 긴급 실종자</div>
+                    <div class="notification-message">
+                        회원님 근처(강남구)에 8세 아동이 실종되었습니다. 즉시 주변을 살펴봐 주세요.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">어제 09:15</span>
+                        <span class="category">공지사항</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="viewMissingPerson(7)">
+                        <i class="fas fa-search"></i>
+                        실종자 보기
+                    </button>
+                    <button class="action-btn" onclick="markAsRead(7)">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(7)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 이번 주 알림 -->
+        <div class="notifications-section">
+            <h3 class="section-title">
+                <i class="fas fa-calendar-week"></i>
+                이번 주
+            </h3>
+            
+            <div class="notification-item read" data-category="points" data-id="8">
+                <div class="notification-icon purchase">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">포인트샵 구매 완료</div>
+                    <div class="notification-message">
+                        스타벅스 아메리카노 기프티콘이 마이페이지에서 확인 가능합니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">5월 22일</span>
+                        <span class="category">포인트</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="goToMyPage()">
+                        <i class="fas fa-user"></i>
+                        마이페이지
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(8)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item read" data-category="witnesses" data-id="9">
+                <div class="notification-icon warning">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">목격 신고 반려</div>
+                    <div class="notification-message">
+                        제출하신 목격 신고가 정보 부족으로 반려되었습니다. 더 구체적인 정보로 다시 신고해 주세요.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">5월 21일</span>
+                        <span class="category">목격 신고</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="resubmitWitnessReport(9)">
+                        <i class="fas fa-redo"></i>
+                        다시 신고
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(9)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="notification-item read" data-category="system" data-id="10">
+                <div class="notification-icon celebration">
+                    <i class="fas fa-party-horn"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">회원가입을 환영합니다!</div>
+                    <div class="notification-message">
+                        실종자 찾기 플랫폼에 가입해 주셔서 감사합니다. 100포인트가 지급되었습니다.
+                    </div>
+                    <div class="notification-meta">
+                        <span class="time">5월 20일</span>
+                        <span class="category">공지사항</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="action-btn primary" onclick="startTutorial()">
+                        <i class="fas fa-play"></i>
+                        튜토리얼
+                    </button>
+                    <button class="action-btn" onclick="deleteNotification(10)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 더 이전 알림 -->
+        <div class="notifications-section collapsed" id="olderNotifications">
+            <h3 class="section-title collapsible" onclick="toggleSection('olderNotifications')">
+                <i class="fas fa-calendar-alt"></i>
+                더 이전 알림
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </h3>
+            
+            <div class="section-content">
+                <!-- 추가 알림들이 여기에 표시됩니다 -->
+                <div class="load-more-notifications">
+                    <button class="btn btn-outline" onclick="loadMoreNotifications()">
+                        <i class="fas fa-plus"></i>
+                        더 많은 알림 보기
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 알림이 없을 때 -->
+        <div class="no-notifications" id="noNotifications" style="display: none;">
+            <div class="no-notifications-icon">
+                <i class="fas fa-bell-slash"></i>
+            </div>
+            <h3>알림이 없습니다</h3>
+            <p>새로운 알림이 오면 여기에 표시됩니다.</p>
+        </div>
+    </div>
+</section>
+
+<!-- 알림 설정 모달 -->
+<div class="notification-settings-modal" id="notificationSettingsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>알림 설정</h3>
+            <button class="close-modal" onclick="closeNotificationSettings()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="settings-section">
+                <h4>알림 수신 방법</h4>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">브라우저 알림</div>
+                        <div class="setting-description">웹사이트에서 직접 알림 받기</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="browserNotifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">이메일 알림</div>
+                        <div class="setting-description">중요한 알림을 이메일로 받기</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="emailNotifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">SMS 알림</div>
+                        <div class="setting-description">긴급 알림을 문자로 받기</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="smsNotifications">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h4>알림 자동 삭제</h4>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">읽은 알림 자동 삭제</div>
+                        <div class="setting-description">읽은 알림을 일정 기간 후 자동 삭제</div>
+                    </div>
+                    <select name="autoDeleteRead">
+                        <option value="never">삭제 안함</option>
+                        <option value="week">1주일 후</option>
+                        <option value="month" selected>1개월 후</option>
+                        <option value="3month">3개월 후</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeNotificationSettings()">취소</button>
+            <button class="btn btn-primary" onclick="saveNotificationSettings()">
+                <i class="fas fa-save"></i>
+                설정 저장
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 실시간 알림 토스트 -->
+<div class="notification-toast" id="notificationToast">
+    <div class="toast-icon">
+        <i class="fas fa-bell"></i>
+    </div>
+    <div class="toast-content">
+        <div class="toast-title">새 알림</div>
+        <div class="toast-message">알림 내용이 여기에 표시됩니다</div>
+    </div>
+    <button class="toast-close" onclick="closeToast()">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+{% endblock %}
