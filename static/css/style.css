@@ -328,21 +328,25 @@ body.modal-open {
     background-color: var(--primary-orange-soft);
 }
 
+/* 알림 배지 위치 조정 - 종 아이콘과 겹치도록 */
 .notification-bell-btn .notification-badge {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: 4px;
+    right: 6px;
     background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
     color: var(--white);
     font-size: var(--font-size-xs);
-    padding: 2px 6px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    min-width: 18px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     box-shadow: var(--shadow-sm);
     animation: pulse 2s infinite;
     font-weight: 600;
     line-height: 1;
+    border: 2px solid var(--white);
 }
 
 @keyframes pulse {
@@ -419,7 +423,7 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
-/* 알림 패널 스타일 - 반응형 크기 조정 */
+/* 알림 패널 스타일 - 표시 문제 해결 */
 .notification-panel {
     position: fixed;
     top: 80px;
@@ -432,19 +436,21 @@ body.modal-open {
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     z-index: var(--z-index-notification-panel);
-    transform: translateX(calc(100% + 20px)) scale(0.95);
     opacity: 0;
     visibility: hidden;
+    transform: translateX(calc(100% + 20px)) scale(0.95);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.98);
     overflow: hidden;
+    pointer-events: none;
 }
 
 .notification-panel.show {
-    transform: translateX(0) scale(1);
     opacity: 1;
     visibility: visible;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
 }
 
 .notification-panel-header {
@@ -722,11 +728,13 @@ body.modal-open {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    pointer-events: none;
 }
 
 .notification-overlay.show {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
 /* 드롭다운 메뉴 스타일 */
