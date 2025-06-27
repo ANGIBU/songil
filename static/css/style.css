@@ -331,11 +331,11 @@ body.modal-open {
 /* 알림 배지 - 빨간색 텍스트만 */
 .notification-bell-btn .notification-badge {
     position: absolute;
-    top: 4px;
-    right: 6px;
+    top: 6px;
+    right: 8px;
     color: var(--danger-red);
-    font-size: var(--font-size-xs);
-    font-weight: 700;
+    font-size: var(--font-size-sm);
+    font-weight: 900;
     line-height: 1;
     background: none !important;
     border: none !important;
