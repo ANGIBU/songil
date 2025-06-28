@@ -86,12 +86,22 @@ function initializeNotificationSystem() {
         // 실시간 알림 시뮬레이션 시작
         startNotificationSimulation();
         
+        // 알림 버튼에 이벤트 리스너 추가
+        const notificationBtn = document.querySelector('.notification-bell-btn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleNotificationPanel();
+            });
+        }
+        
     } catch (error) {
         console.warn('알림 시스템 초기화 오류:', error);
     }
 }
 
-// ===== 알림 패널 토글 - 디버깅 강화 =====
+// ===== 알림 패널 토글 - 강화된 디버깅 =====
 function toggleNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -119,7 +129,7 @@ function toggleNotificationPanel() {
     }
 }
 
-// ===== 알림 패널 열기 - 강제 표시 =====
+// ===== 알림 패널 열기 - 강화된 안정성 =====
 function openNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -130,7 +140,14 @@ function openNotificationPanel() {
             return;
         }
         
-        // 강제로 스타일 재설정
+        // 모든 다른 드롭다운 닫기
+        closeAllDropdowns();
+        
+        // 클래스 추가 먼저
+        panel.classList.add('show');
+        overlay.classList.add('show');
+        
+        // 강제 스타일 설정으로 즉시 표시 보장
         panel.style.display = 'block';
         panel.style.visibility = 'visible';
         panel.style.opacity = '1';
@@ -142,53 +159,60 @@ function openNotificationPanel() {
         overlay.style.opacity = '1';
         overlay.style.pointerEvents = 'auto';
         
-        // 클래스 추가
-        panel.classList.add('show');
-        overlay.classList.add('show');
-        
         // 접근성: 포커스 이동
-        const firstItem = panel.querySelector('.notification-item');
-        if (firstItem) {
-            firstItem.focus();
+        const firstItem = panel.querySelector('.notification-item, .panel-action-btn');
+        if (firstItem && firstItem.focus) {
+            setTimeout(() => firstItem.focus(), 100);
         }
         
-        // GSAP 애니메이션 - 초기 상태 명확히 설정
+        // GSAP 애니메이션 - 패널이 표시된 후 실행
         if (typeof gsap !== 'undefined') {
-            const notificationItems = panel.querySelectorAll('.notification-item');
-            
-            // 초기 상태 설정 - 모든 아이템을 완전히 초기화
-            gsap.set(notificationItems, {
-                x: 30,
-                opacity: 0,
-                visibility: 'visible'
-            });
-            
-            // 애니메이션 실행 - 더 부드러운 타이밍
-            gsap.to(notificationItems, {
-                duration: 0.4,
-                x: 0,
-                opacity: 1,
-                stagger: {
-                    amount: 0.15,
-                    from: "start"
-                },
-                ease: 'power2.out',
-                clearProps: "all" // 애니메이션 완료 후 인라인 스타일 제거
-            });
-            
-            // 패널 자체 애니메이션
+            // 패널 입장 애니메이션
             gsap.fromTo(panel, 
                 {
+                    x: '100%',
                     scale: 0.95,
                     opacity: 0
                 },
                 {
-                    duration: 0.3,
+                    duration: 0.4,
+                    x: '0%',
                     scale: 1,
+                    opacity: 1,
+                    ease: 'power3.out'
+                }
+            );
+            
+            // 오버레이 페이드인
+            gsap.fromTo(overlay,
+                {
+                    opacity: 0
+                },
+                {
+                    duration: 0.3,
                     opacity: 1,
                     ease: 'power2.out'
                 }
             );
+            
+            // 알림 아이템들 순차 애니메이션
+            const notificationItems = panel.querySelectorAll('.notification-item');
+            if (notificationItems.length > 0) {
+                gsap.fromTo(notificationItems, 
+                    {
+                        x: 30,
+                        opacity: 0
+                    },
+                    {
+                        duration: 0.4,
+                        x: 0,
+                        opacity: 1,
+                        stagger: 0.08,
+                        delay: 0.2,
+                        ease: 'power2.out'
+                    }
+                );
+            }
         }
         
         console.log('알림 패널이 열렸습니다.');
@@ -198,7 +222,7 @@ function openNotificationPanel() {
     }
 }
 
-// ===== 알림 패널 닫기 =====
+// ===== 알림 패널 닫기 - 강화된 안정성 =====
 function closeNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -209,23 +233,45 @@ function closeNotificationPanel() {
         // GSAP 닫기 애니메이션
         if (typeof gsap !== 'undefined') {
             gsap.to(panel, {
-                duration: 0.2,
+                duration: 0.3,
+                x: '100%',
                 scale: 0.95,
                 opacity: 0,
                 ease: 'power2.in',
                 onComplete: () => {
                     panel.classList.remove('show');
+                    panel.style.display = 'none';
+                    panel.style.visibility = 'hidden';
+                    panel.style.pointerEvents = 'none';
+                }
+            });
+            
+            gsap.to(overlay, {
+                duration: 0.3,
+                opacity: 0,
+                ease: 'power2.in',
+                onComplete: () => {
                     overlay.classList.remove('show');
-                    
-                    // 애니메이션 상태 초기화
-                    gsap.set(panel, { clearProps: "all" });
-                    gsap.set(panel.querySelectorAll('.notification-item'), { clearProps: "all" });
+                    overlay.style.display = 'none';
+                    overlay.style.visibility = 'hidden';
+                    overlay.style.pointerEvents = 'none';
                 }
             });
         } else {
+            // GSAP가 없을 경우 기본 방식
             panel.classList.remove('show');
             overlay.classList.remove('show');
+            
+            panel.style.display = 'none';
+            panel.style.visibility = 'hidden';
+            panel.style.pointerEvents = 'none';
+            
+            overlay.style.display = 'none';
+            overlay.style.visibility = 'hidden';
+            overlay.style.pointerEvents = 'none';
         }
+        
+        console.log('알림 패널이 닫혔습니다.');
         
     } catch (error) {
         console.warn('알림 패널 닫기 오류:', error);
@@ -239,7 +285,11 @@ function filterPanelNotifications(category) {
         document.querySelectorAll('.notification-filters .filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-filter="${category}"]`).classList.add('active');
+        
+        const activeBtn = document.querySelector(`[data-filter="${category}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
         
         // 알림 아이템 필터링
         const notifications = document.querySelectorAll('.notification-item');
@@ -254,26 +304,21 @@ function filterPanelNotifications(category) {
             }
         });
         
-        // 애니메이션 효과 - 초기 상태 명확히 설정
+        // 애니메이션 효과
         if (typeof gsap !== 'undefined' && visibleNotifications.length > 0) {
-            // 초기 상태 설정
-            gsap.set(visibleNotifications, {
-                x: -20,
-                opacity: 0
-            });
-            
-            // 애니메이션 실행
-            gsap.to(visibleNotifications, {
-                duration: 0.3,
-                x: 0,
-                opacity: 1,
-                stagger: {
-                    amount: 0.1,
-                    from: "start"
+            gsap.fromTo(visibleNotifications, 
+                {
+                    x: -20,
+                    opacity: 0
                 },
-                ease: 'power2.out',
-                clearProps: "all"
-            });
+                {
+                    duration: 0.3,
+                    x: 0,
+                    opacity: 1,
+                    stagger: 0.05,
+                    ease: 'power2.out'
+                }
+            );
         }
         
     } catch (error) {
@@ -334,7 +379,7 @@ function markAllNotificationsAsRead() {
     }
 }
 
-// ===== 알림 배지 업데이트 =====
+// ===== 알림 배지 업데이트 - N 표시 유지 =====
 function updateNotificationBadge() {
     try {
         const badge = document.getElementById('notificationBadge');
@@ -342,8 +387,8 @@ function updateNotificationBadge() {
         
         if (badge) {
             if (unreadCount > 0) {
-                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                badge.style.display = 'block';
+                badge.textContent = 'N';
+                badge.style.display = 'flex';
             } else {
                 badge.style.display = 'none';
             }
@@ -413,24 +458,22 @@ function addNewNotification(notificationData) {
         // 맨 위에 추가
         notificationItems.insertBefore(newNotification, notificationItems.firstChild);
         
-        // 애니메이션 효과 - 초기 상태 명확히 설정
+        // 애니메이션 효과
         if (typeof gsap !== 'undefined') {
-            // 초기 상태 설정
-            gsap.set(newNotification, {
-                x: 50,
-                opacity: 0,
-                scale: 0.95
-            });
-            
-            // 애니메이션 실행
-            gsap.to(newNotification, {
-                duration: 0.5,
-                x: 0,
-                opacity: 1,
-                scale: 1,
-                ease: 'back.out(1.2)',
-                clearProps: "all"
-            });
+            gsap.fromTo(newNotification, 
+                {
+                    x: 50,
+                    opacity: 0,
+                    scale: 0.95
+                },
+                {
+                    duration: 0.5,
+                    x: 0,
+                    opacity: 1,
+                    scale: 1,
+                    ease: 'back.out(1.2)'
+                }
+            );
         }
         
         // 알림 배지 업데이트
