@@ -245,7 +245,7 @@ body.modal-open {
 }
 
 .logo a:hover {
-    color: var(--primary-orange-dark);
+    color: var(--gray-500);
     transform: scale(1.05);
 }
 
@@ -274,14 +274,11 @@ body.modal-open {
 }
 
 .main-nav a:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
-    transform: translateY(-1px);
+    color: var(--gray-500);
 }
 
 .main-nav a.active {
     color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
     font-weight: 600;
 }
 
@@ -325,15 +322,14 @@ body.modal-open {
 }
 
 .notification-bell-btn:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
+    color: var(--gray-500);
 }
 
 /* 알림 배지 - 빨간색 원형 배경과 하얀색 N 텍스트 */
 .notification-bell-btn .notification-badge {
     position: absolute;
     top: 9px;
-    right: 7px;
+    right: 5px;
     width: 12px;
     height: 12px;
     background: var(--danger-red);
@@ -379,11 +375,11 @@ body.modal-open {
     width: 44px;
     height: 44px;
     flex-shrink: 0;
+    margin-right: 8px;
 }
 
 .profile-btn:hover {
-    color: var(--secondary-green);
-    background-color: var(--secondary-green-soft);
+    color: var(--gray-500);
 }
 
 .logout-btn {
@@ -399,9 +395,9 @@ body.modal-open {
 }
 
 .logout-btn:hover {
-    background: var(--danger-red);
-    color: var(--white);
-    border-color: var(--danger-red);
+    background: var(--gray-300);
+    color: var(--gray-800);
+    border-color: var(--gray-300);
 }
 
 .guest-actions {
@@ -414,13 +410,12 @@ body.modal-open {
     text-decoration: none;
     border-radius: var(--radius-md);
     font-weight: 500;
-    transition: var(--transition-opacity);
+    transition: var(--transition-fast);
     color: var(--gray-600);
 }
 
 .login-btn:hover {
-    opacity: 0.6;
-    transform: translateY(-1px);
+    color: var(--gray-500);
 }
 
 /* 알림 패널 스타일 - 위치 수정 및 GSAP 애니메이션 준비 */
@@ -500,19 +495,18 @@ body.modal-open {
 
 .panel-action-btn:hover {
     color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
 }
 
 /* 전체 삭제 버튼 스타일 */
 #deleteAllBtn:hover {
     color: var(--danger-red);
-    background-color: var(--danger-red-soft);
 }
 
 .notification-panel-content {
     display: flex;
     flex-direction: column;
     max-height: 520px;
+    overflow: hidden;
 }
 
 .notification-filters {
@@ -574,6 +568,12 @@ body.modal-open {
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-2) 0;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+}
+
+.notification-items:hover {
+    overflow-y: auto;
 }
 
 .notification-item {
@@ -597,18 +597,6 @@ body.modal-open {
 .notification-item.unread {
     background: linear-gradient(90deg, rgba(249, 115, 22, 0.05) 0%, transparent 100%);
     border-left: 3px solid var(--primary-orange);
-}
-
-.notification-item.unread::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: calc(var(--spacing-4) + 40px);
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    background: var(--primary-orange);
-    border-radius: 50%;
 }
 
 .notification-icon {
@@ -687,7 +675,6 @@ body.modal-open {
 
 .delete-notification-btn:hover {
     color: var(--danger-red);
-    background: var(--danger-red-soft);
 }
 
 /* 알림이 없을 때 표시할 빈 상태 */
@@ -710,6 +697,84 @@ body.modal-open {
     font-size: var(--font-size-base);
     color: var(--gray-500);
     font-weight: 500;
+}
+
+/* 삭제 확인 모달 */
+.delete-confirm-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: var(--radius-xl);
+}
+
+.delete-confirm-content {
+    background: var(--white);
+    padding: var(--spacing-8);
+    border-radius: var(--radius-xl);
+    text-align: center;
+    max-width: 300px;
+    margin: var(--spacing-4);
+    box-shadow: var(--shadow-lg);
+}
+
+.delete-confirm-icon {
+    font-size: var(--font-size-3xl);
+    color: var(--danger-red);
+    margin-bottom: var(--spacing-4);
+}
+
+.delete-confirm-content h4 {
+    font-size: var(--font-size-lg);
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-3);
+}
+
+.delete-confirm-content p {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-6);
+}
+
+.delete-confirm-actions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: center;
+}
+
+.confirm-btn {
+    padding: var(--spacing-2) var(--spacing-4);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-width: 80px;
+}
+
+.delete-btn {
+    background: var(--danger-red);
+    color: var(--white);
+}
+
+.delete-btn:hover {
+    background: var(--danger-red-dark);
+}
+
+.cancel-btn {
+    background: var(--gray-200);
+    color: var(--gray-700);
+}
+
+.cancel-btn:hover {
+    background: var(--gray-300);
 }
 
 /* 알림 오버레이 - 단순화 */
@@ -778,9 +843,7 @@ body.modal-open {
 }
 
 .mobile-menu-btn:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
-    transform: scale(1.1);
+    color: var(--gray-500);
 }
 
 .mobile-nav {
@@ -815,14 +878,12 @@ body.modal-open {
 }
 
 .mobile-nav a:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
+    color: var(--gray-500);
     transform: translateX(5px);
 }
 
 .mobile-nav a.active {
     color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
     font-weight: 600;
 }
 
