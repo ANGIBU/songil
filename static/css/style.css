@@ -298,8 +298,8 @@ body.modal-open {
     justify-self: end;
     display: flex;
     align-items: center;
-    gap: var(--spacing-3);
-    min-width: 160px;
+    gap: var(--spacing-2);
+    min-width: 200px;
     justify-content: flex-end;
 }
 
@@ -375,7 +375,6 @@ body.modal-open {
     width: 44px;
     height: 44px;
     flex-shrink: 0;
-    margin-right: 8px;
 }
 
 .profile-btn:hover {
@@ -383,7 +382,7 @@ body.modal-open {
 }
 
 .logout-btn {
-    padding: var(--spacing-2) var(--spacing-4);
+    padding: var(--spacing-2) var(--spacing-3);
     background: var(--gray-100);
     color: var(--gray-700);
     border: 1px solid var(--gray-200);
@@ -392,6 +391,8 @@ body.modal-open {
     font-weight: 500;
     text-decoration: none;
     transition: var(--transition-fast);
+    white-space: nowrap;
+    min-width: 60px;
 }
 
 .logout-btn:hover {
