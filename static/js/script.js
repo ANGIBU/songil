@@ -1,6 +1,9 @@
 // static/js/script.js
 
-// ===== 전역 변수 및 설정 =====
+// React를 사용한 알림 시스템 관리
+const { useState, useEffect, useCallback } = React;
+
+// 전역 변수 및 설정
 window.APP = {
     isLoggedIn: false,
     user: null,
@@ -12,30 +15,29 @@ window.APP = {
     initialized: false
 };
 
-// ===== DOM 로드 완료 시 초기화 =====
-document.addEventListener('DOMContentLoaded', function() {
-    if (!window.APP.initialized) {
-        initializeApp();
-    }
-});
-
-// 이미 로드된 경우 즉시 초기화
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    if (!window.APP.initialized) {
-        initializeApp();
-    }
+// DOM 완전 로딩 대기 함수 - 타이밍 문제 해결
+function waitForDOMReady() {
+    return new Promise((resolve) => {
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            resolve();
+        } else {
+            document.addEventListener('DOMContentLoaded', resolve, { once: true });
+        }
+    });
 }
 
-// ===== 앱 초기화 =====
-function initializeApp() {
+// 앱 초기화 - 안전한 DOM 로딩 보장
+async function initializeApp() {
     if (window.APP.initialized) return;
     
     try {
+        await waitForDOMReady();
+        
+        // 스크롤 위치 최적화
+        optimizePageScroll();
+        
         // 현재 페이지 식별
         identifyCurrentPage();
-        
-        // 페이지 로딩 최적화 처리
-        handlePageLoadOptimization();
         
         // 기본 이벤트 리스너 설정
         setupEventListeners();
@@ -46,74 +48,149 @@ function initializeApp() {
         // 반응형 처리
         handleResponsive();
         
+        // 알림 시스템 초기화 - 가장 중요한 부분
+        await initializeNotificationSystem();
+        
         // 페이지별 카드 초기화
         initializePageCards();
         
-        // 알림 시스템 초기화
-        initializeNotificationSystem();
-        
         window.APP.initialized = true;
+        
     } catch (error) {
-        console.warn('앱 초기화 오류:', error);
+        console.error('앱 초기화 실패:', error);
     }
 }
 
-// ===== 알림 시스템 초기화 =====
-function initializeNotificationSystem() {
+// 알림 시스템 초기화 - 완전히 재작성
+async function initializeNotificationSystem() {
     try {
-        // 알림 패널 외부 클릭 이벤트
+        // DOM 요소들 존재 확인
+        const notificationBellBtn = document.getElementById('notificationBellBtn');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const notificationOverlay = document.getElementById('notificationOverlay');
+        const closePanelBtn = document.getElementById('closePanelBtn');
+        const markAllReadBtn = document.getElementById('markAllReadBtn');
+        
+        if (!notificationBellBtn || !notificationPanel || !notificationOverlay) {
+            console.error('필수 알림 DOM 요소를 찾을 수 없습니다');
+            return;
+        }
+        
+        // 기존 이벤트 리스너 제거 (중복 방지)
+        notificationBellBtn.removeEventListener('click', toggleNotificationPanel);
+        
+        // 알림 종 버튼 클릭 이벤트
+        notificationBellBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleNotificationPanel();
+        });
+        
+        // 닫기 버튼 이벤트
+        if (closePanelBtn) {
+            closePanelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeNotificationPanel();
+            });
+        }
+        
+        // 모두 읽음 버튼 이벤트
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                markAllNotificationsAsRead();
+            });
+        }
+        
+        // 오버레이 클릭으로 닫기
+        notificationOverlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeNotificationPanel();
+        });
+        
+        // 외부 클릭으로 닫기
         document.addEventListener('click', function(e) {
-            const notificationPanel = document.getElementById('notificationPanel');
-            const notificationBtn = document.querySelector('.notification-bell-btn');
-            
-            if (notificationPanel && 
-                !notificationPanel.contains(e.target) && 
-                !notificationBtn.contains(e.target)) {
+            if (!notificationPanel.contains(e.target) && !notificationBellBtn.contains(e.target)) {
                 closeNotificationPanel();
             }
         });
         
-        // ESC 키로 알림 패널 닫기
+        // ESC 키로 닫기
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeNotificationPanel();
             }
         });
         
-        // 초기 알림 데이터 로드
-        loadInitialNotifications();
+        // 필터 버튼 이벤트 설정
+        setupNotificationFilters();
+        
+        // 개별 알림 읽음 버튼 이벤트 설정
+        setupNotificationActions();
+        
+        // 초기 알림 배지 업데이트
+        updateNotificationBadge();
         
         // 실시간 알림 시뮬레이션 시작
         startNotificationSimulation();
         
-        // 알림 버튼에 이벤트 리스너 추가
-        const notificationBtn = document.querySelector('.notification-bell-btn');
-        if (notificationBtn) {
-            notificationBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleNotificationPanel();
-            });
-        }
-        
     } catch (error) {
-        console.warn('알림 시스템 초기화 오류:', error);
+        console.error('알림 시스템 초기화 실패:', error);
     }
 }
 
-// ===== 알림 패널 토글 - 강화된 디버깅 =====
+// 알림 필터 설정
+function setupNotificationFilters() {
+    try {
+        const filterBtns = document.querySelectorAll('.notification-filters .filter-btn');
+        
+        filterBtns.forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const filter = this.getAttribute('data-filter');
+                    filterPanelNotifications(filter);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('알림 필터 설정 실패:', error);
+    }
+}
+
+// 알림 액션 설정
+function setupNotificationActions() {
+    try {
+        const markReadBtns = document.querySelectorAll('.mark-read-btn');
+        
+        markReadBtns.forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const notificationId = this.getAttribute('data-id');
+                    if (notificationId) {
+                        markPanelNotificationAsRead(notificationId);
+                    }
+                });
+            }
+        });
+    } catch (error) {
+        console.error('알림 액션 설정 실패:', error);
+    }
+}
+
+// 알림 패널 토글 - 단순화된 버전
 function toggleNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
         const overlay = document.getElementById('notificationOverlay');
         
-        if (!panel) {
-            console.warn('알림 패널 엘리먼트를 찾을 수 없습니다.');
-            return;
-        }
-        
-        if (!overlay) {
-            console.warn('알림 오버레이 엘리먼트를 찾을 수 없습니다.');
+        if (!panel || !overlay) {
+            console.error('알림 패널 또는 오버레이를 찾을 수 없습니다');
             return;
         }
         
@@ -125,104 +202,57 @@ function toggleNotificationPanel() {
             openNotificationPanel();
         }
     } catch (error) {
-        console.warn('알림 패널 토글 오류:', error);
+        console.error('알림 패널 토글 실패:', error);
     }
 }
 
-// ===== 알림 패널 열기 - 강화된 안정성 =====
+// 알림 패널 열기 - CSS 기반 단순화
 function openNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
         const overlay = document.getElementById('notificationOverlay');
         
         if (!panel || !overlay) {
-            console.warn('알림 패널 또는 오버레이를 찾을 수 없습니다.');
+            console.error('알림 패널 요소를 찾을 수 없습니다');
             return;
         }
         
-        // 모든 다른 드롭다운 닫기
+        // 다른 드롭다운 닫기
         closeAllDropdowns();
         
-        // 클래스 추가 먼저
+        // CSS 클래스로 표시 상태 관리
         panel.classList.add('show');
         overlay.classList.add('show');
         
-        // 강제 스타일 설정으로 즉시 표시 보장
-        panel.style.display = 'block';
-        panel.style.visibility = 'visible';
-        panel.style.opacity = '1';
-        panel.style.transform = 'translateX(0) scale(1)';
-        panel.style.pointerEvents = 'auto';
-        
-        overlay.style.display = 'block';
-        overlay.style.visibility = 'visible';
-        overlay.style.opacity = '1';
-        overlay.style.pointerEvents = 'auto';
-        
-        // 접근성: 포커스 이동
-        const firstItem = panel.querySelector('.notification-item, .panel-action-btn');
-        if (firstItem && firstItem.focus) {
-            setTimeout(() => firstItem.focus(), 100);
-        }
-        
-        // GSAP 애니메이션 - 패널이 표시된 후 실행
+        // GSAP 애니메이션이 있는 경우에만 실행
         if (typeof gsap !== 'undefined') {
-            // 패널 입장 애니메이션
-            gsap.fromTo(panel, 
-                {
-                    x: '100%',
-                    scale: 0.95,
-                    opacity: 0
-                },
-                {
-                    duration: 0.4,
-                    x: '0%',
-                    scale: 1,
-                    opacity: 1,
-                    ease: 'power3.out'
-                }
-            );
+            // CSS 전환과 충돌하지 않도록 즉시 설정
+            gsap.set(panel, {
+                display: 'block',
+                visibility: 'visible',
+                opacity: 1,
+                transform: 'translateX(0) scale(1)'
+            });
             
-            // 오버레이 페이드인
-            gsap.fromTo(overlay,
-                {
-                    opacity: 0
-                },
-                {
-                    duration: 0.3,
-                    opacity: 1,
-                    ease: 'power2.out'
-                }
-            );
-            
-            // 알림 아이템들 순차 애니메이션
-            const notificationItems = panel.querySelectorAll('.notification-item');
-            if (notificationItems.length > 0) {
-                gsap.fromTo(notificationItems, 
-                    {
-                        x: 30,
-                        opacity: 0
-                    },
-                    {
-                        duration: 0.4,
-                        x: 0,
-                        opacity: 1,
-                        stagger: 0.08,
-                        delay: 0.2,
-                        ease: 'power2.out'
-                    }
-                );
-            }
+            gsap.set(overlay, {
+                display: 'block',
+                visibility: 'visible',
+                opacity: 1
+            });
         }
         
-        console.log('알림 패널이 열렸습니다.');
+        // 접근성을 위한 포커스 이동
+        const firstFocusable = panel.querySelector('button, a, [tabindex="0"]');
+        if (firstFocusable) {
+            setTimeout(() => firstFocusable.focus(), 100);
+        }
         
     } catch (error) {
-        console.warn('알림 패널 열기 오류:', error);
+        console.error('알림 패널 열기 실패:', error);
     }
 }
 
-// ===== 알림 패널 닫기 - 강화된 안정성 =====
+// 알림 패널 닫기 - CSS 기반 단순화
 function closeNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -230,60 +260,41 @@ function closeNotificationPanel() {
         
         if (!panel || !overlay) return;
         
-        // GSAP 닫기 애니메이션
+        // CSS 클래스로 숨김 상태 관리
+        panel.classList.remove('show');
+        overlay.classList.remove('show');
+        
+        // GSAP가 있는 경우 CSS와 충돌하지 않도록 처리
         if (typeof gsap !== 'undefined') {
-            gsap.to(panel, {
-                duration: 0.3,
-                x: '100%',
-                scale: 0.95,
-                opacity: 0,
-                ease: 'power2.in',
-                onComplete: () => {
-                    panel.classList.remove('show');
-                    panel.style.display = 'none';
-                    panel.style.visibility = 'hidden';
-                    panel.style.pointerEvents = 'none';
+            // 애니메이션 완료 후 완전히 숨김
+            setTimeout(() => {
+                if (!panel.classList.contains('show')) {
+                    gsap.set(panel, {
+                        display: 'none',
+                        visibility: 'hidden'
+                    });
+                    gsap.set(overlay, {
+                        display: 'none',
+                        visibility: 'hidden'
+                    });
                 }
-            });
-            
-            gsap.to(overlay, {
-                duration: 0.3,
-                opacity: 0,
-                ease: 'power2.in',
-                onComplete: () => {
-                    overlay.classList.remove('show');
-                    overlay.style.display = 'none';
-                    overlay.style.visibility = 'hidden';
-                    overlay.style.pointerEvents = 'none';
-                }
-            });
-        } else {
-            // GSAP가 없을 경우 기본 방식
-            panel.classList.remove('show');
-            overlay.classList.remove('show');
-            
-            panel.style.display = 'none';
-            panel.style.visibility = 'hidden';
-            panel.style.pointerEvents = 'none';
-            
-            overlay.style.display = 'none';
-            overlay.style.visibility = 'hidden';
-            overlay.style.pointerEvents = 'none';
+            }, 300); // CSS 전환 시간과 일치
         }
         
-        console.log('알림 패널이 닫혔습니다.');
-        
     } catch (error) {
-        console.warn('알림 패널 닫기 오류:', error);
+        console.error('알림 패널 닫기 실패:', error);
     }
 }
 
-// ===== 패널 알림 필터링 - 애니메이션 개선 =====
+// 패널 알림 필터링
 function filterPanelNotifications(category) {
     try {
         // 필터 버튼 업데이트
-        document.querySelectorAll('.notification-filters .filter-btn').forEach(btn => {
-            btn.classList.remove('active');
+        const filterBtns = document.querySelectorAll('.notification-filters .filter-btn');
+        filterBtns.forEach(btn => {
+            if (btn) {
+                btn.classList.remove('active');
+            }
         });
         
         const activeBtn = document.querySelector(`[data-filter="${category}"]`);
@@ -293,40 +304,23 @@ function filterPanelNotifications(category) {
         
         // 알림 아이템 필터링
         const notifications = document.querySelectorAll('.notification-item');
-        const visibleNotifications = [];
         
         notifications.forEach(notification => {
+            if (!notification) return;
+            
             if (category === 'all' || notification.dataset.category === category) {
                 notification.style.display = 'flex';
-                visibleNotifications.push(notification);
             } else {
                 notification.style.display = 'none';
             }
         });
         
-        // 애니메이션 효과
-        if (typeof gsap !== 'undefined' && visibleNotifications.length > 0) {
-            gsap.fromTo(visibleNotifications, 
-                {
-                    x: -20,
-                    opacity: 0
-                },
-                {
-                    duration: 0.3,
-                    x: 0,
-                    opacity: 1,
-                    stagger: 0.05,
-                    ease: 'power2.out'
-                }
-            );
-        }
-        
     } catch (error) {
-        console.warn('패널 알림 필터링 오류:', error);
+        console.error('패널 알림 필터링 실패:', error);
     }
 }
 
-// ===== 개별 알림을 읽음으로 표시 =====
+// 개별 알림을 읽음으로 표시
 function markPanelNotificationAsRead(notificationId) {
     try {
         const notification = document.querySelector(`[data-id="${notificationId}"]`);
@@ -349,22 +343,24 @@ function markPanelNotificationAsRead(notificationId) {
         }
         
     } catch (error) {
-        console.warn('알림 읽음 처리 오류:', error);
+        console.error('알림 읽음 처리 실패:', error);
     }
 }
 
-// ===== 모든 알림을 읽음으로 표시 =====
+// 모든 알림을 읽음으로 표시
 function markAllNotificationsAsRead() {
     try {
         const unreadNotifications = document.querySelectorAll('.notification-item.unread');
         
         unreadNotifications.forEach(notification => {
-            notification.classList.remove('unread');
-            notification.classList.add('read');
-            
-            const readBtn = notification.querySelector('.mark-read-btn');
-            if (readBtn) {
-                readBtn.remove();
+            if (notification) {
+                notification.classList.remove('unread');
+                notification.classList.add('read');
+                
+                const readBtn = notification.querySelector('.mark-read-btn');
+                if (readBtn) {
+                    readBtn.remove();
+                }
             }
         });
         
@@ -375,11 +371,11 @@ function markAllNotificationsAsRead() {
         }
         
     } catch (error) {
-        console.warn('모든 알림 읽음 처리 오류:', error);
+        console.error('모든 알림 읽음 처리 실패:', error);
     }
 }
 
-// ===== 알림 배지 업데이트 - N 표시 유지 =====
+// 알림 배지 업데이트
 function updateNotificationBadge() {
     try {
         const badge = document.getElementById('notificationBadge');
@@ -398,11 +394,11 @@ function updateNotificationBadge() {
         updateFilterCounts();
         
     } catch (error) {
-        console.warn('알림 배지 업데이트 오류:', error);
+        console.error('알림 배지 업데이트 실패:', error);
     }
 }
 
-// ===== 필터 카운트 업데이트 =====
+// 필터 카운트 업데이트
 function updateFilterCounts() {
     try {
         const categories = ['all', 'reports', 'witnesses', 'system'];
@@ -422,18 +418,18 @@ function updateFilterCounts() {
         });
         
     } catch (error) {
-        console.warn('필터 카운트 업데이트 오류:', error);
+        console.error('필터 카운트 업데이트 실패:', error);
     }
 }
 
-// ===== 새 알림 추가 - 애니메이션 개선 =====
+// 새 알림 추가
 function addNewNotification(notificationData) {
     try {
         const notificationItems = document.getElementById('notificationItems');
         if (!notificationItems) return;
         
         const newNotification = document.createElement('div');
-        newNotification.className = `notification-item unread`;
+        newNotification.className = 'notification-item unread';
         newNotification.dataset.category = notificationData.category;
         newNotification.dataset.id = Date.now();
         
@@ -449,7 +445,7 @@ function addNewNotification(notificationData) {
                 <div class="notification-time">방금 전</div>
             </div>
             <div class="notification-actions">
-                <button class="mark-read-btn" onclick="markPanelNotificationAsRead(${Date.now()})">
+                <button class="mark-read-btn" data-id="${Date.now()}">
                     <i class="fas fa-check"></i>
                 </button>
             </div>
@@ -458,22 +454,15 @@ function addNewNotification(notificationData) {
         // 맨 위에 추가
         notificationItems.insertBefore(newNotification, notificationItems.firstChild);
         
-        // 애니메이션 효과
-        if (typeof gsap !== 'undefined') {
-            gsap.fromTo(newNotification, 
-                {
-                    x: 50,
-                    opacity: 0,
-                    scale: 0.95
-                },
-                {
-                    duration: 0.5,
-                    x: 0,
-                    opacity: 1,
-                    scale: 1,
-                    ease: 'back.out(1.2)'
-                }
-            );
+        // 새로 추가된 버튼에 이벤트 추가
+        const newReadBtn = newNotification.querySelector('.mark-read-btn');
+        if (newReadBtn) {
+            newReadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = this.getAttribute('data-id');
+                markPanelNotificationAsRead(id);
+            });
         }
         
         // 알림 배지 업데이트
@@ -488,11 +477,11 @@ function addNewNotification(notificationData) {
         }
         
     } catch (error) {
-        console.warn('새 알림 추가 오류:', error);
+        console.error('새 알림 추가 실패:', error);
     }
 }
 
-// ===== 알림 아이콘 클래스 반환 =====
+// 알림 아이콘 클래스 반환
 function getNotificationIconClass(category, type) {
     const iconMap = {
         'reports': 'fas fa-file-alt',
@@ -504,24 +493,12 @@ function getNotificationIconClass(category, type) {
     return iconMap[category] || 'fas fa-bell';
 }
 
-// ===== 초기 알림 데이터 로드 =====
-function loadInitialNotifications() {
-    try {
-        // 실제로는 서버에서 알림 데이터를 가져와야 함
-        updateNotificationBadge();
-        updateFilterCounts();
-        
-    } catch (error) {
-        console.warn('초기 알림 데이터 로드 오류:', error);
-    }
-}
-
-// ===== 실시간 알림 시뮬레이션 =====
+// 실시간 알림 시뮬레이션
 function startNotificationSimulation() {
     try {
-        // 개발용 시뮬레이션 - 실제로는 WebSocket이나 Server-Sent Events 사용
+        // 30초마다 2% 확률로 새 알림 생성
         setInterval(() => {
-            if (Math.random() > 0.98) { // 2% 확률로 새 알림 생성
+            if (Math.random() > 0.98) {
                 const notifications = [
                     {
                         title: '새로운 목격 신고',
@@ -532,7 +509,7 @@ function startNotificationSimulation() {
                     {
                         title: '포인트 적립',
                         message: '신고 승인으로 50포인트가 적립되었습니다.',
-                        category: 'points',
+                        category: 'system',
                         type: 'success'
                     },
                     {
@@ -546,25 +523,22 @@ function startNotificationSimulation() {
                 const randomNotification = notifications[Math.floor(Math.random() * notifications.length)];
                 addNewNotification(randomNotification);
             }
-        }, 30000); // 30초마다 체크
+        }, 30000);
         
     } catch (error) {
-        console.warn('알림 시뮬레이션 시작 오류:', error);
+        console.error('알림 시뮬레이션 시작 실패:', error);
     }
 }
 
-// ===== 페이지별 카드 초기화 =====
+// 페이지별 카드 초기화
 function initializePageCards() {
-    // 홈페이지 긴급 실종자 카드들 초기화
     if (window.APP.currentPage === 'home') {
         setupHomePageCards();
     }
-    
-    // 모든 페이지의 실종자 카드 공통 이벤트 설정
     setupUniversalCardEvents();
 }
 
-// ===== 홈페이지 카드 설정 =====
+// 홈페이지 카드 설정
 function setupHomePageCards() {
     try {
         const urgentCards = document.querySelectorAll('.urgent-cards .missing-card');
@@ -572,29 +546,16 @@ function setupHomePageCards() {
         urgentCards.forEach((card, index) => {
             if (!card) return;
             
-            // 카드 로드 애니메이션
-            if (typeof gsap !== 'undefined') {
-                gsap.from(card, {
-                    duration: 0.6,
-                    y: 50,
-                    opacity: 0,
-                    delay: index * 0.1,
-                    ease: 'power2.out'
-                });
-            }
-            
-            // 개별 카드 이벤트 설정
             setupCardEvents(card);
         });
     } catch (error) {
-        console.warn('홈페이지 카드 설정 오류:', error);
+        console.error('홈페이지 카드 설정 실패:', error);
     }
 }
 
-// ===== 범용 카드 이벤트 설정 =====
+// 범용 카드 이벤트 설정
 function setupUniversalCardEvents() {
     try {
-        // 모든 실종자 카드에 대한 공통 이벤트
         const allCards = document.querySelectorAll('.missing-card');
         
         allCards.forEach(card => {
@@ -603,56 +564,28 @@ function setupUniversalCardEvents() {
             }
         });
     } catch (error) {
-        console.warn('범용 카드 이벤트 설정 오류:', error);
+        console.error('범용 카드 이벤트 설정 실패:', error);
     }
 }
 
-// ===== 개별 카드 이벤트 설정 =====
+// 개별 카드 이벤트 설정
 function setupCardEvents(card) {
     if (!card) return;
     
     try {
-        // UP 버튼 이벤트 - 통일된 처리
+        // UP 버튼 이벤트
         const upStat = card.querySelector('.card-stats .stat');
         if (upStat && upStat.innerHTML && upStat.innerHTML.includes('fa-arrow-up')) {
-            // 기존 이벤트 리스너 제거 (중복 방지)
             upStat.removeEventListener('click', handleUpClick);
             upStat.addEventListener('click', handleUpClick);
-            
-            // 시각적 피드백을 위한 스타일 추가
             upStat.style.cursor = 'pointer';
-            upStat.style.transition = 'all 0.2s ease';
         }
         
-        // 카드 호버 효과 - 안전한 버전
-        card.addEventListener('mouseenter', function() {
-            if (typeof gsap !== 'undefined') {
-                gsap.to(this, {
-                    duration: 0.3,
-                    y: -4,
-                    boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
-                    ease: 'power2.out'
-                });
-            }
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            if (typeof gsap !== 'undefined') {
-                gsap.to(this, {
-                    duration: 0.3,
-                    y: 0,
-                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
-                    ease: 'power2.out'
-                });
-            }
-        });
-        
-        // 카드 클릭 시 상세 페이지로 이동 (detail-link가 없는 경우)
+        // 카드 클릭 시 상세 페이지로 이동
         const detailLink = card.querySelector('.detail-link');
         if (!detailLink) {
             card.style.cursor = 'pointer';
             card.addEventListener('click', function(e) {
-                // UP 버튼 클릭은 제외
                 if (!e.target.closest('.stat')) {
                     const cardId = this.dataset.id || extractCardId(this);
                     if (cardId) {
@@ -662,11 +595,11 @@ function setupCardEvents(card) {
             });
         }
     } catch (error) {
-        console.warn('카드 이벤트 설정 오류:', error);
+        console.error('카드 이벤트 설정 실패:', error);
     }
 }
 
-// ===== UP 클릭 핸들러 - 통일된 처리 =====
+// UP 클릭 핸들러
 function handleUpClick(e) {
     if (!e) return;
     
@@ -682,121 +615,45 @@ function handleUpClick(e) {
         const currentCount = parseInt(countText.replace(/\D/g, '')) || 0;
         const newCount = currentCount + 1;
         
-        // 아이콘과 숫자 유지하면서 카운트 업데이트
         stat.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
         
-        // 애니메이션 효과
-        if (typeof gsap !== 'undefined') {
-            gsap.timeline()
-                .to(stat, {
-                    duration: 0.1,
-                    scale: 0.9,
-                    ease: 'power2.in'
-                })
-                .to(stat, {
-                    duration: 0.4,
-                    scale: 1.2,
-                    ease: 'elastic.out(1, 0.5)'
-                })
-                .to(stat, {
-                    duration: 0.2,
-                    scale: 1,
-                    ease: 'power2.out'
-                });
-            
-            // 파티클 효과
-            createUpParticleEffect(stat);
-        }
-        
-        // 알림 표시
         if (window.showNotification) {
             window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
         }
         
-        // 서버에 UP 정보 전송
         const cardId = extractCardId(stat.closest('.missing-card'));
         if (cardId) {
             sendUpToServer(cardId, newCount);
         }
     } catch (error) {
-        console.warn('UP 클릭 처리 오류:', error);
+        console.error('UP 클릭 처리 실패:', error);
     }
 }
 
-// ===== UP 파티클 효과 =====
-function createUpParticleEffect(element) {
-    if (typeof gsap === 'undefined' || !element) return;
-    
-    try {
-        const rect = element.getBoundingClientRect();
-        const particles = 6;
-        
-        for (let i = 0; i < particles; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'up-particle';
-            particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
-            particle.style.cssText = `
-                position: fixed;
-                left: ${rect.left + rect.width / 2}px;
-                top: ${rect.top + rect.height / 2}px;
-                color: #22c55e;
-                font-size: 14px;
-                pointer-events: none;
-                z-index: 1000;
-            `;
-            
-            document.body.appendChild(particle);
-            
-            const angle = (i / particles) * Math.PI * 2;
-            const distance = 30 + Math.random() * 30;
-            
-            gsap.to(particle, {
-                duration: 1,
-                x: Math.cos(angle) * distance,
-                y: Math.sin(angle) * distance - 30,
-                opacity: 0,
-                scale: 0.3,
-                rotation: 180,
-                ease: 'power2.out',
-                onComplete: () => {
-                    if (particle && particle.parentNode) {
-                        particle.parentNode.removeChild(particle);
-                    }
-                }
-            });
-        }
-    } catch (error) {
-        console.warn('파티클 효과 오류:', error);
-    }
-}
-
-// ===== 카드 ID 추출 =====
+// 카드 ID 추출
 function extractCardId(card) {
     if (!card) return null;
     
     try {
-        // data-id 속성에서 추출
         if (card.dataset && card.dataset.id) {
             return card.dataset.id;
         }
         
-        // detail-link href에서 추출
         const detailLink = card.querySelector('.detail-link');
         if (detailLink && detailLink.href) {
             const match = detailLink.href.match(/\/missing\/(\d+)/);
             return match ? match[1] : null;
         }
         
-        // URL에서 추출 (상세 페이지인 경우)
         const pathMatch = window.location.pathname.match(/\/missing\/(\d+)/);
         return pathMatch ? pathMatch[1] : null;
     } catch (error) {
-        console.warn('카드 ID 추출 오류:', error);
+        console.error('카드 ID 추출 실패:', error);
         return null;
     }
 }
 
-// ===== 서버에 UP 정보 전송 =====
+// 서버에 UP 정보 전송
 function sendUpToServer(cardId, newCount) {
     if (!cardId) return;
     
@@ -810,44 +667,35 @@ function sendUpToServer(cardId, newCount) {
                 count: newCount 
             })
         }).catch(error => {
-            console.warn('서버 전송 오류:', error);
+            console.error('서버 전송 실패:', error);
         });
     } catch (error) {
-        console.warn('UP 서버 전송 중 오류:', error);
+        console.error('UP 서버 전송 중 실패:', error);
     }
 }
 
-// ===== 페이지 로딩 최적화 처리 =====
-function handlePageLoadOptimization() {
-    // 페이지 스크롤 위치 최적화
-    optimizePageScroll();
-}
-
-// ===== 스크롤 위치 최적화 =====
+// 스크롤 위치 최적화
 function optimizePageScroll() {
     try {
-        // 스크롤 복원 비활성화
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
         
-        // 즉시 상단으로 스크롤
         window.scrollTo({
             top: 0,
             left: 0,
             behavior: 'instant'
         });
         
-        // 추가 안전장치
         setTimeout(() => {
             window.scrollTo(0, 0);
         }, 0);
     } catch (error) {
-        console.warn('스크롤 최적화 오류:', error);
+        console.error('스크롤 최적화 실패:', error);
     }
 }
 
-// ===== 현재 페이지 식별 =====
+// 현재 페이지 식별
 function identifyCurrentPage() {
     try {
         const path = window.location.pathname;
@@ -868,16 +716,15 @@ function identifyCurrentPage() {
             window.APP.currentPage = 'unknown';
         }
         
-        // 페이지별 CSS 클래스 추가
         if (document.body) {
             document.body.classList.add(`page-${window.APP.currentPage}`);
         }
     } catch (error) {
-        console.warn('페이지 식별 오류:', error);
+        console.error('페이지 식별 실패:', error);
     }
 }
 
-// ===== 이벤트 리스너 설정 =====
+// 이벤트 리스너 설정
 function setupEventListeners() {
     try {
         // 모바일 메뉴 토글
@@ -907,7 +754,7 @@ function setupEventListeners() {
         // 리사이즈 이벤트 - 디바운싱 적용
         window.addEventListener('resize', debounce(handleResize, 250));
         
-        // 모든 링크에 부드러운 스크롤 적용
+        // 부드러운 스크롤 설정
         setupSmoothScroll();
         
         // 네비게이션 초기화
@@ -916,89 +763,22 @@ function setupEventListeners() {
         // 키보드 접근성
         setupKeyboardNavigation();
         
-        // 페이지 전환 시 스크롤 최적화
+        // 페이지 전환 최적화
         setupPageTransitionOptimization();
         
-        // 안전한 동적 카드 이벤트 위임
-        setupSafeDelegatedCardEvents();
-        
     } catch (error) {
-        console.warn('이벤트 리스너 설정 오류:', error);
+        console.error('이벤트 리스너 설정 실패:', error);
     }
 }
 
-// ===== 안전한 동적 카드 이벤트 위임 =====
-function setupSafeDelegatedCardEvents() {
-    try {
-        // 문서 레벨에서 이벤트 위임을 통해 동적으로 추가되는 카드들도 처리
-        document.addEventListener('click', function(e) {
-            if (!e || !e.target) return;
-            
-            try {
-                // UP 버튼 클릭 처리
-                const closestStat = e.target.closest('.missing-card .stat');
-                if (closestStat && closestStat.innerHTML && closestStat.innerHTML.includes('fa-arrow-up')) {
-                    handleUpClick(e);
-                }
-            } catch (error) {
-                console.warn('위임된 클릭 이벤트 오류:', error);
-            }
-        });
-        
-        // 안전한 호버 효과 위임
-        document.addEventListener('mouseenter', function(e) {
-            if (!e || !e.target) return;
-            
-            try {
-                if (e.target.classList && e.target.classList.contains('missing-card')) {
-                    if (typeof gsap !== 'undefined') {
-                        gsap.to(e.target, {
-                            duration: 0.3,
-                            y: -4,
-                            boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
-                            ease: 'power2.out'
-                        });
-                    }
-                }
-            } catch (error) {
-                console.warn('위임된 마우스 엔터 오류:', error);
-            }
-        }, true);
-        
-        document.addEventListener('mouseleave', function(e) {
-            if (!e || !e.target) return;
-            
-            try {
-                if (e.target.classList && e.target.classList.contains('missing-card')) {
-                    if (typeof gsap !== 'undefined') {
-                        gsap.to(e.target, {
-                            duration: 0.3,
-                            y: 0,
-                            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
-                            ease: 'power2.out'
-                        });
-                    }
-                }
-            } catch (error) {
-                console.warn('위임된 마우스 리브 오류:', error);
-            }
-        }, true);
-        
-    } catch (error) {
-        console.warn('안전한 위임 이벤트 설정 오류:', error);
-    }
-}
-
-// ===== 페이지 전환 최적화 =====
+// 페이지 전환 최적화
 function setupPageTransitionOptimization() {
     try {
-        // 모든 내부 링크에 최적화 적용
         const internalLinks = document.querySelectorAll('a[href^="/"], a[href^="./"], a[href^="../"]');
         
         internalLinks.forEach(link => {
             if (link) {
                 link.addEventListener('click', function(e) {
-                    // 페이지 전환 시 상단으로 스크롤 준비
                     if ('scrollRestoration' in history) {
                         history.scrollRestoration = 'manual';
                     }
@@ -1006,24 +786,22 @@ function setupPageTransitionOptimization() {
             }
         });
         
-        // popstate 이벤트에서 스크롤 최적화
         window.addEventListener('popstate', function() {
             setTimeout(() => {
                 window.scrollTo(0, 0);
             }, 0);
         });
     } catch (error) {
-        console.warn('페이지 전환 최적화 오류:', error);
+        console.error('페이지 전환 최적화 실패:', error);
     }
 }
 
-// ===== 키보드 접근성 설정 =====
+// 키보드 접근성 설정
 function setupKeyboardNavigation() {
     try {
         document.addEventListener('keydown', function(e) {
             if (!e) return;
             
-            // ESC 키로 모든 드롭다운 닫기
             if (e.key === 'Escape') {
                 closeAllDropdowns();
                 closeNotificationPanel();
@@ -1032,7 +810,6 @@ function setupKeyboardNavigation() {
                 }
             }
             
-            // Tab 키 네비게이션 향상
             if (e.key === 'Tab') {
                 if (document.body) {
                     document.body.classList.add('keyboard-nav');
@@ -1040,19 +817,17 @@ function setupKeyboardNavigation() {
             }
         });
         
-        // 마우스 사용 시 키보드 네비게이션 스타일 제거
         document.addEventListener('mousedown', function() {
             if (document.body) {
                 document.body.classList.remove('keyboard-nav');
             }
         });
     } catch (error) {
-        console.warn('키보드 접근성 설정 오류:', error);
+        console.error('키보드 접근성 설정 실패:', error);
     }
 }
 
-// ===== 나머지 함수들 (안전성 강화) =====
-
+// 나머지 함수들
 function initializeNavigation() {
     try {
         const currentPath = window.location.pathname;
@@ -1068,7 +843,7 @@ function initializeNavigation() {
             }
         });
     } catch (error) {
-        console.warn('네비게이션 초기화 오류:', error);
+        console.error('네비게이션 초기화 실패:', error);
     }
 }
 
@@ -1088,7 +863,7 @@ function checkAuthStatus() {
     } catch (error) {
         window.APP.isLoggedIn = false;
         updateUIForGuestUser();
-        console.warn('인증 상태 확인 오류:', error);
+        console.error('인증 상태 확인 실패:', error);
     }
 }
 
@@ -1123,7 +898,7 @@ function updateUIForLoggedUser() {
             document.body.classList.remove('user-guest');
         }
     } catch (error) {
-        console.warn('로그인 UI 업데이트 오류:', error);
+        console.error('로그인 UI 업데이트 실패:', error);
     }
 }
 
@@ -1150,7 +925,7 @@ function updateUIForGuestUser() {
             document.body.classList.remove('user-authenticated');
         }
     } catch (error) {
-        console.warn('게스트 UI 업데이트 오류:', error);
+        console.error('게스트 UI 업데이트 실패:', error);
     }
 }
 
@@ -1178,7 +953,7 @@ function toggleMobileMenu() {
             if (firstLink && firstLink.focus) firstLink.focus();
         }
     } catch (error) {
-        console.warn('모바일 메뉴 토글 오류:', error);
+        console.error('모바일 메뉴 토글 실패:', error);
     }
 }
 
@@ -1198,7 +973,7 @@ function toggleUserMenu() {
             dropdown.setAttribute('aria-hidden', 'false');
         }
     } catch (error) {
-        console.warn('사용자 메뉴 토글 오류:', error);
+        console.error('사용자 메뉴 토글 실패:', error);
     }
 }
 
@@ -1213,7 +988,7 @@ function closeAllDropdowns() {
             }
         });
     } catch (error) {
-        console.warn('드롭다운 닫기 오류:', error);
+        console.error('드롭다운 닫기 실패:', error);
     }
 }
 
@@ -1230,7 +1005,7 @@ function handleScroll() {
             }
         }
     } catch (error) {
-        console.warn('스크롤 처리 오류:', error);
+        console.error('스크롤 처리 실패:', error);
     }
 }
 
@@ -1265,25 +1040,8 @@ function handleResize() {
             closeNotificationPanel();
         }
         
-        recalculateCardLayouts();
     } catch (error) {
-        console.warn('리사이즈 처리 오류:', error);
-    }
-}
-
-function recalculateCardLayouts() {
-    try {
-        const cardContainers = document.querySelectorAll('.urgent-cards, .related-cards, .missing-grid, .missing-list-view');
-        
-        cardContainers.forEach(container => {
-            if (container) {
-                container.style.display = 'none';
-                container.offsetHeight;
-                container.style.display = '';
-            }
-        });
-    } catch (error) {
-        console.warn('카드 레이아웃 재계산 오류:', error);
+        console.error('리사이즈 처리 실패:', error);
     }
 }
 
@@ -1299,7 +1057,7 @@ function handleResponsive() {
             document.body.classList.add('high-dpi');
         }
     } catch (error) {
-        console.warn('반응형 처리 오류:', error);
+        console.error('반응형 처리 실패:', error);
     }
 }
 
@@ -1326,12 +1084,11 @@ function setupSmoothScroll() {
             }
         });
     } catch (error) {
-        console.warn('부드러운 스크롤 설정 오류:', error);
+        console.error('부드러운 스크롤 설정 실패:', error);
     }
 }
 
-// ===== 유틸리티 함수들 =====
-
+// 유틸리티 함수들
 function debounce(func, wait, immediate) {
     let timeout;
     return function executedFunction(...args) {
@@ -1344,72 +1101,6 @@ function debounce(func, wait, immediate) {
         timeout = setTimeout(later, wait);
         if (callNow) func(...args);
     };
-}
-
-function throttle(func, limit) {
-    let inThrottle;
-    return function(...args) {
-        if (!inThrottle) {
-            func.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => inThrottle = false, limit);
-        }
-    };
-}
-
-function showLoading(target = 'body', message = '처리 중...') {
-    try {
-        const targetEl = typeof target === 'string' ? document.querySelector(target) : target;
-        
-        if (!targetEl) return null;
-        
-        const existingLoader = targetEl.querySelector('.simple-loading');
-        if (existingLoader) {
-            existingLoader.remove();
-        }
-        
-        const loader = document.createElement('div');
-        loader.className = 'simple-loading';
-        loader.setAttribute('role', 'status');
-        loader.setAttribute('aria-live', 'polite');
-        loader.innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner-ring"></div>
-                <span class="loading-text">${message}</span>
-            </div>
-        `;
-        
-        loader.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 1;
-        `;
-        
-        targetEl.appendChild(loader);
-        return loader;
-    } catch (error) {
-        console.warn('로딩 표시 오류:', error);
-        return null;
-    }
-}
-
-function hideLoading(loader) {
-    try {
-        if (loader && loader.parentNode) {
-            loader.parentNode.removeChild(loader);
-        }
-    } catch (error) {
-        console.warn('로딩 숨김 오류:', error);
-    }
 }
 
 function showNotification(message, type = 'info', duration = 3000) {
@@ -1473,7 +1164,7 @@ function showNotification(message, type = 'info', duration = 3000) {
         
         return toast;
     } catch (error) {
-        console.warn('알림 표시 오류:', error);
+        console.error('알림 표시 실패:', error);
         return null;
     }
 }
@@ -1498,7 +1189,7 @@ function getToastBgColor(type) {
     return colors[type] || colors['info'];
 }
 
-// ===== 전역 함수 내보내기 =====
+// 전역 함수 내보내기
 window.toggleMobileMenu = toggleMobileMenu;
 window.toggleUserMenu = toggleUserMenu;
 window.toggleNotificationPanel = toggleNotificationPanel;
@@ -1508,85 +1199,23 @@ window.filterPanelNotifications = filterPanelNotifications;
 window.markPanelNotificationAsRead = markPanelNotificationAsRead;
 window.markAllNotificationsAsRead = markAllNotificationsAsRead;
 window.addNewNotification = addNewNotification;
-window.initializeNavigation = initializeNavigation;
-window.checkAuthStatus = checkAuthStatus;
-window.showLoading = showLoading;
-window.hideLoading = hideLoading;
 window.showNotification = showNotification;
-window.debounce = debounce;
-window.throttle = throttle;
 window.setupCardEvents = setupCardEvents;
 window.handleUpClick = handleUpClick;
 
-// ===== CSS 스타일 주입 =====
-if (!document.querySelector('#dynamic-styles')) {
-    const style = document.createElement('style');
-    style.id = 'dynamic-styles';
-    style.textContent = `
-        .spinner-ring {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
+// 즉시 실행 및 백업 초기화
+(function() {
+    // DOM 준비 상태에 따른 즉시 실행
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
+    
+    // 윈도우 로드 완료 후 백업 초기화
+    window.addEventListener('load', function() {
+        if (!window.APP.initialized) {
+            setTimeout(initializeApp, 100);
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            color: #374151;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-        
-        .toast-close {
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            margin-left: auto;
-        }
-        
-        .toast-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .keyboard-nav *:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: 2px;
-        }
-        
-        .sr-only {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            padding: 0 !important;
-            margin: -1px !important;
-            overflow: hidden !important;
-            clip: rect(0, 0, 0, 0) !important;
-            white-space: nowrap !important;
-            border: 0 !important;
-        }
-        
-        .up-particle {
-            position: fixed;
-            pointer-events: none;
-        }
-    `;
-    document.head.appendChild(style);
-}
+    });
+})();

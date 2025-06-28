@@ -1,4 +1,4 @@
-# /home/livon/projects/songil/app.py
+# app.py
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import os
 from flask import flash
@@ -110,6 +110,141 @@ def get_ranking_stats():
             'success': False,
             'error': '통계 정보를 불러오는 중 오류가 발생했습니다.'
         }), 500
+
+# 알림 관련 API 엔드포인트들 추가
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        limit = request.args.get('limit', 20, type=int)
+        category = request.args.get('category', 'all')
+        
+        # 실제 DB 구현 시 사용할 쿼리 예시
+        # notifications = db.get_user_notifications(user_id, limit, category)
+        
+        # 임시 데이터 (실제로는 DB에서 가져와야 함)
+        notifications = [
+            {
+                'id': 1,
+                'title': '긴급 실종자 신고 접수',
+                'message': '새로운 긴급 실종자가 신고되었습니다. 확인이 필요합니다.',
+                'category': 'reports',
+                'type': 'critical',
+                'is_read': False,
+                'created_at': datetime.now().isoformat(),
+                'time_display': '5분 전'
+            },
+            {
+                'id': 2,
+                'title': '새로운 목격 신고',
+                'message': '김철수님에 대한 목격 신고가 접수되었습니다.',
+                'category': 'witnesses',
+                'type': 'info',
+                'is_read': False,
+                'created_at': datetime.now().isoformat(),
+                'time_display': '15분 전'
+            },
+            {
+                'id': 3,
+                'title': '포인트 적립',
+                'message': '목격 신고 승인으로 100포인트가 적립되었습니다.',
+                'category': 'system',
+                'type': 'success',
+                'is_read': False,
+                'created_at': datetime.now().isoformat(),
+                'time_display': '1시간 전'
+            }
+        ]
+        
+        if category != 'all':
+            notifications = [n for n in notifications if n['category'] == category]
+        
+        return jsonify({
+            'success': True,
+            'notifications': notifications[:limit],
+            'total_count': len(notifications),
+            'unread_count': len([n for n in notifications if not n['is_read']])
+        })
+        
+    except Exception as e:
+        app.logger.error(f"알림 조회 API 오류: {e}")
+        return jsonify({'success': False, 'error': '알림을 불러오는 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/notifications/<int:notification_id>/read', methods=['POST'])
+def mark_notification_read(notification_id):
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # success = db.mark_notification_read(notification_id, user_id)
+        
+        # 임시 응답
+        success = True
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': '알림을 읽음으로 표시했습니다.'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': '알림을 찾을 수 없습니다.'
+            }), 404
+            
+    except Exception as e:
+        app.logger.error(f"알림 읽음 처리 오류: {e}")
+        return jsonify({'success': False, 'error': '알림 처리 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/notifications/mark-all-read', methods=['POST'])
+def mark_all_notifications_read():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # count = db.mark_all_notifications_read(user_id)
+        
+        # 임시 응답
+        count = 3
+        
+        return jsonify({
+            'success': True,
+            'message': f'{count}개의 알림을 읽음으로 표시했습니다.',
+            'updated_count': count
+        })
+        
+    except Exception as e:
+        app.logger.error(f"모든 알림 읽음 처리 오류: {e}")
+        return jsonify({'success': False, 'error': '알림 처리 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/notifications/unread-count', methods=['GET'])
+def get_unread_notifications_count():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # count = db.get_unread_notifications_count(user_id)
+        
+        # 임시 응답
+        count = 3
+        
+        return jsonify({
+            'success': True,
+            'unread_count': count
+        })
+        
+    except Exception as e:
+        app.logger.error(f"읽지 않은 알림 수 조회 오류: {e}")
+        return jsonify({'success': False, 'error': '알림 수를 불러오는 중 오류가 발생했습니다.'}), 500
 
 @app.route('/api/missing/recent')
 def get_recent_missing():
@@ -653,6 +788,39 @@ def api_missing_report():
     except Exception as e:
         print(f"API missing report error: {e}")
         return jsonify({"status": "error", "message": "신고 처리 중 오류가 발생했습니다."}), 500
+
+# UP 버튼 API 엔드포인트 추가
+@app.route('/api/missing/<missing_id>/up', methods=['POST'])
+def api_missing_up(missing_id):
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        data = request.get_json(force=True, silent=True) or {}
+        count = data.get('count', 1)
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # success = db.increment_missing_up_count(missing_id, user_id)
+        
+        # 임시 응답
+        success = True
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'UP 완료',
+                'new_count': count
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'UP 처리 실패'
+            }), 500
+            
+    except Exception as e:
+        app.logger.error(f"UP 처리 오류: {e}")
+        return jsonify({'success': False, 'error': 'UP 처리 중 오류가 발생했습니다.'}), 500
 
 @app.route('/api/witness/report', methods=['POST'])
 def api_witness_report():

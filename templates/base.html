@@ -100,7 +100,7 @@
                 <div class="user-menu">
                     {% if session.get('user_id') %}
                         <div class="user-actions">
-                            <button class="notification-bell-btn" onclick="toggleNotificationPanel()" aria-label="알림">
+                            <button class="notification-bell-btn" id="notificationBellBtn" aria-label="알림">
                                 <i class="fas fa-bell"></i>
                                 <span class="notification-badge" id="notificationBadge">N</span>
                             </button>
@@ -146,10 +146,10 @@
                 알림
             </h3>
             <div class="panel-actions">
-                <button class="panel-action-btn" onclick="markAllNotificationsAsRead()" title="모두 읽음">
+                <button class="panel-action-btn" id="markAllReadBtn" title="모두 읽음">
                     <i class="fas fa-check-double"></i>
                 </button>
-                <button class="panel-action-btn" onclick="closeNotificationPanel()" title="닫기">
+                <button class="panel-action-btn" id="closePanelBtn" title="닫기">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -157,16 +157,16 @@
         
         <div class="notification-panel-content">
             <div class="notification-filters">
-                <button class="filter-btn active" onclick="filterPanelNotifications('all')" data-filter="all">
+                <button class="filter-btn active" data-filter="all">
                     전체 <span class="filter-count" id="allCount">5</span>
                 </button>
-                <button class="filter-btn" onclick="filterPanelNotifications('reports')" data-filter="reports">
+                <button class="filter-btn" data-filter="reports">
                     신고 <span class="filter-count" id="reportsCount">2</span>
                 </button>
-                <button class="filter-btn" onclick="filterPanelNotifications('witnesses')" data-filter="witnesses">
+                <button class="filter-btn" data-filter="witnesses">
                     목격 <span class="filter-count" id="witnessesCount">1</span>
                 </button>
-                <button class="filter-btn" onclick="filterPanelNotifications('system')" data-filter="system">
+                <button class="filter-btn" data-filter="system">
                     시스템 <span class="filter-count" id="systemCount">2</span>
                 </button>
             </div>
@@ -182,7 +182,7 @@
                         <div class="notification-time">5분 전</div>
                     </div>
                     <div class="notification-actions">
-                        <button class="mark-read-btn" onclick="markPanelNotificationAsRead(1)">
+                        <button class="mark-read-btn" data-id="1">
                             <i class="fas fa-check"></i>
                         </button>
                     </div>
@@ -198,7 +198,7 @@
                         <div class="notification-time">15분 전</div>
                     </div>
                     <div class="notification-actions">
-                        <button class="mark-read-btn" onclick="markPanelNotificationAsRead(2)">
+                        <button class="mark-read-btn" data-id="2">
                             <i class="fas fa-check"></i>
                         </button>
                     </div>
@@ -214,7 +214,7 @@
                         <div class="notification-time">1시간 전</div>
                     </div>
                     <div class="notification-actions">
-                        <button class="mark-read-btn" onclick="markPanelNotificationAsRead(3)">
+                        <button class="mark-read-btn" data-id="3">
                             <i class="fas fa-check"></i>
                         </button>
                     </div>
@@ -252,7 +252,7 @@
         </div>
     </div>
 
-    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotificationPanel()"></div>
+    <div class="notification-overlay" id="notificationOverlay"></div>
 
     <main class="main-content">
         {% block content %}{% endblock %}
