@@ -333,11 +333,11 @@ body.modal-open {
     position: absolute;
     top: 8px;
     right: 8px;
-    width: 18px;
-    height: 18px;
+    width: 8px;
+    height: 8px;
     background: var(--danger-red);
     color: var(--white);
-    font-size: 11px;
+    font-size: 6px;
     font-weight: 700;
     line-height: 1;
     border-radius: 50%;
@@ -345,13 +345,7 @@ body.modal-open {
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    border: 2px solid var(--white);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     animation: pulse 2s infinite;
-}
-
-.notification-bell-btn:hover .notification-badge {
-    background: var(--danger-red-dark);
 }
 
 @keyframes pulse {
