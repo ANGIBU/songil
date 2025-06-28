@@ -800,14 +800,6 @@ def pointshop():
         print(f"Error rendering pointshop: {e}")
         return redirect(url_for('index'))
 
-@app.route('/ranking/detail')
-def ranking_detail():
-    try:
-        return render_template('user/ranking_detail.html')
-    except Exception as e:
-        print(f"Error rendering ranking_detail: {e}")
-        return redirect(url_for('ranking'))
-
 @app.route('/api/login', methods=['POST'])
 def api_login():
     try:
@@ -1011,8 +1003,7 @@ def test_templates():
         'user/missing_detail.html',
         'user/missing_report.html',
         'user/missing_witness.html',
-        'user/pointshop.html',
-        'user/ranking_detail.html'
+        'user/pointshop.html'
     ]
     
     results = {}
