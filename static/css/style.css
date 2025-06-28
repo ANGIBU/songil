@@ -332,13 +332,13 @@ body.modal-open {
 /* 알림 배지 - 빨간색 원형 배경과 하얀색 N 텍스트 */
 .notification-bell-btn .notification-badge {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 8px;
-    height: 8px;
+    top: 9px;
+    right: 7px;
+    width: 12px;
+    height: 12px;
     background: var(--danger-red);
     color: var(--white);
-    font-size: 6px;
+    font-size: 8px;
     font-weight: 700;
     line-height: 1;
     border-radius: 50%;
@@ -423,13 +423,13 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
-/* 알림 패널 스타일 - 완전히 최적화된 버전 */
+/* 알림 패널 스타일 - 위치 수정 및 GSAP 애니메이션 준비 */
 .notification-panel {
     position: fixed;
     top: 80px;
     right: 20px;
-    width: min(400px, calc(100vw - 40px));
-    max-width: 400px;
+    width: min(420px, calc(100vw - 40px));
+    max-width: 420px;
     max-height: 600px;
     background: var(--white);
     border: 1px solid var(--gray-200);
@@ -438,12 +438,13 @@ body.modal-open {
     z-index: var(--z-index-notification-panel);
     overflow: hidden;
     
-    /* 초기 상태 - 완전히 숨김 */
+    /* 초기 상태 - GSAP에서 제어 */
     display: none;
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
-    transform: translateX(100%) scale(0.95);
+    transform: translateX(100%) scale(0.9);
+    transform-origin: top right;
 }
 
 /* 표시 상태 */
@@ -500,6 +501,12 @@ body.modal-open {
 .panel-action-btn:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
+}
+
+/* 전체 삭제 버튼 스타일 */
+#deleteAllBtn:hover {
+    color: var(--danger-red);
+    background-color: var(--danger-red-soft);
 }
 
 .notification-panel-content {
@@ -596,7 +603,7 @@ body.modal-open {
     content: '';
     position: absolute;
     top: 50%;
-    right: var(--spacing-4);
+    right: calc(var(--spacing-4) + 40px);
     transform: translateY(-50%);
     width: 8px;
     height: 8px;
@@ -658,9 +665,11 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-1);
+    flex-shrink: 0;
 }
 
-.mark-read-btn {
+/* 개별 삭제 버튼 스타일 */
+.delete-notification-btn {
     background: none;
     border: none;
     color: var(--gray-400);
@@ -676,45 +685,31 @@ body.modal-open {
     justify-content: center;
 }
 
-.mark-read-btn:hover {
-    color: var(--secondary-green);
-    background: var(--secondary-green-soft);
+.delete-notification-btn:hover {
+    color: var(--danger-red);
+    background: var(--danger-red-soft);
 }
 
-.notification-panel-footer {
-    padding: var(--spacing-3) var(--spacing-4);
-    border-top: 1px solid var(--gray-200);
-    background: var(--gray-50);
-}
-
-.view-all-btn {
+/* 알림이 없을 때 표시할 빈 상태 */
+.notification-empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-2);
-    width: 100%;
-    padding: var(--spacing-3);
-    background: var(--primary-orange);
-    color: var(--white);
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    transition: var(--transition-fast);
+    padding: var(--spacing-12) var(--spacing-6);
+    text-align: center;
 }
 
-.view-all-btn:hover {
-    background: var(--primary-orange-dark);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+.notification-empty .empty-icon {
+    font-size: var(--font-size-4xl);
+    color: var(--gray-300);
+    margin-bottom: var(--spacing-4);
 }
 
-.view-all-btn i {
-    transition: var(--transition-fast);
-}
-
-.view-all-btn:hover i {
-    transform: translateX(4px);
+.notification-empty .empty-message {
+    font-size: var(--font-size-base);
+    color: var(--gray-500);
+    font-weight: 500;
 }
 
 /* 알림 오버레이 - 단순화 */
@@ -727,7 +722,7 @@ body.modal-open {
     background: rgba(0, 0, 0, 0.3);
     z-index: var(--z-index-notification-overlay);
     
-    /* 초기 상태 - 완전히 숨김 */
+    /* 초기 상태 - GSAP에서 제어 */
     display: none;
     opacity: 0;
     pointer-events: none;
@@ -1650,7 +1645,7 @@ hr {
     }
     
     .notification-panel {
-        width: min(350px, calc(100vw - 20px));
+        width: min(380px, calc(100vw - 20px));
         right: 10px;
     }
 }
@@ -1720,6 +1715,7 @@ hr {
         width: calc(100vw - 20px);
         right: 10px;
         left: 10px;
+        top: 70px;
     }
     
     .cta-buttons {
@@ -1780,6 +1776,9 @@ hr {
     .notification-panel {
         top: 70px;
         max-height: calc(100vh - 80px);
+        width: calc(100vw - 16px);
+        right: 8px;
+        left: 8px;
     }
 }
 

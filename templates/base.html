@@ -146,8 +146,8 @@
                 알림
             </h3>
             <div class="panel-actions">
-                <button class="panel-action-btn" id="markAllReadBtn" title="모두 읽음">
-                    <i class="fas fa-check-double"></i>
+                <button class="panel-action-btn" id="deleteAllBtn" title="전체 삭제">
+                    <i class="fas fa-trash-alt"></i>
                 </button>
                 <button class="panel-action-btn" id="closePanelBtn" title="닫기">
                     <i class="fas fa-times"></i>
@@ -182,8 +182,8 @@
                         <div class="notification-time">5분 전</div>
                     </div>
                     <div class="notification-actions">
-                        <button class="mark-read-btn" data-id="1">
-                            <i class="fas fa-check"></i>
+                        <button class="delete-notification-btn" data-id="1">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
@@ -198,8 +198,8 @@
                         <div class="notification-time">15분 전</div>
                     </div>
                     <div class="notification-actions">
-                        <button class="mark-read-btn" data-id="2">
-                            <i class="fas fa-check"></i>
+                        <button class="delete-notification-btn" data-id="2">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
@@ -214,8 +214,8 @@
                         <div class="notification-time">1시간 전</div>
                     </div>
                     <div class="notification-actions">
-                        <button class="mark-read-btn" data-id="3">
-                            <i class="fas fa-check"></i>
+                        <button class="delete-notification-btn" data-id="3">
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
@@ -229,6 +229,11 @@
                         <div class="notification-message">회원님의 실종자 신고가 처리 완료되었습니다.</div>
                         <div class="notification-time">2시간 전</div>
                     </div>
+                    <div class="notification-actions">
+                        <button class="delete-notification-btn" data-id="4">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="notification-item read" data-category="system" data-id="5">
@@ -240,14 +245,19 @@
                         <div class="notification-message">손길 플랫폼 업데이트가 완료되었습니다.</div>
                         <div class="notification-time">1일 전</div>
                     </div>
+                    <div class="notification-actions">
+                        <button class="delete-notification-btn" data-id="5">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="notification-panel-footer">
-                <a href="{{ url_for('notifications') }}" class="view-all-btn">
-                    모든 알림 보기
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+            <div class="notification-empty" id="notificationEmpty" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-bell-slash"></i>
+                </div>
+                <div class="empty-message">알림이 없습니다</div>
             </div>
         </div>
     </div>

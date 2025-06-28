@@ -15,7 +15,7 @@ window.APP = {
     initialized: false
 };
 
-// DOM 완전 로딩 대기 함수 - 타이밍 문제 해결
+// DOM 완전 로딩 대기 함수
 function waitForDOMReady() {
     return new Promise((resolve) => {
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -26,32 +26,19 @@ function waitForDOMReady() {
     });
 }
 
-// 앱 초기화 - 안전한 DOM 로딩 보장
+// 앱 초기화
 async function initializeApp() {
     if (window.APP.initialized) return;
     
     try {
         await waitForDOMReady();
         
-        // 스크롤 위치 최적화
         optimizePageScroll();
-        
-        // 현재 페이지 식별
         identifyCurrentPage();
-        
-        // 기본 이벤트 리스너 설정
         setupEventListeners();
-        
-        // 사용자 인증 상태 확인
         checkAuthStatus();
-        
-        // 반응형 처리
         handleResponsive();
-        
-        // 알림 시스템 초기화 - 가장 중요한 부분
         await initializeNotificationSystem();
-        
-        // 페이지별 카드 초기화
         initializePageCards();
         
         window.APP.initialized = true;
@@ -61,22 +48,21 @@ async function initializeApp() {
     }
 }
 
-// 알림 시스템 초기화 - 완전히 재작성
+// 알림 시스템 초기화 - GSAP 애니메이션 추가
 async function initializeNotificationSystem() {
     try {
-        // DOM 요소들 존재 확인
         const notificationBellBtn = document.getElementById('notificationBellBtn');
         const notificationPanel = document.getElementById('notificationPanel');
         const notificationOverlay = document.getElementById('notificationOverlay');
         const closePanelBtn = document.getElementById('closePanelBtn');
-        const markAllReadBtn = document.getElementById('markAllReadBtn');
+        const deleteAllBtn = document.getElementById('deleteAllBtn');
         
         if (!notificationBellBtn || !notificationPanel || !notificationOverlay) {
             console.error('필수 알림 DOM 요소를 찾을 수 없습니다');
             return;
         }
         
-        // 기존 이벤트 리스너 제거 (중복 방지)
+        // 기존 이벤트 리스너 제거
         notificationBellBtn.removeEventListener('click', toggleNotificationPanel);
         
         // 알림 종 버튼 클릭 이벤트
@@ -95,12 +81,12 @@ async function initializeNotificationSystem() {
             });
         }
         
-        // 모두 읽음 버튼 이벤트
-        if (markAllReadBtn) {
-            markAllReadBtn.addEventListener('click', function(e) {
+        // 전체 삭제 버튼 이벤트
+        if (deleteAllBtn) {
+            deleteAllBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                markAllNotificationsAsRead();
+                deleteAllNotifications();
             });
         }
         
@@ -125,16 +111,9 @@ async function initializeNotificationSystem() {
             }
         });
         
-        // 필터 버튼 이벤트 설정
         setupNotificationFilters();
-        
-        // 개별 알림 읽음 버튼 이벤트 설정
         setupNotificationActions();
-        
-        // 초기 알림 배지 업데이트
         updateNotificationBadge();
-        
-        // 실시간 알림 시뮬레이션 시작
         startNotificationSimulation();
         
     } catch (error) {
@@ -161,19 +140,19 @@ function setupNotificationFilters() {
     }
 }
 
-// 알림 액션 설정
+// 개별 알림 삭제 버튼 설정
 function setupNotificationActions() {
     try {
-        const markReadBtns = document.querySelectorAll('.mark-read-btn');
+        const deleteNotificationBtns = document.querySelectorAll('.delete-notification-btn');
         
-        markReadBtns.forEach(btn => {
+        deleteNotificationBtns.forEach(btn => {
             if (btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     const notificationId = this.getAttribute('data-id');
                     if (notificationId) {
-                        markPanelNotificationAsRead(notificationId);
+                        deleteNotification(notificationId);
                     }
                 });
             }
@@ -183,7 +162,7 @@ function setupNotificationActions() {
     }
 }
 
-// 알림 패널 토글 - 단순화된 버전
+// 알림 패널 토글 - GSAP 애니메이션 적용
 function toggleNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -206,7 +185,7 @@ function toggleNotificationPanel() {
     }
 }
 
-// 알림 패널 열기 - CSS 기반 단순화
+// 알림 패널 열기 - GSAP 애니메이션
 function openNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -217,34 +196,52 @@ function openNotificationPanel() {
             return;
         }
         
-        // 다른 드롭다운 닫기
         closeAllDropdowns();
         
-        // CSS 클래스로 표시 상태 관리
+        // CSS 클래스 추가
         panel.classList.add('show');
         overlay.classList.add('show');
         
-        // GSAP 애니메이션이 있는 경우에만 실행
+        // GSAP 애니메이션
         if (typeof gsap !== 'undefined') {
-            // CSS 전환과 충돌하지 않도록 즉시 설정
+            // 패널 초기 상태 설정
             gsap.set(panel, {
                 display: 'block',
                 visibility: 'visible',
-                opacity: 1,
-                transform: 'translateX(0) scale(1)'
+                opacity: 0,
+                scale: 0.8,
+                x: 50,
+                transformOrigin: 'top right'
             });
             
+            // 오버레이 초기 상태 설정
             gsap.set(overlay, {
                 display: 'block',
                 visibility: 'visible',
-                opacity: 1
+                opacity: 0
+            });
+            
+            // 오버레이 애니메이션
+            gsap.to(overlay, {
+                duration: 0.3,
+                opacity: 1,
+                ease: 'power2.out'
+            });
+            
+            // 패널 애니메이션
+            gsap.to(panel, {
+                duration: 0.4,
+                opacity: 1,
+                scale: 1,
+                x: 0,
+                ease: 'back.out(1.7)'
             });
         }
         
         // 접근성을 위한 포커스 이동
         const firstFocusable = panel.querySelector('button, a, [tabindex="0"]');
         if (firstFocusable) {
-            setTimeout(() => firstFocusable.focus(), 100);
+            setTimeout(() => firstFocusable.focus(), 400);
         }
         
     } catch (error) {
@@ -252,7 +249,7 @@ function openNotificationPanel() {
     }
 }
 
-// 알림 패널 닫기 - CSS 기반 단순화
+// 알림 패널 닫기 - GSAP 애니메이션
 function closeNotificationPanel() {
     try {
         const panel = document.getElementById('notificationPanel');
@@ -260,29 +257,147 @@ function closeNotificationPanel() {
         
         if (!panel || !overlay) return;
         
-        // CSS 클래스로 숨김 상태 관리
-        panel.classList.remove('show');
-        overlay.classList.remove('show');
-        
-        // GSAP가 있는 경우 CSS와 충돌하지 않도록 처리
+        // GSAP 애니메이션
         if (typeof gsap !== 'undefined') {
-            // 애니메이션 완료 후 완전히 숨김
-            setTimeout(() => {
-                if (!panel.classList.contains('show')) {
-                    gsap.set(panel, {
-                        display: 'none',
-                        visibility: 'hidden'
-                    });
-                    gsap.set(overlay, {
+            // 오버레이 애니메이션
+            gsap.to(overlay, {
+                duration: 0.2,
+                opacity: 0,
+                ease: 'power2.out'
+            });
+            
+            // 패널 애니메이션
+            gsap.to(panel, {
+                duration: 0.3,
+                opacity: 0,
+                scale: 0.8,
+                x: 50,
+                ease: 'power2.in',
+                onComplete: () => {
+                    panel.classList.remove('show');
+                    overlay.classList.remove('show');
+                    gsap.set([panel, overlay], {
                         display: 'none',
                         visibility: 'hidden'
                     });
                 }
-            }, 300); // CSS 전환 시간과 일치
+            });
+        } else {
+            // GSAP가 없는 경우 기본 처리
+            panel.classList.remove('show');
+            overlay.classList.remove('show');
         }
         
     } catch (error) {
         console.error('알림 패널 닫기 실패:', error);
+    }
+}
+
+// 개별 알림 삭제 - GSAP 애니메이션
+function deleteNotification(notificationId) {
+    try {
+        const notification = document.querySelector(`[data-id="${notificationId}"]`);
+        if (!notification) return;
+        
+        // GSAP 애니메이션으로 삭제
+        if (typeof gsap !== 'undefined') {
+            gsap.to(notification, {
+                duration: 0.3,
+                x: 100,
+                opacity: 0,
+                height: 0,
+                marginBottom: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
+                ease: 'power2.in',
+                onComplete: () => {
+                    notification.remove();
+                    updateNotificationBadge();
+                    checkEmptyState();
+                    
+                    if (window.showNotification) {
+                        window.showNotification('알림을 삭제했습니다.', 'success');
+                    }
+                }
+            });
+        } else {
+            notification.remove();
+            updateNotificationBadge();
+            checkEmptyState();
+        }
+        
+    } catch (error) {
+        console.error('알림 삭제 실패:', error);
+    }
+}
+
+// 전체 알림 삭제
+function deleteAllNotifications() {
+    try {
+        const notifications = document.querySelectorAll('.notification-item');
+        
+        if (notifications.length === 0) {
+            if (window.showNotification) {
+                window.showNotification('삭제할 알림이 없습니다.', 'info');
+            }
+            return;
+        }
+        
+        if (confirm(`모든 알림 ${notifications.length}개를 삭제하시겠습니까?`)) {
+            // GSAP 애니메이션으로 순차 삭제
+            if (typeof gsap !== 'undefined') {
+                notifications.forEach((notification, index) => {
+                    gsap.to(notification, {
+                        duration: 0.2,
+                        x: 100,
+                        opacity: 0,
+                        delay: index * 0.05,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            notification.remove();
+                            if (index === notifications.length - 1) {
+                                updateNotificationBadge();
+                                checkEmptyState();
+                                
+                                if (window.showNotification) {
+                                    window.showNotification(`${notifications.length}개의 알림을 모두 삭제했습니다.`, 'success');
+                                }
+                            }
+                        }
+                    });
+                });
+            } else {
+                notifications.forEach(notification => notification.remove());
+                updateNotificationBadge();
+                checkEmptyState();
+                
+                if (window.showNotification) {
+                    window.showNotification(`${notifications.length}개의 알림을 모두 삭제했습니다.`, 'success');
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.error('전체 알림 삭제 실패:', error);
+    }
+}
+
+// 빈 상태 확인
+function checkEmptyState() {
+    try {
+        const notificationItems = document.getElementById('notificationItems');
+        const notificationEmpty = document.getElementById('notificationEmpty');
+        const notifications = document.querySelectorAll('.notification-item');
+        
+        if (notifications.length === 0) {
+            if (notificationItems) notificationItems.style.display = 'none';
+            if (notificationEmpty) notificationEmpty.style.display = 'flex';
+        } else {
+            if (notificationItems) notificationItems.style.display = 'block';
+            if (notificationEmpty) notificationEmpty.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('빈 상태 확인 실패:', error);
     }
 }
 
@@ -304,74 +419,38 @@ function filterPanelNotifications(category) {
         
         // 알림 아이템 필터링
         const notifications = document.querySelectorAll('.notification-item');
+        const visibleNotifications = [];
         
         notifications.forEach(notification => {
             if (!notification) return;
             
             if (category === 'all' || notification.dataset.category === category) {
                 notification.style.display = 'flex';
+                visibleNotifications.push(notification);
             } else {
                 notification.style.display = 'none';
             }
         });
         
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined' && visibleNotifications.length > 0) {
+            gsap.fromTo(visibleNotifications, 
+                {
+                    x: -20,
+                    opacity: 0
+                },
+                {
+                    duration: 0.3,
+                    x: 0,
+                    opacity: 1,
+                    stagger: 0.05,
+                    ease: 'power2.out'
+                }
+            );
+        }
+        
     } catch (error) {
         console.error('패널 알림 필터링 실패:', error);
-    }
-}
-
-// 개별 알림을 읽음으로 표시
-function markPanelNotificationAsRead(notificationId) {
-    try {
-        const notification = document.querySelector(`[data-id="${notificationId}"]`);
-        if (!notification) return;
-        
-        notification.classList.remove('unread');
-        notification.classList.add('read');
-        
-        // 읽음 버튼 제거
-        const readBtn = notification.querySelector('.mark-read-btn');
-        if (readBtn) {
-            readBtn.remove();
-        }
-        
-        // 알림 배지 업데이트
-        updateNotificationBadge();
-        
-        if (window.showNotification) {
-            window.showNotification('알림을 읽음으로 표시했습니다.', 'success');
-        }
-        
-    } catch (error) {
-        console.error('알림 읽음 처리 실패:', error);
-    }
-}
-
-// 모든 알림을 읽음으로 표시
-function markAllNotificationsAsRead() {
-    try {
-        const unreadNotifications = document.querySelectorAll('.notification-item.unread');
-        
-        unreadNotifications.forEach(notification => {
-            if (notification) {
-                notification.classList.remove('unread');
-                notification.classList.add('read');
-                
-                const readBtn = notification.querySelector('.mark-read-btn');
-                if (readBtn) {
-                    readBtn.remove();
-                }
-            }
-        });
-        
-        updateNotificationBadge();
-        
-        if (window.showNotification && unreadNotifications.length > 0) {
-            window.showNotification(`${unreadNotifications.length}개의 알림을 읽음으로 표시했습니다.`, 'success');
-        }
-        
-    } catch (error) {
-        console.error('모든 알림 읽음 처리 실패:', error);
     }
 }
 
@@ -390,7 +469,6 @@ function updateNotificationBadge() {
             }
         }
         
-        // 필터 카운트 업데이트
         updateFilterCounts();
         
     } catch (error) {
@@ -422,16 +500,27 @@ function updateFilterCounts() {
     }
 }
 
-// 새 알림 추가
+// 새 알림 추가 - GSAP 애니메이션
 function addNewNotification(notificationData) {
     try {
         const notificationItems = document.getElementById('notificationItems');
+        const notificationEmpty = document.getElementById('notificationEmpty');
+        
         if (!notificationItems) return;
+        
+        // 빈 상태 숨기기
+        if (notificationEmpty) {
+            notificationEmpty.style.display = 'none';
+        }
+        if (notificationItems.style.display === 'none') {
+            notificationItems.style.display = 'block';
+        }
         
         const newNotification = document.createElement('div');
         newNotification.className = 'notification-item unread';
         newNotification.dataset.category = notificationData.category;
-        newNotification.dataset.id = Date.now();
+        const notificationId = Date.now();
+        newNotification.dataset.id = notificationId;
         
         const iconClass = getNotificationIconClass(notificationData.category, notificationData.type);
         
@@ -445,8 +534,8 @@ function addNewNotification(notificationData) {
                 <div class="notification-time">방금 전</div>
             </div>
             <div class="notification-actions">
-                <button class="mark-read-btn" data-id="${Date.now()}">
-                    <i class="fas fa-check"></i>
+                <button class="delete-notification-btn" data-id="${notificationId}">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
         `;
@@ -455,20 +544,37 @@ function addNewNotification(notificationData) {
         notificationItems.insertBefore(newNotification, notificationItems.firstChild);
         
         // 새로 추가된 버튼에 이벤트 추가
-        const newReadBtn = newNotification.querySelector('.mark-read-btn');
-        if (newReadBtn) {
-            newReadBtn.addEventListener('click', function(e) {
+        const newDeleteBtn = newNotification.querySelector('.delete-notification-btn');
+        if (newDeleteBtn) {
+            newDeleteBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 const id = this.getAttribute('data-id');
-                markPanelNotificationAsRead(id);
+                deleteNotification(id);
             });
         }
         
-        // 알림 배지 업데이트
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(newNotification, 
+                {
+                    x: -50,
+                    opacity: 0,
+                    scale: 0.9
+                },
+                {
+                    duration: 0.4,
+                    x: 0,
+                    opacity: 1,
+                    scale: 1,
+                    ease: 'back.out(1.7)'
+                }
+            );
+        }
+        
         updateNotificationBadge();
         
-        // 브라우저 알림 표시 (권한이 있는 경우)
+        // 브라우저 알림 표시
         if (Notification.permission === 'granted') {
             new Notification(notificationData.title, {
                 body: notificationData.message,
@@ -739,7 +845,7 @@ function setupEventListeners() {
             userBtn.addEventListener('click', toggleUserMenu);
         }
         
-        // 스크롤 이벤트 - 쓰로틀링 적용
+        // 스크롤 이벤트
         let isScrolling = false;
         window.addEventListener('scroll', () => {
             if (!isScrolling) {
@@ -751,19 +857,12 @@ function setupEventListeners() {
             }
         });
         
-        // 리사이즈 이벤트 - 디바운싱 적용
+        // 리사이즈 이벤트
         window.addEventListener('resize', debounce(handleResize, 250));
         
-        // 부드러운 스크롤 설정
         setupSmoothScroll();
-        
-        // 네비게이션 초기화
         initializeNavigation();
-        
-        // 키보드 접근성
         setupKeyboardNavigation();
-        
-        // 페이지 전환 최적화
         setupPageTransitionOptimization();
         
     } catch (error) {
@@ -771,7 +870,7 @@ function setupEventListeners() {
     }
 }
 
-// 페이지 전환 최적화
+// 나머지 함수들은 기존과 동일하게 유지
 function setupPageTransitionOptimization() {
     try {
         const internalLinks = document.querySelectorAll('a[href^="/"], a[href^="./"], a[href^="../"]');
@@ -796,7 +895,6 @@ function setupPageTransitionOptimization() {
     }
 }
 
-// 키보드 접근성 설정
 function setupKeyboardNavigation() {
     try {
         document.addEventListener('keydown', function(e) {
@@ -827,7 +925,6 @@ function setupKeyboardNavigation() {
     }
 }
 
-// 나머지 함수들
 function initializeNavigation() {
     try {
         const currentPath = window.location.pathname;
@@ -1152,13 +1249,44 @@ function showNotification(message, type = 'info', duration = 3000) {
             gap: 12px;
             min-width: 300px;
             backdrop-filter: blur(10px);
+            transform: translateX(0);
         `;
         
         toastContainer.appendChild(toast);
         
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(toast, 
+                {
+                    x: 100,
+                    opacity: 0
+                },
+                {
+                    duration: 0.4,
+                    x: 0,
+                    opacity: 1,
+                    ease: 'back.out(1.7)'
+                }
+            );
+        }
+        
         setTimeout(() => {
             if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
+                if (typeof gsap !== 'undefined') {
+                    gsap.to(toast, {
+                        duration: 0.3,
+                        x: 100,
+                        opacity: 0,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            if (toast.parentNode) {
+                                toast.parentNode.removeChild(toast);
+                            }
+                        }
+                    });
+                } else {
+                    toast.parentNode.removeChild(toast);
+                }
             }
         }, duration);
         
@@ -1196,8 +1324,8 @@ window.toggleNotificationPanel = toggleNotificationPanel;
 window.openNotificationPanel = openNotificationPanel;
 window.closeNotificationPanel = closeNotificationPanel;
 window.filterPanelNotifications = filterPanelNotifications;
-window.markPanelNotificationAsRead = markPanelNotificationAsRead;
-window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+window.deleteNotification = deleteNotification;
+window.deleteAllNotifications = deleteAllNotifications;
 window.addNewNotification = addNewNotification;
 window.showNotification = showNotification;
 window.setupCardEvents = setupCardEvents;
@@ -1205,14 +1333,12 @@ window.handleUpClick = handleUpClick;
 
 // 즉시 실행 및 백업 초기화
 (function() {
-    // DOM 준비 상태에 따른 즉시 실행
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeApp);
     } else {
         initializeApp();
     }
     
-    // 윈도우 로드 완료 후 백업 초기화
     window.addEventListener('load', function() {
         if (!window.APP.initialized) {
             setTimeout(initializeApp, 100);

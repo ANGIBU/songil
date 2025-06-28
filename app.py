@@ -111,7 +111,7 @@ def get_ranking_stats():
             'error': '통계 정보를 불러오는 중 오류가 발생했습니다.'
         }), 500
 
-# 알림 관련 API 엔드포인트들 추가
+# 알림 관련 API 엔드포인트들 - 팝업에서만 사용
 @app.route('/api/notifications', methods=['GET'])
 def get_notifications():
     try:
@@ -223,6 +223,57 @@ def mark_all_notifications_read():
     except Exception as e:
         app.logger.error(f"모든 알림 읽음 처리 오류: {e}")
         return jsonify({'success': False, 'error': '알림 처리 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/notifications/<int:notification_id>/delete', methods=['DELETE'])
+def delete_notification(notification_id):
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # success = db.delete_notification(notification_id, user_id)
+        
+        # 임시 응답
+        success = True
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': '알림을 삭제했습니다.'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': '알림을 찾을 수 없습니다.'
+            }), 404
+            
+    except Exception as e:
+        app.logger.error(f"알림 삭제 오류: {e}")
+        return jsonify({'success': False, 'error': '알림 삭제 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/notifications/delete-all', methods=['DELETE'])
+def delete_all_notifications():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # count = db.delete_all_notifications(user_id)
+        
+        # 임시 응답
+        count = 5
+        
+        return jsonify({
+            'success': True,
+            'message': f'{count}개의 알림을 모두 삭제했습니다.',
+            'deleted_count': count
+        })
+        
+    except Exception as e:
+        app.logger.error(f"모든 알림 삭제 오류: {e}")
+        return jsonify({'success': False, 'error': '알림 삭제 중 오류가 발생했습니다.'}), 500
 
 @app.route('/api/notifications/unread-count', methods=['GET'])
 def get_unread_notifications_count():
@@ -640,14 +691,6 @@ def mypage():
         print(f"Error rendering mypage: {e}")
         return redirect(url_for('index'))
 
-@app.route('/notifications')
-def notifications():
-    try:
-        return render_template('user/notifications.html')
-    except Exception as e:
-        print(f"Error rendering notifications: {e}")
-        return redirect(url_for('index'))
-
 @app.route('/api/missing/<missing_id>', methods=['GET'])
 def api_missing_detail(missing_id):
     try:
@@ -965,7 +1008,6 @@ def test_templates():
         'auth/register.html',
         'auth/find_account.html',
         'user/mypage.html',
-        'user/notifications.html',
         'user/missing_detail.html',
         'user/missing_report.html',
         'user/missing_witness.html',
