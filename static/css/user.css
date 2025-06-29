@@ -141,7 +141,7 @@ body {
 
 /* ===== 마이페이지 헤더 ===== */
 .mypage-header {
-    padding: 60px 0;
+    padding: 50px 0;
     background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--secondary-green-bg) 100%);
     border-bottom: 1px solid var(--gray-100);
 }
@@ -149,8 +149,8 @@ body {
 .user-dashboard {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: 40px;
-    align-items: start;
+    gap: 32px;
+    align-items: center;
 }
 
 .user-profile {
@@ -249,18 +249,18 @@ body {
     align-items: center;
     background: white;
     border-radius: var(--radius-xl);
-    padding: 32px;
+    padding: 20px 24px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--gray-100);
     gap: 24px;
-    min-height: 120px;
+    min-height: 100px;
 }
 
 .stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex: 1;
     text-align: center;
 }
@@ -271,13 +271,13 @@ body {
 }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     color: white;
     flex-shrink: 0;
 }
@@ -306,7 +306,7 @@ body {
 }
 
 .stat-number {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--gray-900);
     line-height: 1;
@@ -314,7 +314,7 @@ body {
 }
 
 .stat-label {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--gray-600);
 }
 
@@ -571,7 +571,7 @@ body {
 @media (max-width: 1024px) {
     .user-dashboard {
         grid-template-columns: 1fr;
-        gap: 30px;
+        gap: 24px;
     }
     
     .dashboard-stats-simple {
@@ -592,8 +592,8 @@ body {
     
     .stat-item:nth-child(-n+2) {
         border-bottom: 1px solid var(--gray-200);
-        padding-bottom: 20px;
-        margin-bottom: 20px;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
     }
 }
 
@@ -603,7 +603,7 @@ body {
     }
     
     .mypage-header {
-        padding: 40px 0;
+        padding: 32px 0;
     }
     
     .user-profile {
@@ -627,8 +627,8 @@ body {
     
     .dashboard-stats-simple {
         flex-direction: column;
-        padding: 24px;
-        gap: 24px;
+        padding: 20px;
+        gap: 12px;
         align-items: center;
     }
     
@@ -639,7 +639,7 @@ body {
         padding-right: 0;
         border-right: none;
         border-bottom: 1px solid var(--gray-200);
-        padding-bottom: 24px;
+        padding-bottom: 10px;
     }
     
     .stat-item:last-child {
@@ -664,7 +664,7 @@ body {
 
 @media (max-width: 480px) {
     .mypage-header {
-        padding: 30px 0;
+        padding: 24px 0;
     }
     
     .username {
@@ -672,11 +672,12 @@ body {
     }
     
     .dashboard-stats-simple {
-        padding: 20px;
+        padding: 16px;
+        gap: 10px;
     }
     
     .stat-number {
-        font-size: 20px;
+        font-size: 18px;
     }
     
     .activity-item {
