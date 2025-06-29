@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM 로드 완료 - 마이페이지 초기화 시작');
     setTimeout(() => {
         initializeMyPage();
-    }, 100); // DOM 완전 로드 보장
+    }, 100);
 });
 
 // 마이페이지 초기화
@@ -349,11 +349,6 @@ function loadMoreActivities() {
         
         updateLoadMoreButton();
         
-        // 성공 메시지
-        if (window.showNotification) {
-            window.showNotification(`${newActivities.length}개의 활동이 추가로 로드되었습니다.`, 'success');
-        }
-        
         console.log('✅ 더보기 로딩 완료. 현재 표시:', mypageState.currentDisplayCount, '개');
         
     }, 800);
@@ -422,9 +417,8 @@ function createActivityElement(activity) {
 // 더보기 버튼 업데이트
 function updateLoadMoreButton() {
     const loadMoreContainer = document.getElementById('activityLoadMore');
-    const remainingCountSpan = document.getElementById('remainingCount');
     
-    if (!loadMoreContainer || !remainingCountSpan) {
+    if (!loadMoreContainer) {
         console.error('❌ 더보기 버튼 요소를 찾을 수 없습니다.');
         return;
     }
@@ -435,7 +429,6 @@ function updateLoadMoreButton() {
     
     if (remainingCount > 0) {
         loadMoreContainer.style.display = 'block';
-        remainingCountSpan.textContent = remainingCount;
         console.log('👆 더보기 버튼 표시');
     } else {
         loadMoreContainer.style.display = 'none';

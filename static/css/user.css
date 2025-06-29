@@ -60,6 +60,44 @@
     --transition-slow: all 0.3s ease;
 }
 
+/* ===== 마이페이지 전용 스타일 ===== */
+/* 우측 상단 알람 기능 완전 제거 */
+.notification-bell,
+.notification-icon,
+.alert-bell,
+.notification-button,
+.notifications,
+#notifications,
+.header-notifications,
+.nav-notifications,
+.notification-dropdown,
+.alert-dropdown,
+.notification-toggle,
+.bell-icon,
+.fa-bell,
+.notification-item,
+.notification-badge {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* 헤더 내 알림 관련 요소 숨김 */
+header .notification-bell,
+header .notification-icon,
+header .alert-bell,
+header .fa-bell,
+.header .notification-bell,
+.header .notification-icon,
+.header .alert-bell,
+.header .fa-bell,
+nav .notification-bell,
+nav .notification-icon,
+nav .alert-bell,
+nav .fa-bell {
+    display: none !important;
+}
+
 /* ===== 기본 스타일 리셋 ===== */
 * {
     margin: 0;
@@ -132,6 +170,19 @@ body {
     color: white;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
+}
+
+.btn-orange {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-orange:hover {
+    background: linear-gradient(135deg, var(--primary-orange-light) 0%, #fcd34d 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-sm {
@@ -314,7 +365,7 @@ body {
 .activity-summary {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 6px;
     margin-bottom: 32px;
 }
 
@@ -330,6 +381,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
     animation: slideInUp 0.5s ease forwards;
+    margin-bottom: 6px;
 }
 
 .activity-item:hover {
