@@ -142,8 +142,7 @@ body {
 /* ===== 마이페이지 헤더 ===== */
 .mypage-header {
     padding: 50px 0;
-    background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--secondary-green-bg) 100%);
-    border-bottom: 1px solid var(--gray-100);
+    background: transparent;
 }
 
 .user-dashboard {
@@ -643,6 +642,7 @@ body {
 @media (max-width: 480px) {
     .mypage-header {
         padding: 24px 0;
+        background: transparent;
     }
     
     .username {
