@@ -616,12 +616,13 @@ function openProfileEditModal() {
     const form = document.getElementById('profileEditForm');
     if (form) {
         const nicknameInput = form.querySelector('#newNickname');
-        const emailInput = form.querySelector('#userEmail');
-        const phoneInput = form.querySelector('#userPhone');
-        
-        if (nicknameInput) nicknameInput.value = mypageState.userProfile.name;
-        if (emailInput) emailInput.value = mypageState.userProfile.email;
-        if (phoneInput) phoneInput.value = mypageState.userProfile.phone;
+        if (nicknameInput) {
+            nicknameInput.value = mypageState.userProfile.name;
+            
+            // 닉네임 입력 실시간 검증 이벤트 추가
+            nicknameInput.addEventListener('input', debounce(validateNicknameRealTime, 500));
+            nicknameInput.addEventListener('blur', validateNicknameRealTime);
+        }
     }
     
     modal.classList.add('show');
@@ -680,30 +681,22 @@ async function handleProfileEdit(event) {
     const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('.btn-primary');
     const originalText = submitBtn ? submitBtn.innerHTML : '';
     
-    // 유효성 검사
+    // 닉네임 검증
     const nickname = formData.get('newNickname') ? formData.get('newNickname').trim() : '';
-    const email = formData.get('userEmail') ? formData.get('userEmail').trim() : '';
-    const phone = formData.get('userPhone') ? formData.get('userPhone').trim() : '';
     
-    if (!nickname || nickname.length < 2 || nickname.length > 20) {
+    const validationResult = validateNickname(nickname);
+    if (!validationResult.isValid) {
         if (window.showNotification) {
-            window.showNotification('닉네임은 2-20자 이내로 입력해주세요.', 'error');
+            window.showNotification(validationResult.message, 'error');
         }
         return;
     }
     
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // 중복 확인
+    const duplicateResult = await checkNicknameDuplicate(nickname);
+    if (!duplicateResult.isAvailable) {
         if (window.showNotification) {
-            window.showNotification('올바른 이메일 형식을 입력해주세요.', 'error');
-        }
-        return;
-    }
-    
-    const phoneRegex = /^010-\d{4}-\d{4}$/;
-    if (!phoneRegex.test(phone)) {
-        if (window.showNotification) {
-            window.showNotification('올바른 휴대폰 번호 형식을 입력해주세요. (010-0000-0000)', 'error');
+            window.showNotification('이미 사용 중인 닉네임입니다.', 'error');
         }
         return;
     }
@@ -717,13 +710,11 @@ async function handleProfileEdit(event) {
     // 서버 요청 시뮬레이션
     setTimeout(() => {
         mypageState.userProfile.name = nickname;
-        mypageState.userProfile.email = email;
-        mypageState.userProfile.phone = phone;
         
         updateUserProfile();
         
         if (window.showNotification) {
-            window.showNotification('프로필이 수정되었습니다.', 'success');
+            window.showNotification('닉네임이 변경되었습니다.', 'success');
         }
         closeProfileEditModal();
         
@@ -732,6 +723,113 @@ async function handleProfileEdit(event) {
             submitBtn.innerHTML = originalText;
         }
     }, 1000);
+}
+
+// 닉네임 검증 함수
+function validateNickname(nickname) {
+    if (!nickname) {
+        return { isValid: false, message: '닉네임을 입력해주세요.' };
+    }
+    
+    // 한글과 영문 분리 검사
+    const koreanRegex = /^[가-힣]+$/;
+    const englishRegex = /^[a-zA-Z]+$/;
+    const mixedRegex = /^[가-힣a-zA-Z]+$/;
+    
+    // 한글만 포함된 경우
+    if (koreanRegex.test(nickname)) {
+        if (nickname.length < 2 || nickname.length > 10) {
+            return { isValid: false, message: '한글 닉네임은 2-10자까지 입력 가능합니다.' };
+        }
+    }
+    // 영문만 포함된 경우
+    else if (englishRegex.test(nickname)) {
+        if (nickname.length < 2 || nickname.length > 16) {
+            return { isValid: false, message: '영문 닉네임은 2-16자까지 입력 가능합니다.' };
+        }
+    }
+    // 한글+영문 혼합인 경우
+    else if (mixedRegex.test(nickname)) {
+        if (nickname.length < 2 || nickname.length > 10) {
+            return { isValid: false, message: '한글+영문 혼합 닉네임은 2-10자까지 입력 가능합니다.' };
+        }
+    }
+    // 허용되지 않는 문자가 포함된 경우
+    else {
+        return { isValid: false, message: '닉네임은 한글 또는 영문만 사용 가능합니다.' };
+    }
+    
+    return { isValid: true, message: '사용 가능한 닉네임입니다.' };
+}
+
+// 실시간 닉네임 검증
+async function validateNicknameRealTime() {
+    const nicknameInput = document.getElementById('newNickname');
+    const statusDiv = document.getElementById('nicknameStatus');
+    const saveBtn = document.getElementById('saveNicknameBtn');
+    
+    if (!nicknameInput || !statusDiv || !saveBtn) return;
+    
+    const nickname = nicknameInput.value.trim();
+    
+    // 상태 표시 영역 보이기
+    statusDiv.style.display = 'block';
+    
+    if (!nickname) {
+        statusDiv.className = 'nickname-status invalid';
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 닉네임을 입력해주세요.';
+        saveBtn.disabled = true;
+        return;
+    }
+    
+    // 기본 형식 검증
+    const validationResult = validateNickname(nickname);
+    if (!validationResult.isValid) {
+        statusDiv.className = 'nickname-status invalid';
+        statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${validationResult.message}`;
+        saveBtn.disabled = true;
+        return;
+    }
+    
+    // 현재 닉네임과 같으면 바로 통과
+    if (nickname === mypageState.userProfile.name) {
+        statusDiv.className = 'nickname-status available';
+        statusDiv.innerHTML = '<i class="fas fa-check"></i> 현재 사용 중인 닉네임입니다.';
+        saveBtn.disabled = false;
+        return;
+    }
+    
+    // 중복 확인 중 표시
+    statusDiv.className = 'nickname-status checking';
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 중복 확인 중...';
+    saveBtn.disabled = true;
+    
+    // 중복 확인
+    const duplicateResult = await checkNicknameDuplicate(nickname);
+    
+    if (duplicateResult.isAvailable) {
+        statusDiv.className = 'nickname-status available';
+        statusDiv.innerHTML = '<i class="fas fa-check"></i> 사용 가능한 닉네임입니다.';
+        saveBtn.disabled = false;
+    } else {
+        statusDiv.className = 'nickname-status unavailable';
+        statusDiv.innerHTML = '<i class="fas fa-times"></i> 이미 사용 중인 닉네임입니다.';
+        saveBtn.disabled = true;
+    }
+}
+
+// 닉네임 중복 확인 (서버 API 시뮬레이션)
+async function checkNicknameDuplicate(nickname) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // 실제로는 서버 API 호출
+            // 임시로 몇 개 닉네임을 중복으로 처리
+            const unavailableNicknames = ['관리자', 'admin', '테스트', 'test', '손길'];
+            const isAvailable = !unavailableNicknames.includes(nickname.toLowerCase());
+            
+            resolve({ isAvailable });
+        }, 500);
+    });
 }
 
 // 전역 함수로 내보내기

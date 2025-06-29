@@ -656,6 +656,34 @@ body {
     margin-top: 4px;
 }
 
+.nickname-status {
+    font-size: 12px;
+    margin-top: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+}
+
+.nickname-status.checking {
+    color: var(--primary-orange);
+    background: var(--primary-orange-bg);
+}
+
+.nickname-status.available {
+    color: var(--secondary-green);
+    background: var(--secondary-green-bg);
+}
+
+.nickname-status.unavailable {
+    color: var(--danger-red);
+    background: var(--danger-red-bg);
+}
+
+.nickname-status.invalid {
+    color: var(--warning-amber);
+    background: var(--warning-amber-bg);
+}
+
 /* ===== 반응형 디자인 ===== */
 @media (max-width: 1024px) {
     .user-dashboard {
