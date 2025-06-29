@@ -25,11 +25,6 @@
                             2024.05.01 가입
                         </span>
                     </div>
-                    <div class="user-badges">
-                        <span class="badge new-member">신규회원</span>
-                        <span class="badge active-reporter">활동적 신고자</span>
-                        <span class="badge witness-helper">목격 도우미</span>
-                    </div>
                 </div>
             </div>
             
@@ -82,47 +77,25 @@
             <i class="fas fa-clock"></i>
             최근 활동
         </h2>
-        <div class="activity-summary">
-            <div class="activity-item">
-                <div class="activity-icon success">
-                    <i class="fas fa-check"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">목격 신고 승인</div>
-                    <div class="activity-description">강남구 김○○님 목격 신고가 승인되어 150P를 받았습니다.</div>
-                    <div class="activity-time">2시간 전</div>
-                </div>
-                <div class="activity-points positive">+150P</div>
+        <div class="activity-summary" id="activitySummary">
+        </div>
+        
+        <div class="activity-load-more" id="activityLoadMore" style="display: none;">
+            <button class="load-more-btn" onclick="loadMoreActivities()">
+                <i class="fas fa-chevron-down"></i>
+                더보기 (5개씩 로드)
+            </button>
+        </div>
+        
+        <div class="activity-empty" id="activityEmpty" style="display: none;">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
             </div>
-            
-            <div class="activity-item">
-                <div class="activity-icon info">
-                    <i class="fas fa-eye"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">목격 신고 제출</div>
-                    <div class="activity-description">서초구 박○○님에 대한 목격 정보를 신고했습니다.</div>
-                    <div class="activity-time">5시간 전</div>
-                </div>
-                <div class="activity-status pending">검토중</div>
-            </div>
-            
-            <div class="activity-item">
-                <div class="activity-icon purchase">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">포인트샵 구매</div>
-                    <div class="activity-description">스타벅스 아메리카노를 구매했습니다.</div>
-                    <div class="activity-time">1일 전</div>
-                </div>
-                <div class="activity-points negative">-500P</div>
-            </div>
+            <div class="empty-message">활동 내역이 없습니다</div>
         </div>
     </div>
 </section>
 
-<!-- 프로필 수정 모달 -->
 <div class="profile-edit-modal" id="profileEditModal">
     <div class="modal-overlay" onclick="closeProfileEditModal()"></div>
     <div class="modal-content">
