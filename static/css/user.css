@@ -242,6 +242,58 @@ body {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
+/* ===== Shadow 완전 제거 규칙 (마이페이지만) ===== */
+.mypage-header *,
+.user-dashboard *,
+.dashboard-stats-simple *,
+.stat-item,
+.stat-item *,
+.stat-number,
+.stat-label,
+div.stat-number,
+div.stat-label {
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    -webkit-filter: none !important;
+    -moz-filter: none !important;
+    -webkit-text-shadow: none !important;
+    -moz-text-shadow: none !important;
+}
+
+.stat-item:hover,
+.stat-item:focus,
+.stat-item:active,
+.stat-number:hover,
+.stat-number:focus,
+.stat-number:active,
+.stat-label:hover,
+.stat-label:focus,
+.stat-label:active {
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    transform: none !important;
+    transition: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+}
+
+/* 디버깅용 - 임시 배경색 */
+.stat-number {
+    background: rgba(255, 0, 0, 0.1) !important;
+}
+
+.stat-label {
+    background: rgba(0, 255, 0, 0.1) !important;
+}
+
 /* ===== 간소화된 대시보드 통계 ===== */
 .dashboard-stats-simple {
     display: flex;

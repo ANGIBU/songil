@@ -316,7 +316,7 @@ async function handleProfileEdit(event) {
 function initializeAnimations() {
     if (typeof gsap === 'undefined') return;
     
-    // 페이지 로드 애니메이션
+    // 페이지 로드 애니메이션 (shadow 효과 제거)
     gsap.timeline()
         .from('.user-dashboard', {
             duration: 0.8,
@@ -337,11 +337,11 @@ function initializeAnimations() {
             ease: 'power2.out'
         }, '-=0.2');
     
-    // 스크롤 트리거 설정 (GSAP ScrollTrigger 플러그인이 있는 경우)
+    // 스크롤 트리거 설정 (shadow 효과 제거)
     if (gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
-        // 통계 항목 개별 애니메이션
+        // 통계 항목 개별 애니메이션 (shadow 제거)
         gsap.utils.toArray('.stat-item').forEach((item, index) => {
             gsap.from(item, {
                 scrollTrigger: {
