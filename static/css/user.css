@@ -216,7 +216,7 @@ body {
     color: var(--primary-orange);
 }
 
-/* ===== 간소화된 통계 컨테이너 ===== */
+/* ===== 통계 컨테이너 (아이콘과 세로선 포함) ===== */
 .user-stats-container {
     background: white;
     border-radius: var(--radius-xl);
@@ -226,30 +226,70 @@ body {
 }
 
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
 }
 
 .stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    flex: 1;
+    text-align: center;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stat.points .stat-icon {
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+}
+
+.stat.ranking .stat-icon {
+    background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
+}
+
+.stat.reports .stat-icon {
+    background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
+}
+
+.stat.witnesses .stat-icon {
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
 }
 
 .stat-value {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--gray-900);
     line-height: 1;
+    margin-bottom: 4px;
 }
 
 .stat-label {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--gray-600);
     font-weight: 500;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 60px;
+    border: none;
+    background-color: var(--gray-200);
+    margin: 0;
+    flex-shrink: 0;
 }
 
 /* ===== 최근 활동 섹션 ===== */
@@ -509,8 +549,25 @@ body {
     }
     
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+    
+    .stat {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 180px;
+    }
+    
+    .stat-divider {
+        display: none;
+    }
+    
+    .stat-divider:nth-of-type(2) {
+        display: block;
+        width: 100%;
+        height: 1px;
+        order: 3;
     }
 }
 
@@ -547,7 +604,7 @@ body {
     }
     
     .stat-value {
-        font-size: 20px;
+        font-size: 18px;
     }
     
     .modal-content {
@@ -579,12 +636,17 @@ body {
     }
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
         gap: 16px;
     }
     
     .stat-value {
-        font-size: 18px;
+        font-size: 16px;
+    }
+    
+    .stat-divider {
+        width: 50%;
+        margin: 2px 0;
     }
     
     .activity-item {
