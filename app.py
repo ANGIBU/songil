@@ -8,7 +8,7 @@ import os
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from services.ranking_service import RankingService
 import uuid
 import json
@@ -296,6 +296,154 @@ def get_unread_notifications_count():
     except Exception as e:
         app.logger.error(f"읽지 않은 알림 수 조회 오류: {e}")
         return jsonify({'success': False, 'error': '알림 수를 불러오는 중 오류가 발생했습니다.'}), 500
+
+# 마이페이지 활동 내역 API
+@app.route('/api/user/activities', methods=['GET'])
+def get_user_activities():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        offset = request.args.get('offset', 0, type=int)
+        limit = request.args.get('limit', 5, type=int)
+        
+        # 실제 DB 구현 시 사용할 쿼리
+        # activities = db.get_user_activities(user_id, offset, limit)
+        
+        # 임시 샘플 데이터 12개
+        all_activities = generate_sample_activities()
+        
+        total_count = len(all_activities)
+        activities = all_activities[offset:offset + limit]
+        
+        return jsonify({
+            'success': True,
+            'activities': activities,
+            'total_count': total_count,
+            'has_more': offset + limit < total_count
+        })
+        
+    except Exception as e:
+        app.logger.error(f"활동 내역 조회 오류: {e}")
+        return jsonify({'success': False, 'error': '활동 내역을 불러오는 중 오류가 발생했습니다.'}), 500
+
+def generate_sample_activities():
+    """12개 샘플 활동 데이터 생성"""
+    base_time = datetime.now()
+    
+    activities = [
+        {
+            'id': 1,
+            'type': 'witness_approved',
+            'title': '목격 신고 승인',
+            'description': '강남구 김○○님 목격 신고가 승인되어 150P를 받았습니다.',
+            'points': 150,
+            'timestamp': (base_time - timedelta(hours=2)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 2,
+            'type': 'witness_submitted',
+            'title': '목격 신고 제출',
+            'description': '서초구 박○○님에 대한 목격 정보를 신고했습니다.',
+            'points': 0,
+            'timestamp': (base_time - timedelta(hours=5)).isoformat(),
+            'status': 'pending'
+        },
+        {
+            'id': 3,
+            'type': 'shop_purchase',
+            'title': '포인트샵 구매',
+            'description': '스타벅스 아메리카노를 구매했습니다.',
+            'points': -500,
+            'timestamp': (base_time - timedelta(days=1)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 4,
+            'type': 'witness_approved',
+            'title': '목격 신고 승인',
+            'description': '영등포구 이○○님 목격 신고가 승인되어 200P를 받았습니다.',
+            'points': 200,
+            'timestamp': (base_time - timedelta(days=2)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 5,
+            'type': 'missing_report',
+            'title': '실종자 신고 제출',
+            'description': '새로운 실종자 신고를 접수했습니다.',
+            'points': 100,
+            'timestamp': (base_time - timedelta(days=3)).isoformat(),
+            'status': 'approved'
+        },
+        {
+            'id': 6,
+            'type': 'witness_rejected',
+            'title': '목격 신고 반려',
+            'description': '제출한 목격 신고가 부정확한 정보로 반려되었습니다.',
+            'points': 0,
+            'timestamp': (base_time - timedelta(days=4)).isoformat(),
+            'status': 'rejected'
+        },
+        {
+            'id': 7,
+            'type': 'shop_purchase',
+            'title': '포인트샵 구매',
+            'description': 'CGV 영화 관람권을 구매했습니다.',
+            'points': -1000,
+            'timestamp': (base_time - timedelta(days=5)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 8,
+            'type': 'witness_approved',
+            'title': '목격 신고 승인',
+            'description': '마포구 최○○님 목격 신고가 승인되어 150P를 받았습니다.',
+            'points': 150,
+            'timestamp': (base_time - timedelta(days=6)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 9,
+            'type': 'points_earned',
+            'title': '출석 체크 보상',
+            'description': '7일 연속 출석으로 보너스 포인트를 받았습니다.',
+            'points': 50,
+            'timestamp': (base_time - timedelta(days=7)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 10,
+            'type': 'witness_submitted',
+            'title': '목격 신고 제출',
+            'description': '용산구 정○○님에 대한 목격 정보를 신고했습니다.',
+            'points': 0,
+            'timestamp': (base_time - timedelta(days=8)).isoformat(),
+            'status': 'pending'
+        },
+        {
+            'id': 11,
+            'type': 'witness_approved',
+            'title': '목격 신고 승인',
+            'description': '종로구 한○○님 목격 신고가 승인되어 150P를 받았습니다.',
+            'points': 150,
+            'timestamp': (base_time - timedelta(days=10)).isoformat(),
+            'status': 'completed'
+        },
+        {
+            'id': 12,
+            'type': 'shop_purchase',
+            'title': '포인트샵 구매',
+            'description': '편의점 상품권을 구매했습니다.',
+            'points': -300,
+            'timestamp': (base_time - timedelta(days=12)).isoformat(),
+            'status': 'completed'
+        }
+    ]
+    
+    return activities
 
 @app.route('/api/missing/recent')
 def get_recent_missing():

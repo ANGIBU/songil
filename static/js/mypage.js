@@ -24,7 +24,11 @@ let mypageState = {
         }
     },
     activityHistory: [],
+    displayedActivities: [],
     isLoading: false,
+    loadMoreLoading: false,
+    currentDisplayCount: 0,
+    activitiesPerLoad: 5,
     errors: {}
 };
 
@@ -37,7 +41,6 @@ function initializeMyPage() {
     loadUserData();
     setupEventListeners();
     initializeAnimations();
-    updateUI();
 }
 
 // 사용자 데이터 로드
@@ -46,32 +49,48 @@ async function loadUserData() {
         mypageState.isLoading = true;
         updateLoadingState();
         
-        // 사용자 기본 정보 로드 (임시 데이터 사용)
-        setTimeout(() => {
-            mypageState.userProfile = { 
-                ...mypageState.userProfile, 
-                name: '사용자',
-                email: 'user@example.com',
-                phone: '010-1234-5678'
-            };
-            
-            // 활동 내역 로드
-            mypageState.activityHistory = getDummyActivityData();
-            
-            mypageState.isLoading = false;
-            updateLoadingState();
-            updateUI();
-        }, 500);
+        console.log('사용자 데이터 로딩 시작...');
+        
+        // 사용자 기본 정보 설정
+        mypageState.userProfile = { 
+            ...mypageState.userProfile, 
+            name: '사용자',
+            email: 'user@example.com',
+            phone: '010-1234-5678'
+        };
+        
+        // 활동 내역 로드 - 12개 샘플 데이터
+        mypageState.activityHistory = getFullActivityData();
+        console.log('로드된 활동 내역:', mypageState.activityHistory.length, '개');
+        
+        // 처음 5개만 표시용으로 설정
+        mypageState.currentDisplayCount = Math.min(mypageState.activitiesPerLoad, mypageState.activityHistory.length);
+        mypageState.displayedActivities = mypageState.activityHistory.slice(0, mypageState.currentDisplayCount);
+        
+        console.log('표시할 활동:', mypageState.displayedActivities.length, '개');
+        console.log('남은 활동:', mypageState.activityHistory.length - mypageState.currentDisplayCount, '개');
+        
+        mypageState.isLoading = false;
+        updateLoadingState();
+        
+        // UI 업데이트
+        updateUI();
+        updateLoadMoreButton();
+        
+        console.log('사용자 데이터 로딩 완료');
         
     } catch (error) {
+        console.error('사용자 데이터 로딩 오류:', error);
         handleError('사용자 정보를 불러오는 중 오류가 발생했습니다.');
         mypageState.isLoading = false;
         updateLoadingState();
     }
 }
 
-// 더미 활동 데이터
-function getDummyActivityData() {
+// 12개 활동 샘플 데이터
+function getFullActivityData() {
+    const baseTime = new Date();
+    
     return [
         {
             id: 1,
@@ -79,7 +98,7 @@ function getDummyActivityData() {
             title: '목격 신고 승인',
             description: '강남구 김○○님 목격 신고가 승인되어 150P를 받았습니다.',
             points: 150,
-            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+            timestamp: new Date(baseTime.getTime() - 2 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
         },
         {
@@ -88,7 +107,7 @@ function getDummyActivityData() {
             title: '목격 신고 제출',
             description: '서초구 박○○님에 대한 목격 정보를 신고했습니다.',
             points: 0,
-            timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+            timestamp: new Date(baseTime.getTime() - 5 * 60 * 60 * 1000).toISOString(),
             status: 'pending'
         },
         {
@@ -97,10 +116,231 @@ function getDummyActivityData() {
             title: '포인트샵 구매',
             description: '스타벅스 아메리카노를 구매했습니다.',
             points: -500,
-            timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+            timestamp: new Date(baseTime.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+            status: 'completed'
+        },
+        {
+            id: 4,
+            type: 'witness_approved',
+            title: '목격 신고 승인',
+            description: '영등포구 이○○님 목격 신고가 승인되어 200P를 받았습니다.',
+            points: 200,
+            timestamp: new Date(baseTime.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'completed'
+        },
+        {
+            id: 5,
+            type: 'missing_report',
+            title: '실종자 신고 제출',
+            description: '새로운 실종자 신고를 접수했습니다.',
+            points: 100,
+            timestamp: new Date(baseTime.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'approved'
+        },
+        {
+            id: 6,
+            type: 'witness_rejected',
+            title: '목격 신고 반려',
+            description: '제출한 목격 신고가 부정확한 정보로 반려되었습니다.',
+            points: 0,
+            timestamp: new Date(baseTime.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'rejected'
+        },
+        {
+            id: 7,
+            type: 'shop_purchase',
+            title: '포인트샵 구매',
+            description: 'CGV 영화 관람권을 구매했습니다.',
+            points: -1000,
+            timestamp: new Date(baseTime.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'completed'
+        },
+        {
+            id: 8,
+            type: 'witness_approved',
+            title: '목격 신고 승인',
+            description: '마포구 최○○님 목격 신고가 승인되어 150P를 받았습니다.',
+            points: 150,
+            timestamp: new Date(baseTime.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'completed'
+        },
+        {
+            id: 9,
+            type: 'points_earned',
+            title: '출석 체크 보상',
+            description: '7일 연속 출석으로 보너스 포인트를 받았습니다.',
+            points: 50,
+            timestamp: new Date(baseTime.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'completed'
+        },
+        {
+            id: 10,
+            type: 'witness_submitted',
+            title: '목격 신고 제출',
+            description: '용산구 정○○님에 대한 목격 정보를 신고했습니다.',
+            points: 0,
+            timestamp: new Date(baseTime.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'pending'
+        },
+        {
+            id: 11,
+            type: 'witness_approved',
+            title: '목격 신고 승인',
+            description: '종로구 한○○님 목격 신고가 승인되어 150P를 받았습니다.',
+            points: 150,
+            timestamp: new Date(baseTime.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'completed'
+        },
+        {
+            id: 12,
+            type: 'shop_purchase',
+            title: '포인트샵 구매',
+            description: '편의점 상품권을 구매했습니다.',
+            points: -300,
+            timestamp: new Date(baseTime.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
         }
     ];
+}
+
+// 더보기 활동 로드
+function loadMoreActivities() {
+    if (mypageState.loadMoreLoading) {
+        console.log('이미 로딩 중입니다.');
+        return;
+    }
+    
+    const remainingCount = mypageState.activityHistory.length - mypageState.currentDisplayCount;
+    if (remainingCount <= 0) {
+        console.log('더 이상 로드할 활동이 없습니다.');
+        return;
+    }
+    
+    console.log('더보기 로딩 시작... 남은 활동:', remainingCount, '개');
+    
+    mypageState.loadMoreLoading = true;
+    const loadMoreBtn = document.querySelector('.load-more-btn');
+    const originalText = loadMoreBtn ? loadMoreBtn.innerHTML : '';
+    
+    // 로딩 상태 표시
+    if (loadMoreBtn) {
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.innerHTML = '<i class="fas fa-spinner"></i> 로딩 중...';
+    }
+    
+    // 로딩 시뮬레이션
+    setTimeout(() => {
+        const nextCount = Math.min(
+            mypageState.currentDisplayCount + mypageState.activitiesPerLoad,
+            mypageState.activityHistory.length
+        );
+        
+        const newActivities = mypageState.activityHistory.slice(mypageState.currentDisplayCount, nextCount);
+        console.log('새로 로드할 활동:', newActivities.length, '개');
+        
+        // 새로운 활동들을 화면에 추가
+        appendActivitiesToDOM(newActivities);
+        
+        mypageState.currentDisplayCount = nextCount;
+        mypageState.displayedActivities = mypageState.activityHistory.slice(0, nextCount);
+        
+        // 버튼 상태 복원
+        if (loadMoreBtn) {
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.innerHTML = originalText;
+        }
+        mypageState.loadMoreLoading = false;
+        
+        updateLoadMoreButton();
+        
+        // 성공 메시지
+        showSuccess(`${newActivities.length}개의 활동이 추가로 로드되었습니다.`);
+        
+        console.log('더보기 로딩 완료. 현재 표시:', mypageState.currentDisplayCount, '개');
+        
+    }, 800);
+}
+
+// DOM에 활동 추가
+function appendActivitiesToDOM(activities) {
+    const activityContainer = document.querySelector('.activity-summary');
+    if (!activityContainer) {
+        console.error('활동 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
+    
+    console.log('DOM에 활동 추가:', activities.length, '개');
+    
+    activities.forEach((activity, index) => {
+        const activityElement = createActivityElement(activity);
+        activityElement.style.animationDelay = `${index * 0.1}s`;
+        activityContainer.appendChild(activityElement);
+        
+        // GSAP 애니메이션
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(activityElement, 
+                {
+                    opacity: 0,
+                    y: 30,
+                    scale: 0.9
+                },
+                {
+                    duration: 0.5,
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    delay: index * 0.1,
+                    ease: 'back.out(1.7)'
+                }
+            );
+        }
+    });
+}
+
+// 활동 요소 생성
+function createActivityElement(activity) {
+    const activityDiv = document.createElement('div');
+    activityDiv.className = 'activity-item';
+    activityDiv.innerHTML = `
+        <div class="activity-icon ${getActivityIconClass(activity.type)}">
+            <i class="fas ${getActivityIcon(activity.type)}"></i>
+        </div>
+        <div class="activity-content">
+            <div class="activity-title">${activity.title}</div>
+            <div class="activity-description">${activity.description}</div>
+            <div class="activity-time">${getTimeAgo(activity.timestamp)}</div>
+        </div>
+        ${activity.points !== 0 ? `
+            <div class="activity-points ${activity.points > 0 ? 'positive' : 'negative'}">
+                ${activity.points > 0 ? '+' : ''}${activity.points}P
+            </div>
+        ` : `
+            <div class="activity-status ${activity.status}">${getStatusText(activity.status)}</div>
+        `}
+    `;
+    return activityDiv;
+}
+
+// 더보기 버튼 업데이트
+function updateLoadMoreButton() {
+    const loadMoreContainer = document.getElementById('activityLoadMore');
+    const remainingCountSpan = document.getElementById('remainingCount');
+    
+    if (!loadMoreContainer || !remainingCountSpan) {
+        console.error('더보기 버튼 요소를 찾을 수 없습니다.');
+        return;
+    }
+    
+    const remainingCount = mypageState.activityHistory.length - mypageState.currentDisplayCount;
+    
+    console.log('더보기 버튼 업데이트 - 남은 활동:', remainingCount, '개');
+    
+    if (remainingCount > 0) {
+        loadMoreContainer.style.display = 'block';
+        remainingCountSpan.textContent = remainingCount;
+    } else {
+        loadMoreContainer.style.display = 'none';
+    }
 }
 
 // 이벤트 리스너 설정
@@ -360,9 +600,11 @@ function initializeAnimations() {
 
 // UI 업데이트
 function updateUI() {
+    console.log('UI 업데이트 시작...');
     updateUserProfile();
     updateStats();
     updateActivityFeed();
+    console.log('UI 업데이트 완료');
 }
 
 // 사용자 프로필 업데이트 (닉네임에 "님" 추가)
@@ -409,29 +651,30 @@ function updateStats() {
 // 활동 피드 업데이트
 function updateActivityFeed() {
     const activityContainer = document.querySelector('.activity-summary');
-    if (!activityContainer || !mypageState.activityHistory.length) return;
+    if (!activityContainer) {
+        console.error('활동 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
     
-    const recentActivities = mypageState.activityHistory.slice(0, 3);
+    console.log('활동 피드 업데이트 - 표시할 활동:', mypageState.displayedActivities.length, '개');
     
-    activityContainer.innerHTML = recentActivities.map(activity => `
-        <div class="activity-item">
-            <div class="activity-icon ${getActivityIconClass(activity.type)}">
-                <i class="fas ${getActivityIcon(activity.type)}"></i>
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">${activity.title}</div>
-                <div class="activity-description">${activity.description}</div>
-                <div class="activity-time">${getTimeAgo(activity.timestamp)}</div>
-            </div>
-            ${activity.points !== 0 ? `
-                <div class="activity-points ${activity.points > 0 ? 'positive' : 'negative'}">
-                    ${activity.points > 0 ? '+' : ''}${activity.points}P
-                </div>
-            ` : `
-                <div class="activity-status ${activity.status}">${getStatusText(activity.status)}</div>
-            `}
-        </div>
-    `).join('');
+    // 기존 내용 제거
+    activityContainer.innerHTML = '';
+    
+    // 표시할 활동들이 있는지 확인
+    if (mypageState.displayedActivities && mypageState.displayedActivities.length > 0) {
+        // 표시할 활동들 추가
+        mypageState.displayedActivities.forEach((activity, index) => {
+            const activityElement = createActivityElement(activity);
+            activityElement.style.animationDelay = `${index * 0.1}s`;
+            activityContainer.appendChild(activityElement);
+        });
+        
+        console.log('활동 피드에', mypageState.displayedActivities.length, '개 활동이 추가되었습니다.');
+    } else {
+        console.log('표시할 활동이 없습니다.');
+        activityContainer.innerHTML = '<div class="no-activities">아직 활동 내역이 없습니다.</div>';
+    }
 }
 
 // 활동 아이콘 클래스
@@ -439,6 +682,7 @@ function getActivityIconClass(type) {
     const classMap = {
         'witness_approved': 'success',
         'witness_submitted': 'info',
+        'witness_rejected': 'rejected',
         'shop_purchase': 'purchase',
         'missing_report': 'info',
         'points_earned': 'success'
@@ -451,6 +695,7 @@ function getActivityIcon(type) {
     const iconMap = {
         'witness_approved': 'fa-check',
         'witness_submitted': 'fa-eye',
+        'witness_rejected': 'fa-times',
         'shop_purchase': 'fa-shopping-cart',
         'missing_report': 'fa-plus-circle',
         'points_earned': 'fa-coins'
@@ -584,3 +829,4 @@ function formatDate(date, format = 'YYYY-MM-DD') {
 window.openProfileEditModal = openProfileEditModal;
 window.closeProfileEditModal = closeProfileEditModal;
 window.handleProfileEdit = handleProfileEdit;
+window.loadMoreActivities = loadMoreActivities;

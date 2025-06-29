@@ -327,6 +327,9 @@ body {
     border-radius: var(--radius-lg);
     border: 1px solid var(--gray-100);
     transition: var(--transition-base);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInUp 0.5s ease forwards;
 }
 
 .activity-item:hover {
@@ -357,6 +360,14 @@ body {
 
 .activity-icon.purchase {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+}
+
+.activity-icon.warning {
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+}
+
+.activity-icon.rejected {
+    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
 }
 
 .activity-content {
@@ -408,6 +419,58 @@ body {
 .activity-status.pending {
     color: var(--warning-amber);
     background: var(--warning-amber-bg);
+}
+
+.activity-status.approved {
+    color: var(--secondary-green);
+    background: var(--secondary-green-bg);
+}
+
+.activity-status.rejected {
+    color: var(--danger-red);
+    background: var(--danger-red-bg);
+}
+
+.activity-status.completed {
+    color: var(--gray-600);
+    background: var(--gray-100);
+}
+
+/* ===== 더보기 버튼 영역 ===== */
+.activity-load-more {
+    text-align: center;
+    padding: 24px 0;
+    border-top: 1px solid var(--gray-100);
+    margin-top: 20px;
+}
+
+.load-more-btn {
+    min-width: 200px;
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.load-more-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.load-more-btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.load-more-btn .fas.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+.load-more-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 /* ===== 프로필 수정 모달 ===== */
@@ -620,6 +683,30 @@ body {
         flex-direction: column;
         gap: 8px;
     }
+    
+    .activity-item {
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .activity-content {
+        order: 2;
+    }
+    
+    .activity-points,
+    .activity-status {
+        order: 3;
+    }
+    
+    .load-more-btn {
+        min-width: 100%;
+        padding: 16px 24px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -688,6 +775,11 @@ body {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
     20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 /* ===== 유틸리티 클래스 ===== */
