@@ -53,7 +53,7 @@ async function loadUserData() {
                 phone: '010-1234-5678'
             };
             
-            mypageState.activityHistory = generate12ActivityData();
+            mypageState.activityHistory = getDummy12ActivityData();
             mypageState.displayedActivities = mypageState.activityHistory.slice(0, mypageState.activitiesPerPage);
             
             mypageState.isLoading = false;
@@ -68,7 +68,7 @@ async function loadUserData() {
     }
 }
 
-function generate12ActivityData() {
+function getDummy12ActivityData() {
     const activities = [
         {
             id: 1,
@@ -203,13 +203,17 @@ function loadMoreActivities() {
             updateActivityFeed();
             
             if (typeof gsap !== 'undefined') {
-                gsap.from('.activity-item:nth-last-child(-n+' + newActivities.length + ')', {
-                    duration: 0.5,
-                    y: 30,
-                    opacity: 0,
-                    stagger: 0.1,
-                    ease: 'power2.out'
-                });
+                const newItems = document.querySelectorAll('.activity-item');
+                const startIndex = newItems.length - newActivities.length;
+                for (let i = startIndex; i < newItems.length; i++) {
+                    gsap.from(newItems[i], {
+                        duration: 0.5,
+                        y: 30,
+                        opacity: 0,
+                        delay: (i - startIndex) * 0.1,
+                        ease: 'power2.out'
+                    });
+                }
             }
         }
         
