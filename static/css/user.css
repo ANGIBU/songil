@@ -179,25 +179,23 @@ body {
 }
 
 .edit-nickname-btn {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: var(--primary-orange);
-    color: white;
+    background: none;
+    color: var(--gray-500);
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--transition-base);
-    box-shadow: var(--shadow-md);
     font-size: 14px;
 }
 
 .edit-nickname-btn:hover {
-    background: var(--primary-orange-dark);
+    color: var(--gray-700);
     transform: scale(1.1);
-    box-shadow: var(--shadow-lg);
 }
 
 .user-meta {
@@ -244,7 +242,7 @@ body {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
-/* ===== 대시보드 통계 (밸런스 조정) ===== */
+/* ===== 대시보드 통계 (왼쪽 정렬로 수정) ===== */
 .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -262,8 +260,8 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
     min-height: 200px;
     justify-content: space-between;
 }
@@ -334,6 +332,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: flex-start;
 }
 
 .stat-number {
