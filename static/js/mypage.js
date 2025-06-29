@@ -315,7 +315,7 @@ async function handleProfileEdit(event) {
 function initializeAnimations() {
     if (typeof gsap === 'undefined') return;
     
-    // 페이지 로드 애니메이션 (shadow 효과 제거)
+    // 페이지 로드 애니메이션
     gsap.timeline()
         .from('.user-dashboard', {
             duration: 0.8,
@@ -323,7 +323,7 @@ function initializeAnimations() {
             opacity: 0,
             ease: 'power2.out'
         })
-        .from('.dashboard-stats-simple', {
+        .from('.user-stats-container', {
             duration: 0.6,
             y: 20,
             opacity: 0,
@@ -336,12 +336,12 @@ function initializeAnimations() {
             ease: 'power2.out'
         }, '-=0.2');
     
-    // 스크롤 트리거 설정 (shadow 효과 제거)
+    // 스크롤 트리거 설정
     if (gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
-        // 통계 항목 개별 애니메이션 (shadow 제거)
-        gsap.utils.toArray('.stat-item').forEach((item, index) => {
+        // 통계 항목 개별 애니메이션
+        gsap.utils.toArray('.stat').forEach((item, index) => {
             gsap.from(item, {
                 scrollTrigger: {
                     trigger: item,
@@ -375,27 +375,27 @@ function updateUserProfile() {
         if (el) el.textContent = profile.name + ' 님';
     });
     
-    // 통계 숫자 업데이트
-    const statNumbers = document.querySelectorAll('.stat-number');
+    // 통계 숫자 업데이트 - 새로운 구조에 맞게 수정
+    const statValues = document.querySelectorAll('.stat-value');
     
     // 포인트 업데이트
-    if (statNumbers[0]) {
-        animateNumber(statNumbers[0], parseInt(statNumbers[0].textContent.replace(/[^\d]/g, '')) || 0, profile.points, 'P');
+    if (statValues[0]) {
+        animateNumber(statValues[0], parseInt(statValues[0].textContent.replace(/[^\d]/g, '')) || 0, profile.points, 'P');
     }
     
     // 순위 업데이트
-    if (statNumbers[1]) {
-        statNumbers[1].textContent = `${profile.rank}위`;
+    if (statValues[1]) {
+        statValues[1].textContent = `${profile.rank}위`;
     }
     
     // 신고 건수 업데이트
-    if (statNumbers[2]) {
-        statNumbers[2].textContent = `${profile.stats.reports}건`;
+    if (statValues[2]) {
+        statValues[2].textContent = `${profile.stats.reports}건`;
     }
     
     // 목격 신고 건수 업데이트
-    if (statNumbers[3]) {
-        statNumbers[3].textContent = `${profile.stats.witnesses}건`;
+    if (statValues[3]) {
+        statValues[3].textContent = `${profile.stats.witnesses}건`;
     }
 }
 
