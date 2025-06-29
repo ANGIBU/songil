@@ -455,7 +455,7 @@ function initializeAnimations() {
             opacity: 0,
             ease: 'power2.out'
         })
-        .from('.dashboard-stats-compact', {
+        .from('.dashboard-stats-simple', {
             duration: 0.6,
             y: 20,
             opacity: 0,
