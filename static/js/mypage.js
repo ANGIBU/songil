@@ -167,7 +167,6 @@ function openProfileEditModal() {
     try {
         const modal = document.getElementById('profileEditModal');
         if (!modal) {
-            console.error('프로필 수정 모달을 찾을 수 없습니다.');
             return;
         }
         
@@ -215,7 +214,6 @@ function openProfileEditModal() {
         }, 100);
         
     } catch (error) {
-        console.error('모달 열기 오류:', error);
         handleError('모달을 열 수 없습니다.');
     }
 }
@@ -310,7 +308,6 @@ async function handleProfileEdit(event) {
         }, 1000);
         
     } catch (error) {
-        console.error('프로필 수정 오류:', error);
         handleError('프로필 수정 중 오류가 발생했습니다.');
     }
 }
@@ -327,11 +324,10 @@ function initializeAnimations() {
             opacity: 0,
             ease: 'power2.out'
         })
-        .from('.dashboard-stats .stat-card', {
+        .from('.dashboard-stats-simple', {
             duration: 0.6,
             y: 20,
             opacity: 0,
-            stagger: 0.1,
             ease: 'power2.out'
         }, '-=0.4')
         .from('.recent-activity', {
@@ -345,18 +341,19 @@ function initializeAnimations() {
     if (gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
-        // 통계 카드 애니메이션
-        gsap.utils.toArray('.stat-card').forEach(card => {
-            gsap.from(card, {
+        // 통계 항목 개별 애니메이션
+        gsap.utils.toArray('.stat-item').forEach((item, index) => {
+            gsap.from(item, {
                 scrollTrigger: {
-                    trigger: card,
+                    trigger: item,
                     start: 'top 80%',
                     toggleActions: 'play none none reverse'
                 },
-                duration: 0.6,
-                scale: 0.9,
+                duration: 0.4,
+                x: -30,
                 opacity: 0,
-                ease: 'back.out(1.7)'
+                delay: index * 0.1,
+                ease: 'power2.out'
             });
         });
     }
@@ -369,35 +366,37 @@ function updateUI() {
     updateActivityFeed();
 }
 
-// 사용자 프로필 업데이트
+// 사용자 프로필 업데이트 (닉네임에 "님" 추가)
 function updateUserProfile() {
     const profile = mypageState.userProfile;
     
-    // 닉네임 업데이트
+    // 닉네임 업데이트 ("님" 추가)
     const nameElements = document.querySelectorAll('.username, .user-name');
     nameElements.forEach(el => {
-        if (el) el.textContent = profile.name;
+        if (el) el.textContent = profile.name + ' 님';
     });
     
+    // 통계 숫자 업데이트
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
     // 포인트 업데이트
-    const pointElements = document.querySelectorAll('.stat-number');
-    if (pointElements[0]) {
-        animateNumber(pointElements[0], parseInt(pointElements[0].textContent.replace(/[^\d]/g, '')) || 0, profile.points, 'P');
+    if (statNumbers[0]) {
+        animateNumber(statNumbers[0], parseInt(statNumbers[0].textContent.replace(/[^\d]/g, '')) || 0, profile.points, 'P');
     }
     
     // 순위 업데이트
-    if (pointElements[1]) {
-        pointElements[1].textContent = `${profile.rank}위`;
+    if (statNumbers[1]) {
+        statNumbers[1].textContent = `${profile.rank}위`;
     }
     
     // 신고 건수 업데이트
-    if (pointElements[2]) {
-        pointElements[2].textContent = `${profile.stats.reports}건`;
+    if (statNumbers[2]) {
+        statNumbers[2].textContent = `${profile.stats.reports}건`;
     }
     
     // 목격 신고 건수 업데이트
-    if (pointElements[3]) {
-        pointElements[3].textContent = `${profile.stats.witnesses}건`;
+    if (statNumbers[3]) {
+        statNumbers[3].textContent = `${profile.stats.witnesses}건`;
     }
 }
 
@@ -405,11 +404,7 @@ function updateUserProfile() {
 function updateStats() {
     const stats = mypageState.userProfile.stats;
     
-    // 승인률 업데이트
-    const approvalRateElement = document.querySelector('.approval-rate');
-    if (approvalRateElement) {
-        approvalRateElement.innerHTML = `<i class="fas fa-check"></i> 승인률 ${stats.witnessApprovalRate}%`;
-    }
+    // 승인률은 제거되었으므로 다른 필요한 통계 업데이트만 수행
 }
 
 // 활동 피드 업데이트

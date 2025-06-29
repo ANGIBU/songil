@@ -242,59 +242,32 @@ body {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
-/* ===== 대시보드 통계 (왼쪽 정렬로 수정) ===== */
-.dashboard-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.stat-card {
+/* ===== 간소화된 대시보드 통계 ===== */
+.dashboard-stats-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: white;
     border-radius: var(--radius-xl);
-    padding: 24px;
+    padding: 32px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--gray-100);
-    transition: var(--transition-base);
-    position: relative;
-    overflow: hidden;
+    gap: 24px;
+    min-height: 120px;
+}
+
+.stat-item {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    min-height: 200px;
-    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    text-align: center;
 }
 
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-.stat-card.points::before {
-    background: linear-gradient(90deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
-}
-
-.stat-card.ranking::before {
-    background: linear-gradient(90deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
-}
-
-.stat-card.reports::before {
-    background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
-}
-
-.stat-card.witnesses::before {
-    background: linear-gradient(90deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
+.stat-item:not(:last-child) {
+    border-right: 1px solid var(--gray-200);
+    padding-right: 24px;
 }
 
 .stat-icon {
@@ -304,39 +277,36 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
     font-size: 20px;
     color: white;
     flex-shrink: 0;
 }
 
-.stat-card.points .stat-icon {
+.stat-item.points .stat-icon {
     background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
 }
 
-.stat-card.ranking .stat-icon {
+.stat-item.ranking .stat-icon {
     background: linear-gradient(135deg, var(--secondary-green) 0%, var(--secondary-green-light) 100%);
 }
 
-.stat-card.reports .stat-icon {
+.stat-item.reports .stat-icon {
     background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-light) 100%);
 }
 
-.stat-card.witnesses .stat-icon {
+.stat-item.witnesses .stat-icon {
     background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
 }
 
-.stat-info {
-    margin-bottom: 16px;
-    flex: 1;
+.stat-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
 }
 
 .stat-number {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--gray-900);
     line-height: 1;
@@ -346,32 +316,6 @@ body {
 .stat-label {
     font-size: 14px;
     color: var(--gray-600);
-}
-
-.stat-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--primary-orange);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: var(--transition-base);
-    margin-top: auto;
-}
-
-.stat-action:hover {
-    color: var(--primary-orange-dark);
-    transform: translateX(2px);
-}
-
-.approval-rate {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--secondary-green);
-    font-size: 13px;
-    font-weight: 600;
 }
 
 /* ===== 최근 활동 섹션 ===== */
@@ -630,8 +574,26 @@ body {
         gap: 30px;
     }
     
-    .dashboard-stats {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    .dashboard-stats-simple {
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+    
+    .stat-item {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 180px;
+    }
+    
+    .stat-item:nth-child(2n) {
+        border-right: none;
+        padding-right: 0;
+    }
+    
+    .stat-item:nth-child(-n+2) {
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
     }
 }
 
@@ -663,9 +625,26 @@ body {
         justify-content: center;
     }
     
-    .dashboard-stats {
-        grid-template-columns: 1fr;
-        gap: 16px;
+    .dashboard-stats-simple {
+        flex-direction: column;
+        padding: 24px;
+        gap: 24px;
+        align-items: center;
+    }
+    
+    .stat-item {
+        flex: none;
+        width: 100%;
+        max-width: 300px;
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 24px;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
     }
     
     .modal-content {
@@ -692,13 +671,12 @@ body {
         font-size: 20px;
     }
     
-    .stat-card {
+    .dashboard-stats-simple {
         padding: 20px;
-        min-height: 180px;
     }
     
     .stat-number {
-        font-size: 24px;
+        font-size: 20px;
     }
     
     .activity-item {
