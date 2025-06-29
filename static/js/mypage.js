@@ -13,6 +13,7 @@ let mypageState = {
         points: 1250,
         rank: 47,
         joinDate: '2024.05.01',
+        badges: ['신규회원', '활동적 신고자', '목격 도우미'],
         stats: {
             reports: 3,
             witnesses: 12,
@@ -24,11 +25,7 @@ let mypageState = {
         }
     },
     activityHistory: [],
-    displayedActivities: [],
-    currentPage: 0,
-    activitiesPerPage: 5,
     isLoading: false,
-    hasMoreActivities: true,
     errors: {}
 };
 
@@ -59,15 +56,12 @@ async function loadUserData() {
                 phone: '010-1234-5678'
             };
             
-            // 활동 내역 로드 (12개 샘플 데이터)
+            // 활동 내역 로드
             mypageState.activityHistory = getDummyActivityData();
-            mypageState.displayedActivities = mypageState.activityHistory.slice(0, mypageState.activitiesPerPage);
-            mypageState.hasMoreActivities = mypageState.activityHistory.length > mypageState.activitiesPerPage;
             
             mypageState.isLoading = false;
             updateLoadingState();
             updateUI();
-            updateLoadMoreButton();
         }, 500);
         
     } catch (error) {
@@ -77,7 +71,7 @@ async function loadUserData() {
     }
 }
 
-// 12개 더미 활동 데이터
+// 더미 활동 데이터
 function getDummyActivityData() {
     return [
         {
@@ -106,171 +100,8 @@ function getDummyActivityData() {
             points: -500,
             timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
-        },
-        {
-            id: 4,
-            type: 'missing_report',
-            title: '실종자 신고 접수',
-            description: '용산구 이○○님에 대한 실종자 신고가 접수되었습니다.',
-            points: 200,
-            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'approved'
-        },
-        {
-            id: 5,
-            type: 'witness_approved',
-            title: '목격 신고 승인',
-            description: '마포구 정○○님 목격 신고가 승인되어 120P를 받았습니다.',
-            points: 120,
-            timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
-        },
-        {
-            id: 6,
-            type: 'points_earned',
-            title: '일일 출석 보상',
-            description: '7일 연속 출석으로 보너스 포인트를 받았습니다.',
-            points: 50,
-            timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
-        },
-        {
-            id: 7,
-            type: 'witness_submitted',
-            title: '목격 신고 제출',
-            description: '송파구 최○○님에 대한 목격 정보를 신고했습니다.',
-            points: 0,
-            timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'pending'
-        },
-        {
-            id: 8,
-            type: 'shop_purchase',
-            title: '포인트샵 구매',
-            description: '편의점 상품권 5,000원을 구매했습니다.',
-            points: -1000,
-            timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
-        },
-        {
-            id: 9,
-            type: 'witness_approved',
-            title: '목격 신고 승인',
-            description: '강서구 윤○○님 목격 신고가 승인되어 180P를 받았습니다.',
-            points: 180,
-            timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
-        },
-        {
-            id: 10,
-            type: 'missing_report',
-            title: '실종자 신고 접수',
-            description: '노원구 한○○님에 대한 실종자 신고가 접수되었습니다.',
-            points: 200,
-            timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'approved'
-        },
-        {
-            id: 11,
-            type: 'points_earned',
-            title: '포인트 적립',
-            description: '신고 검증 참여로 포인트를 받았습니다.',
-            points: 30,
-            timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
-        },
-        {
-            id: 12,
-            type: 'witness_submitted',
-            title: '목격 신고 제출',
-            description: '중구 조○○님에 대한 목격 정보를 신고했습니다.',
-            points: 0,
-            timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'pending'
         }
     ];
-}
-
-// 더많은 활동 로드
-function loadMoreActivities() {
-    if (mypageState.isLoading || !mypageState.hasMoreActivities) return;
-    
-    mypageState.isLoading = true;
-    
-    // 로딩 버튼 상태
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    if (loadMoreBtn) {
-        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로딩 중...';
-        loadMoreBtn.disabled = true;
-    }
-    
-    // 다음 페이지 활동들 가져오기
-    setTimeout(() => {
-        const nextPage = mypageState.currentPage + 1;
-        const startIndex = nextPage * mypageState.activitiesPerPage;
-        const endIndex = startIndex + mypageState.activitiesPerPage;
-        
-        const newActivities = mypageState.activityHistory.slice(startIndex, endIndex);
-        
-        if (newActivities.length > 0) {
-            mypageState.displayedActivities = [...mypageState.displayedActivities, ...newActivities];
-            mypageState.currentPage = nextPage;
-            
-            // 더 불러올 활동이 있는지 확인
-            mypageState.hasMoreActivities = endIndex < mypageState.activityHistory.length;
-            
-            updateActivityFeed();
-            updateLoadMoreButton();
-            
-            // 새로 추가된 항목들에 애니메이션 적용
-            if (typeof gsap !== 'undefined') {
-                const newItems = document.querySelectorAll('.activity-item:not(.animated)');
-                gsap.from(newItems, {
-                    duration: 0.4,
-                    y: 20,
-                    opacity: 0,
-                    stagger: 0.1,
-                    ease: 'power2.out',
-                    onComplete: () => {
-                        newItems.forEach(item => item.classList.add('animated'));
-                    }
-                });
-            }
-        } else {
-            mypageState.hasMoreActivities = false;
-            updateLoadMoreButton();
-        }
-        
-        mypageState.isLoading = false;
-        
-        // 버튼 복원
-        if (loadMoreBtn) {
-            loadMoreBtn.disabled = false;
-            loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> 더보기 (5개)';
-        }
-    }, 800);
-}
-
-// 더보기 버튼 상태 업데이트
-function updateLoadMoreButton() {
-    const loadMoreContainer = document.getElementById('loadMoreContainer');
-    const noMoreActivities = document.getElementById('noMoreActivities');
-    
-    if (mypageState.hasMoreActivities) {
-        if (loadMoreContainer) loadMoreContainer.style.display = 'block';
-        if (noMoreActivities) noMoreActivities.style.display = 'none';
-        
-        // 남은 활동 수 계산
-        const remainingActivities = mypageState.activityHistory.length - mypageState.displayedActivities.length;
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
-        if (loadMoreBtn && !mypageState.isLoading) {
-            const loadCount = Math.min(remainingActivities, mypageState.activitiesPerPage);
-            loadMoreBtn.innerHTML = `<i class="fas fa-plus"></i> 더보기 (${loadCount}개)`;
-        }
-    } else {
-        if (loadMoreContainer) loadMoreContainer.style.display = 'none';
-        if (noMoreActivities) noMoreActivities.style.display = 'block';
-    }
 }
 
 // 이벤트 리스너 설정
@@ -485,7 +316,7 @@ async function handleProfileEdit(event) {
 function initializeAnimations() {
     if (typeof gsap === 'undefined') return;
     
-    // 페이지 로드 애니메이션
+    // 페이지 로드 애니메이션 (shadow 효과 제거)
     gsap.timeline()
         .from('.user-dashboard', {
             duration: 0.8,
@@ -506,11 +337,11 @@ function initializeAnimations() {
             ease: 'power2.out'
         }, '-=0.2');
     
-    // 스크롤 트리거 설정
+    // 스크롤 트리거 설정 (shadow 효과 제거)
     if (gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
-        // 통계 항목 개별 애니메이션
+        // 통계 항목 개별 애니메이션 (shadow 제거)
         gsap.utils.toArray('.stat-item').forEach((item, index) => {
             gsap.from(item, {
                 scrollTrigger: {
@@ -572,16 +403,18 @@ function updateUserProfile() {
 // 통계 업데이트
 function updateStats() {
     const stats = mypageState.userProfile.stats;
+    
+    // 승인률은 제거되었으므로 다른 필요한 통계 업데이트만 수행
 }
 
 // 활동 피드 업데이트
 function updateActivityFeed() {
     const activityContainer = document.querySelector('.activity-summary');
-    if (!activityContainer) return;
+    if (!activityContainer || !mypageState.activityHistory.length) return;
     
-    const activities = mypageState.displayedActivities;
+    const recentActivities = mypageState.activityHistory.slice(0, 3);
     
-    activityContainer.innerHTML = activities.map(activity => `
+    activityContainer.innerHTML = recentActivities.map(activity => `
         <div class="activity-item">
             <div class="activity-icon ${getActivityIconClass(activity.type)}">
                 <i class="fas ${getActivityIcon(activity.type)}"></i>
@@ -748,8 +581,7 @@ function formatDate(date, format = 'YYYY-MM-DD') {
         .replace('mm', minutes);
 }
 
-// 전역 함수로 내보내기
+// 전역 함수로 내보내기 - 중요: HTML에서 사용할 수 있도록
 window.openProfileEditModal = openProfileEditModal;
 window.closeProfileEditModal = closeProfileEditModal;
 window.handleProfileEdit = handleProfileEdit;
-window.loadMoreActivities = loadMoreActivities;
