@@ -79,7 +79,11 @@
             <i class="fas fa-clock"></i>
             최근 활동
         </h2>
-        <div class="activity-summary" id="activitySummary">
+        <div class="activity-loading" id="activityLoading" style="text-align: center; padding: 40px; color: #6b7280;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px;"></i>
+            <p>활동 내역을 불러오는 중...</p>
+        </div>
+        <div class="activity-summary" id="activitySummary" style="display: none;">
         </div>
         <div class="activity-load-more" id="activityLoadMore" style="display: none;">
             <button class="btn btn-outline load-more-btn" onclick="loadMoreActivities()">
