@@ -1,18 +1,22 @@
 /* static/css/user.css */
 
+/* ===== 색상 변수 정의 - PDF 디자인 시스템 기준 ===== */
 :root {
+    /* Primary Colors - Orange Theme (PDF 기준) */
     --primary-orange: #f97316;
     --primary-orange-light: #fb923c;
     --primary-orange-dark: #ea580c;
     --primary-orange-soft: #fed7aa;
     --primary-orange-bg: #fff7ed;
     
+    /* Secondary Colors (PDF 기준) */
     --secondary-green: #22c55e;
     --secondary-green-light: #4ade80;
     --secondary-green-dark: #16a34a;
     --secondary-green-soft: #bbf7d0;
     --secondary-green-bg: #f0fdf4;
     
+    /* Status Colors (PDF 기준) */
     --danger-red: #ef4444;
     --danger-red-light: #f87171;
     --danger-red-dark: #dc2626;
@@ -25,6 +29,7 @@
     --warning-amber-soft: #fde68a;
     --warning-amber-bg: #fffbeb;
     
+    /* Neutral Colors */
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
@@ -36,22 +41,26 @@
     --gray-800: #1f2937;
     --gray-900: #111827;
     
+    /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     
+    /* Border Radius (PDF 기준) */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 15px;
     --radius-xl: 20px;
     
+    /* Transitions */
     --transition-fast: all 0.15s ease;
     --transition-base: all 0.2s ease;
     --transition-slow: all 0.3s ease;
 }
 
+/* ===== 기본 스타일 리셋 ===== */
 * {
     margin: 0;
     padding: 0;
@@ -65,12 +74,14 @@ body {
     background-color: #ffffff;
 }
 
+/* ===== 컨테이너 ===== */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
+/* ===== 버튼 시스템 ===== */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -128,6 +139,7 @@ body {
     font-size: 12px;
 }
 
+/* ===== 마이페이지 헤더 ===== */
 .mypage-header {
     padding: 40px 0;
     background: linear-gradient(135deg, var(--primary-orange-bg) 0%, var(--secondary-green-bg) 100%);
@@ -151,6 +163,7 @@ body {
     flex: 1;
 }
 
+/* ===== 닉네임 컨테이너 (수정 아이콘 포함) ===== */
 .username-container {
     display: flex;
     align-items: center;
@@ -159,7 +172,7 @@ body {
 }
 
 .username {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--gray-900);
     margin: 0;
@@ -188,7 +201,7 @@ body {
 .user-meta {
     display: flex;
     gap: 20px;
-    margin-bottom: 0;
+    margin-bottom: 16px;
 }
 
 .user-meta span {
@@ -203,71 +216,74 @@ body {
     color: var(--primary-orange);
 }
 
+/* ===== 간소화된 대시보드 통계 (색상 강조 제거) ===== */
 .dashboard-stats-simple {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: white;
-    border-radius: var(--radius-xl);
-    padding: 18px 24px;
-    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-100);
-    gap: 24px;
-    min-height: 90px;
+    gap: 20px;
+    min-height: 80px;
+    max-width: 600px;
+    margin-left: auto;
 }
 
 .stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex: 1;
     text-align: center;
 }
 
 .stat-divider {
     width: 1px;
-    height: 60px;
+    height: 50px;
     border: none;
     background-color: var(--gray-200);
     margin: 0;
 }
 
 .stat-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 14px;
     color: var(--gray-600);
     background: var(--gray-100);
     flex-shrink: 0;
 }
 
 .stat-number {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--gray-900);
     line-height: 1;
-    margin-bottom: 4px;
 }
 
 .stat-label {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--gray-600);
 }
 
+/* ===== 최근 활동 섹션 ===== */
 .recent-activity {
-    padding: 60px 0;
+    padding: 50px 0;
     background: white;
 }
 
 .recent-activity h2 {
-    font-size: 28px;
+    font-size: 24px;
     color: var(--gray-900);
-    margin-bottom: 32px;
+    margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -280,17 +296,17 @@ body {
 .activity-summary {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-bottom: 32px;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .activity-item {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 24px;
+    gap: 16px;
+    padding: 20px;
     background: var(--gray-50);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     border: 1px solid var(--gray-100);
     transition: var(--transition-base);
 }
@@ -298,17 +314,17 @@ body {
 .activity-item:hover {
     background: white;
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .activity-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-md);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 16px;
     color: white;
     flex-shrink: 0;
 }
@@ -330,27 +346,27 @@ body {
 }
 
 .activity-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--gray-900);
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .activity-description {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--gray-600);
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .activity-time {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--gray-500);
 }
 
 .activity-points {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: var(--radius-sm);
 }
 
@@ -365,9 +381,9 @@ body {
 }
 
 .activity-status {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 6px 12px;
+    padding: 5px 10px;
     border-radius: var(--radius-sm);
 }
 
@@ -376,52 +392,36 @@ body {
     background: var(--warning-amber-bg);
 }
 
-.activity-load-more {
+.activity-status.approved {
+    color: var(--secondary-green);
+    background: var(--secondary-green-bg);
+}
+
+.activity-status.completed {
+    color: var(--primary-orange);
+    background: var(--primary-orange-bg);
+}
+
+/* ===== 더보기 컨테이너 ===== */
+.load-more-container {
     text-align: center;
-    margin-top: 20px;
+    margin: 24px 0;
 }
 
 .load-more-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: var(--gray-100);
-    color: var(--gray-700);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
+    padding: 10px 20px;
     font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition-base);
 }
 
-.load-more-btn:hover {
-    background: var(--gray-200);
-    transform: translateY(-1px);
-}
-
-.load-more-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.activity-empty {
+.no-more-activities {
     text-align: center;
-    padding: 60px 20px;
+    margin: 24px 0;
+    padding: 20px;
     color: var(--gray-500);
+    font-size: 14px;
 }
 
-.empty-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-}
-
-.empty-message {
-    font-size: 16px;
-}
-
+/* ===== 프로필 수정 모달 ===== */
 .profile-edit-modal {
     position: fixed;
     top: 0;
@@ -507,6 +507,7 @@ body {
     border-top: 1px solid var(--gray-200);
 }
 
+/* ===== 폼 스타일링 ===== */
 .form-group {
     margin-bottom: 20px;
 }
@@ -551,6 +552,7 @@ body {
     margin-top: 4px;
 }
 
+/* ===== 반응형 디자인 ===== */
 @media (max-width: 1024px) {
     .user-dashboard {
         grid-template-columns: 1fr;
@@ -558,15 +560,17 @@ body {
     }
     
     .dashboard-stats-simple {
+        max-width: none;
+        margin-left: 0;
         flex-wrap: wrap;
-        gap: 20px;
+        gap: 16px;
         justify-content: center;
-        padding: 20px 24px;
+        padding: 16px 20px;
     }
     
     .stat-item {
-        flex: 1 1 calc(50% - 10px);
-        min-width: 180px;
+        flex: 1 1 calc(50% - 8px);
+        min-width: 140px;
     }
     
     .stat-divider {
@@ -587,7 +591,7 @@ body {
     }
     
     .mypage-header {
-        padding: 32px 0;
+        padding: 28px 0;
     }
     
     .user-profile {
@@ -597,7 +601,7 @@ body {
     }
     
     .username {
-        font-size: 24px;
+        font-size: 22px;
     }
     
     .user-meta {
@@ -606,18 +610,30 @@ body {
     }
     
     .dashboard-stats-simple {
-        flex-wrap: wrap;
         gap: 12px;
+        padding: 14px 16px;
+        min-height: 70px;
+    }
+    
+    .stat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .stat-number {
+        font-size: 15px;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+    }
+    
+    .activity-item {
         padding: 16px;
-    }
-    
-    .stat-item {
-        flex: 1 1 calc(50% - 6px);
-        min-width: 120px;
-    }
-    
-    .stat-divider {
-        display: none;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
     }
     
     .modal-content {
@@ -633,18 +649,11 @@ body {
         flex-direction: column;
         gap: 8px;
     }
-    
-    .activity-item {
-        padding: 16px;
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
 }
 
 @media (max-width: 480px) {
     .mypage-header {
-        padding: 24px 0;
+        padding: 20px 0;
     }
     
     .username {
@@ -652,17 +661,21 @@ body {
     }
     
     .dashboard-stats-simple {
-        gap: 10px;
-        padding: 16px;
+        gap: 8px;
+        padding: 12px;
+        min-height: 60px;
+    }
+    
+    .stat-item {
+        min-width: 120px;
     }
     
     .stat-number {
-        font-size: 18px;
+        font-size: 14px;
     }
     
-    .stat-divider {
-        width: 50%;
-        margin: 2px 0;
+    .activity-item {
+        padding: 14px;
     }
     
     .modal-header,
@@ -672,6 +685,7 @@ body {
     }
 }
 
+/* ===== 애니메이션 키프레임 ===== */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -698,6 +712,7 @@ body {
     20%, 40%, 60%, 80% { transform: translateX(2px); }
 }
 
+/* ===== 유틸리티 클래스 ===== */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }

@@ -79,19 +79,14 @@
         </h2>
         <div class="activity-summary" id="activitySummary">
         </div>
-        
-        <div class="activity-load-more" id="activityLoadMore" style="display: none;">
-            <button class="load-more-btn" onclick="loadMoreActivities()">
-                <i class="fas fa-chevron-down"></i>
-                더보기 (5개씩 로드)
+        <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+            <button class="btn btn-outline load-more-btn" id="loadMoreBtn" onclick="loadMoreActivities()">
+                <i class="fas fa-plus"></i>
+                더보기 (5개)
             </button>
         </div>
-        
-        <div class="activity-empty" id="activityEmpty" style="display: none;">
-            <div class="empty-icon">
-                <i class="fas fa-inbox"></i>
-            </div>
-            <div class="empty-message">활동 내역이 없습니다</div>
+        <div class="no-more-activities" id="noMoreActivities" style="display: none;">
+            <p>모든 활동을 불러왔습니다.</p>
         </div>
     </div>
 </section>

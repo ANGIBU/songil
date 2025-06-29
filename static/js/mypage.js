@@ -1,7 +1,9 @@
 // static/js/mypage.js
 
+// React 및 상태 관리
 const { useState, useEffect, createElement } = React;
 
+// 마이페이지 상태 관리
 let mypageState = {
     userProfile: {
         id: null,
@@ -26,6 +28,7 @@ let mypageState = {
     currentPage: 0,
     activitiesPerPage: 5,
     isLoading: false,
+    hasMoreActivities: true,
     errors: {}
 };
 
@@ -33,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMyPage();
 });
 
+// 마이페이지 초기화
 function initializeMyPage() {
     loadUserData();
     setupEventListeners();
@@ -40,11 +44,13 @@ function initializeMyPage() {
     updateUI();
 }
 
+// 사용자 데이터 로드
 async function loadUserData() {
     try {
         mypageState.isLoading = true;
         updateLoadingState();
         
+        // 사용자 기본 정보 로드 (임시 데이터 사용)
         setTimeout(() => {
             mypageState.userProfile = { 
                 ...mypageState.userProfile, 
@@ -53,12 +59,15 @@ async function loadUserData() {
                 phone: '010-1234-5678'
             };
             
-            mypageState.activityHistory = getDummy12ActivityData();
+            // 활동 내역 로드 (12개 샘플 데이터)
+            mypageState.activityHistory = getDummyActivityData();
             mypageState.displayedActivities = mypageState.activityHistory.slice(0, mypageState.activitiesPerPage);
+            mypageState.hasMoreActivities = mypageState.activityHistory.length > mypageState.activitiesPerPage;
             
             mypageState.isLoading = false;
             updateLoadingState();
             updateUI();
+            updateLoadMoreButton();
         }, 500);
         
     } catch (error) {
@@ -68,8 +77,9 @@ async function loadUserData() {
     }
 }
 
-function getDummy12ActivityData() {
-    const activities = [
+// 12개 더미 활동 데이터
+function getDummyActivityData() {
+    return [
         {
             id: 1,
             type: 'witness_approved',
@@ -99,28 +109,28 @@ function getDummy12ActivityData() {
         },
         {
             id: 4,
-            type: 'witness_approved',
-            title: '목격 신고 승인',
-            description: '종로구 이○○님 목격 신고가 승인되어 100P를 받았습니다.',
-            points: 100,
+            type: 'missing_report',
+            title: '실종자 신고 접수',
+            description: '용산구 이○○님에 대한 실종자 신고가 접수되었습니다.',
+            points: 200,
             timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
+            status: 'approved'
         },
         {
             id: 5,
-            type: 'missing_report',
-            title: '실종자 신고 접수',
-            description: '새로운 실종자 신고를 접수했습니다.',
-            points: 0,
+            type: 'witness_approved',
+            title: '목격 신고 승인',
+            description: '마포구 정○○님 목격 신고가 승인되어 120P를 받았습니다.',
+            points: 120,
             timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'pending'
+            status: 'completed'
         },
         {
             id: 6,
             type: 'points_earned',
-            title: '포인트 적립',
-            description: '월간 활동 보상으로 200P가 적립되었습니다.',
-            points: 200,
+            title: '일일 출석 보상',
+            description: '7일 연속 출석으로 보너스 포인트를 받았습니다.',
+            points: 50,
             timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
         },
@@ -128,7 +138,7 @@ function getDummy12ActivityData() {
             id: 7,
             type: 'witness_submitted',
             title: '목격 신고 제출',
-            description: '마포구 최○○님에 대한 목격 정보를 신고했습니다.',
+            description: '송파구 최○○님에 대한 목격 정보를 신고했습니다.',
             points: 0,
             timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'pending'
@@ -138,7 +148,7 @@ function getDummy12ActivityData() {
             type: 'shop_purchase',
             title: '포인트샵 구매',
             description: '편의점 상품권 5,000원을 구매했습니다.',
-            points: -300,
+            points: -1000,
             timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
         },
@@ -146,50 +156,55 @@ function getDummy12ActivityData() {
             id: 9,
             type: 'witness_approved',
             title: '목격 신고 승인',
-            description: '영등포구 정○○님 목격 신고가 승인되어 120P를 받았습니다.',
-            points: 120,
+            description: '강서구 윤○○님 목격 신고가 승인되어 180P를 받았습니다.',
+            points: 180,
             timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
         },
         {
             id: 10,
-            type: 'witness_submitted',
-            title: '목격 신고 제출',
-            description: '노원구 한○○님에 대한 목격 정보를 신고했습니다.',
-            points: 0,
+            type: 'missing_report',
+            title: '실종자 신고 접수',
+            description: '노원구 한○○님에 대한 실종자 신고가 접수되었습니다.',
+            points: 200,
             timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'pending'
+            status: 'approved'
         },
         {
             id: 11,
-            type: 'missing_report',
-            title: '실종자 신고 접수',
-            description: '긴급 실종자 신고를 접수했습니다.',
-            points: 0,
+            type: 'points_earned',
+            title: '포인트 적립',
+            description: '신고 검증 참여로 포인트를 받았습니다.',
+            points: 30,
             timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
             status: 'completed'
         },
         {
             id: 12,
-            type: 'points_earned',
-            title: '포인트 적립',
-            description: '신고 활동 보상으로 80P가 적립되었습니다.',
-            points: 80,
+            type: 'witness_submitted',
+            title: '목격 신고 제출',
+            description: '중구 조○○님에 대한 목격 정보를 신고했습니다.',
+            points: 0,
             timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'completed'
+            status: 'pending'
         }
     ];
-    
-    return activities;
 }
 
+// 더많은 활동 로드
 function loadMoreActivities() {
-    const button = document.querySelector('.load-more-btn');
-    const originalText = button.innerHTML;
+    if (mypageState.isLoading || !mypageState.hasMoreActivities) return;
     
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로딩 중...';
-    button.disabled = true;
+    mypageState.isLoading = true;
     
+    // 로딩 버튼 상태
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로딩 중...';
+        loadMoreBtn.disabled = true;
+    }
+    
+    // 다음 페이지 활동들 가져오기
     setTimeout(() => {
         const nextPage = mypageState.currentPage + 1;
         const startIndex = nextPage * mypageState.activitiesPerPage;
@@ -198,38 +213,72 @@ function loadMoreActivities() {
         const newActivities = mypageState.activityHistory.slice(startIndex, endIndex);
         
         if (newActivities.length > 0) {
-            mypageState.displayedActivities = mypageState.displayedActivities.concat(newActivities);
+            mypageState.displayedActivities = [...mypageState.displayedActivities, ...newActivities];
             mypageState.currentPage = nextPage;
-            updateActivityFeed();
             
+            // 더 불러올 활동이 있는지 확인
+            mypageState.hasMoreActivities = endIndex < mypageState.activityHistory.length;
+            
+            updateActivityFeed();
+            updateLoadMoreButton();
+            
+            // 새로 추가된 항목들에 애니메이션 적용
             if (typeof gsap !== 'undefined') {
-                const newItems = document.querySelectorAll('.activity-item');
-                const startIndex = newItems.length - newActivities.length;
-                for (let i = startIndex; i < newItems.length; i++) {
-                    gsap.from(newItems[i], {
-                        duration: 0.5,
-                        y: 30,
-                        opacity: 0,
-                        delay: (i - startIndex) * 0.1,
-                        ease: 'power2.out'
-                    });
-                }
+                const newItems = document.querySelectorAll('.activity-item:not(.animated)');
+                gsap.from(newItems, {
+                    duration: 0.4,
+                    y: 20,
+                    opacity: 0,
+                    stagger: 0.1,
+                    ease: 'power2.out',
+                    onComplete: () => {
+                        newItems.forEach(item => item.classList.add('animated'));
+                    }
+                });
             }
+        } else {
+            mypageState.hasMoreActivities = false;
+            updateLoadMoreButton();
         }
         
-        const remainingActivities = mypageState.activityHistory.length - mypageState.displayedActivities.length;
-        if (remainingActivities <= 0) {
-            document.getElementById('activityLoadMore').style.display = 'none';
-        }
+        mypageState.isLoading = false;
         
-        button.innerHTML = originalText;
-        button.disabled = false;
+        // 버튼 복원
+        if (loadMoreBtn) {
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> 더보기 (5개)';
+        }
     }, 800);
 }
 
+// 더보기 버튼 상태 업데이트
+function updateLoadMoreButton() {
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    const noMoreActivities = document.getElementById('noMoreActivities');
+    
+    if (mypageState.hasMoreActivities) {
+        if (loadMoreContainer) loadMoreContainer.style.display = 'block';
+        if (noMoreActivities) noMoreActivities.style.display = 'none';
+        
+        // 남은 활동 수 계산
+        const remainingActivities = mypageState.activityHistory.length - mypageState.displayedActivities.length;
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn && !mypageState.isLoading) {
+            const loadCount = Math.min(remainingActivities, mypageState.activitiesPerPage);
+            loadMoreBtn.innerHTML = `<i class="fas fa-plus"></i> 더보기 (${loadCount}개)`;
+        }
+    } else {
+        if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+        if (noMoreActivities) noMoreActivities.style.display = 'block';
+    }
+}
+
+// 이벤트 리스너 설정
 function setupEventListeners() {
+    // 키보드 단축키
     document.addEventListener('keydown', handleKeyboardShortcuts);
     
+    // 모달 외부 클릭 시 닫기 - 이벤트 위임 사용
     document.addEventListener('click', function(e) {
         const modal = document.getElementById('profileEditModal');
         if (modal && modal.classList.contains('show')) {
@@ -240,6 +289,7 @@ function setupEventListeners() {
         }
     });
     
+    // 닉네임 수정 버튼 이벤트 설정
     const editBtn = document.querySelector('.edit-nickname-btn');
     if (editBtn) {
         editBtn.addEventListener('click', function(e) {
@@ -249,11 +299,13 @@ function setupEventListeners() {
         });
     }
     
+    // 폼 제출 이벤트 설정
     const profileForm = document.getElementById('profileEditForm');
     if (profileForm) {
         profileForm.addEventListener('submit', handleProfileEdit);
     }
     
+    // 모달 닫기 버튼들 이벤트 설정
     const closeButtons = document.querySelectorAll('.close-modal, .btn-secondary');
     closeButtons.forEach(btn => {
         if (btn) {
@@ -265,17 +317,21 @@ function setupEventListeners() {
     });
 }
 
+// 키보드 단축키 처리
 function handleKeyboardShortcuts(event) {
+    // ESC: 모든 모달 닫기
     if (event.key === 'Escape') {
         closeProfileEditModal();
     }
     
+    // Ctrl + E: 프로필 수정 모달 열기
     if (event.ctrlKey && event.key === 'e') {
         event.preventDefault();
         openProfileEditModal();
     }
 }
 
+// 프로필 수정 모달 열기
 function openProfileEditModal() {
     try {
         const modal = document.getElementById('profileEditModal');
@@ -283,6 +339,7 @@ function openProfileEditModal() {
             return;
         }
         
+        // 현재 사용자 정보로 폼 채우기
         const form = document.getElementById('profileEditForm');
         if (form) {
             const nicknameInput = form.querySelector('#newNickname');
@@ -294,9 +351,11 @@ function openProfileEditModal() {
             if (phoneInput) phoneInput.value = mypageState.userProfile.phone;
         }
         
+        // 모달 표시
         modal.classList.add('show');
         document.body.classList.add('modal-open');
         
+        // GSAP 애니메이션
         if (typeof gsap !== 'undefined') {
             const content = modal.querySelector('.modal-content');
             if (content) {
@@ -317,6 +376,7 @@ function openProfileEditModal() {
             }
         }
         
+        // 포커스 설정
         setTimeout(() => {
             const firstInput = form ? form.querySelector('input') : null;
             if (firstInput) firstInput.focus();
@@ -327,11 +387,13 @@ function openProfileEditModal() {
     }
 }
 
+// 프로필 수정 모달 닫기
 function closeProfileEditModal() {
     try {
         const modal = document.getElementById('profileEditModal');
         if (!modal) return;
         
+        // GSAP 애니메이션
         if (typeof gsap !== 'undefined') {
             const content = modal.querySelector('.modal-content');
             if (content) {
@@ -360,6 +422,7 @@ function closeProfileEditModal() {
     }
 }
 
+// 프로필 수정 처리
 async function handleProfileEdit(event) {
     event.preventDefault();
     
@@ -369,6 +432,7 @@ async function handleProfileEdit(event) {
         const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('.btn-primary');
         const originalText = submitBtn ? submitBtn.innerHTML : '';
         
+        // 유효성 검사
         const nickname = formData.get('newNickname') ? formData.get('newNickname').trim() : '';
         const email = formData.get('userEmail') ? formData.get('userEmail').trim() : '';
         const phone = formData.get('userPhone') ? formData.get('userPhone').trim() : '';
@@ -390,11 +454,14 @@ async function handleProfileEdit(event) {
             return;
         }
         
+        // 로딩 상태
         if (submitBtn) {
             setButtonLoading(submitBtn, '저장 중...');
         }
         
+        // 서버 요청 시뮬레이션
         setTimeout(() => {
+            // 상태 업데이트
             mypageState.userProfile.name = nickname;
             mypageState.userProfile.email = email;
             mypageState.userProfile.phone = phone;
@@ -414,9 +481,11 @@ async function handleProfileEdit(event) {
     }
 }
 
+// 애니메이션 초기화
 function initializeAnimations() {
     if (typeof gsap === 'undefined') return;
     
+    // 페이지 로드 애니메이션
     gsap.timeline()
         .from('.user-dashboard', {
             duration: 0.8,
@@ -437,9 +506,11 @@ function initializeAnimations() {
             ease: 'power2.out'
         }, '-=0.2');
     
+    // 스크롤 트리거 설정
     if (gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
         gsap.registerPlugin(ScrollTrigger);
         
+        // 통계 항목 개별 애니메이션
         gsap.utils.toArray('.stat-item').forEach((item, index) => {
             gsap.from(item, {
                 scrollTrigger: {
@@ -457,60 +528,60 @@ function initializeAnimations() {
     }
 }
 
+// UI 업데이트
 function updateUI() {
     updateUserProfile();
     updateStats();
     updateActivityFeed();
 }
 
+// 사용자 프로필 업데이트 (닉네임에 "님" 추가)
 function updateUserProfile() {
     const profile = mypageState.userProfile;
     
+    // 닉네임 업데이트 ("님" 추가)
     const nameElements = document.querySelectorAll('.username, .user-name');
     nameElements.forEach(el => {
         if (el) el.textContent = profile.name + ' 님';
     });
     
+    // 통계 숫자 업데이트
     const statNumbers = document.querySelectorAll('.stat-number');
     
+    // 포인트 업데이트
     if (statNumbers[0]) {
         animateNumber(statNumbers[0], parseInt(statNumbers[0].textContent.replace(/[^\d]/g, '')) || 0, profile.points, 'P');
     }
     
+    // 순위 업데이트
     if (statNumbers[1]) {
         statNumbers[1].textContent = `${profile.rank}위`;
     }
     
+    // 신고 건수 업데이트
     if (statNumbers[2]) {
         statNumbers[2].textContent = `${profile.stats.reports}건`;
     }
     
+    // 목격 신고 건수 업데이트
     if (statNumbers[3]) {
         statNumbers[3].textContent = `${profile.stats.witnesses}건`;
     }
 }
 
+// 통계 업데이트
 function updateStats() {
     const stats = mypageState.userProfile.stats;
 }
 
+// 활동 피드 업데이트
 function updateActivityFeed() {
     const activityContainer = document.querySelector('.activity-summary');
-    const loadMoreContainer = document.getElementById('activityLoadMore');
-    const emptyContainer = document.getElementById('activityEmpty');
-    
     if (!activityContainer) return;
     
-    if (mypageState.displayedActivities.length === 0) {
-        activityContainer.innerHTML = '';
-        loadMoreContainer.style.display = 'none';
-        emptyContainer.style.display = 'block';
-        return;
-    }
+    const activities = mypageState.displayedActivities;
     
-    emptyContainer.style.display = 'none';
-    
-    activityContainer.innerHTML = mypageState.displayedActivities.map(activity => `
+    activityContainer.innerHTML = activities.map(activity => `
         <div class="activity-item">
             <div class="activity-icon ${getActivityIconClass(activity.type)}">
                 <i class="fas ${getActivityIcon(activity.type)}"></i>
@@ -529,18 +600,9 @@ function updateActivityFeed() {
             `}
         </div>
     `).join('');
-    
-    const hasMoreActivities = mypageState.displayedActivities.length < mypageState.activityHistory.length;
-    loadMoreContainer.style.display = hasMoreActivities ? 'block' : 'none';
-    
-    const remainingCount = mypageState.activityHistory.length - mypageState.displayedActivities.length;
-    const loadMoreBtn = loadMoreContainer.querySelector('.load-more-btn');
-    if (loadMoreBtn && remainingCount > 0) {
-        const nextLoadCount = Math.min(5, remainingCount);
-        loadMoreBtn.innerHTML = `<i class="fas fa-chevron-down"></i> 더보기 (${nextLoadCount}개 더 로드)`;
-    }
 }
 
+// 활동 아이콘 클래스
 function getActivityIconClass(type) {
     const classMap = {
         'witness_approved': 'success',
@@ -552,6 +614,7 @@ function getActivityIconClass(type) {
     return classMap[type] || 'info';
 }
 
+// 활동 아이콘
 function getActivityIcon(type) {
     const iconMap = {
         'witness_approved': 'fa-check',
@@ -563,6 +626,7 @@ function getActivityIcon(type) {
     return iconMap[type] || 'fa-info-circle';
 }
 
+// 상태 텍스트 변환
 function getStatusText(status) {
     const statusMap = {
         'pending': '검토중',
@@ -573,6 +637,7 @@ function getStatusText(status) {
     return statusMap[status] || status;
 }
 
+// 시간 차이 계산
 function getTimeAgo(timestamp) {
     const now = new Date();
     const past = new Date(timestamp);
@@ -589,6 +654,7 @@ function getTimeAgo(timestamp) {
     return past.toLocaleDateString('ko-KR');
 }
 
+// 숫자 애니메이션
 function animateNumber(element, from, to, suffix = '', duration = 1000) {
     if (typeof gsap !== 'undefined') {
         const obj = { value: from };
@@ -605,16 +671,19 @@ function animateNumber(element, from, to, suffix = '', duration = 1000) {
     }
 }
 
+// 버튼 로딩 상태 설정
 function setButtonLoading(button, text) {
     button.disabled = true;
     button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
 }
 
+// 버튼 로딩 상태 해제
 function resetButtonLoading(button, originalText) {
     button.disabled = false;
     button.innerHTML = originalText;
 }
 
+// 로딩 상태 업데이트
 function updateLoadingState() {
     const loadingElements = document.querySelectorAll('.loading-overlay');
     loadingElements.forEach(el => {
@@ -622,6 +691,7 @@ function updateLoadingState() {
     });
 }
 
+// 성공 메시지 표시
 function showSuccess(message) {
     if (window.showNotification) {
         window.showNotification(message, 'success');
@@ -630,6 +700,7 @@ function showSuccess(message) {
     }
 }
 
+// 정보 메시지 표시
 function showInfo(message) {
     if (window.showNotification) {
         window.showNotification(message, 'info');
@@ -638,6 +709,7 @@ function showInfo(message) {
     }
 }
 
+// 에러 처리
 function handleError(message) {
     if (window.showNotification) {
         window.showNotification(message, 'error');
@@ -646,6 +718,7 @@ function handleError(message) {
     }
 }
 
+// 디바운스 유틸리티
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -658,6 +731,7 @@ function debounce(func, wait) {
     };
 }
 
+// 날짜 포맷팅
 function formatDate(date, format = 'YYYY-MM-DD') {
     const d = new Date(date);
     const year = d.getFullYear();
@@ -674,6 +748,7 @@ function formatDate(date, format = 'YYYY-MM-DD') {
         .replace('mm', minutes);
 }
 
+// 전역 함수로 내보내기
 window.openProfileEditModal = openProfileEditModal;
 window.closeProfileEditModal = closeProfileEditModal;
 window.handleProfileEdit = handleProfileEdit;
