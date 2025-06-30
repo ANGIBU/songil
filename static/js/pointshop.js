@@ -1,5 +1,6 @@
 // static/js/pointshop.js
 
+<<<<<<< HEAD
 // React 및 상태 관리
 const { useState, useEffect, createElement } = React;
 
@@ -24,10 +25,21 @@ let pointShopState = {
 
 document.addEventListener('DOMContentLoaded', function() {
     initializePointShop();
+=======
+// 포인트샵 페이지 JavaScript
+let currentCategory = 'all';
+let userPoints = 1250;
+let selectedProduct = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializePointShop();
+    updateLimitedTimer();
+>>>>>>> origin/gb
 });
 
 // 포인트샵 초기화
 function initializePointShop() {
+<<<<<<< HEAD
     loadInitialData();
     setupEventListeners();
     initializeAnimations();
@@ -553,10 +565,37 @@ function initializeAnimations() {
                 opacity: 0,
                 ease: 'power2.out'
             });
+=======
+    // 페이지 로드 애니메이션
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.pointshop-header', {
+            duration: 0.8,
+            y: -30,
+            opacity: 0,
+            ease: 'power2.out'
+        });
+        
+        gsap.from('.user-points-card', {
+            duration: 0.6,
+            scale: 0.9,
+            opacity: 0,
+            delay: 0.2,
+            ease: 'power2.out'
+        });
+        
+        gsap.from('.product-card', {
+            duration: 0.5,
+            y: 30,
+            opacity: 0,
+            stagger: 0.1,
+            delay: 0.4,
+            ease: 'power2.out'
+>>>>>>> origin/gb
         });
     }
 }
 
+<<<<<<< HEAD
 // 타이머 설정
 function setupTimers() {
     // 한정 상품 타이머 업데이트
@@ -710,6 +749,27 @@ function switchCategory(category) {
     pointShopState.currentCategory = category;
     updateCategoryTabs();
     updateProductGrid();
+=======
+// 카테고리 전환
+function switchCategory(category) {
+    currentCategory = category;
+    
+    // 탭 버튼 업데이트
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${category}"]`).classList.add('active');
+    
+    // 상품 필터링
+    const products = document.querySelectorAll('.product-card');
+    products.forEach(product => {
+        if (category === 'all' || product.dataset.category === category) {
+            product.style.display = 'block';
+        } else {
+            product.style.display = 'none';
+        }
+    });
+>>>>>>> origin/gb
     
     // 애니메이션 효과
     if (typeof gsap !== 'undefined') {
@@ -724,6 +784,7 @@ function switchCategory(category) {
     }
 }
 
+<<<<<<< HEAD
 // 상품 정렬 (전역 함수로 유지)
 function sortProducts() {
     const productsGrid = document.getElementById('productsGrid');
@@ -736,11 +797,25 @@ function sortProducts() {
         const priceB = parseInt(b.dataset.price) || 0;
         
         switch(pointShopState.currentSort) {
+=======
+// 상품 정렬
+function sortProducts() {
+    const sortValue = document.getElementById('sortSelect').value;
+    const productsGrid = document.getElementById('productsGrid');
+    const products = Array.from(productsGrid.children);
+    
+    products.sort((a, b) => {
+        const priceA = parseInt(a.dataset.price);
+        const priceB = parseInt(b.dataset.price);
+        
+        switch(sortValue) {
+>>>>>>> origin/gb
             case 'price-low':
                 return priceA - priceB;
             case 'price-high':
                 return priceB - priceA;
             case 'new':
+<<<<<<< HEAD
                 const newA = a.querySelector('.product-badge.new') ? 1 : 0;
                 const newB = b.querySelector('.product-badge.new') ? 1 : 0;
                 return newB - newA;
@@ -749,6 +824,12 @@ function sortProducts() {
                 const popularA = a.querySelector('.product-badge') ? 1 : 0;
                 const popularB = b.querySelector('.product-badge') ? 1 : 0;
                 return popularB - popularA;
+=======
+                return b.querySelector('.product-badge.new') ? 1 : -1;
+            case 'popular':
+            default:
+                return b.querySelector('.product-badge') ? 1 : -1;
+>>>>>>> origin/gb
         }
     });
     
@@ -766,11 +847,16 @@ function sortProducts() {
     }
 }
 
+<<<<<<< HEAD
 // 빠른 구매 (전역 함수로 유지)
+=======
+// 빠른 구매
+>>>>>>> origin/gb
 function quickBuy(productId) {
     purchaseProduct(productId);
 }
 
+<<<<<<< HEAD
 // 상품 구매 (전역 함수로 유지)
 function purchaseProduct(productId) {
     const product = getProductData(productId);
@@ -799,6 +885,26 @@ function getProductData(productId) {
     if (product) return product;
     
     // 폴백: 기본 상품 데이터에서 찾기
+=======
+// 상품 구매
+function purchaseProduct(productId) {
+    // 상품 정보 가져오기 (실제로는 서버에서)
+    const productData = getProductData(productId);
+    
+    if (userPoints < productData.price) {
+        if (window.showNotification) {
+            window.showNotification('포인트가 부족합니다.', 'error');
+        }
+        return;
+    }
+    
+    selectedProduct = productData;
+    showPurchaseModal(productData);
+}
+
+// 상품 데이터 가져오기 (더미 데이터)
+function getProductData(productId) {
+>>>>>>> origin/gb
     const products = {
         1: { id: 1, name: '스타벅스 아메리카노', price: 500, image: 'starbucks.jpg', description: '따뜻한 아메리카노 기프티콘' },
         2: { id: 2, name: '럭키박스 골드', price: 1000, image: 'lucky-gold.jpg', description: '최대 10,000원 상당의 랜덤 상품' },
@@ -815,15 +921,22 @@ function getProductData(productId) {
     return products[productId];
 }
 
+<<<<<<< HEAD
 // 구매 모달 표시 (전역 함수로 유지)
+=======
+// 구매 모달 표시
+>>>>>>> origin/gb
 function showPurchaseModal(product) {
     const modal = document.getElementById('purchaseModal');
     const productElement = document.getElementById('purchaseProduct');
     const productCost = document.getElementById('productCost');
     const remainingPoints = document.getElementById('remainingPoints');
     
+<<<<<<< HEAD
     if (!modal || !productElement || !productCost || !remainingPoints) return;
     
+=======
+>>>>>>> origin/gb
     productElement.innerHTML = `
         <div class="modal-product">
             <img src="${window.location.origin}/static/images/placeholder.jpg" alt="${product.name}">
@@ -835,7 +948,11 @@ function showPurchaseModal(product) {
     `;
     
     productCost.textContent = product.price + 'P';
+<<<<<<< HEAD
     remainingPoints.textContent = (pointShopState.userPoints - product.price) + 'P';
+=======
+    remainingPoints.textContent = (userPoints - product.price) + 'P';
+>>>>>>> origin/gb
     
     modal.style.display = 'flex';
     
@@ -850,6 +967,7 @@ function showPurchaseModal(product) {
     }
 }
 
+<<<<<<< HEAD
 // 구매 확인 (전역 함수로 유지)
 async function confirmPurchase() {
     if (!pointShopState.selectedProduct) return;
@@ -934,13 +1052,52 @@ async function confirmPurchase() {
 }
 
 // 구매 성공 모달 표시 (전역 함수로 유지)
+=======
+// 구매 확인
+async function confirmPurchase() {
+    if (!selectedProduct) return;
+    
+    const confirmBtn = document.getElementById('confirmPurchaseBtn');
+    const originalText = confirmBtn.innerHTML;
+    
+    // 로딩 상태
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 구매 중...';
+    confirmBtn.disabled = true;
+    
+    try {
+        // API 호출 시뮬레이션
+        await simulateAPICall(1500);
+        
+        // 포인트 차감
+        userPoints -= selectedProduct.price;
+        document.getElementById('userPoints').textContent = userPoints.toLocaleString();
+        
+        // 구매 완료
+        closePurchaseModal();
+        showSuccessModal(selectedProduct);
+        
+    } catch (error) {
+        if (window.showNotification) {
+            window.showNotification('구매 중 오류가 발생했습니다.', 'error');
+        }
+    } finally {
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.disabled = false;
+    }
+}
+
+// 구매 성공 모달 표시
+>>>>>>> origin/gb
 function showSuccessModal(product) {
     const modal = document.getElementById('successModal');
     const productElement = document.getElementById('successProduct');
     const finalRemainingPoints = document.getElementById('finalRemainingPoints');
     
+<<<<<<< HEAD
     if (!modal || !productElement || !finalRemainingPoints) return;
     
+=======
+>>>>>>> origin/gb
     productElement.innerHTML = `
         <div class="success-product-info">
             <img src="${window.location.origin}/static/images/placeholder.jpg" alt="${product.name}">
@@ -949,7 +1106,11 @@ function showSuccessModal(product) {
         </div>
     `;
     
+<<<<<<< HEAD
     finalRemainingPoints.textContent = pointShopState.userPoints.toLocaleString() + 'P';
+=======
+    finalRemainingPoints.textContent = userPoints.toLocaleString() + 'P';
+>>>>>>> origin/gb
     
     modal.style.display = 'flex';
     
@@ -972,6 +1133,7 @@ function showSuccessModal(product) {
     }
 }
 
+<<<<<<< HEAD
 // 포인트 내역 표시 (전역 함수로 유지)
 function showPointsHistory() {
     const modal = document.getElementById('pointsHistoryModal');
@@ -979,6 +1141,11 @@ function showPointsHistory() {
     
     updatePointsHistoryList();
     modal.style.display = 'flex';
+=======
+// 포인트 내역 표시
+function showPointsHistory() {
+    document.getElementById('pointsHistoryModal').style.display = 'flex';
+>>>>>>> origin/gb
     
     if (typeof gsap !== 'undefined') {
         gsap.from('.modal-content', {
@@ -990,6 +1157,7 @@ function showPointsHistory() {
     }
 }
 
+<<<<<<< HEAD
 // 포인트 내역 리스트 업데이트
 function updatePointsHistoryList() {
     const listContainer = document.querySelector('.points-history-list');
@@ -1009,16 +1177,51 @@ function updatePointsHistoryList() {
 }
 
 // 더 많은 상품 로드 (전역 함수로 유지)
+=======
+// 한정 상품 타이머 업데이트
+function updateLimitedTimer() {
+    const timerElement = document.getElementById('limitedTimer');
+    if (!timerElement) return;
+    
+    let timeLeft = 5 * 24 * 60 * 60 + 23 * 60 * 60 + 45 * 60 + 12; // 5일 23시간 45분 12초
+    
+    const timer = setInterval(() => {
+        const days = Math.floor(timeLeft / (24 * 60 * 60));
+        const hours = Math.floor((timeLeft % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
+        const seconds = timeLeft % 60;
+        
+        timerElement.textContent = `${days}일 ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} 남음`;
+        
+        timeLeft--;
+        
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            timerElement.textContent = '판매 종료';
+        }
+    }, 1000);
+}
+
+// 더 많은 상품 로드
+>>>>>>> origin/gb
 function loadMoreProducts() {
     const btn = event.target;
     const originalText = btn.innerHTML;
     
+<<<<<<< HEAD
     setButtonLoading(btn, '로딩 중...');
+=======
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로딩 중...';
+    btn.disabled = true;
+>>>>>>> origin/gb
     
     setTimeout(() => {
         // 더미 상품 추가
         const productsGrid = document.getElementById('productsGrid');
+<<<<<<< HEAD
         if (!productsGrid) return;
+=======
+>>>>>>> origin/gb
         
         for (let i = 0; i < 6; i++) {
             const productCard = document.createElement('div');
@@ -1056,6 +1259,7 @@ function loadMoreProducts() {
             });
         }
         
+<<<<<<< HEAD
         resetButtonLoading(btn, originalText);
         showSuccess('새로운 상품이 추가되었습니다!');
         
@@ -1124,10 +1328,48 @@ function resetButtonLoading(button, originalText) {
 }
 
 // API 호출 시뮬레이션
+=======
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        if (window.showNotification) {
+            window.showNotification('새로운 상품이 추가되었습니다!', 'success');
+        }
+    }, 1000);
+}
+
+// 모달 닫기 함수들
+function closePurchaseModal() {
+    document.getElementById('purchaseModal').style.display = 'none';
+    selectedProduct = null;
+}
+
+function closePointsHistoryModal() {
+    document.getElementById('pointsHistoryModal').style.display = 'none';
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
+
+// 모달 외부 클릭시 닫기
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.purchase-modal, .points-history-modal, .success-modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+});
+
+// 유틸리티 함수
+>>>>>>> origin/gb
 function simulateAPICall(delay = 1000) {
     return new Promise((resolve) => {
         setTimeout(resolve, delay);
     });
+<<<<<<< HEAD
 }
 
 // 날짜 시간 포맷팅
@@ -1194,3 +1436,6 @@ window.loadMoreProducts = loadMoreProducts;
 window.closePurchaseModal = closePurchaseModal;
 window.closePointsHistoryModal = closePointsHistoryModal;
 window.closeSuccessModal = closeSuccessModal;
+=======
+}
+>>>>>>> origin/gb

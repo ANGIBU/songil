@@ -1,9 +1,13 @@
 // static/js/script.js
 
+<<<<<<< HEAD
 // React를 사용한 알림 시스템 관리
 const { useState, useEffect, useCallback } = React;
 
 // 전역 변수 및 설정
+=======
+// ===== 전역 변수 및 설정 =====
+>>>>>>> origin/gb
 window.APP = {
     isLoggedIn: false,
     user: null,
@@ -15,6 +19,7 @@ window.APP = {
     initialized: false
 };
 
+<<<<<<< HEAD
 // DOM 완전 로딩 대기 함수
 function waitForDOMReady() {
     return new Promise((resolve) => {
@@ -770,6 +775,63 @@ function initializePageCards() {
 }
 
 // 홈페이지 카드 설정
+=======
+// ===== DOM 로드 완료 시 초기화 =====
+document.addEventListener('DOMContentLoaded', function() {
+    if (!window.APP.initialized) {
+        initializeApp();
+    }
+});
+
+// 이미 로드된 경우 즉시 초기화
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    if (!window.APP.initialized) {
+        initializeApp();
+    }
+}
+
+// ===== 앱 초기화 =====
+function initializeApp() {
+    if (window.APP.initialized) return;
+    
+    try {
+        // 현재 페이지 식별
+        identifyCurrentPage();
+        
+        // 페이지 로딩 최적화 처리
+        handlePageLoadOptimization();
+        
+        // 기본 이벤트 리스너 설정
+        setupEventListeners();
+        
+        // 사용자 인증 상태 확인
+        checkAuthStatus();
+        
+        // 반응형 처리
+        handleResponsive();
+        
+        // 페이지별 카드 초기화
+        initializePageCards();
+        
+        window.APP.initialized = true;
+    } catch (error) {
+        console.warn('앱 초기화 오류:', error);
+    }
+}
+
+// ===== 페이지별 카드 초기화 =====
+function initializePageCards() {
+    // 홈페이지 긴급 실종자 카드들 초기화
+    if (window.APP.currentPage === 'home') {
+        setupHomePageCards();
+    }
+    
+    // 모든 페이지의 실종자 카드 공통 이벤트 설정
+    setupUniversalCardEvents();
+}
+
+// ===== 홈페이지 카드 설정 =====
+>>>>>>> origin/gb
 function setupHomePageCards() {
     try {
         const urgentCards = document.querySelectorAll('.urgent-cards .missing-card');
@@ -777,6 +839,7 @@ function setupHomePageCards() {
         urgentCards.forEach((card, index) => {
             if (!card) return;
             
+<<<<<<< HEAD
             setupCardEvents(card);
         });
     } catch (error) {
@@ -787,6 +850,31 @@ function setupHomePageCards() {
 // 범용 카드 이벤트 설정
 function setupUniversalCardEvents() {
     try {
+=======
+            // 카드 로드 애니메이션
+            if (typeof gsap !== 'undefined') {
+                gsap.from(card, {
+                    duration: 0.6,
+                    y: 50,
+                    opacity: 0,
+                    delay: index * 0.1,
+                    ease: 'power2.out'
+                });
+            }
+            
+            // 개별 카드 이벤트 설정
+            setupCardEvents(card);
+        });
+    } catch (error) {
+        console.warn('홈페이지 카드 설정 오류:', error);
+    }
+}
+
+// ===== 범용 카드 이벤트 설정 =====
+function setupUniversalCardEvents() {
+    try {
+        // 모든 실종자 카드에 대한 공통 이벤트
+>>>>>>> origin/gb
         const allCards = document.querySelectorAll('.missing-card');
         
         allCards.forEach(card => {
@@ -795,15 +883,24 @@ function setupUniversalCardEvents() {
             }
         });
     } catch (error) {
+<<<<<<< HEAD
         console.error('범용 카드 이벤트 설정 실패:', error);
     }
 }
 
 // 개별 카드 이벤트 설정
+=======
+        console.warn('범용 카드 이벤트 설정 오류:', error);
+    }
+}
+
+// ===== 개별 카드 이벤트 설정 =====
+>>>>>>> origin/gb
 function setupCardEvents(card) {
     if (!card) return;
     
     try {
+<<<<<<< HEAD
         // UP 버튼 이벤트
         const upStat = card.querySelector('.card-stats .stat');
         if (upStat && upStat.innerHTML && upStat.innerHTML.includes('fa-arrow-up')) {
@@ -813,10 +910,52 @@ function setupCardEvents(card) {
         }
         
         // 카드 클릭 시 상세 페이지로 이동
+=======
+        // UP 버튼 이벤트 - 통일된 처리
+        const upStat = card.querySelector('.card-stats .stat');
+        if (upStat && upStat.innerHTML && upStat.innerHTML.includes('fa-arrow-up')) {
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            upStat.removeEventListener('click', handleUpClick);
+            upStat.addEventListener('click', handleUpClick);
+            
+            // 시각적 피드백을 위한 스타일 추가
+            upStat.style.cursor = 'pointer';
+            upStat.style.transition = 'all 0.2s ease';
+        }
+        
+        // 카드 호버 효과 - 안전한 버전
+        card.addEventListener('mouseenter', function() {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(this, {
+                    duration: 0.3,
+                    y: -4,
+                    boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
+                    ease: 'power2.out'
+                });
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(this, {
+                    duration: 0.3,
+                    y: 0,
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
+                    ease: 'power2.out'
+                });
+            }
+        });
+        
+        // 카드 클릭 시 상세 페이지로 이동 (detail-link가 없는 경우)
+>>>>>>> origin/gb
         const detailLink = card.querySelector('.detail-link');
         if (!detailLink) {
             card.style.cursor = 'pointer';
             card.addEventListener('click', function(e) {
+<<<<<<< HEAD
+=======
+                // UP 버튼 클릭은 제외
+>>>>>>> origin/gb
                 if (!e.target.closest('.stat')) {
                     const cardId = this.dataset.id || extractCardId(this);
                     if (cardId) {
@@ -826,11 +965,19 @@ function setupCardEvents(card) {
             });
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('카드 이벤트 설정 실패:', error);
     }
 }
 
 // UP 클릭 핸들러
+=======
+        console.warn('카드 이벤트 설정 오류:', error);
+    }
+}
+
+// ===== UP 클릭 핸들러 - 통일된 처리 =====
+>>>>>>> origin/gb
 function handleUpClick(e) {
     if (!e) return;
     
@@ -846,45 +993,154 @@ function handleUpClick(e) {
         const currentCount = parseInt(countText.replace(/\D/g, '')) || 0;
         const newCount = currentCount + 1;
         
+<<<<<<< HEAD
         stat.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
         
+=======
+        // 아이콘과 숫자 유지하면서 카운트 업데이트
+        stat.innerHTML = `<i class="fas fa-arrow-up"></i> ${newCount}`;
+        
+        // 애니메이션 효과
+        if (typeof gsap !== 'undefined') {
+            gsap.timeline()
+                .to(stat, {
+                    duration: 0.1,
+                    scale: 0.9,
+                    ease: 'power2.in'
+                })
+                .to(stat, {
+                    duration: 0.4,
+                    scale: 1.2,
+                    ease: 'elastic.out(1, 0.5)'
+                })
+                .to(stat, {
+                    duration: 0.2,
+                    scale: 1,
+                    ease: 'power2.out'
+                });
+            
+            // 파티클 효과
+            createUpParticleEffect(stat);
+        }
+        
+        // 알림 표시
+>>>>>>> origin/gb
         if (window.showNotification) {
             window.showNotification('UP을 눌렀습니다! 실종자 찾기에 도움이 됩니다.', 'success');
         }
         
+<<<<<<< HEAD
+=======
+        // 서버에 UP 정보 전송
+>>>>>>> origin/gb
         const cardId = extractCardId(stat.closest('.missing-card'));
         if (cardId) {
             sendUpToServer(cardId, newCount);
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('UP 클릭 처리 실패:', error);
     }
 }
 
 // 카드 ID 추출
+=======
+        console.warn('UP 클릭 처리 오류:', error);
+    }
+}
+
+// ===== UP 파티클 효과 =====
+function createUpParticleEffect(element) {
+    if (typeof gsap === 'undefined' || !element) return;
+    
+    try {
+        const rect = element.getBoundingClientRect();
+        const particles = 6;
+        
+        for (let i = 0; i < particles; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'up-particle';
+            particle.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            particle.style.cssText = `
+                position: fixed;
+                left: ${rect.left + rect.width / 2}px;
+                top: ${rect.top + rect.height / 2}px;
+                color: #22c55e;
+                font-size: 14px;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            
+            document.body.appendChild(particle);
+            
+            const angle = (i / particles) * Math.PI * 2;
+            const distance = 30 + Math.random() * 30;
+            
+            gsap.to(particle, {
+                duration: 1,
+                x: Math.cos(angle) * distance,
+                y: Math.sin(angle) * distance - 30,
+                opacity: 0,
+                scale: 0.3,
+                rotation: 180,
+                ease: 'power2.out',
+                onComplete: () => {
+                    if (particle && particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.warn('파티클 효과 오류:', error);
+    }
+}
+
+// ===== 카드 ID 추출 =====
+>>>>>>> origin/gb
 function extractCardId(card) {
     if (!card) return null;
     
     try {
+<<<<<<< HEAD
+=======
+        // data-id 속성에서 추출
+>>>>>>> origin/gb
         if (card.dataset && card.dataset.id) {
             return card.dataset.id;
         }
         
+<<<<<<< HEAD
+=======
+        // detail-link href에서 추출
+>>>>>>> origin/gb
         const detailLink = card.querySelector('.detail-link');
         if (detailLink && detailLink.href) {
             const match = detailLink.href.match(/\/missing\/(\d+)/);
             return match ? match[1] : null;
         }
         
+<<<<<<< HEAD
         const pathMatch = window.location.pathname.match(/\/missing\/(\d+)/);
         return pathMatch ? pathMatch[1] : null;
     } catch (error) {
         console.error('카드 ID 추출 실패:', error);
+=======
+        // URL에서 추출 (상세 페이지인 경우)
+        const pathMatch = window.location.pathname.match(/\/missing\/(\d+)/);
+        return pathMatch ? pathMatch[1] : null;
+    } catch (error) {
+        console.warn('카드 ID 추출 오류:', error);
+>>>>>>> origin/gb
         return null;
     }
 }
 
+<<<<<<< HEAD
 // 서버에 UP 정보 전송
+=======
+// ===== 서버에 UP 정보 전송 =====
+>>>>>>> origin/gb
 function sendUpToServer(cardId, newCount) {
     if (!cardId) return;
     
@@ -898,6 +1154,7 @@ function sendUpToServer(cardId, newCount) {
                 count: newCount 
             })
         }).catch(error => {
+<<<<<<< HEAD
             console.error('서버 전송 실패:', error);
         });
     } catch (error) {
@@ -908,25 +1165,60 @@ function sendUpToServer(cardId, newCount) {
 // 스크롤 위치 최적화
 function optimizePageScroll() {
     try {
+=======
+            console.warn('서버 전송 오류:', error);
+        });
+    } catch (error) {
+        console.warn('UP 서버 전송 중 오류:', error);
+    }
+}
+
+// ===== 페이지 로딩 최적화 처리 =====
+function handlePageLoadOptimization() {
+    // 페이지 스크롤 위치 최적화
+    optimizePageScroll();
+}
+
+// ===== 스크롤 위치 최적화 =====
+function optimizePageScroll() {
+    try {
+        // 스크롤 복원 비활성화
+>>>>>>> origin/gb
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
         
+<<<<<<< HEAD
+=======
+        // 즉시 상단으로 스크롤
+>>>>>>> origin/gb
         window.scrollTo({
             top: 0,
             left: 0,
             behavior: 'instant'
         });
         
+<<<<<<< HEAD
+=======
+        // 추가 안전장치
+>>>>>>> origin/gb
         setTimeout(() => {
             window.scrollTo(0, 0);
         }, 0);
     } catch (error) {
+<<<<<<< HEAD
         console.error('스크롤 최적화 실패:', error);
     }
 }
 
 // 현재 페이지 식별
+=======
+        console.warn('스크롤 최적화 오류:', error);
+    }
+}
+
+// ===== 현재 페이지 식별 =====
+>>>>>>> origin/gb
 function identifyCurrentPage() {
     try {
         const path = window.location.pathname;
@@ -947,15 +1239,27 @@ function identifyCurrentPage() {
             window.APP.currentPage = 'unknown';
         }
         
+<<<<<<< HEAD
+=======
+        // 페이지별 CSS 클래스 추가
+>>>>>>> origin/gb
         if (document.body) {
             document.body.classList.add(`page-${window.APP.currentPage}`);
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('페이지 식별 실패:', error);
     }
 }
 
 // 이벤트 리스너 설정
+=======
+        console.warn('페이지 식별 오류:', error);
+    }
+}
+
+// ===== 이벤트 리스너 설정 =====
+>>>>>>> origin/gb
 function setupEventListeners() {
     try {
         // 모바일 메뉴 토글
@@ -970,7 +1274,17 @@ function setupEventListeners() {
             userBtn.addEventListener('click', toggleUserMenu);
         }
         
+<<<<<<< HEAD
         // 스크롤 이벤트
+=======
+        // 알림 버튼
+        const notificationBtn = document.querySelector('.notification-btn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', toggleNotifications);
+        }
+        
+        // 스크롤 이벤트 - 쓰로틀링 적용
+>>>>>>> origin/gb
         let isScrolling = false;
         window.addEventListener('scroll', () => {
             if (!isScrolling) {
@@ -982,6 +1296,7 @@ function setupEventListeners() {
             }
         });
         
+<<<<<<< HEAD
         // 리사이즈 이벤트
         window.addEventListener('resize', debounce(handleResize, 250));
         
@@ -998,11 +1313,106 @@ function setupEventListeners() {
 // 나머지 함수들은 기존과 동일하게 유지
 function setupPageTransitionOptimization() {
     try {
+=======
+        // 리사이즈 이벤트 - 디바운싱 적용
+        window.addEventListener('resize', debounce(handleResize, 250));
+        
+        // 모든 링크에 부드러운 스크롤 적용
+        setupSmoothScroll();
+        
+        // 네비게이션 초기화
+        initializeNavigation();
+        
+        // 키보드 접근성
+        setupKeyboardNavigation();
+        
+        // 페이지 전환 시 스크롤 최적화
+        setupPageTransitionOptimization();
+        
+        // 안전한 동적 카드 이벤트 위임
+        setupSafeDelegatedCardEvents();
+        
+    } catch (error) {
+        console.warn('이벤트 리스너 설정 오류:', error);
+    }
+}
+
+// ===== 안전한 동적 카드 이벤트 위임 =====
+function setupSafeDelegatedCardEvents() {
+    try {
+        // 문서 레벨에서 이벤트 위임을 통해 동적으로 추가되는 카드들도 처리
+        document.addEventListener('click', function(e) {
+            if (!e || !e.target) return;
+            
+            try {
+                // UP 버튼 클릭 처리
+                const closestStat = e.target.closest('.missing-card .stat');
+                if (closestStat && closestStat.innerHTML && closestStat.innerHTML.includes('fa-arrow-up')) {
+                    handleUpClick(e);
+                }
+            } catch (error) {
+                console.warn('위임된 클릭 이벤트 오류:', error);
+            }
+        });
+        
+        // 안전한 호버 효과 위임
+        document.addEventListener('mouseenter', function(e) {
+            if (!e || !e.target) return;
+            
+            try {
+                if (e.target.classList && e.target.classList.contains('missing-card')) {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(e.target, {
+                            duration: 0.3,
+                            y: -4,
+                            boxShadow: '0 15px 40px rgba(0, 0, 0, 0.12)',
+                            ease: 'power2.out'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.warn('위임된 마우스 엔터 오류:', error);
+            }
+        }, true);
+        
+        document.addEventListener('mouseleave', function(e) {
+            if (!e || !e.target) return;
+            
+            try {
+                if (e.target.classList && e.target.classList.contains('missing-card')) {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(e.target, {
+                            duration: 0.3,
+                            y: 0,
+                            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.08)',
+                            ease: 'power2.out'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.warn('위임된 마우스 리브 오류:', error);
+            }
+        }, true);
+        
+    } catch (error) {
+        console.warn('안전한 위임 이벤트 설정 오류:', error);
+    }
+}
+
+// ===== 페이지 전환 최적화 =====
+function setupPageTransitionOptimization() {
+    try {
+        // 모든 내부 링크에 최적화 적용
+>>>>>>> origin/gb
         const internalLinks = document.querySelectorAll('a[href^="/"], a[href^="./"], a[href^="../"]');
         
         internalLinks.forEach(link => {
             if (link) {
                 link.addEventListener('click', function(e) {
+<<<<<<< HEAD
+=======
+                    // 페이지 전환 시 상단으로 스크롤 준비
+>>>>>>> origin/gb
                     if ('scrollRestoration' in history) {
                         history.scrollRestoration = 'manual';
                     }
@@ -1010,30 +1420,52 @@ function setupPageTransitionOptimization() {
             }
         });
         
+<<<<<<< HEAD
+=======
+        // popstate 이벤트에서 스크롤 최적화
+>>>>>>> origin/gb
         window.addEventListener('popstate', function() {
             setTimeout(() => {
                 window.scrollTo(0, 0);
             }, 0);
         });
     } catch (error) {
+<<<<<<< HEAD
         console.error('페이지 전환 최적화 실패:', error);
     }
 }
 
+=======
+        console.warn('페이지 전환 최적화 오류:', error);
+    }
+}
+
+// ===== 키보드 접근성 설정 =====
+>>>>>>> origin/gb
 function setupKeyboardNavigation() {
     try {
         document.addEventListener('keydown', function(e) {
             if (!e) return;
             
+<<<<<<< HEAD
             if (e.key === 'Escape') {
                 closeAllDropdowns();
                 closeNotificationPanel();
                 hideDeleteConfirmModal();
+=======
+            // ESC 키로 모든 드롭다운 닫기
+            if (e.key === 'Escape') {
+                closeAllDropdowns();
+>>>>>>> origin/gb
                 if (document.activeElement && document.activeElement.blur) {
                     document.activeElement.blur();
                 }
             }
             
+<<<<<<< HEAD
+=======
+            // Tab 키 네비게이션 향상
+>>>>>>> origin/gb
             if (e.key === 'Tab') {
                 if (document.body) {
                     document.body.classList.add('keyboard-nav');
@@ -1041,16 +1473,29 @@ function setupKeyboardNavigation() {
             }
         });
         
+<<<<<<< HEAD
+=======
+        // 마우스 사용 시 키보드 네비게이션 스타일 제거
+>>>>>>> origin/gb
         document.addEventListener('mousedown', function() {
             if (document.body) {
                 document.body.classList.remove('keyboard-nav');
             }
         });
     } catch (error) {
+<<<<<<< HEAD
         console.error('키보드 접근성 설정 실패:', error);
     }
 }
 
+=======
+        console.warn('키보드 접근성 설정 오류:', error);
+    }
+}
+
+// ===== 나머지 함수들 (안전성 강화) =====
+
+>>>>>>> origin/gb
 function initializeNavigation() {
     try {
         const currentPath = window.location.pathname;
@@ -1066,7 +1511,11 @@ function initializeNavigation() {
             }
         });
     } catch (error) {
+<<<<<<< HEAD
         console.error('네비게이션 초기화 실패:', error);
+=======
+        console.warn('네비게이션 초기화 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1086,7 +1535,11 @@ function checkAuthStatus() {
     } catch (error) {
         window.APP.isLoggedIn = false;
         updateUIForGuestUser();
+<<<<<<< HEAD
         console.error('인증 상태 확인 실패:', error);
+=======
+        console.warn('인증 상태 확인 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1121,7 +1574,11 @@ function updateUIForLoggedUser() {
             document.body.classList.remove('user-guest');
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('로그인 UI 업데이트 실패:', error);
+=======
+        console.warn('로그인 UI 업데이트 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1148,7 +1605,11 @@ function updateUIForGuestUser() {
             document.body.classList.remove('user-authenticated');
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('게스트 UI 업데이트 실패:', error);
+=======
+        console.warn('게스트 UI 업데이트 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1176,7 +1637,11 @@ function toggleMobileMenu() {
             if (firstLink && firstLink.focus) firstLink.focus();
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('모바일 메뉴 토글 실패:', error);
+=======
+        console.warn('모바일 메뉴 토글 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1196,7 +1661,33 @@ function toggleUserMenu() {
             dropdown.setAttribute('aria-hidden', 'false');
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('사용자 메뉴 토글 실패:', error);
+=======
+        console.warn('사용자 메뉴 토글 오류:', error);
+    }
+}
+
+function toggleNotifications() {
+    try {
+        const dropdown = document.getElementById('notificationDropdown');
+        if (!dropdown) return;
+        
+        const isOpen = dropdown.classList.contains('show');
+        
+        if (isOpen) {
+            dropdown.classList.remove('show');
+            dropdown.setAttribute('aria-hidden', 'true');
+        } else {
+            closeAllDropdowns();
+            dropdown.classList.add('show');
+            dropdown.setAttribute('aria-hidden', 'false');
+            
+            setTimeout(() => markNotificationsAsRead(), 1000);
+        }
+    } catch (error) {
+        console.warn('알림 토글 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1211,7 +1702,11 @@ function closeAllDropdowns() {
             }
         });
     } catch (error) {
+<<<<<<< HEAD
         console.error('드롭다운 닫기 실패:', error);
+=======
+        console.warn('드롭다운 닫기 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1228,7 +1723,11 @@ function handleScroll() {
             }
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('스크롤 처리 실패:', error);
+=======
+        console.warn('스크롤 처리 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1260,11 +1759,35 @@ function handleResize() {
             }
             
             closeAllDropdowns();
+<<<<<<< HEAD
             closeNotificationPanel();
         }
         
     } catch (error) {
         console.error('리사이즈 처리 실패:', error);
+=======
+        }
+        
+        recalculateCardLayouts();
+    } catch (error) {
+        console.warn('리사이즈 처리 오류:', error);
+    }
+}
+
+function recalculateCardLayouts() {
+    try {
+        const cardContainers = document.querySelectorAll('.urgent-cards, .related-cards, .missing-grid, .missing-list-view');
+        
+        cardContainers.forEach(container => {
+            if (container) {
+                container.style.display = 'none';
+                container.offsetHeight;
+                container.style.display = '';
+            }
+        });
+    } catch (error) {
+        console.warn('카드 레이아웃 재계산 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1280,7 +1803,11 @@ function handleResponsive() {
             document.body.classList.add('high-dpi');
         }
     } catch (error) {
+<<<<<<< HEAD
         console.error('반응형 처리 실패:', error);
+=======
+        console.warn('반응형 처리 오류:', error);
+>>>>>>> origin/gb
     }
 }
 
@@ -1307,11 +1834,41 @@ function setupSmoothScroll() {
             }
         });
     } catch (error) {
+<<<<<<< HEAD
         console.error('부드러운 스크롤 설정 실패:', error);
     }
 }
 
 // 유틸리티 함수들
+=======
+        console.warn('부드러운 스크롤 설정 오류:', error);
+    }
+}
+
+function markNotificationsAsRead() {
+    try {
+        const unreadItems = document.querySelectorAll('.notification-item.unread');
+        const notificationBadge = document.querySelector('.notification-badge');
+        
+        if (unreadItems.length > 0) {
+            unreadItems.forEach(item => {
+                if (item) {
+                    item.classList.remove('unread');
+                }
+            });
+            
+            if (notificationBadge) {
+                notificationBadge.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.warn('알림 읽음 처리 오류:', error);
+    }
+}
+
+// ===== 유틸리티 함수들 =====
+
+>>>>>>> origin/gb
 function debounce(func, wait, immediate) {
     let timeout;
     return function executedFunction(...args) {
@@ -1326,6 +1883,75 @@ function debounce(func, wait, immediate) {
     };
 }
 
+<<<<<<< HEAD
+=======
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+function showLoading(target = 'body', message = '처리 중...') {
+    try {
+        const targetEl = typeof target === 'string' ? document.querySelector(target) : target;
+        
+        if (!targetEl) return null;
+        
+        const existingLoader = targetEl.querySelector('.simple-loading');
+        if (existingLoader) {
+            existingLoader.remove();
+        }
+        
+        const loader = document.createElement('div');
+        loader.className = 'simple-loading';
+        loader.setAttribute('role', 'status');
+        loader.setAttribute('aria-live', 'polite');
+        loader.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <span class="loading-text">${message}</span>
+            </div>
+        `;
+        
+        loader.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+        `;
+        
+        targetEl.appendChild(loader);
+        return loader;
+    } catch (error) {
+        console.warn('로딩 표시 오류:', error);
+        return null;
+    }
+}
+
+function hideLoading(loader) {
+    try {
+        if (loader && loader.parentNode) {
+            loader.parentNode.removeChild(loader);
+        }
+    } catch (error) {
+        console.warn('로딩 숨김 오류:', error);
+    }
+}
+
+>>>>>>> origin/gb
 function showNotification(message, type = 'info', duration = 3000) {
     try {
         let toastContainer = document.querySelector('.toast-container');
@@ -1375,11 +2001,15 @@ function showNotification(message, type = 'info', duration = 3000) {
             gap: 12px;
             min-width: 300px;
             backdrop-filter: blur(10px);
+<<<<<<< HEAD
             transform: translateX(0);
+=======
+>>>>>>> origin/gb
         `;
         
         toastContainer.appendChild(toast);
         
+<<<<<<< HEAD
         // GSAP 애니메이션
         if (typeof gsap !== 'undefined') {
             gsap.fromTo(toast, 
@@ -1413,12 +2043,21 @@ function showNotification(message, type = 'info', duration = 3000) {
                 } else {
                     toast.parentNode.removeChild(toast);
                 }
+=======
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+>>>>>>> origin/gb
             }
         }, duration);
         
         return toast;
     } catch (error) {
+<<<<<<< HEAD
         console.error('알림 표시 실패:', error);
+=======
+        console.warn('알림 표시 오류:', error);
+>>>>>>> origin/gb
         return null;
     }
 }
@@ -1443,6 +2082,7 @@ function getToastBgColor(type) {
     return colors[type] || colors['info'];
 }
 
+<<<<<<< HEAD
 // 전역 함수 내보내기
 window.toggleMobileMenu = toggleMobileMenu;
 window.toggleUserMenu = toggleUserMenu;
@@ -1472,3 +2112,91 @@ window.hideDeleteConfirmModal = hideDeleteConfirmModal;
         }
     });
 })();
+=======
+// ===== 전역 함수 내보내기 =====
+window.toggleMobileMenu = toggleMobileMenu;
+window.toggleUserMenu = toggleUserMenu;
+window.toggleNotifications = toggleNotifications;
+window.initializeNavigation = initializeNavigation;
+window.checkAuthStatus = checkAuthStatus;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+window.showNotification = showNotification;
+window.debounce = debounce;
+window.throttle = throttle;
+window.setupCardEvents = setupCardEvents;
+window.handleUpClick = handleUpClick;
+
+// ===== CSS 스타일 주입 =====
+if (!document.querySelector('#dynamic-styles')) {
+    const style = document.createElement('style');
+    style.id = 'dynamic-styles';
+    style.textContent = `
+        .spinner-ring {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #374151;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+        
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .keyboard-nav *:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        
+        .up-particle {
+            position: fixed;
+            pointer-events: none;
+        }
+    `;
+    document.head.appendChild(style);
+}
+>>>>>>> origin/gb

@@ -26,6 +26,7 @@
         
         <!-- 순위 통계 -->
         <div class="ranking-stats">
+<<<<<<< HEAD
             <!-- 총 참여자 -->
             <div class="stat-card visible-on-load">
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
@@ -41,6 +42,33 @@
                 <div class="stat-info">
                     <div class="stat-number total-reports">0</div>
                     <div class="stat-label">신고 건수</div>
+=======
+            <div class="stat-card visible-on-load">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">15429</div>
+                    <div class="stat-label">총 참여자</div>
+                </div>
+            </div>
+            <div class="stat-card visible-on-load">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">8342</div>
+                    <div class="stat-label">목격 신고</div>
+                </div>
+            </div>
+            <div class="stat-card visible-on-load">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-number">1203</div>
+                    <div class="stat-label">해결된 사건</div>
+>>>>>>> origin/gb
                 </div>
             </div>
         </div>
@@ -62,6 +90,7 @@
         </div>
         
         <!-- 개인 순위 안내 -->
+<<<<<<< HEAD
         {% if session.get('user_id') and rank_info %}
         <div class="personal-ranking-box">
             <div class="ranking-summary">
@@ -88,13 +117,35 @@
                     </a>
                     <a href="{{ url_for('register') }}" class="btn btn-outline">
                         <i class="fas fa-user-plus"></i> 회원가입
+=======
+        <div class="personal-ranking-cta">
+            <!-- Three.js 배경 컨테이너 -->
+            <div class="cta-background" id="ctaThreeJSContainer"></div>
+            
+            <div class="cta-content">
+                <div class="cta-text">
+                    <h3>나의 순위가 궁금하신가요?</h3>
+                    <p>로그인 후 개인 순위와 상세한 활동 내역을 확인하세요</p>
+                </div>
+                <div class="cta-actions">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        로그인하기
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline">
+                        <i class="fas fa-user-plus"></i>
+                        회원가입
+>>>>>>> origin/gb
                     </a>
                 </div>
             </div>
         </div>
+<<<<<<< HEAD
         {% endif %}
 
 
+=======
+>>>>>>> origin/gb
         
         <!-- 랭킹 혜택 안내 -->
         <div class="ranking-benefits">

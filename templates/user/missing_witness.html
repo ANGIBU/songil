@@ -4,6 +4,7 @@
 {% block title %}손길 - 목격 신고{% endblock %}
 
 {% block extra_head %}
+<<<<<<< HEAD
 <link rel="stylesheet" href="{{ url_for('static', filename='css/missing-witness.css') }}">
 <script
     type="text/javascript"
@@ -15,6 +16,9 @@
         });
     };
 </script>
+=======
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+>>>>>>> origin/gb
 {% endblock %}
 
 {% block content %}
@@ -58,6 +62,7 @@
     <div class="container">
         <div class="summary-card">
             <div class="summary-image">
+<<<<<<< HEAD
                 <img src="{{ missing.image_url or url_for('static', filename='images/placeholder.jpg') }}" 
                      alt="실종자 사진" 
                      onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
@@ -82,6 +87,29 @@
                         {% else %}
                             특이사항 없음
                         {% endif %}
+=======
+                <img src="{{ url_for('static', filename='images/sample-missing-1.jpg') }}" alt="실종자 사진" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                <div class="danger-level high">긴급</div>
+            </div>
+            <div class="summary-info">
+                <h2>김○○ (32세, 남성)</h2>
+                <div class="summary-details">
+                    <div class="detail-item">
+                        <i class="fas fa-calendar"></i>
+                        2024년 5월 20일 오후 6시경 실종
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        서울시 강남구 역삼동 테헤란로 일대
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-tshirt"></i>
+                        검은색 정장 상하의, 갈색 구두, 검은색 서류가방
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-user"></i>
+                        175cm, 중간체형, 안경 착용
+>>>>>>> origin/gb
                     </div>
                 </div>
             </div>
@@ -93,6 +121,7 @@
 <section class="witness-form-section">
     <div class="container">
         <form class="witness-form" id="witnessForm">
+<<<<<<< HEAD
             <input type="hidden" name="missing_id" value="{{ missing.SENU or '' }}">
             <input type="hidden" name="missingPersonName" value="{{ missing.nm or '이름없음' }}">
             <input type="hidden" name="missingPersonAge" value="{{ missing.ageNow or 0 }}">
@@ -101,6 +130,8 @@
             <input type="hidden" name="missingLocation" value="{{ missing.occrAdres or '장소 미상' }}">
             <input type="hidden" name="missingFeatures" value="{{ missing.features or '' }}">
 
+=======
+>>>>>>> origin/gb
             <div class="form-section">
                 <h3>
                     <i class="fas fa-clock"></i>
@@ -143,7 +174,10 @@
                     <div class="form-group full-width">
                         <label for="witnessLocation" class="required">상세 주소</label>
                         <input type="text" id="witnessLocation" name="witnessLocation" required placeholder="구체적인 주소나 장소명을 입력하세요">
+<<<<<<< HEAD
                         
+=======
+>>>>>>> origin/gb
                         <div class="location-tools">
                             <button type="button" class="location-btn" onclick="getCurrentLocation()">
                                 <i class="fas fa-crosshairs"></i>
@@ -209,9 +243,22 @@
             </div>
             
             <div class="form-section">
+<<<<<<< HEAD
                 <div class="evidence-upload">
                     <div class="upload-area" id="evidenceUploadArea">
                         <div class="upload-placeholder">
+=======
+                <h3>
+                    <i class="fas fa-camera"></i>
+                    증거 자료
+                </h3>
+                <p class="section-description">사진이나 동영상이 있다면 업로드해주세요 (선택사항)</p>
+                
+                <div class="evidence-upload">
+                    <div class="upload-area" id="evidenceUploadArea">
+                        <div class="upload-placeholder">
+                            <i class="fas fa-camera"></i>
+>>>>>>> origin/gb
                             <h4>사진/동영상 업로드</h4>
                             <p>목격 당시 촬영한 자료가 있다면 업로드해주세요</p>
                             <button type="button" class="btn btn-outline">
@@ -223,11 +270,48 @@
                     </div>
                     
                     <div class="uploaded-evidence" id="uploadedEvidence">
+<<<<<<< HEAD
+=======
+                        <!-- 업로드된 파일들이 여기에 표시됩니다 -->
+>>>>>>> origin/gb
                     </div>
                     
                     <div class="upload-note">
                         <i class="fas fa-info-circle"></i>
+<<<<<<< HEAD
                         지원 형식: JPG, PNG, MP4 (최대 10MB, 3개 파일)
+=======
+                        <p>개인정보 보호를 위해 관련 없는 사람의 얼굴은 모자이크 처리해주세요</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>
+                    <i class="fas fa-user"></i>
+                    목격자 정보
+                </h3>
+                <p class="section-description">추가 문의가 필요할 수 있습니다</p>
+                
+                <div class="witness-info-inputs">
+                    <div class="form-group">
+                        <label for="witnessName" class="required">성명</label>
+                        <input type="text" id="witnessName" name="witnessName" required placeholder="실명을 입력하세요">
+                        <div class="error-message" id="witnessNameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="witnessPhone" class="required">연락처</label>
+                        <input type="tel" id="witnessPhone" name="witnessPhone" required placeholder="010-0000-0000">
+                        <div class="error-message" id="witnessPhoneError"></div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>
+                            <input type="checkbox" name="agreeContact" required>
+                            수사기관의 추가 문의 연락에 동의합니다
+                        </label>
+>>>>>>> origin/gb
                     </div>
                 </div>
             </div>
@@ -241,6 +325,16 @@
                 <div class="agreement-section">
                     <div class="agreement-item">
                         <label class="checkbox-label">
+<<<<<<< HEAD
+=======
+                            <input type="checkbox" name="agreeAccuracy" required>
+                            <span class="checkmark"></span>
+                            위 정보는 사실이며, 허위 신고시 법적 책임을 질 수 있음을 이해합니다.
+                        </label>
+                    </div>
+                    <div class="agreement-item">
+                        <label class="checkbox-label">
+>>>>>>> origin/gb
                             <input type="checkbox" name="agreeProcess" required>
                             <span class="checkmark"></span>
                             목격 정보가 수사기관에 전달되어 수사에 활용됨을 동의합니다.
@@ -256,6 +350,10 @@
                 </div>
             </div>
             
+<<<<<<< HEAD
+=======
+            <!-- 제출 버튼 -->
+>>>>>>> origin/gb
             <div class="form-submit">
                 <div class="submit-info">
                     <div class="info-item">
@@ -291,10 +389,22 @@
             </button>
         </div>
         <div class="modal-body">
+<<<<<<< HEAD
             <div id="location-map" class="location-map" style="width: 100%; height: 400px;"></div>
 
             <div class="map-controls">
                 <input type="text" id="mapSearchInput" placeholder="주소 또는 장소명 검색" onkeypress="if(event.key==='Enter') searchLocation()">
+=======
+            <div id="location-map" class="location-map">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>지도가 여기에 표시됩니다</p>
+                    <small>실제 구현시 카카오맵 또는 구글맵 API 사용</small>
+                </div>
+            </div>
+            <div class="map-controls">
+                <input type="text" id="mapSearchInput" placeholder="주소 또는 장소명 검색">
+>>>>>>> origin/gb
                 <button type="button" class="btn btn-outline" onclick="searchLocation()">
                     <i class="fas fa-search"></i>
                     검색
@@ -366,5 +476,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<<<<<<< HEAD
 <script src="{{ url_for('static', filename='js/missing-witness.js') }}" defer></script>
+=======
+<script src="{{ url_for('static', filename='js/user.js') }}"></script>
+<script src="{{ url_for('static', filename='js/missing-witness.js') }}"></script>
+>>>>>>> origin/gb
 {% endblock %}

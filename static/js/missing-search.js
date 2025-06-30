@@ -23,6 +23,140 @@ function debugError(...args) {
     console.error(...args); // 에러는 항상 출력
 }
 
+<<<<<<< HEAD
+=======
+// 실종자 데이터 (샘플)
+const sampleMissingData = [
+    {
+        id: 1,
+        name: "김○○",
+        age: 32,
+        gender: "남성",
+        date: "2024-05-20",
+        location: "서울시 강남구 역삼동",
+        region: "seoul",
+        description: "검은색 정장, 갈색 구두",
+        physicalInfo: "175cm, 중간체형",
+        dangerLevel: "high",
+        upCount: 246,
+        witnessCount: 7,
+        period: "3일째",
+        image: "/static/images/sample-missing-1.jpg"
+    },
+    {
+        id: 2,
+        name: "박○○",
+        age: 8,
+        gender: "남성",
+        date: "2024-05-21",
+        location: "부산시 해운대구 중동",
+        region: "busan",
+        description: "파란색 티셔츠, 검은색 반바지",
+        physicalInfo: "120cm, 마른체형",
+        dangerLevel: "high",
+        upCount: 189,
+        witnessCount: 5,
+        period: "2일째",
+        image: "/static/images/sample-missing-2.jpg"
+    },
+    {
+        id: 3,
+        name: "최○○",
+        age: 67,
+        gender: "여성",
+        date: "2024-05-22",
+        location: "대구시 중구 삼덕동",
+        region: "daegu",
+        description: "흰색 블라우스, 검은색 바지",
+        physicalInfo: "160cm, 중간체형",
+        dangerLevel: "medium",
+        upCount: 134,
+        witnessCount: 3,
+        period: "1일째",
+        image: "/static/images/sample-missing-3.jpg"
+    },
+    {
+        id: 4,
+        name: "이○○",
+        age: 45,
+        gender: "남성",
+        date: "2024-05-19",
+        location: "인천시 남동구 구월동",
+        region: "incheon",
+        description: "회색 후드티, 청바지",
+        physicalInfo: "168cm, 뚱뚱한체형",
+        dangerLevel: "low",
+        upCount: 87,
+        witnessCount: 2,
+        period: "4일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 5,
+        name: "정○○",
+        age: 23,
+        gender: "여성",
+        date: "2024-05-18",
+        location: "광주시 서구 상무동",
+        region: "gwangju",
+        description: "분홍색 원피스, 흰색 운동화",
+        physicalInfo: "165cm, 마른체형",
+        dangerLevel: "medium",
+        upCount: 156,
+        witnessCount: 4,
+        period: "5일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 6,
+        name: "홍○○",
+        age: 14,
+        gender: "남성",
+        date: "2024-05-23",
+        location: "대전시 유성구 봉명동",
+        region: "daejeon",
+        description: "교복, 검은색 가방",
+        physicalInfo: "160cm, 마른체형",
+        dangerLevel: "high",
+        upCount: 23,
+        witnessCount: 1,
+        period: "방금",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 7,
+        name: "강○○",
+        age: 55,
+        gender: "여성",
+        date: "2024-05-17",
+        location: "울산시 남구 삼산동",
+        region: "ulsan",
+        description: "베이지색 코트, 검은색 핸드백",
+        physicalInfo: "158cm, 중간체형",
+        dangerLevel: "medium",
+        upCount: 98,
+        witnessCount: 2,
+        period: "6일째",
+        image: "/static/images/placeholder.jpg"
+    },
+    {
+        id: 8,
+        name: "조○○",
+        age: 29,
+        gender: "남성",
+        date: "2024-05-16",
+        location: "경기도 수원시 영통구",
+        region: "gyeonggi",
+        description: "네이비 패딩, 청바지",
+        physicalInfo: "172cm, 마른체형",
+        dangerLevel: "low",
+        upCount: 67,
+        witnessCount: 3,
+        period: "7일째",
+        image: "/static/images/placeholder.jpg"
+    }
+];
+>>>>>>> origin/gb
 
 // 상태 저장 키
 const STORAGE_KEYS = {
@@ -31,6 +165,7 @@ const STORAGE_KEYS = {
     VIEW_MODE: 'missing_search_view'
 };
 
+<<<<<<< HEAD
 // 날짜 문자열을 Date 객체로 변환
 function daysSince(dateString) {
     const today = new Date();
@@ -84,6 +219,8 @@ function extractFullRegion(address) {
     return district ? `${matchedCode}-${district}` : matchedCode;
 }
 
+=======
+>>>>>>> origin/gb
 // 페이지네이션 관리자
 class PaginationManager {
     constructor(itemsPerPage = 6) {
@@ -275,6 +412,7 @@ class FilterPopupManager {
     }
 
     initRegionData() {
+<<<<<<< HEAD
     return {
         seoul: {
             name: '서울특별시',
@@ -357,6 +495,48 @@ class FilterPopupManager {
         }
     };
 }
+=======
+        return {
+            seoul: {
+                name: '서울특별시',
+                districts: ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', 
+                          '노원구', '도봉구', '동대문구', '동작구', '마포구', '서대문구', '서초구', '성동구', 
+                          '성북구', '송파구', '양천구', '영등포구', '용산구', '은평구', '종로구', '중구', '중랑구']
+            },
+            gyeonggi: {
+                name: '경기도',
+                districts: ['고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', 
+                          '동두천시', '부천시', '성남시', '수원시', '시흥시', '안산시', '안성시', '안양시', 
+                          '양주시', '여주시', '오산시', '용인시', '의왕시', '의정부시', '이천시', '파주시', 
+                          '평택시', '포천시', '하남시', '화성시']
+            },
+            busan: {
+                name: '부산광역시',
+                districts: ['중구', '서구', '동구', '영도구', '부산진구', '동래구', '남구', '북구', '해운대구', '사하구', '금정구', '강서구', '연제구', '수영구', '사상구', '기장군']
+            },
+            daegu: {
+                name: '대구광역시',
+                districts: ['중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군']
+            },
+            incheon: {
+                name: '인천광역시',
+                districts: ['중구', '동구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서구', '강화군', '옹진군']
+            },
+            gwangju: {
+                name: '광주광역시',
+                districts: ['동구', '서구', '남구', '북구', '광산구']
+            },
+            daejeon: {
+                name: '대전광역시',
+                districts: ['동구', '중구', '서구', '유성구', '대덕구']
+            },
+            ulsan: {
+                name: '울산광역시',
+                districts: ['중구', '남구', '동구', '북구', '울주군']
+            }
+        };
+    }
+>>>>>>> origin/gb
 
     init() {
         this.overlay = document.getElementById('filterPopupOverlay');
@@ -817,10 +997,26 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
         setTimeout(() => setIsAnimating(false), 300);
     }, [isAnimating, onUpClick, data.id]);
 
+<<<<<<< HEAD
+=======
+    const getDangerLevelText = useCallback((level) => {
+        const levels = {
+            'high': '긴급',
+            'medium': '주의',
+            'low': '관심'
+        };
+        return levels[level] || '일반';
+    }, []);
+
+>>>>>>> origin/gb
     const formatDate = useCallback((dateStr) => {
         return dateStr.replace(/-/g, '.');
     }, []);
 
+<<<<<<< HEAD
+=======
+    // 통일된 카드 구조 - style.css의 .missing-card와 완전히 동일
+>>>>>>> origin/gb
     return React.createElement('div', {
         className: `missing-card ${isAnimating ? 'animating' : ''}`,
         'data-id': data.id
@@ -834,12 +1030,19 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
                 },
                 key: 'img'
             }),
+<<<<<<< HEAD
             // ✅ dangerLevel이 '위험'일 때만 긴급 배지 표시
             data.dangerLevel === '위험' &&
             React.createElement('div', {
                 className: 'danger-level emergency',
                 key: 'danger'
             }, '긴급')
+=======
+            React.createElement('div', {
+                className: `danger-level ${data.dangerLevel}`,
+                key: 'danger'
+            }, getDangerLevelText(data.dangerLevel))
+>>>>>>> origin/gb
         ]),
         React.createElement('div', { className: 'card-content', key: 'content' }, [
             React.createElement('h4', { key: 'title' }, `${data.name} (${data.age}세)`),
@@ -878,6 +1081,7 @@ function MissingCard({ data, onUpClick, viewMode = 'grid' }) {
     ]);
 }
 
+<<<<<<< HEAD
 function parseItem(raw) {
     const regionText = raw.OCRN_PLC || '';  // "서울 관악구 ..."
 
@@ -971,11 +1175,21 @@ class SearchManager {
             this.data = [];
         }
         console.log('--- fetchDataFromAPI 호출 종료 ---');
+=======
+// 검색 및 필터 관리 클래스
+class SearchManager {
+    constructor() {
+        this.filters = this.loadFilters();
+        this.data = [...sampleMissingData];
+        this.filteredData = [...this.data];
+        this.callbacks = [];
+>>>>>>> origin/gb
     }
 
     loadFilters() {
         try {
             const saved = sessionStorage.getItem(STORAGE_KEYS.FILTERS);
+<<<<<<< HEAD
             const filters = saved ? JSON.parse(saved) : {};
             // 기본값 설정 (필터 팝업 매니저의 초기값과 일치)
             return {
@@ -984,6 +1198,14 @@ class SearchManager {
                 region: filters.region || '',
                 age: filters.age || '',
                 period: filters.period || ''
+=======
+            return saved ? JSON.parse(saved) : {
+                searchTerm: '',
+                sort: 'danger',
+                region: '',
+                age: '',
+                period: ''
+>>>>>>> origin/gb
             };
         } catch (error) {
             debugWarn('Failed to load filters from storage:', error);
@@ -1026,10 +1248,15 @@ class SearchManager {
     }
 
     applyFilters() {
+<<<<<<< HEAD
         console.log('--- applyFilters 호출됨. 현재 필터:', this.filters, '---');
         let filtered = [...this.data];
 
         // 1. 키워드 필터링 (searchTerm)
+=======
+        let filtered = [...this.data];
+
+>>>>>>> origin/gb
         if (this.filters.searchTerm) {
             const term = this.filters.searchTerm.toLowerCase();
             filtered = filtered.filter(item =>
@@ -1039,6 +1266,7 @@ class SearchManager {
             );
         }
 
+<<<<<<< HEAD
         // 2. 지역 필터링
         if (this.filters.region) {
             // filterRegion은 'seoul', 'gyeonggi' 또는 'seoul-강남구' 형태
@@ -1048,15 +1276,25 @@ class SearchManager {
         }
 
         // 3. 나이 그룹 필터링
+=======
+        if (this.filters.region) {
+            filtered = filtered.filter(item => this.matchesRegion(item.region, this.filters.region));
+        }
+
+>>>>>>> origin/gb
         if (this.filters.age) {
             filtered = filtered.filter(item => this.matchesAgeGroup(item.age, this.filters.age));
         }
 
+<<<<<<< HEAD
         // 4. 실종 기간 필터링
+=======
+>>>>>>> origin/gb
         if (this.filters.period) {
             filtered = filtered.filter(item => this.matchesPeriod(item.date, this.filters.period));
         }
 
+<<<<<<< HEAD
         // 5. 정렬 (가장 마지막에 적용)
         filtered = this.sortData(filtered, this.filters.sort);
 
@@ -1064,10 +1302,15 @@ class SearchManager {
         console.log("원본 데이터 수:", this.data.length);
         console.log("필터링 후 데이터 수:", filtered.length);
 
+=======
+        filtered = this.sortData(filtered, this.filters.sort);
+
+>>>>>>> origin/gb
         this.filteredData = filtered;
         this.notify();
     }
 
+<<<<<<< HEAD
     // matchesRegion 함수는 현재 FilterPopupManager의 initRegionData와 연동되어야 함
     // FilterPopupManager의 initRegionData는 'seoul', 'gyeonggi' 등의 키를 사용하고
     // districts에 '강남구' 등을 가지고 있음
@@ -1132,16 +1375,35 @@ class SearchManager {
         // age가 유효한 숫자가 아닐 경우 (NaN) 필터링에서 제외
         if (isNaN(age)) return true; // 또는 false, 요구사항에 따라 달라짐
 
+=======
+    matchesRegion(itemRegion, filterRegion) {
+        if (!filterRegion) return true;
+        
+        if (filterRegion.includes('-')) {
+            const [regionCode, district] = filterRegion.split('-');
+            return itemRegion === regionCode;
+        } else {
+            return itemRegion === filterRegion;
+        }
+    }
+
+    matchesAgeGroup(age, group) {
+>>>>>>> origin/gb
         switch (group) {
             case 'child': return age >= 0 && age <= 12;
             case 'teen': return age >= 13 && age <= 19;
             case 'adult': return age >= 20 && age <= 64;
             case 'senior': return age >= 65;
+<<<<<<< HEAD
             default: return true; // 'all' 또는 빈 문자열
+=======
+            default: return true;
+>>>>>>> origin/gb
         }
     }
 
     matchesPeriod(dateStr, period) {
+<<<<<<< HEAD
         if (dateStr === '날짜 미상' || !dateStr) {
             return period === ''; // '기간 미상'인 경우, 필터가 'all' 또는 빈 문자열일 때만 통과
         }
@@ -1162,10 +1424,24 @@ class SearchManager {
             case '3month': return days <= 90; // 3개월 (대략 90일)
             case 'year': return days <= 365; // 1년
             default: return true; // 'all' 또는 빈 문자열
+=======
+        const cardDate = new Date(dateStr);
+        const today = new Date();
+        const diffDays = Math.floor((today - cardDate) / (1000 * 60 * 60 * 24));
+
+        switch (period) {
+            case 'today': return diffDays === 0;
+            case 'week': return diffDays <= 7;
+            case 'month': return diffDays <= 30;
+            case '3month': return diffDays <= 90;
+            case 'year': return diffDays <= 365;
+            default: return true;
+>>>>>>> origin/gb
         }
     }
 
     sortData(data, sortType) {
+<<<<<<< HEAD
         return [...data].sort((a, b) => {
             switch (sortType) {
                 case 'danger': // 위험도순 (높은 순)
@@ -1189,18 +1465,41 @@ class SearchManager {
                     const daysB_old = typeof b.period === 'string' && b.period.includes('일째') ? parseInt(b.period.replace('일째', '')) : -Infinity;
                     return daysB_old - daysA_old;
 
+=======
+        return data.sort((a, b) => {
+            switch (sortType) {
+                case 'danger':
+                    return this.getDangerWeight(b) - this.getDangerWeight(a);
+                case 'up':
+                    return b.upCount - a.upCount;
+                case 'recent':
+                    return new Date(b.date) - new Date(a.date);
+                case 'old':
+                    return new Date(a.date) - new Date(b.date);
+>>>>>>> origin/gb
                 default:
                     return 0;
             }
         });
     }
 
+<<<<<<< HEAD
     // getDangerWeight 함수는 sortData에 통합되므로 필요 없음.
+=======
+    getDangerWeight(item) {
+        const weights = { 'high': 3, 'medium': 2, 'low': 1 };
+        return weights[item.dangerLevel] || 0;
+    }
+>>>>>>> origin/gb
 
     resetFilters() {
         this.filters = {
             searchTerm: '',
+<<<<<<< HEAD
             sort: 'danger', // 초기 기본값
+=======
+            sort: 'danger',
+>>>>>>> origin/gb
             region: '',
             age: '',
             period: ''
@@ -1210,6 +1509,7 @@ class SearchManager {
     }
 }
 
+<<<<<<< HEAD
 
 // ======================= 도우미 함수들 (추가 또는 수정될 수 있음) =======================
 
@@ -1259,6 +1559,8 @@ function extractFullRegion(location) {
 }
 
 
+=======
+>>>>>>> origin/gb
 // 간단한 애니메이션 관리자
 class SimpleAnimations {
     constructor() {
@@ -1411,11 +1713,15 @@ class MissingSearchPage {
         this.reactRoots = new Map();
         this.isViewChanging = false;
         this.isDestroyed = false;
+<<<<<<< HEAD
 
         // ✅ init 끝나고 나서 전체 초기화 진행
         this.searchManager.init().then(() => {
             this.init();  // DOM, 이벤트, 뷰 초기화 등
         });
+=======
+        this.init();
+>>>>>>> origin/gb
     }
 
     loadViewMode() {

@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeMissingDetail() {
+<<<<<<< HEAD
     const missingId = extractMissingIdFromURL();
     fetchMissingDetail(missingId);
 
@@ -191,6 +192,29 @@ function applyRelatedMissingPersons(relatedList) {
 
 // 기본 정보 가시성 보장 함수 추가
 function ensureBasicInfoVisibility() {
+=======
+    // 기본 정보 항목들이 확실히 표시되도록 보장
+    ensureBasicInfoVisibility();
+    
+    // 페이지 로드 애니메이션 (안전하게 실행)
+    setTimeout(() => {
+        animatePageLoad();
+    }, 100);
+    
+    // 이벤트 리스너 설정
+    setupEventListeners();
+    
+    // 스크롤 애니메이션 설정
+    setupScrollAnimations();
+    
+    // 이미지 레이지 로딩
+    setupLazyLoading();
+}
+
+// 기본 정보 가시성 보장 함수 추가
+function ensureBasicInfoVisibility() {
+    // 기본 정보 그리드와 항목들이 확실히 보이도록 설정
+>>>>>>> origin/gb
     const basicInfoContainer = document.querySelector('.basic-info-container');
     const basicInfoGrid = document.querySelector('.basic-info-grid');
     const infoItems = document.querySelectorAll('.info-item');
@@ -645,6 +669,7 @@ function fallbackCopyTextToClipboard(text) {
     document.body.removeChild(textArea);
 }
 
+<<<<<<< HEAD
 
 function shareToKakao() {
     if (window.Kakao && window.Kakao.isInitialized()) {
@@ -663,6 +688,18 @@ function shareToKakao() {
                 title: `실종자 찾기 - ${name} (${age}세)`,
                 description: '실종자를 목격하신 분은 신고 부탁드립니다.',
                 imageUrl: imageUrl,
+=======
+// 소셜 공유 함수들
+function shareToKakao() {
+    // 카카오 SDK 초기화 필요
+    if (window.Kakao && window.Kakao.isInitialized()) {
+        Kakao.Link.sendDefault({
+            objectType: 'feed',
+            content: {
+                title: '실종자 찾기 - 김○○ (32세)',
+                description: '실종자를 목격하신 분은 신고 부탁드립니다.',
+                imageUrl: window.location.origin + '/static/images/sample-missing-1.jpg',
+>>>>>>> origin/gb
                 link: {
                     mobileWebUrl: window.location.href,
                     webUrl: window.location.href

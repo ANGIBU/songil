@@ -21,10 +21,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // 인증 시스템 초기화
 function initializeAuth() {
     // 로그인 폼 이벤트
+<<<<<<< HEAD
     // const loginForm = document.getElementById('loginForm');
     // if (loginForm) {
     //     loginForm.addEventListener('submit', handleLogin);
     // }
+=======
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+>>>>>>> origin/gb
     
     // 소셜 로그인 버튼 이벤트
     const googleLoginBtn = document.querySelector('.btn-google');
@@ -105,7 +112,11 @@ function showLoginForm() {
 // 로그인 처리
 async function handleLogin(e) {
     e.preventDefault();
+<<<<<<< HEAD
     initializeAuth
+=======
+    
+>>>>>>> origin/gb
     const formData = new FormData(e.target);
     const email = formData.get('email');
     const password = formData.get('password');
