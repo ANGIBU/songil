@@ -1,8 +1,4 @@
 {# templates/base.html #}
-<<<<<<< HEAD
-=======
-<!-- 깔끔한 페이지 로드 및 자연스러운 상단 이동 -->
->>>>>>> origin/gb
 <!DOCTYPE html>
 <html lang="ko" class="no-js">
 
@@ -11,8 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}손길 - 함께 찾아요, 소중한 사람을{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
-<<<<<<< HEAD
-
+    
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services"></script>
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -26,44 +21,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-=======
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    {% block extra_css %}{% endblock %}
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- GSAP with ScrollTrigger -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- JavaScript 활성화 감지 -->
-    <script>
-        // JavaScript 활성화 즉시 감지
->>>>>>> origin/gb
         document.documentElement.classList.remove('no-js');
         document.documentElement.classList.add('js-enabled');
     </script>
 
-<<<<<<< HEAD
     <script>
         (function() {
             let scrollOptimized = false;
             
-=======
-    <!-- 페이지 스크롤 최적화 (안전한 버전) -->
-    <script>
-        // 페이지 로드 시 자연스럽게 상단으로 이동 - 안전한 방식
-        (function() {
-            let scrollOptimized = false;
-            
-            // 브라우저 스크롤 복원 비활성화
->>>>>>> origin/gb
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
             }
@@ -79,51 +44,28 @@
                     });
                     scrollOptimized = true;
                 } catch (error) {
-<<<<<<< HEAD
-=======
-                    // 폴백 스크롤
->>>>>>> origin/gb
                     window.scrollTo(0, 0);
                     scrollOptimized = true;
                 }
             }
             
-<<<<<<< HEAD
             scrollToTop();
             
-=======
-            // 즉시 상단으로 (한 번만)
-            scrollToTop();
-            
-            // 페이지 언로드 시 상단으로
->>>>>>> origin/gb
             window.addEventListener('beforeunload', function() {
                 scrollOptimized = false;
                 window.scrollTo(0, 0);
             });
             
-<<<<<<< HEAD
-=======
-            // 페이지 로드 완료 시 상단으로 (확실히 하기 위해)
->>>>>>> origin/gb
             window.addEventListener('load', function() {
                 setTimeout(scrollToTop, 0);
             });
             
-<<<<<<< HEAD
-=======
-            // DOM 로드 완료 시 상단으로
->>>>>>> origin/gb
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', scrollToTop);
             } else {
                 scrollToTop();
             }
             
-<<<<<<< HEAD
-=======
-            // 뒤로가기/앞으로가기 시 상단으로
->>>>>>> origin/gb
             window.addEventListener('popstate', function() {
                 scrollOptimized = false;
                 setTimeout(scrollToTop, 0);
@@ -135,17 +77,9 @@
 </head>
 
 <body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %}">
-<<<<<<< HEAD
     <header class="header">
         <div class="container">
             <div class="header-content">
-=======
-    <!-- 헤더 -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <!-- 로고 -->
->>>>>>> origin/gb
                 <div class="logo">
                     <a href="{{ url_for('index') }}">
                         <i class="fas fa-hands-helping"></i>
@@ -153,10 +87,6 @@
                     </a>
                 </div>
 
-<<<<<<< HEAD
-=======
-                <!-- 메인 네비게이션 -->
->>>>>>> origin/gb
                 <nav class="main-nav">
                     <ul>
                         <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
@@ -167,7 +97,6 @@
                     </ul>
                 </nav>
 
-<<<<<<< HEAD
                 <div class="user-menu">
                     {% if session.get('user_id') %}
                         <div class="user-actions">
@@ -189,35 +118,12 @@
                     {% endif %}
                 </div>
 
-=======
-                <!-- 사용자 메뉴 -->
-                <div class="user-menu">
-                    <div class="auth-required user-actions">
-                        <a href="{{ url_for('notifications') }}" class="notification-btn">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </a>
-                        <a href="{{ url_for('mypage') }}" class="profile-btn">
-                            <i class="fas fa-user-circle"></i>
-                        </a>
-                    </div>
-                    <div class="guest-actions">
-                        <a href="{{ url_for('login') }}" class="login-btn">로그인</a>
-                    </div>
-                </div>
-
-                <!-- 모바일 메뉴 버튼 -->
->>>>>>> origin/gb
                 <button class="mobile-menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
 
-<<<<<<< HEAD
-=======
-        <!-- 모바일 네비게이션 -->
->>>>>>> origin/gb
         <nav class="mobile-nav">
             <ul>
                 <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
@@ -233,7 +139,6 @@
         </nav>
     </header>
 
-<<<<<<< HEAD
     <div class="notification-panel" id="notificationPanel">
         <div class="notification-panel-header">
             <h3>
@@ -373,17 +278,10 @@
 
     <div class="notification-overlay" id="notificationOverlay"></div>
 
-=======
-    <!-- 메인 콘텐츠 -->
->>>>>>> origin/gb
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-<<<<<<< HEAD
-=======
-    <!-- 푸터 -->
->>>>>>> origin/gb
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -418,21 +316,14 @@
                         <li><i class="fas fa-users-cog team-icon"></i> 손유빈 (PM)</li>
                         <li><i class="fas fa-server team-icon"></i> 황수용 (백엔드)</li>
                     </ul>
-<<<<<<< HEAD
-=======
                     <p style="margin-top: 10px; font-size: 0.9rem; color: #6b7280;">
                         공공데이터 활용 경진대회 출품작
                     </p>
->>>>>>> origin/gb
                 </div>
             </div>
         </div>
     </footer>
 
-<<<<<<< HEAD
-=======
-    <!-- JavaScript -->
->>>>>>> origin/gb
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
