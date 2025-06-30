@@ -1,12 +1,8 @@
 # model.py
 import pymysql
-import os
 from datetime import datetime
 from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class DBManager:
     def __init__(self):
@@ -16,11 +12,11 @@ class DBManager:
     def connect(self): 
         try :
             self.connection = pymysql.connect(
-                host=os.getenv('DB_HOST', '124.55.97.204'),
-                user=os.getenv('DB_USER', 'livon'),
-                password=os.getenv('DB_PASSWORD', 'dks12345'),
-                database=os.getenv('DB_NAME', 'songil'),
-                charset=os.getenv('DB_CHARSET', 'utf8mb4'),
+                host="124.55.97.204",
+                user="livon",
+                password="dks12345",
+                database="songil_db",
+                charset="utf8mb4",
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=False
             )

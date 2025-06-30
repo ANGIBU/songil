@@ -60,7 +60,6 @@
     --transition-slow: all 0.3s ease;
 }
 
-<<<<<<< HEAD
 /* ===== 마이페이지 전용 스타일 ===== */
 /* 우측 상단 알람 기능 완전 제거 */
 .notification-bell,
@@ -99,8 +98,6 @@ nav .fa-bell {
     display: none !important;
 }
 
-=======
->>>>>>> origin/gb
 /* ===== 기본 스타일 리셋 ===== */
 * {
     margin: 0;

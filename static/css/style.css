@@ -498,16 +498,12 @@ body.modal-open {
     text-decoration: none;
     border-radius: var(--radius-md);
     font-weight: 500;
-<<<<<<< HEAD
     transition: var(--transition-fast);
-=======
     transition: var(--transition-opacity);
->>>>>>> origin/gb
     color: var(--gray-600);
 }
 
 .login-btn:hover {
-<<<<<<< HEAD
     color: var(--gray-500);
 }
 
@@ -891,10 +887,6 @@ body.modal-open {
     display: block;
     opacity: 1;
     pointer-events: auto;
-=======
-    opacity: 0.6;
-    transform: translateY(-1px);
->>>>>>> origin/gb
 }
 
 /* 드롭다운 메뉴 스타일 */
@@ -1848,7 +1840,6 @@ hr {
     
     .mobile-menu-btn {
         display: block;
-<<<<<<< HEAD
         grid-column: 2;
         justify-self: end;
     }
@@ -1858,22 +1849,6 @@ hr {
         grid-row: 2;
         justify-self: start;
         min-width: auto;
-=======
-    }
-    
-    .hero-title {
-        font-size: var(--font-size-3xl);
-    }
-    
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
->>>>>>> origin/gb
     }
     
     .urgent-cards {

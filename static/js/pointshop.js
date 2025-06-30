@@ -1157,7 +1157,6 @@ function showPointsHistory() {
     }
 }
 
-<<<<<<< HEAD
 // 포인트 내역 리스트 업데이트
 function updatePointsHistoryList() {
     const listContainer = document.querySelector('.points-history-list');
@@ -1177,7 +1176,6 @@ function updatePointsHistoryList() {
 }
 
 // 더 많은 상품 로드 (전역 함수로 유지)
-=======
 // 한정 상품 타이머 업데이트
 function updateLimitedTimer() {
     const timerElement = document.getElementById('limitedTimer');
@@ -1203,7 +1201,6 @@ function updateLimitedTimer() {
 }
 
 // 더 많은 상품 로드
->>>>>>> origin/gb
 function loadMoreProducts() {
     const btn = event.target;
     const originalText = btn.innerHTML;
