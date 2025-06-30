@@ -12,6 +12,9 @@ from typing import Dict, List, Tuple
 from model import DBManager
 import warnings
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 warnings.filterwarnings('ignore', category=UserWarning, module='sklearn.utils.validation')
 
@@ -310,9 +313,11 @@ def sync_missing_api_data():
         print("[오류] 데이터베이스 연결이 없어 동기화를 수행할 수 없습니다.")
         return
         
-    API_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-20597"
+    API_URL = os.getenv('API_URL', 'https://www.safetydata.go.kr/V2/api/DSSP-IF-20597')
+    SERVICE_KEY = os.getenv('SERVICE_KEY', '3FQG91W954658S1F')
+    
     params = {
-        "serviceKey": "3FQG91W954658S1F",
+        "serviceKey": SERVICE_KEY,
         "returnType": "json",
         "pageNo": "1",
         "numOfRows": "500"
