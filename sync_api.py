@@ -18,7 +18,13 @@ load_dotenv()
 
 warnings.filterwarnings('ignore', category=UserWarning, module='sklearn.utils.validation')
 
-BASE_DIR = os.getenv('BASE_DIR', '/home/livon/projects/songil')
+# 경로 설정 수정 - Windows/Linux 호환
+def get_project_base_dir():
+    """현재 스크립트 위치를 기준으로 프로젝트 루트 디렉토리 반환"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    return current_dir
+
+BASE_DIR = os.getenv('BASE_DIR', get_project_base_dir())
 MODELS_DIR = os.getenv('MODELS_DIR', os.path.join(BASE_DIR, 'models'))
 
 RF_MODEL_PATH = os.path.join(MODELS_DIR, "rf_model.pkl")
@@ -29,6 +35,9 @@ print(f"BASE_DIR 설정: {BASE_DIR}")
 print(f"MODELS_DIR 설정: {MODELS_DIR}")
 print(f"RF 모델 예상 경로: {RF_MODEL_PATH}")
 print(f"키워드 점수 예상 경로: {KEYWORD_SCORES_PATH}")
+
+# models 디렉토리가 없으면 생성
+os.makedirs(MODELS_DIR, exist_ok=True)
 
 if os.path.exists(RF_MODEL_PATH):
     print(f"[디버그] RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재합니다.")
@@ -219,21 +228,50 @@ def calculate_all_scores(data: Dict) -> Dict:
 
     return details
 
+# 모델 로딩 - fallback 처리 개선
 model_rf = None
+model_available = False
+
 try:
     model_rf = joblib.load(RF_MODEL_PATH)
+    model_available = True
     print(f"[모델 로드] {RF_MODEL_PATH} 로드 성공.")
 except Exception as e:
-    print(f"[오류] '{RF_MODEL_PATH}' 로드 실패: {e}")
-    traceback.print_exc()
-    print("[심각 오류] Random Forest 모델 로드에 실패하여 애플리케이션을 종료합니다.")
-    exit(1)
+    print(f"[경고] '{RF_MODEL_PATH}' 로드 실패: {e}")
+    print("[알림] 모델 파일 없이 기본 위험도 평가로 동작합니다.")
+    model_available = False
 
 def predict_danger_level(data_list: List[Dict]) -> List[str]:
-
-    if model_rf is None:
-        print("[심각 오류] Random Forest 모델이 로드되지 않았습니다. 예측을 수행할 수 없습니다.")
-        return ["예측 불가"] * len(data_list)
+    if not model_available or model_rf is None:
+        print("[알림] RF 모델을 사용할 수 없어 기본 위험도 평가를 사용합니다.")
+        # 기본 위험도 평가 로직
+        predictions = []
+        for data in data_list:
+            age = data.get('age', 0)
+            keywords_text = data.get('keywords', '')
+            
+            # 기본 위험도 판정 로직
+            danger_score = 0.0
+            
+            # 나이 기반 평가
+            if age <= 6 or age >= 80:
+                danger_score += 0.4
+            elif age <= 18 or age >= 65:
+                danger_score += 0.3
+                
+            # 키워드 기반 평가
+            high_risk_keywords = ['치매', '알츠하이머', '정신질환', '지적장애']
+            for keyword in high_risk_keywords:
+                if keyword in keywords_text:
+                    danger_score += 0.3
+                    break
+                    
+            if danger_score >= 0.4:
+                predictions.append('위험')
+            else:
+                predictions.append('보통')
+                
+        return predictions
 
     predictions = []
 
@@ -251,7 +289,6 @@ def predict_danger_level(data_list: List[Dict]) -> List[str]:
                 elif gender_raw.upper() == '여' or gender_raw.upper() == 'FEMALE':
                     gender_encoded = 0
 
-            
             if gender_encoded is None: 
                 gender_encoded = 2 
 
@@ -452,4 +489,9 @@ def sync_missing_api_data():
         db.disconnect()
 
 if __name__ == "__main__":
+    if model_available:
+        print("[정상] 모든 모델이 로드되어 전체 기능으로 동작합니다.")
+    else:
+        print("[알림] 모델 파일 없이 기본 기능으로 동작합니다.")
+    
     sync_missing_api_data()
