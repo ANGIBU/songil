@@ -4,7 +4,7 @@
 {% block title %}손길 - 목격 신고{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missing-witness.css') }}">
 <script
     type="text/javascript"
     src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=c53240583335ca56b4ff615adec6f0e3&autoload=false&libraries=services">
@@ -209,7 +209,6 @@
             </div>
             
             <div class="form-section">
-                
                 <div class="evidence-upload">
                     <div class="upload-area" id="evidenceUploadArea">
                         <div class="upload-placeholder">
@@ -224,14 +223,14 @@
                     </div>
                     
                     <div class="uploaded-evidence" id="uploadedEvidence">
-                        </div>
+                    </div>
                     
                     <div class="upload-note">
                         <i class="fas fa-info-circle"></i>
+                        지원 형식: JPG, PNG, MP4 (최대 10MB, 3개 파일)
                     </div>
                 </div>
             </div>
-            
             
             <div class="form-section">
                 <h3>
@@ -367,6 +366,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/user.js') }}"></script>
-<script src="{{ url_for('static', filename='js/missing-witness.js') }}"defer></script>
+<script src="{{ url_for('static', filename='js/missing-witness.js') }}" defer></script>
 {% endblock %}

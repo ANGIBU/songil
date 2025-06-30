@@ -76,7 +76,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% else %}page-unknown{% endif %}">
+<body class="{% if request.endpoint == 'index' %}page-home{% elif request.endpoint == 'search' %}page-search{% elif request.endpoint == 'about' %}page-about{% elif request.endpoint == 'ranking' %}page-ranking{% elif request.endpoint == 'login' %}page-login{% elif request.endpoint == 'register' %}page-register{% elif request.endpoint == 'pointshop' %}page-pointshop{% else %}page-unknown{% endif %}">
     <header class="header">
         <div class="container">
             <div class="header-content">
@@ -92,7 +92,6 @@
                         <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> 홈</a></li>
                         <li><a href="{{ url_for('search') }}" class="nav-link {% if request.endpoint == 'search' %}active{% endif %}"><i class="fas fa-search"></i> 실종자 조회</a></li>
                         <li class="auth-required"><a href="{{ url_for('missing_report') }}" class="nav-link {% if request.endpoint == 'missing_report' %}active{% endif %}"><i class="fas fa-plus-circle"></i> 신고하기</a></li>
-                        <li class="auth-required"><a href="{{ url_for('pointshop') }}" class="nav-link {% if request.endpoint == 'pointshop' %}active{% endif %}"><i class="fas fa-gift"></i> 포인트샵</a></li>
                         <li><a href="{{ url_for('ranking') }}" class="nav-link {% if request.endpoint == 'ranking' %}active{% endif %}"><i class="fas fa-trophy"></i> 순위</a></li>
                     </ul>
                 </nav>
@@ -100,6 +99,18 @@
                 <div class="user-menu">
                     {% if session.get('user_id') %}
                         <div class="user-actions">
+                            <div class="points-shop-btn-container auth-required">
+                                <a href="{{ url_for('pointshop') }}" class="points-shop-btn" title="포인트샵">
+                                    <div class="points-display">
+                                        <i class="fas fa-coins"></i>
+                                        <span class="points-amount" id="headerUserPoints">1,250</span>
+                                        <span class="points-unit">P</span>
+                                    </div>
+                                    <div class="shop-icon">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                </a>
+                            </div>
                             <button class="notification-bell-btn" id="notificationBellBtn" aria-label="알림">
                                 <i class="fas fa-bell"></i>
                                 <span class="notification-badge" id="notificationBadge">N</span>

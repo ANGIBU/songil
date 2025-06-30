@@ -4,8 +4,7 @@
 {% block title %}손길 - 실종자 신고{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/missing-report.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -41,24 +40,6 @@
                     <div class="step-label">최종확인</div>
                 </div>
             </div>
-            <div class="progress-line">
-                <div class="progress-fill" style="width: 20%"></div>
-            </div>
-        </div>
-        
-        <!-- 긴급 안내 -->
-        <div class="emergency-notice">
-            <div class="notice-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="notice-content">
-                <h3>긴급상황인가요?</h3>
-                <p>즉시 112에 신고하신 후 이 양식을 작성해주세요</p>
-                <a href="tel:112" class="emergency-call-btn">
-                    <i class="fas fa-phone"></i>
-                    112 신고하기
-                </a>
-            </div>
         </div>
     </div>
 </section>
@@ -89,7 +70,10 @@
                             <i class="fas fa-birthday-cake"></i>
                             나이
                         </label>
-                        <input type="number" id="missingAge" name="missingAge" required min="0" max="120" placeholder="만 나이">
+                        <div class="input-with-unit">
+                            <input type="number" id="missingAge" name="missingAge" required min="0" max="120" placeholder="만 나이">
+                            <span class="unit">세</span>
+                        </div>
                         <div class="error-message" id="missingAgeError"></div>
                     </div>
                     
@@ -116,17 +100,23 @@
                     <div class="form-group">
                         <label for="height">
                             <i class="fas fa-ruler-vertical"></i>
-                            키 (cm)
+                            키
                         </label>
-                        <input type="number" id="height" name="height" min="50" max="250" placeholder="예: 170">
+                        <div class="input-with-unit">
+                            <input type="number" id="height" name="height" min="50" max="250" placeholder="예: 170">
+                            <span class="unit">cm</span>
+                        </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="weight">
                             <i class="fas fa-weight"></i>
-                            체중 (kg)
+                            체중
                         </label>
-                        <input type="number" id="weight" name="weight" min="10" max="200" placeholder="예: 65">
+                        <div class="input-with-unit">
+                            <input type="number" id="weight" name="weight" min="10" max="200" placeholder="예: 65">
+                            <span class="unit">kg</span>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -147,9 +137,9 @@
                 <div class="form-group full-width">
                     <label for="physicalFeatures">
                         <i class="fas fa-eye"></i>
-                        외모 특징
+                        특징
                     </label>
-                    <textarea id="physicalFeatures" name="physicalFeatures" rows="3" placeholder="얼굴 특징, 머리 스타일, 흉터, 점 등 구체적인 외모 특징을 적어주세요"></textarea>
+                    <textarea id="physicalFeatures" name="physicalFeatures" rows="3" placeholder="얼굴 특징, 머리 스타일, 흉터, 점 등 구체적인 특징을 적어주세요"></textarea>
                 </div>
                 
                 <div class="form-actions">
@@ -260,7 +250,6 @@
                     </div>
                     
                     <div class="uploaded-photos" id="uploadedPhotos">
-                        <!-- 업로드된 사진들이 여기에 표시됩니다 -->
                     </div>
                     
                     <div class="upload-guidelines">
@@ -384,7 +373,6 @@
                             실종자 정보
                         </h3>
                         <div class="confirm-details" id="missingPersonSummary">
-                            <!-- JavaScript로 동적 생성 -->
                         </div>
                     </div>
                     
@@ -394,7 +382,6 @@
                             실종 상황
                         </h3>
                         <div class="confirm-details" id="missingSituationSummary">
-                            <!-- JavaScript로 동적 생성 -->
                         </div>
                     </div>
                     
@@ -404,7 +391,6 @@
                             업로드된 사진
                         </h3>
                         <div class="confirm-photos" id="uploadedPhotosSummary">
-                            <!-- JavaScript로 동적 생성 -->
                         </div>
                     </div>
                     
@@ -414,7 +400,6 @@
                             연락처 정보
                         </h3>
                         <div class="confirm-details" id="contactSummary">
-                            <!-- JavaScript로 동적 생성 -->
                         </div>
                     </div>
                 </div>
@@ -457,53 +442,8 @@
         </form>
     </div>
 </section>
-
-<!-- 도움말 사이드바 -->
-<div class="help-sidebar" id="helpSidebar">
-    <div class="help-header">
-        <h3>신고 도움말</h3>
-        <button class="close-help" onclick="toggleHelpSidebar()">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="help-content">
-        <div class="help-item">
-            <h4>신고 전 확인사항</h4>
-            <ul>
-                <li>• 112 신고 여부</li>
-                <li>• 최근 연락 시도</li>
-                <li>• 평소 행동 패턴 확인</li>
-            </ul>
-        </div>
-        <div class="help-item">
-            <h4>사진 촬영 팁</h4>
-            <ul>
-                <li>• 얼굴이 선명한 사진</li>
-                <li>• 밝은 곳에서 촬영</li>
-                <li>• 여러 각도 촬영</li>
-            </ul>
-        </div>
-        <div class="help-item">
-            <h4>긴급 연락처</h4>
-            <ul>
-                <li>• 경찰신고: 112</li>
-                <li>• 소방서: 119</li>
-                <li>• 실종아동센터: 182</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<!-- 도움말 플로팅 버튼 -->
-<div class="floating-help">
-    <button class="help-btn" onclick="toggleHelpSidebar()">
-        <i class="fas fa-question-circle"></i>
-        <span>도움말</span>
-    </button>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/user.js') }}"></script>
 <script src="{{ url_for('static', filename='js/missing-report.js') }}"></script>
 {% endblock %}
