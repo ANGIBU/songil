@@ -16,44 +16,47 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-warnings.filterwarnings('ignore', category=UserWarning, module='sklearn.utils.validation')
+# warnings.filterwarnings('ignore', category=UserWarning, module='sklearn.utils.validation')
+# SSL 경고도 무시
+warnings.filterwarnings('ignore')
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# 경로 설정 수정 - Windows/Linux 호환
-def get_project_base_dir():
-    """현재 스크립트 위치를 기준으로 프로젝트 루트 디렉토리 반환"""
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    return current_dir
+# 프로젝트 내 상대 경로 설정
+def get_project_root():
+    """현재 스크립트 파일을 기준으로 프로젝트 루트 디렉토리 반환"""
+    return os.path.dirname(os.path.abspath(__file__))
 
-BASE_DIR = os.getenv('BASE_DIR', get_project_base_dir())
-MODELS_DIR = os.getenv('MODELS_DIR', os.path.join(BASE_DIR, 'models'))
+PROJECT_ROOT = get_project_root()
+MODELS_DIR = os.path.join(PROJECT_ROOT, 'models')
 
 RF_MODEL_PATH = os.path.join(MODELS_DIR, "rf_model.pkl")
 KEYWORD_SCORES_PATH = os.path.join(MODELS_DIR, "keyword_scores_diff.pkl")
 
-print(f"현재 작업 디렉토리: {os.getcwd()}")
-print(f"BASE_DIR 설정: {BASE_DIR}")
-print(f"MODELS_DIR 설정: {MODELS_DIR}")
-print(f"RF 모델 예상 경로: {RF_MODEL_PATH}")
-print(f"키워드 점수 예상 경로: {KEYWORD_SCORES_PATH}")
+# print(f"현재 작업 디렉토리: {os.getcwd()}")
+# print(f"프로젝트 루트: {PROJECT_ROOT}")
+# print(f"모델 디렉토리: {MODELS_DIR}")
+# print(f"RF 모델 예상 경로: {RF_MODEL_PATH}")
+# print(f"키워드 점수 예상 경로: {KEYWORD_SCORES_PATH}")
 
 # models 디렉토리가 없으면 생성
 os.makedirs(MODELS_DIR, exist_ok=True)
 
 if os.path.exists(RF_MODEL_PATH):
-    print(f"[디버그] RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재합니다.")
+    pass  # print(f"[디버그] RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재합니다.")
 else:
-    print(f"[디버그] !!! 경고: RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재하지 않습니다. !!!")
+    pass  # print(f"[디버그] !!! 경고: RF 모델 파일이 '{RF_MODEL_PATH}' 경로에 존재하지 않습니다. !!!")
 
 if os.path.exists(KEYWORD_SCORES_PATH):
-    print(f"[디버그] 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재합니다.")
+    pass  # print(f"[디버그] 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재합니다.")
 else:
-    print(f"[디버그] !!! 경고: 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재하지 않습니다. !!!")
+    pass  # print(f"[디버그] !!! 경고: 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재하지 않습니다. !!!")
 
 try:
     keyword_scores = joblib.load(KEYWORD_SCORES_PATH)
-    print(f"[모델 로드] {KEYWORD_SCORES_PATH} 로드 성공.")
+    # print(f"[모델 로드] {KEYWORD_SCORES_PATH} 로드 성공.")
 except Exception as e:
-    print(f"[경고] '{KEYWORD_SCORES_PATH}' 로드 실패: {e}. 임시 기본 키워드 점수를 사용합니다.")
+    # print(f"[경고] '{KEYWORD_SCORES_PATH}' 로드 실패: {e}. 임시 기본 키워드 점수를 사용합니다.")
     keyword_scores = {
         '치매': 0.4, '기억력 저하': 0.4, '이름 되묻기': 0.4,
         '지적장애': 0.37, '정신질환': 0.38, '시각장장애': 0.32,
@@ -235,10 +238,10 @@ model_available = False
 try:
     model_rf = joblib.load(RF_MODEL_PATH)
     model_available = True
-    print(f"[모델 로드] {RF_MODEL_PATH} 로드 성공.")
+    # print(f"[모델 로드] {RF_MODEL_PATH} 로드 성공.")
 except Exception as e:
-    print(f"[경고] '{RF_MODEL_PATH}' 로드 실패: {e}")
-    print("[알림] 모델 파일 없이 기본 위험도 평가로 동작합니다.")
+    # print(f"[경고] '{RF_MODEL_PATH}' 로드 실패: {e}")
+    # print("[알림] 모델 파일 없이 기본 위험도 평가로 동작합니다.")
     model_available = False
 
 def predict_danger_level(data_list: List[Dict]) -> List[str]:
@@ -341,7 +344,7 @@ def parse_date(date_str):
 db = DBManager()
 try:
     db.connect()
-    print("[DB] sync_api.py: 데이터베이스 연결 성공.")
+    # print("[DB] sync_api.py: 데이터베이스 연결 성공.")
 except Exception as e:
     print(f"[오류] sync_api.py: 데이터베이스 연결 실패: {e}")
     traceback.print_exc()
@@ -361,22 +364,33 @@ def sync_missing_api_data():
     BATCH_SIZE = 20
 
     try:
-        print(f"[동기화] {API_URL}에서 데이터 동기화를 시도합니다...")
+        # print(f"[동기화] {API_URL}에서 데이터 동기화를 시도합니다...")
         response = requests.get(API_URL, params=params, verify=False)
         response.raise_for_status()
         data = response.json()
 
-        with open("api_response_full.json", "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-        print("[DEBUG] API 응답 전체가 'api_response_full.json' 파일로 저장되었습니다.")
+        # with open("api_response_full.json", "w", encoding="utf-8") as f:
+        #     json.dump(data, f, ensure_ascii=False, indent=4)
+        # print("[DEBUG] API 응답 전체가 'api_response_full.json' 파일로 저장되었습니다.")
 
         items = data.get('body', [])
+        
+        # API 응답 검증
+        if items is None:
+            items = []
+            # print("[경고] API 응답의 body가 None입니다. 빈 배열로 처리합니다.")
+        elif not isinstance(items, list):
+            items = []
+            # print(f"[경고] API 응답의 body가 list가 아닙니다: {type(items)}. 빈 배열로 처리합니다.")
 
         current_external_ids_from_api = []
-
         batch_items = []
 
-        print(f"[동기화] 총 {len(items)}개의 항목을 가져왔습니다. {BATCH_SIZE}개 단위로 처리합니다.")
+        # print(f"[동기화] 총 {len(items)}개의 항목을 가져왔습니다. {BATCH_SIZE}개 단위로 처리합니다.")
+        
+        if len(items) == 0:
+            # print("[경고] API에서 받은 데이터가 없습니다. 동기화를 건너뜁니다.")
+            return
 
         for i, item in enumerate(items):
             external_id = item.get("SENU")
@@ -400,7 +414,7 @@ def sync_missing_api_data():
             batch_items.append(processed_item_data)
 
             if (i + 1) % BATCH_SIZE == 0 or (i + 1) == len(items):
-                print(f"[동기화 진행] {i + 1} / {len(items)} 항목 처리 중...")
+                # print(f"[동기화 진행] {i + 1} / {len(items)} 항목 처리 중...")
 
                 danger_levels = predict_danger_level([
                     {'age': d['age'], 'gender': d['gender'], 'keywords': d['keywords']}
@@ -423,10 +437,10 @@ def sync_missing_api_data():
                             gender_to_store = 0
                         else:
                             gender_to_store = 2
-                            print(f"[경고] 알 수 없는 성별 값: '{gender_api}'. 2으로 처리합니다.")
+                            # print(f"[경고] 알 수 없는 성별 값: '{gender_api}'. 2으로 처리합니다.")
                     else:
                         gender_to_store = 2
-                        print(f"[경고] 성별 정보가 None입니다. 2으로 처리합니다.")
+                        # print(f"[경고] 성별 정보가 None입니다. 2으로 처리합니다.")
 
                     missing_date = processed_data['missing_date']
                     missing_location = processed_data['missing_location']
@@ -434,10 +448,10 @@ def sync_missing_api_data():
                     image_url = processed_data['image_url']
                     danger_level = danger_levels[j]
 
-                    print(f"\n--- 현재 처리 중인 API 데이터 ---")
-                    print(f"  external_id: {external_id_to_use}")
-                    print(f"  검색 키: name='{name}', age={age_to_store}, gender={gender_to_store}, missing_date={missing_date}")
-                    print(f"--- DB에서 기존 레코드 검색 시도 중 ---")
+                    # print(f"\n--- 현재 처리 중인 API 데이터 ---")
+                    # print(f"  external_id: {external_id_to_use}")
+                    # print(f"  검색 키: name='{name}', age={age_to_store}, gender={gender_to_store}, missing_date={missing_date}")
+                    # print(f"--- DB에서 기존 레코드 검색 시도 중 ---")
 
                     existing_record = db.execute(f"""
                         SELECT id, external_id FROM api_missing_data
@@ -445,11 +459,12 @@ def sync_missing_api_data():
                     """, (name, age_to_store, gender_to_store, missing_date)).fetchone()
 
                     if existing_record:
-                        print(f"  [FOUND] 기존 레코드 발견: id={existing_record['id']}, external_id={existing_record['external_id']}")
-                        print(f"  [스킵] 중복 레코드를 발견했습니다. (ID: {existing_record['id']}). 업데이트하지 않고 다음으로 넘어갑니다.")
+                        # print(f"  [FOUND] 기존 레코드 발견: id={existing_record['id']}, external_id={existing_record['external_id']}")
+                        # print(f"  [스킵] 중복 레코드를 발견했습니다. (ID: {existing_record['id']}). 업데이트하지 않고 다음으로 넘어갑니다.")
                         continue
                     else:
-                        print(f"  [NOT FOUND] 기존 레코드 없음. 새 레코드 삽입 예정.")
+                        # print(f"  [NOT FOUND] 기존 레코드 없음. 새 레코드 삽입 예정.")
+                        pass
 
                     db.execute("""
                         INSERT INTO api_missing_data (
@@ -461,7 +476,7 @@ def sync_missing_api_data():
                         external_id_to_use, name, age_to_store, gender_to_store, missing_date,
                         missing_location, features, image_url, danger_level
                     ), commit=True)
-                    print(f"  [삽입] 새로운 레코드 삽입 완료 (external_id: {external_id_to_use}).")
+                    # print(f"  [삽입] 새로운 레코드 삽입 완료 (external_id: {external_id_to_use}).")
 
                 batch_items = []
 
@@ -472,12 +487,12 @@ def sync_missing_api_data():
                 SET status = 'hidden', updated_at = NOW()
                 WHERE external_id NOT IN ({placeholders}) AND status = 'active'
             """, tuple(current_external_ids_from_api), commit=True)
-            print(f"[동기화] API에서 {len(items)}개의 항목을 처리했습니다. 현재 응답에 없는 external_id를 가진 레코드는 숨김 처리되었습니다.")
+            # print(f"[동기화] API에서 {len(items)}개의 항목을 처리했습니다. 현재 응답에 없는 external_id를 가진 레코드는 숨김 처리되었습니다.")
         else:
             db.execute("UPDATE api_missing_data SET status = 'hidden', updated_at = NOW() WHERE status = 'active'", commit=True)
-            print("[동기화] API에서 항목을 수신하지 못했습니다. 모든 기존 활성 레코드는 숨김 처리되었습니다.")
+            # print("[동기화] API에서 항목을 수신하지 못했습니다. 모든 기존 활성 레코드는 숨김 처리되었습니다.")
 
-        print(f"[✓] 동기화 완료 - {len(items)}건 처리됨 at {datetime.now()}")
+        # print(f"[✓] 동기화 완료 - {len(items)}건 처리됨 at {datetime.now()}")
 
     except requests.exceptions.RequestException as req_e:
         print(f"[오류] 동기화 중 API 요청 실패: {req_e}")
