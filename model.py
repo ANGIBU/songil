@@ -1,5 +1,4 @@
-# model.py
-import pymysql
+import mysql.connector 
 from datetime import datetime
 from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,47 +8,45 @@ class DBManager:
         self.connection = None
         self.cursor = None
     
+    ## 데이터베이스 연결
     def connect(self): 
         try :
-            self.connection = pymysql.connect(
-                host="124.55.97.204",
-                user="livon",
+            self.connection = mysql.connector.connect(
+                host = "124.55.97.204",
+                user = "livon",
                 password="dks12345",
-                database="songil_db",
-                charset="utf8mb4",
-                cursorclass=pymysql.cursors.DictCursor,
-                autocommit=False
+                database="songil",
+                charset="utf8mb4"
             )
-            self.cursor = self.connection.cursor()
+            self.cursor = self.connection.cursor(dictionary=True)
         
-        except pymysql.Error as error :
+        except mysql.connector.Error as error :
             print(f"데이터베이스 연결 실패 : {error}")
     
+    ## 데이터베이스 연결해제
     def disconnect(self):
-        if self.connection and self.connection.open:
+        if self.connection and self.connection.is_connected():
             self.cursor.close()
             self.connection.close()
 
+    # 쿼리 실행 메소드
     def execute(self, query, params=None, commit=False):
-        try:
-            self.cursor.execute(query, params)
-            if commit:
-                self.connection.commit()  
-            return self.cursor
-        except Exception as e:
-            print(f"쿼리 실행 오류: {e}")
-            if commit:
-                self.connection.rollback()
-            raise
+        self.cursor.execute(query, params)
+        if commit:
+            self.connection.commit()  
+        return self.cursor
 
+    # 트랜잭션 관리 메소드들
     def begin_transaction(self):
+        """트랜잭션 시작"""
         try:
-            self.connection.begin()
+            self.cursor.execute("START TRANSACTION")
         except Exception as e:
             print(f"트랜잭션 시작 오류: {e}")
             raise
     
     def commit_transaction(self):
+        """트랜잭션 커밋"""
         try:
             self.connection.commit()
         except Exception as e:
@@ -57,28 +54,33 @@ class DBManager:
             raise
     
     def rollback_transaction(self):
+        """트랜잭션 롤백"""
         try:
             self.connection.rollback()
         except Exception as e:
             print(f"트랜잭션 롤백 오류: {e}")
             raise
     
+    # 쿼리 실행 메소드
     def execute_query(self, query, params=None):
+        """쿼리 실행 및 결과 반환"""
         try:
             if params:
                 self.cursor.execute(query, params)
             else:
                 self.cursor.execute(query)
             
+            # SELECT 쿼리인 경우 결과 반환
             if query.strip().upper().startswith('SELECT'):
                 return self.cursor.fetchall()
             else:
+                # INSERT, UPDATE, DELETE인 경우 affected rows 반환
                 return self.cursor.rowcount
                 
         except Exception as e:
             print(f"쿼리 실행 오류: {e}")
             raise
-
+# 회원가입 
     def insert_user(self, form):
         try:
             sql = """
@@ -93,7 +95,7 @@ class DBManager:
                 form['email'],
                 hashed_pw,
                 form['nickname'],
-                'user',
+                'user', # 기본 역할
                 form['fullName'],
                 form['birthDate'],
                 form['phone'],
@@ -101,17 +103,17 @@ class DBManager:
                 form['address'],
                 form['detailAddress'],
                 datetime.now(),
-                100,
-                0
+                100,  # 가입 축하 포인트
+                0     # 초기 alert_report_count
             )
             self.cursor.execute(sql, values)
             self.connection.commit()
             return True
         except Exception as e:
             print("회원가입 실패:", e)
-            self.connection.rollback()
             return False
         
+    # 로그인    
     def get_user_by_email(self, email):
         try:
             self.cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
@@ -120,24 +122,19 @@ class DBManager:
             print("사용자 조회 실패:", e)
             return None
     
+    # 아이디 찾기
     def find_email_by_name_phone(self, name, phone):
-        try:
-            sql = "SELECT email, created_at FROM users WHERE full_name = %s AND phone = %s"
-            self.cursor.execute(sql, (name, phone))
-            return self.cursor.fetchone()
-        except Exception as e:
-            print("아이디 찾기 실패:", e)
-            return None
+        sql = "SELECT email, created_at FROM users WHERE full_name = %s AND phone = %s"
+        self.cursor.execute(sql, (name, phone))
+        return self.cursor.fetchone()
     
+    # 비밀번호 찾기
     def find_user_by_name_email(self, name, email):
-        try:
-            sql = "SELECT * FROM users WHERE full_name = %s AND email = %s"
-            self.cursor.execute(sql, (name, email))
-            return self.cursor.fetchone()
-        except Exception as e:
-            print("사용자 찾기 실패:", e)
-            return None
+        sql = "SELECT * FROM users WHERE full_name = %s AND email = %s"
+        self.cursor.execute(sql, (name, email))
+        return self.cursor.fetchone()
     
+    # 비밀번호 변경
     def update_password(self, email, hashed_password):
         try:
             sql = "UPDATE users SET password_hash = %s WHERE email = %s"
@@ -146,15 +143,15 @@ class DBManager:
             return True
         except Exception as e:
             print("비밀번호 업데이트 실패:", e)
-            self.connection.rollback()
             return False
 
+    # 목격자 정보 삽입
     def insert_witness_report(self, report_data):
         try:
             sql = """
                 INSERT INTO witness_reports (
                     user_id, missing_person_name, missing_person_age,
-                    missing_person_gender, missing_date, missing_location,
+                    missing_person_gender, missing_date, missing_location, -- <--- ★ 이 두 부분이 이렇게 되어야 합니다 ★
                     missing_features, witness_datetime, time_accuracy,
                     location, location_detail, location_accuracy,
                     description, confidence, distance,
@@ -162,7 +159,7 @@ class DBManager:
                     created_at, updated_at
                 ) VALUES (
                     %(user_id)s, %(missing_person_name)s, %(missing_person_age)s,
-                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s,
+                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s, -- <--- ★ 이 두 부분도 이렇게 되어야 합니다 ★
                     %(missing_features)s, %(witness_datetime)s, %(time_accuracy)s,
                     %(location)s, %(location_detail)s, %(location_accuracy)s,
                     %(description)s, %(confidence)s, %(distance)s,
@@ -170,15 +167,15 @@ class DBManager:
                     NOW(), NOW()
                 )
             """
-            print(f"[디버그] 실행될 SQL 쿼리: {sql}")
-            print(f"[디버그] SQL 파라미터: {report_data}")
+            print(f"[디버그] 실행될 SQL 쿼리: {sql}") # ★ 이 줄을 추가하여 어떤 SQL이 실행되는지 확인하세요. ★
+            print(f"[디버그] SQL 파라미터: {report_data}") # ★ 이 줄도 추가하여 어떤 데이터가 넘어가는지 확인하세요. ★
 
             self.cursor.execute(sql, report_data)
             self.connection.commit()
-            return self.cursor.lastrowid
+            return True
         except Exception as e:
             self.connection.rollback()
-            print(f"목격 신고 삽입 실패: PyMySQL 오류 - {e}")
+            print(f"목격 신고 삽입 실패: MySQL 오류 - {e}")
             return False
 
     def get_missing_person_by_external_id(self, external_id):
@@ -193,6 +190,7 @@ class DBManager:
         except Exception as e:
             print(f"[에러] DB에서 실종자 정보 조회 중 오류 발생 ({external_id}): {e}")
             return None
-
+    
+# DBManager 인스턴스 생성 및 연결
 db = DBManager()
 db.connect()

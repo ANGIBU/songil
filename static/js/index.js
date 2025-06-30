@@ -420,7 +420,6 @@ function setupScrollAnimations() {
     }
 }
 
-<<<<<<< HEAD
 
 // ===== 순위 데이터 초기화 ===== 
 async function initializeRankingData() {
@@ -440,25 +439,12 @@ async function initializeRankingData() {
             console.warn('API 데이터 없음, 더미 데이터 사용');
             window.indexApp.rankings = getDummyRankingData();
         }
-=======
-// ===== 순위 데이터 초기화 =====
-function initializeRankingData() {
-    try {
-        window.indexApp.rankings = [
-            { position: 1, name: '김희망', points: 2847, reports: 45, witnesses: 23 },
-            { position: 2, name: '박도움', points: 2134, reports: 38, witnesses: 18 },
-            { position: 3, name: '이나눔', points: 1895, reports: 42, witnesses: 15 },
-            { position: 4, name: '최참여', points: 1672, reports: 36, witnesses: 12 },
-            { position: 5, name: '정협력', points: 1543, reports: 29, witnesses: 14 }
-        ];
->>>>>>> origin/gb
         
         // React 컴포넌트가 사용 가능한 경우 렌더링
         if (window.indexApp.animations.reactReady) {
             renderRankingComponent();
         }
         
-<<<<<<< HEAD
         // 로딩 상태 숨기기
         hideRankingLoading();
         
@@ -655,32 +641,6 @@ async function initializeUrgentMissingData() {
             console.warn('실종자 데이터 로딩 실패:', result.error);
         }
 
-=======
-    } catch (error) {
-        console.warn('순위 데이터 초기화 오류:', error);
-    }
-}
-
-// ===== 긴급 실종자 데이터 초기화 =====
-function initializeUrgentMissingData() {
-    try {
-        window.indexApp.urgentMissing = [
-            { id: 1, name: '김○○', age: 32, date: '2024.05.20', location: '서울시 강남구 역삼동', clothing: '검은색 정장, 갈색 구두', upCount: 246 },
-            { id: 2, name: '박○○', age: 8, date: '2024.05.21', location: '부산시 해운대구 중동', clothing: '파란색 티셔츠, 검은색 반바지', upCount: 189 },
-            { id: 3, name: '최○○', age: 67, date: '2024.05.22', location: '대구시 중구 삼덕동', clothing: '흰색 블라우스, 검은색 바지', upCount: 134 },
-            { id: 4, name: '이○○', age: 45, date: '2024.05.19', location: '인천시 남동구 구월동', clothing: '회색 후드티, 청바지', upCount: 87 },
-            { id: 5, name: '정○○', age: 23, date: '2024.05.18', location: '광주시 서구 상무동', clothing: '분홍색 원피스, 흰색 운동화', upCount: 156 },
-            { id: 6, name: '홍○○', age: 14, date: '2024.05.23', location: '대전시 유성구 봉명동', clothing: '교복, 검은색 가방', upCount: 23 },
-            { id: 7, name: '강○○', age: 28, date: '2024.05.17', location: '울산시 남구 삼산동', clothing: '빨간색 코트, 검은색 부츠', upCount: 98 },
-            { id: 8, name: '윤○○', age: 52, date: '2024.05.16', location: '경기도 성남시 분당구', clothing: '네이비 셔츠, 베이지 바지', upCount: 143 }
-        ];
-        
-        // React 컴포넌트가 사용 가능한 경우 렌더링
-        if (window.indexApp.animations.reactReady) {
-            renderUrgentMissingComponent();
-        }
-        
->>>>>>> origin/gb
     } catch (error) {
         console.warn('긴급 실종자 데이터 초기화 오류:', error);
     }
@@ -749,7 +709,6 @@ function animateCounter(element) {
 }
 
 // ===== React 순위 컴포넌트 렌더링 =====
-<<<<<<< HEAD
 let rankingRoot = null;
 
 function renderRankingComponent() {
@@ -762,18 +721,6 @@ function renderRankingComponent() {
         const RankingComponent = () => {
             return React.createElement('div', null,
                 window.indexApp.rankings.map(rank =>
-=======
-function renderRankingComponent() {
-    if (!window.indexApp.animations.reactReady) return;
-    
-    try {
-        const container = document.getElementById('topRankings');
-        if (!container) return;
-        
-        const RankingComponent = () => {
-            return React.createElement('div', null,
-                window.indexApp.rankings.map(rank => 
->>>>>>> origin/gb
                     React.createElement('div', {
                         key: rank.position,
                         className: 'ranking-item'
@@ -781,24 +728,11 @@ function renderRankingComponent() {
                         React.createElement('div', { className: 'ranking-position' }, rank.position),
                         React.createElement('div', { className: 'ranking-info' },
                             React.createElement('div', { className: 'ranking-left' },
-<<<<<<< HEAD
                                 React.createElement('div', { className: 'ranking-name' }, rank.name)
-=======
-                                React.createElement('div', { className: 'ranking-name' }, rank.name),
-                                React.createElement('div', { className: 'ranking-points' },
-                                    React.createElement('i', { className: 'fas fa-coins' }),
-                                    ` ${rank.points.toLocaleString()}P`
-                                )
->>>>>>> origin/gb
                             ),
                             React.createElement('div', { className: 'ranking-stats' },
                                 React.createElement('span', { className: 'stats-text' },
                                     React.createElement('span', { className: 'stat-reports' }, `제보 ${rank.reports}건`),
-<<<<<<< HEAD
-=======
-                                    React.createElement('span', { className: 'stats-separator' }, ' / '),
-                                    React.createElement('span', { className: 'stat-witnesses' }, `해결 ${rank.witnesses}건`)
->>>>>>> origin/gb
                                 )
                             )
                         )
@@ -806,7 +740,6 @@ function renderRankingComponent() {
                 )
             );
         };
-<<<<<<< HEAD
 
         if (ReactDOM.createRoot) {
             if (!rankingRoot) {
@@ -817,28 +750,13 @@ function renderRankingComponent() {
             ReactDOM.render(React.createElement(RankingComponent), container);
         }
 
-=======
-        
-        // React 18 호환성 - createRoot 사용
-        if (ReactDOM.createRoot) {
-            const root = ReactDOM.createRoot(container);
-            root.render(React.createElement(RankingComponent));
-        } else {
-            // React 17 폴백
-            ReactDOM.render(React.createElement(RankingComponent), container);
-        }
-        
->>>>>>> origin/gb
     } catch (error) {
         console.warn('React 순위 컴포넌트 렌더링 오류:', error);
     }
 }
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> origin/gb
 // ===== React 긴급 실종자 컴포넌트 렌더링 =====
 function renderUrgentMissingComponent() {
     if (!window.indexApp.animations.reactReady) return;
@@ -849,21 +767,14 @@ function renderUrgentMissingComponent() {
         
         const UrgentMissingComponent = () => {
             return React.createElement('div', { className: 'urgent-cards-react' },
-<<<<<<< HEAD
                 window.indexApp.urgentMissing.map((missing, index) =>
                     React.createElement('div', {
                         key: missing.id || `fallback-${index}`,
-=======
-                window.indexApp.urgentMissing.map(missing => 
-                    React.createElement('div', {
-                        key: missing.id,
->>>>>>> origin/gb
                         className: 'missing-card urgent',
                         'data-id': missing.id
                     },
                         React.createElement('div', { className: 'card-image' },
                             React.createElement('img', {
-<<<<<<< HEAD
                                 src: (missing.image && !missing.image.includes('null'))
                                         ? missing.image
                                         : '/static/images/placeholder.jpg',
@@ -871,13 +782,6 @@ function renderUrgentMissingComponent() {
                                 onError: (e) => { e.target.src = '/static/images/placeholder.jpg'; }
                                 }),
                             React.createElement('div', { className: 'danger-level high' }, '신규')
-=======
-                                src: `/static/images/sample-missing-${missing.id}.jpg`,
-                                alt: '실종자 사진',
-                                onError: (e) => { e.target.src = '/static/images/placeholder.jpg'; }
-                            }),
-                            React.createElement('div', { className: 'danger-level high' }, '긴급')
->>>>>>> origin/gb
                         ),
                         React.createElement('div', { className: 'card-content' },
                             React.createElement('h3', null, `${missing.name} (${missing.age}세)`),
@@ -917,11 +821,7 @@ function renderUrgentMissingComponent() {
             );
         };
         
-<<<<<<< HEAD
         
-=======
-        // React 18 호환성 - createRoot 사용
->>>>>>> origin/gb
         if (ReactDOM.createRoot) {
             const root = ReactDOM.createRoot(container);
             root.render(React.createElement(UrgentMissingComponent));
@@ -993,11 +893,7 @@ function setupFallbackMode() {
             // UP 버튼 기본 처리
             if (e.target.classList && (e.target.classList.contains('up-btn') || 
                 (e.target.closest('.stat') && e.target.closest('.stat').innerHTML && 
-<<<<<<< HEAD
                 e.target.closest('.stat').innerHTML.includes('fa-arrow-up')))) {
-=======
-                 e.target.closest('.stat').innerHTML.includes('fa-arrow-up')))) {
->>>>>>> origin/gb
                 
                 e.preventDefault();
                 const button = e.target.closest('.up-btn, .stat');

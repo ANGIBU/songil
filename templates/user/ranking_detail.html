@@ -1,339 +1,100 @@
-{# templates/user/ranking_detail.html #}
 {% extends "base.html" %}
 
-{% block title %}손길 - 상세 순위{% endblock %}
+{% block title %}손길 - 실종자 상세정보{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/ranking_detail.css') }}">
 {% endblock %}
 
 {% block content %}
-<!-- 순위 헤더 -->
-<section class="ranking-header">
+<!-- 실종자 기본 정보 -->
+<section class="missing-basic-info">
     <div class="container">
-        <div class="ranking-title">
-            <h1><i class="fas fa-trophy"></i> 상세 순위</h1>
-            <p>실종자 찾기에 기여한 모든 분들의 순위를 확인하세요</p>
-        </div>
-        
-        <!-- 내 순위 요약 -->
-        <div class="my-ranking-summary">
-            <div class="my-rank-card">
-                <div class="rank-badge">
-                    <i class="fas fa-medal"></i>
-                    <span class="rank-number">#47</span>
+        <div class="missing-profile">
+            <!-- 왼쪽: 이미지만 -->
+            <div class="profile-image-section">
+                <div class="main-image">
+                    <img src="" alt="실종자 사진" id="mainImage" onerror="this.src='{{ url_for('static', filename='images/placeholder.jpg') }}'">
+                    <div class="danger-level" id="dangerLevel"></div>
+                    <div class="missing-period" id="missingPeriod"></div>
                 </div>
-                <div class="rank-info">
-                    <h3>테스트사용자님</h3>
-                    <div class="rank-details">
-                        <div class="detail-item">
-                            <span class="label">총 포인트</span>
-                            <span class="value">1,250P</span>
+                <div class="additional-images" id="additionalImages"></div>
+            </div>
+
+            <!-- 오른쪽: 타이틀과 기본정보 -->
+            <div class="profile-details">
+                <!-- 타이틀 섹션 -->
+                <div class="title-container">
+                    <div class="title-info">
+                        <h1 id="missingName"></h1>
+                        <div class="title-status">
+                            <span class="status-badge urgent">수색 중</span>
+                            <span class="report-id" id="reportId"></span>
                         </div>
-                        <div class="detail-item">
-                            <span class="label">이번 달</span>
-                            <span class="value">+750P</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">순위 변화</span>
-                            <span class="value trend-up">
+                    </div>
+                    <div class="title-actions">
+                        <button class="action-icon-btn share-btn" onclick="shareContent()" title="공유하기">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button class="action-icon-btn bookmark-btn" onclick="toggleBookmark()" title="관심등록">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                        <button class="recommendation-btn" onclick="handleRecommendClick()" title="응원하기">
+                            <div class="recommendation-content">
                                 <i class="fas fa-arrow-up"></i>
-                                +3
-                            </span>
-                        </div>
+                                <span class="recommendation-count" id="recommendCount">0</span>
+                            </div>
+                        </button>
                     </div>
                 </div>
-                <div class="rank-progress">
-                    <div class="next-rank-info">
-                        <span>46위까지</span>
-                        <strong>23P 부족</strong>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 85%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- 순위 필터 및 통계 -->
-<section class="ranking-controls">
-    <div class="container">
-        <div class="controls-wrapper">
-            <!-- 기간 선택 -->
-            <div class="period-tabs">
-                <button class="period-btn active" data-period="all" onclick="switchPeriod('all')">
-                    <i class="fas fa-infinity"></i>
-                    전체
-                </button>
-                <button class="period-btn" data-period="month" onclick="switchPeriod('month')">
-                    <i class="fas fa-calendar-alt"></i>
-                    이번 달
-                </button>
-                <button class="period-btn" data-period="week" onclick="switchPeriod('week')">
-                    <i class="fas fa-calendar-week"></i>
-                    이번 주
-                </button>
-            </div>
-            
-            <!-- 정렬 및 필터 -->
-            <div class="ranking-filters">
-                <select id="rankingSort" onchange="sortRanking()">
-                    <option value="points">포인트순</option>
-                    <option value="reports">신고수순</option>
-                    <option value="witnesses">목격신고순</option>
-                    <option value="recent">최근활동순</option>
-                </select>
-                
-                <div class="view-options">
-                    <button class="view-btn active" data-view="detailed" onclick="toggleView('detailed')">
-                        <i class="fas fa-list"></i>
-                        상세보기
-                    </button>
-                    <button class="view-btn" data-view="compact" onclick="toggleView('compact')">
-                        <i class="fas fa-grip-horizontal"></i>
-                        간단보기
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 순위 통계 -->
-        <div class="ranking-stats">
-            <div class="stat-item">
-                <div class="stat-number" id="totalUsers">1,247</div>
-                <div class="stat-label">전체 사용자</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="activeUsers">856</div>
-                <div class="stat-label">이번 달 활동</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalPoints">156,890</div>
-                <div class="stat-label">전체 포인트</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalReports">2,341</div>
-                <div class="stat-label">총 신고 건수</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- TOP 3 랭킹 -->
-<section class="top-three-ranking">
-    <div class="container">
-        <h2>
-            <i class="fas fa-crown"></i>
-            TOP 3 랭킹
-        </h2>
-        
-        <div class="podium">
-            <!-- 2위 -->
-            <div class="podium-place second">
-                <div class="place-number">2</div>
-                <div class="user-avatar">
-                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="2위 사용자">
-                    <div class="medal silver">
-                        <i class="fas fa-medal"></i>
+                <!-- 기본 정보 섹션 -->
+                <div class="basic-info-container">
+                    <div class="info-header">
+                        <h4><i class="fas fa-info-circle"></i> 기본 정보</h4>
                     </div>
-                </div>
-                <div class="user-info">
-                    <h3>김○○</h3>
-                    <div class="user-points">4,520P</div>
-                    <div class="user-stats">
-                        <span>신고 12건</span>
-                        <span>목격 89건</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 1위 -->
-            <div class="podium-place first">
-                <div class="place-number">1</div>
-                <div class="user-avatar">
-                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="1위 사용자">
-                    <div class="medal gold">
-                        <i class="fas fa-crown"></i>
-                    </div>
-                </div>
-                <div class="user-info">
-                    <h3>박○○</h3>
-                    <div class="user-points">5,890P</div>
-                    <div class="user-stats">
-                        <span>신고 18건</span>
-                        <span>목격 124건</span>
-                    </div>
-                    <div class="achievement-badge">
-                        <i class="fas fa-star"></i>
-                        전체 1위
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 3위 -->
-            <div class="podium-place third">
-                <div class="place-number">3</div>
-                <div class="user-avatar">
-                    <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="3위 사용자">
-                    <div class="medal bronze">
-                        <i class="fas fa-medal"></i>
-                    </div>
-                </div>
-                <div class="user-info">
-                    <h3>이○○</h3>
-                    <div class="user-points">3,760P</div>
-                    <div class="user-stats">
-                        <span>신고 8건</span>
-                        <span>목격 67건</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 전체 순위 리스트 -->
-<section class="full-ranking-list">
-    <div class="container">
-        <div class="ranking-list-header">
-            <h2>전체 순위</h2>
-            <div class="list-controls">
-                <div class="search-box">
-                    <input type="text" id="userSearch" placeholder="사용자 검색..." onkeyup="searchUsers()">
-                    <i class="fas fa-search"></i>
-                </div>
-                <button class="find-me-btn" onclick="scrollToMyRank()">
-                    <i class="fas fa-crosshairs"></i>
-                    내 순위 찾기
-                </button>
-            </div>
-        </div>
-        
-        <!-- 순위 테이블 -->
-        <div class="ranking-table-container">
-            <div class="ranking-table" id="rankingTable">
-                <!-- React 컴포넌트가 여기에 렌더링됩니다 -->
-            </div>
-            
-            <!-- 로딩 인디케이터 -->
-            <div class="loading-indicator" id="loadingIndicator" style="display: none;">
-                <i class="fas fa-spinner fa-spin"></i>
-                <span>순위를 불러오는 중...</span>
-            </div>
-            
-            <!-- 더 보기 버튼 -->
-            <div class="load-more-section">
-                <button class="load-more-btn" onclick="loadMoreRankings()">
-                    <i class="fas fa-chevron-down"></i>
-                    더 많은 순위 보기
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 포인트 시스템 안내 -->
-<section class="points-system-guide">
-    <div class="container">
-        <h2>
-            <i class="fas fa-info-circle"></i>
-            포인트 시스템 안내
-        </h2>
-        
-        <div class="guide-content">
-            <div class="guide-section">
-                <h3>포인트 획득 방법</h3>
-                <div class="earning-methods">
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <i class="fas fa-eye"></i>
+                    <div class="basic-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar"></i>
+                                실종일시
+                            </div>
+                            <div class="info-value" id="missingDateTime"></div>
                         </div>
-                        <div class="method-info">
-                            <h4>목격 신고</h4>
-                            <div class="points-range">100P ~ 500P</div>
-                            <p>실종자 목격 정보 신고시 지급</p>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                실종장소
+                            </div>
+                            <div class="info-value" id="missingLocation"></div>
                         </div>
-                    </div>
-                    
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <i class="fas fa-plus-circle"></i>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user"></i>
+                                성별/나이
+                            </div>
+                            <div class="info-value" id="missingGenderAge"></div>
                         </div>
-                        <div class="method-info">
-                            <h4>실종자 신고</h4>
-                            <div class="points-range">200P</div>
-                            <p>실종자 신고 등록시 지급</p>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-ruler-vertical"></i>
+                                신체정보
+                            </div>
+                            <div class="info-value" id="missingBody"></div>
                         </div>
-                    </div>
-                    
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <i class="fas fa-arrow-up"></i>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-tshirt"></i>
+                                착용의상
+                            </div>
+                            <div class="info-value" id="missingClothes"></div>
                         </div>
-                        <div class="method-info">
-                            <h4>UP 버튼</h4>
-                            <div class="points-range">10P</div>
-                            <p>실종자 게시물 UP시 지급</p>
-                        </div>
-                    </div>
-                    
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="method-info">
-                            <h4>일일 출석</h4>
-                            <div class="points-range">50P</div>
-                            <p>매일 로그인시 지급</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="guide-section">
-                <h3>순위별 혜택</h3>
-                <div class="ranking-benefits">
-                    <div class="benefit-tier gold">
-                        <div class="tier-icon">
-                            <i class="fas fa-crown"></i>
-                        </div>
-                        <div class="tier-info">
-                            <h4>1위 ~ 3위</h4>
-                            <ul>
-                                <li>• 월간 특별 보너스 포인트</li>
-                                <li>• 전용 배지 및 타이틀</li>
-                                <li>• 포인트샵 할인 혜택</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="benefit-tier silver">
-                        <div class="tier-icon">
-                            <i class="fas fa-medal"></i>
-                        </div>
-                        <div class="tier-info">
-                            <h4>4위 ~ 10위</h4>
-                            <ul>
-                                <li>• 월간 보너스 포인트</li>
-                                <li>• 순위 배지</li>
-                                <li>• 포인트샵 소폭 할인</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="benefit-tier bronze">
-                        <div class="tier-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="tier-info">
-                            <h4>11위 ~ 50위</h4>
-                            <ul>
-                                <li>• 주간 보너스 포인트</li>
-                                <li>• 활동 배지</li>
-                            </ul>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-exclamation-circle"></i>
+                                특이사항
+                            </div>
+                            <div class="info-value" id="missingFeatures"></div>
                         </div>
                     </div>
                 </div>
@@ -342,89 +103,24 @@
     </div>
 </section>
 
-<!-- 월별 순위 변화 차트 -->
-<section class="ranking-trends">
+<!-- 실종 당시 상황 섹션 (자동 채움 지원 가능) -->
+<section class="situation-section">
     <div class="container">
-        <h2>
-            <i class="fas fa-chart-line"></i>
-            나의 순위 변화
-        </h2>
-        
-        <div class="trends-content">
-            <div class="chart-container">
-                <div class="chart-placeholder" id="rankingChart">
-                    <i class="fas fa-chart-area"></i>
-                    <p>순위 변화 차트가 여기에 표시됩니다</p>
-                    <small>최근 6개월간의 순위 변화를 보여드립니다</small>
+        <div class="situation-content-single">
+            <div class="situation-details-full">
+                <div class="content-header">
+                    <h3><i class="fas fa-info-circle"></i> 실종 당시 상황</h3>
                 </div>
-            </div>
-            
-            <div class="trends-summary">
-                <h3>순위 변화 요약</h3>
-                <div class="summary-stats">
-                    <div class="summary-item">
-                        <div class="summary-label">최고 순위</div>
-                        <div class="summary-value best">#23</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">평균 순위</div>
-                        <div class="summary-value">#41</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">이번 달 변화</div>
-                        <div class="summary-value trend-up">+12위</div>
-                    </div>
-                </div>
-                
-                <div class="monthly-activities">
-                    <h4>이번 달 활동</h4>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <i class="fas fa-eye"></i>
-                            <span>목격 신고 5건</span>
-                            <span class="points">+750P</span>
-                        </div>
-                        <div class="activity-item">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>UP 버튼 23회</span>
-                            <span class="points">+230P</span>
-                        </div>
-                        <div class="activity-item">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>출석 18일</span>
-                            <span class="points">+900P</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="situation-text" id="missingSituation"></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA 섹션 -->
-<section class="ranking-cta">
-    <div class="container">
-        <div class="cta-content">
-            <div class="cta-text">
-                <h2>더 높은 순위에 도전하세요!</h2>
-                <p>실종자 찾기에 참여하고 포인트를 얻어 순위를 올려보세요</p>
-            </div>
-            <div class="cta-actions">
-                <a href="{{ url_for('search') }}" class="cta-btn primary">
-                    <i class="fas fa-search"></i>
-                    실종자 찾기
-                </a>
-                <a href="{{ url_for('pointshop') }}" class="cta-btn secondary">
-                    <i class="fas fa-gift"></i>
-                    포인트샵
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- 목격 정보 및 관련 실종자 등 나머지 영역은 추후 서버/JS 바인딩 가능 -->
 {% endblock %}
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/user.js') }}"></script>
-<script src="{{ url_for('static', filename='js/ranking-detail.js') }}"></script>
+<script src="{{ url_for('static', filename='js/missing-detail.js') }}"></script>
 {% endblock %}

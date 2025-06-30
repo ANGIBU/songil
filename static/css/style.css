@@ -92,17 +92,11 @@
     --z-index-header: 1000;
     --z-index-mobile-nav: 1001;
     --z-index-dropdown: 1002;
-<<<<<<< HEAD
     --z-index-notification-panel: 10001;
     --z-index-notification-overlay: 10000;
     --z-index-loading: 9998;
     --z-index-toast: 9999;
     --z-index-modal: 10002;
-=======
-    --z-index-loading: 9998;
-    --z-index-toast: 9999;
-    --z-index-modal: 10000;
->>>>>>> origin/gb
     --z-index-modal-backdrop: 9999;
     
     /* 스크롤바 너비 변수 (모달에서 사용) */
@@ -210,11 +204,7 @@ body.modal-open {
     font-size: var(--font-size-base);
 }
 
-<<<<<<< HEAD
 /* 헤더 - 3분할 레이아웃으로 변경 */
-=======
-/* 헤더 */
->>>>>>> origin/gb
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--gray-200);
@@ -232,7 +222,6 @@ body.modal-open {
 }
 
 .header-content {
-<<<<<<< HEAD
     display: grid;
     grid-template-columns: 200px 1fr 200px;
     align-items: center;
@@ -242,12 +231,6 @@ body.modal-open {
 
 .logo {
     justify-self: start;
-=======
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-4) 0;
->>>>>>> origin/gb
 }
 
 .logo a {
@@ -262,7 +245,6 @@ body.modal-open {
 }
 
 .logo a:hover {
-<<<<<<< HEAD
     color: var(--gray-500);
     transform: scale(1.05);
 }
@@ -271,20 +253,11 @@ body.modal-open {
     justify-self: center;
 }
 
-=======
-    color: var(--primary-orange-dark);
-    transform: scale(1.05);
-}
-
->>>>>>> origin/gb
 .main-nav ul {
     display: flex;
     list-style: none;
     gap: var(--spacing-8);
-<<<<<<< HEAD
     justify-content: center;
-=======
->>>>>>> origin/gb
 }
 
 .main-nav a {
@@ -303,18 +276,10 @@ body.modal-open {
 .main-nav a:hover {
     color: var(--primary-orange);
     background-color: var(--primary-orange-soft);
-<<<<<<< HEAD
-=======
-    transform: translateY(-1px);
->>>>>>> origin/gb
 }
 
 .main-nav a.active {
     color: var(--primary-orange);
-<<<<<<< HEAD
-=======
-    background-color: var(--primary-orange-soft);
->>>>>>> origin/gb
     font-weight: 600;
 }
 
@@ -331,7 +296,6 @@ body.modal-open {
 }
 
 .user-menu {
-<<<<<<< HEAD
     justify-self: end;
     display: flex;
     align-items: center;
@@ -379,43 +343,6 @@ body.modal-open {
     align-items: center;
     justify-content: center;
     pointer-events: none;
-=======
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-4);
-}
-
-.notification-btn {
-    position: relative;
-    color: var(--gray-600);
-    font-size: var(--font-size-lg);
-    padding: var(--spacing-2);
-    border-radius: var(--radius-md);
-    transition: var(--transition-fast);
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.notification-btn:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
-    transform: scale(1.1);
-}
-
-.notification-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: linear-gradient(135deg, var(--danger-red) 0%, var(--danger-red-light) 100%);
-    color: var(--white);
-    font-size: var(--font-size-xs);
-    padding: 2px 6px;
-    border-radius: 50%;
-    min-width: 18px;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
->>>>>>> origin/gb
     animation: pulse 2s infinite;
 }
 
@@ -437,16 +364,11 @@ body.modal-open {
 .profile-btn {
     color: var(--gray-600);
     font-size: var(--font-size-xl);
-<<<<<<< HEAD
-=======
-    padding: var(--spacing-2);
->>>>>>> origin/gb
     border-radius: var(--radius-md);
     transition: var(--transition-fast);
     background: none;
     border: none;
     cursor: pointer;
-<<<<<<< HEAD
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -478,14 +400,6 @@ body.modal-open {
     background: var(--gray-300);
     color: var(--gray-800);
     border-color: var(--gray-300);
-=======
-}
-
-.profile-btn:hover {
-    color: var(--secondary-green);
-    background-color: var(--secondary-green-soft);
-    transform: scale(1.1);
->>>>>>> origin/gb
 }
 
 .guest-actions {
@@ -499,7 +413,6 @@ body.modal-open {
     border-radius: var(--radius-md);
     font-weight: 500;
     transition: var(--transition-fast);
-    transition: var(--transition-opacity);
     color: var(--gray-600);
 }
 
@@ -932,13 +845,7 @@ body.modal-open {
 }
 
 .mobile-menu-btn:hover {
-<<<<<<< HEAD
     color: var(--gray-500);
-=======
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
-    transform: scale(1.1);
->>>>>>> origin/gb
 }
 
 .mobile-nav {
@@ -973,21 +880,12 @@ body.modal-open {
 }
 
 .mobile-nav a:hover {
-<<<<<<< HEAD
     color: var(--gray-500);
-=======
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
->>>>>>> origin/gb
     transform: translateX(5px);
 }
 
 .mobile-nav a.active {
     color: var(--primary-orange);
-<<<<<<< HEAD
-=======
-    background-color: var(--primary-orange-soft);
->>>>>>> origin/gb
     font-weight: 600;
 }
 
@@ -1800,22 +1698,14 @@ hr {
 
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
-<<<<<<< HEAD
     .header-content {
         grid-template-columns: auto 1fr auto;
-=======
-    .hero-content {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-8);
-        text-align: center;
->>>>>>> origin/gb
     }
     
     .urgent-cards {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 22px;
     }
-<<<<<<< HEAD
     
     .notification-panel {
         width: min(380px, calc(100vw - 20px));
@@ -1829,11 +1719,6 @@ hr {
         gap: var(--spacing-2);
     }
     
-=======
-}
-
-@media (max-width: 768px) {
->>>>>>> origin/gb
     .main-nav {
         display: none;
     }
@@ -1889,7 +1774,6 @@ hr {
         margin-bottom: var(--spacing-16);
     }
     
-<<<<<<< HEAD
     .notification-panel {
         width: calc(100vw - 20px);
         right: 10px;
@@ -1902,8 +1786,6 @@ hr {
         align-items: center;
     }
     
-=======
->>>>>>> origin/gb
     /* 모바일 토스트 조정 */
     .toast-container {
         top: 10px;
@@ -1919,13 +1801,6 @@ hr {
 }
 
 @media (max-width: 480px) {
-<<<<<<< HEAD
-=======
-    .hero-title {
-        font-size: var(--font-size-2xl);
-    }
-    
->>>>>>> origin/gb
     .stats-grid {
         grid-template-columns: 1fr;
     }
@@ -1960,7 +1835,6 @@ hr {
         padding: var(--spacing-2) var(--spacing-4);
         font-size: var(--font-size-sm);
     }
-<<<<<<< HEAD
     
     .notification-panel {
         top: 70px;
@@ -1969,8 +1843,6 @@ hr {
         right: 8px;
         left: 8px;
     }
-=======
->>>>>>> origin/gb
 }
 
 /* 유틸리티 클래스 */
@@ -1986,7 +1858,6 @@ hr {
     display: none;
 }
 
-<<<<<<< HEAD
 .user-actions {
     display: flex;
     align-items: center;
@@ -1998,8 +1869,6 @@ hr {
     gap: var(--spacing-3);
 }
 
-=======
->>>>>>> origin/gb
 .text-center {
     text-align: center;
 }

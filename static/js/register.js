@@ -167,16 +167,11 @@ window.nextStep = function(step) {
     if (step === 2 && !validateStep1()) {
         return;
     }
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> origin/gb
     if (step === 3 && !isEmailVerified) {
         showNotification('이메일 인증을 완료해주세요.', 'error');
         return;
     }
-<<<<<<< HEAD
 
     const currentForm = document.querySelector(`.step-form[data-step="${currentStep}"]`);
     const nextForm = document.querySelector(`.step-form[data-step="${step}"]`);
@@ -184,12 +179,6 @@ window.nextStep = function(step) {
     if (currentForm) currentForm.style.display = 'none';
     if (nextForm) nextForm.style.display = 'block';
 
-=======
-    
-    const currentForm = document.querySelector(`.step-form[data-step="${currentStep}"]`);
-    const nextForm = document.querySelector(`.step-form[data-step="${step}"]`);
-    
->>>>>>> origin/gb
     // 2단계로 넘어갈 때 정보 표시
     if (step === 2) {
         const nameDisplay = document.getElementById('nameDisplay');
@@ -197,11 +186,7 @@ window.nextStep = function(step) {
         if (nameDisplay) nameDisplay.textContent = document.getElementById('fullName').value;
         if (emailDisplay) emailDisplay.textContent = document.getElementById('email').value;
     }
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> origin/gb
     if (typeof gsap !== 'undefined') {
         gsap.to(currentForm, {
             duration: 0.3,
@@ -210,13 +195,8 @@ window.nextStep = function(step) {
             onComplete: () => {
                 currentForm.classList.remove('active');
                 nextForm.classList.add('active');
-<<<<<<< HEAD
 
                 gsap.fromTo(nextForm,
-=======
-                
-                gsap.fromTo(nextForm, 
->>>>>>> origin/gb
                     { opacity: 0, x: 50 },
                     { duration: 0.3, opacity: 1, x: 0 }
                 );
@@ -226,28 +206,17 @@ window.nextStep = function(step) {
         currentForm.classList.remove('active');
         nextForm.classList.add('active');
     }
-<<<<<<< HEAD
 
     currentStep = step;
     updateProgressBar(step);
     updateStepStatus(step);
 
-=======
-    
-    currentStep = step;
-    updateProgressBar(step);
-    updateStepStatus(step);
-    
->>>>>>> origin/gb
     if (step === 3) {
         showCompletionAnimation();
     }
 };
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/gb
 window.prevStep = function(step) {
     const currentForm = document.querySelector(`.step-form[data-step="${currentStep}"]`);
     const prevForm = document.querySelector(`.step-form[data-step="${step}"]`);
@@ -1001,21 +970,12 @@ function simulateAPICall(delay = 1000) {
     });
 }
 
-<<<<<<< HEAD
 function showNotification(message, type = 'info') {     
     if (window.originalShowNotification && typeof window.originalShowNotification === 'function') {         
         window.originalShowNotification(message, type);
     } else {         
         alert(message);     
     } 
-=======
-function showNotification(message, type = 'info') {
-    if (window.showNotification && typeof window.showNotification === 'function') {
-        window.showNotification(message, type);
-    } else {
-        alert(message);
-    }
->>>>>>> origin/gb
 }
 
 // 전화번호 형식 처리

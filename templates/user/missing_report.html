@@ -4,12 +4,8 @@
 {% block title %}손길 - 실종자 신고{% endblock %}
 
 {% block extra_head %}
-<<<<<<< HEAD
-<link rel="stylesheet" href="{{ url_for('static', filename='css/missing-report.css') }}">
-=======
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
->>>>>>> origin/gb
 {% endblock %}
 
 {% block content %}
@@ -45,8 +41,6 @@
                     <div class="step-label">최종확인</div>
                 </div>
             </div>
-<<<<<<< HEAD
-=======
             <div class="progress-line">
                 <div class="progress-fill" style="width: 20%"></div>
             </div>
@@ -65,7 +59,6 @@
                     112 신고하기
                 </a>
             </div>
->>>>>>> origin/gb
         </div>
     </div>
 </section>
@@ -96,14 +89,7 @@
                             <i class="fas fa-birthday-cake"></i>
                             나이
                         </label>
-<<<<<<< HEAD
-                        <div class="input-with-unit">
-                            <input type="number" id="missingAge" name="missingAge" required min="0" max="120" placeholder="만 나이">
-                            <span class="unit">세</span>
-                        </div>
-=======
                         <input type="number" id="missingAge" name="missingAge" required min="0" max="120" placeholder="만 나이">
->>>>>>> origin/gb
                         <div class="error-message" id="missingAgeError"></div>
                     </div>
                     
@@ -130,35 +116,17 @@
                     <div class="form-group">
                         <label for="height">
                             <i class="fas fa-ruler-vertical"></i>
-<<<<<<< HEAD
-                            키
-                        </label>
-                        <div class="input-with-unit">
-                            <input type="number" id="height" name="height" min="50" max="250" placeholder="예: 170">
-                            <span class="unit">cm</span>
-                        </div>
-=======
                             키 (cm)
                         </label>
                         <input type="number" id="height" name="height" min="50" max="250" placeholder="예: 170">
->>>>>>> origin/gb
                     </div>
                     
                     <div class="form-group">
                         <label for="weight">
                             <i class="fas fa-weight"></i>
-<<<<<<< HEAD
-                            체중
-                        </label>
-                        <div class="input-with-unit">
-                            <input type="number" id="weight" name="weight" min="10" max="200" placeholder="예: 65">
-                            <span class="unit">kg</span>
-                        </div>
-=======
                             체중 (kg)
                         </label>
                         <input type="number" id="weight" name="weight" min="10" max="200" placeholder="예: 65">
->>>>>>> origin/gb
                     </div>
                     
                     <div class="form-group">
@@ -179,15 +147,9 @@
                 <div class="form-group full-width">
                     <label for="physicalFeatures">
                         <i class="fas fa-eye"></i>
-<<<<<<< HEAD
-                        특징
-                    </label>
-                    <textarea id="physicalFeatures" name="physicalFeatures" rows="3" placeholder="얼굴 특징, 머리 스타일, 흉터, 점 등 구체적인 특징을 적어주세요"></textarea>
-=======
                         외모 특징
                     </label>
                     <textarea id="physicalFeatures" name="physicalFeatures" rows="3" placeholder="얼굴 특징, 머리 스타일, 흉터, 점 등 구체적인 외모 특징을 적어주세요"></textarea>
->>>>>>> origin/gb
                 </div>
                 
                 <div class="form-actions">
@@ -298,10 +260,7 @@
                     </div>
                     
                     <div class="uploaded-photos" id="uploadedPhotos">
-<<<<<<< HEAD
-=======
                         <!-- 업로드된 사진들이 여기에 표시됩니다 -->
->>>>>>> origin/gb
                     </div>
                     
                     <div class="upload-guidelines">
@@ -425,10 +384,7 @@
                             실종자 정보
                         </h3>
                         <div class="confirm-details" id="missingPersonSummary">
-<<<<<<< HEAD
-=======
                             <!-- JavaScript로 동적 생성 -->
->>>>>>> origin/gb
                         </div>
                     </div>
                     
@@ -438,10 +394,7 @@
                             실종 상황
                         </h3>
                         <div class="confirm-details" id="missingSituationSummary">
-<<<<<<< HEAD
-=======
                             <!-- JavaScript로 동적 생성 -->
->>>>>>> origin/gb
                         </div>
                     </div>
                     
@@ -451,10 +404,7 @@
                             업로드된 사진
                         </h3>
                         <div class="confirm-photos" id="uploadedPhotosSummary">
-<<<<<<< HEAD
-=======
                             <!-- JavaScript로 동적 생성 -->
->>>>>>> origin/gb
                         </div>
                     </div>
                     
@@ -464,10 +414,7 @@
                             연락처 정보
                         </h3>
                         <div class="confirm-details" id="contactSummary">
-<<<<<<< HEAD
-=======
                             <!-- JavaScript로 동적 생성 -->
->>>>>>> origin/gb
                         </div>
                     </div>
                 </div>
@@ -510,11 +457,6 @@
         </form>
     </div>
 </section>
-<<<<<<< HEAD
-{% endblock %}
-
-{% block extra_js %}
-=======
 
 <!-- 도움말 사이드바 -->
 <div class="help-sidebar" id="helpSidebar">
@@ -563,6 +505,5 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/user.js') }}"></script>
->>>>>>> origin/gb
 <script src="{{ url_for('static', filename='js/missing-report.js') }}"></script>
 {% endblock %}

@@ -8,23 +8,11 @@
 {% endblock %}
 
 {% block content %}
-<<<<<<< HEAD
-=======
 <!-- 사용자 대시보드 헤더 -->
->>>>>>> origin/gb
 <section class="mypage-header">
     <div class="container">
         <div class="user-dashboard">
             <div class="user-profile">
-<<<<<<< HEAD
-                <div class="profile-info">
-                    <div class="username-container">
-                        <h1 class="username">사용자 님</h1>
-                        <button class="edit-nickname-btn" onclick="openProfileEditModal()" title="닉네임 수정">
-                            <i class="fas fa-pencil-alt"></i>
-                        </button>
-                    </div>
-=======
                 <div class="profile-avatar">
                     <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="프로필 사진" id="profileImage">
                     <button class="avatar-edit-btn" onclick="changeProfileImage()">
@@ -33,14 +21,11 @@
                 </div>
                 <div class="profile-info">
                     <h1 class="username">테스트사용자님</h1>
->>>>>>> origin/gb
                     <div class="user-meta">
                         <span class="join-date">
                             <i class="fas fa-calendar"></i>
                             2024.05.01 가입
                         </span>
-<<<<<<< HEAD
-=======
                         <span class="user-level">
                             <i class="fas fa-star"></i>
                             실버 등급
@@ -50,52 +35,10 @@
                         <span class="badge new-member">신규회원</span>
                         <span class="badge active-reporter">활동적 신고자</span>
                         <span class="badge witness-helper">목격 도우미</span>
->>>>>>> origin/gb
                     </div>
                 </div>
             </div>
             
-<<<<<<< HEAD
-            <div class="user-stats-container">
-                <div class="stats-grid">
-                    <div class="stat points">
-                        <div class="stat-icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
-                        <div class="stat-value">1,250P</div>
-                        <div class="stat-label">보유 포인트</div>
-                    </div>
-                    
-                    <hr class="stat-divider">
-                    
-                    <div class="stat ranking">
-                        <div class="stat-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <div class="stat-value">47위</div>
-                        <div class="stat-label">전체 순위</div>
-                    </div>
-                    
-                    <hr class="stat-divider">
-                    
-                    <div class="stat reports">
-                        <div class="stat-icon">
-                            <i class="fas fa-plus-circle"></i>
-                        </div>
-                        <div class="stat-value">3건</div>
-                        <div class="stat-label">실종자 신고</div>
-                    </div>
-                    
-                    <hr class="stat-divider">
-                    
-                    <div class="stat witnesses">
-                        <div class="stat-icon">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <div class="stat-value">12건</div>
-                        <div class="stat-label">목격 신고</div>
-                    </div>
-=======
             <div class="dashboard-stats">
                 <div class="stat-card points">
                     <div class="stat-icon">
@@ -153,35 +96,19 @@
                             승인률 83%
                         </span>
                     </div>
->>>>>>> origin/gb
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<<<<<<< HEAD
-=======
 <!-- 최근 활동 요약 -->
->>>>>>> origin/gb
 <section class="recent-activity">
     <div class="container">
         <h2>
             <i class="fas fa-clock"></i>
             최근 활동
         </h2>
-<<<<<<< HEAD
-        <div class="activity-loading" id="activityLoading" style="text-align: center; padding: 40px; color: #6b7280;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 24px; margin-bottom: 12px;"></i>
-            <p>활동 내역을 불러오는 중...</p>
-        </div>
-        <div class="activity-summary" id="activitySummary" style="display: none;">
-        </div>
-        <div class="activity-load-more" id="activityLoadMore" style="display: none;">
-            <button class="btn btn-orange load-more-btn" onclick="loadMoreActivities()">
-                <i class="fas fa-plus"></i>
-                더보기
-=======
         <div class="activity-summary">
             <div class="activity-item">
                 <div class="activity-icon success">
@@ -223,39 +150,11 @@
             <button class="btn btn-outline" onclick="switchTab('history')">
                 <i class="fas fa-list"></i>
                 전체 활동 내역 보기
->>>>>>> origin/gb
             </button>
         </div>
     </div>
 </section>
 
-<<<<<<< HEAD
-<div class="profile-edit-modal" id="profileEditModal">
-    <div class="modal-overlay" onclick="closeProfileEditModal()"></div>
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>닉네임 수정</h3>
-            <button class="close-modal" onclick="closeProfileEditModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form id="profileEditForm" onsubmit="handleProfileEdit(event)">
-                <div class="form-group">
-                    <label for="newNickname">닉네임</label>
-                    <input type="text" id="newNickname" name="newNickname" value="사용자" required maxlength="16" placeholder="한글 2-10자, 영문 2-16자">
-                    <div class="form-help">한글 2-10자 또는 영문 2-16자까지 입력 가능합니다.</div>
-                    <div class="nickname-status" id="nicknameStatus" style="display: none;"></div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeProfileEditModal()">취소</button>
-            <button type="submit" form="profileEditForm" class="btn btn-primary" id="saveNicknameBtn">저장</button>
-        </div>
-    </div>
-</div>
-=======
 <!-- 마이페이지 탭 메뉴 -->
 <section class="mypage-tabs">
     <div class="container">
@@ -896,7 +795,6 @@
         </div>
     </div>
 </section>
->>>>>>> origin/gb
 {% endblock %}
 
 {% block extra_js %}
