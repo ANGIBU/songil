@@ -60,44 +60,6 @@
     --transition-slow: all 0.3s ease;
 }
 
-/* ===== 마이페이지 전용 스타일 ===== */
-/* 우측 상단 알람 기능 완전 제거 */
-.notification-bell,
-.notification-icon,
-.alert-bell,
-.notification-button,
-.notifications,
-#notifications,
-.header-notifications,
-.nav-notifications,
-.notification-dropdown,
-.alert-dropdown,
-.notification-toggle,
-.bell-icon,
-.fa-bell,
-.notification-item,
-.notification-badge {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-}
-
-/* 헤더 내 알림 관련 요소 숨김 */
-header .notification-bell,
-header .notification-icon,
-header .alert-bell,
-header .fa-bell,
-.header .notification-bell,
-.header .notification-icon,
-.header .alert-bell,
-.header .fa-bell,
-nav .notification-bell,
-nav .notification-icon,
-nav .alert-bell,
-nav .fa-bell {
-    display: none !important;
-}
-
 /* ===== 기본 스타일 리셋 ===== */
 * {
     margin: 0;
