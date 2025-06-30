@@ -17,16 +17,18 @@ from sync_api import sync_missing_api_data
 import atexit
 import hashlib
 import hmac
+from dotenv import load_dotenv
 
+load_dotenv()
 
 db = DBManager()
 db.connect()
 ranking_service = RankingService(db)
 app = Flask(__name__)
-app.secret_key = 'songil_secret_key_2024'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'songil_secret_key_2024')
 
-API_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-20597"
-SERVICE_KEY = "3FQG91W954658S1F"
+API_URL = os.getenv('SAFETY_API_URL', 'https://www.safetydata.go.kr/V2/api/DSSP-IF-20597')
+SERVICE_KEY = os.getenv('SAFETY_API_KEY', '3FQG91W954658S1F')
 
 @app.route('/')
 def index():
@@ -451,8 +453,8 @@ def get_recent_missing():
         limit = request.args.get('limit', 5, type=int)
 
         try:
-            response = requests.get("https://www.safetydata.go.kr/V2/api/DSSP-IF-20597", params={
-                "serviceKey": "3FQG91W954658S1F",
+            response = requests.get(API_URL, params={
+                "serviceKey": SERVICE_KEY,
                 "returnType": "json",
                 "pageNo": "1",
                 "numOfRows": "500" 
@@ -1031,7 +1033,7 @@ def api_witness_report():
 
         uploaded_files = request.files
         allowed_ext = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-        max_size = 5 * 1024 * 1024
+        max_size = int(os.getenv('MAX_FILE_SIZE', 5242880))
 
         for key in uploaded_files:
             file = uploaded_files[key]
@@ -1044,7 +1046,7 @@ def api_witness_report():
                     return jsonify({'status': 'error', 'message': '파일은 5MB를 초과할 수 없습니다.'}), 400
                 file.seek(0)
                 filename = f"witness_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.{ext}"
-                upload_dir = os.path.join('static', 'uploads')
+                upload_dir = os.getenv('UPLOAD_DIR', 'static/uploads')
                 os.makedirs(upload_dir, exist_ok=True)
                 filepath = os.path.join(upload_dir, filename)
                 file.save(filepath)
@@ -1213,9 +1215,10 @@ atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
     is_docker = os.getenv('IS_DOCKER', 'false').lower() == 'true'
-    port = int(os.getenv('PORT', 5004))
+    port = int(os.getenv('FLASK_PORT', 5004))
+    debug_mode = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
     
     if is_docker:
-        app.run(debug=False, host='0.0.0.0', port=port)
+        app.run(debug=debug_mode, host='0.0.0.0', port=port)
     else:
         app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False)

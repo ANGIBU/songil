@@ -1,7 +1,12 @@
+# model.py
 import mysql.connector 
 from datetime import datetime
 from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class DBManager:
     def __init__(self):
@@ -12,11 +17,11 @@ class DBManager:
     def connect(self): 
         try :
             self.connection = mysql.connector.connect(
-                host = "124.55.97.204",
-                user = "livon",
-                password="dks12345",
-                database="songil",
-                charset="utf8mb4"
+                host = os.getenv('DB_HOST', '124.55.97.204'),
+                user = os.getenv('DB_USER', 'livon'),
+                password = os.getenv('DB_PASSWORD', 'dks12345'),
+                database = os.getenv('DB_NAME', 'songil'),
+                charset = os.getenv('DB_CHARSET', 'utf8mb4')
             )
             self.cursor = self.connection.cursor(dictionary=True)
         
@@ -80,6 +85,7 @@ class DBManager:
         except Exception as e:
             print(f"쿼리 실행 오류: {e}")
             raise
+
 # 회원가입 
     def insert_user(self, form):
         try:
@@ -151,7 +157,7 @@ class DBManager:
             sql = """
                 INSERT INTO witness_reports (
                     user_id, missing_person_name, missing_person_age,
-                    missing_person_gender, missing_date, missing_location, -- <--- ★ 이 두 부분이 이렇게 되어야 합니다 ★
+                    missing_person_gender, missing_date, missing_location,
                     missing_features, witness_datetime, time_accuracy,
                     location, location_detail, location_accuracy,
                     description, confidence, distance,
@@ -159,7 +165,7 @@ class DBManager:
                     created_at, updated_at
                 ) VALUES (
                     %(user_id)s, %(missing_person_name)s, %(missing_person_age)s,
-                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s, -- <--- ★ 이 두 부분도 이렇게 되어야 합니다 ★
+                    %(missing_person_gender)s, %(missing_date)s, %(missing_location)s,
                     %(missing_features)s, %(witness_datetime)s, %(time_accuracy)s,
                     %(location)s, %(location_detail)s, %(location_accuracy)s,
                     %(description)s, %(confidence)s, %(distance)s,
@@ -167,8 +173,8 @@ class DBManager:
                     NOW(), NOW()
                 )
             """
-            print(f"[디버그] 실행될 SQL 쿼리: {sql}") # ★ 이 줄을 추가하여 어떤 SQL이 실행되는지 확인하세요. ★
-            print(f"[디버그] SQL 파라미터: {report_data}") # ★ 이 줄도 추가하여 어떤 데이터가 넘어가는지 확인하세요. ★
+            print(f"[디버그] 실행될 SQL 쿼리: {sql}")
+            print(f"[디버그] SQL 파라미터: {report_data}")
 
             self.cursor.execute(sql, report_data)
             self.connection.commit()

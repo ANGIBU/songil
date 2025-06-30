@@ -1,3 +1,4 @@
+# services/ranking_service.py
 class RankingService:
     def __init__(self, db_manager):
         self.db = db_manager

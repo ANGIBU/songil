@@ -1,3 +1,4 @@
+# sync_api.py
 import os
 import joblib
 import pandas as pd
@@ -10,19 +11,19 @@ import uuid
 from typing import Dict, List, Tuple
 from model import DBManager
 import warnings
-import json # json 모듈 추가
+import json
+from dotenv import load_dotenv
 
-# sklearn.utils.validation에서 발생하는 특정 UserWarning을 무시
+load_dotenv()
+
 warnings.filterwarnings('ignore', category=UserWarning, module='sklearn.utils.validation')
 
-# --- 절대 경로 설정 (이 부분을 정확히 확인합니다) ---
-BASE_DIR = "C:/Users/study/파일/coding/python/songil-main"
-MODELS_DIR = os.path.join(BASE_DIR, "models")
+BASE_DIR = os.getenv('BASE_DIR', '/home/livon/projects/songil')
+MODELS_DIR = os.getenv('MODELS_DIR', os.path.join(BASE_DIR, 'models'))
 
 RF_MODEL_PATH = os.path.join(MODELS_DIR, "rf_model.pkl")
 KEYWORD_SCORES_PATH = os.path.join(MODELS_DIR, "keyword_scores_diff.pkl")
 
-# --- 디버깅 코드 추가 ---
 print(f"현재 작업 디렉토리: {os.getcwd()}")
 print(f"BASE_DIR 설정: {BASE_DIR}")
 print(f"MODELS_DIR 설정: {MODELS_DIR}")
@@ -38,10 +39,6 @@ if os.path.exists(KEYWORD_SCORES_PATH):
     print(f"[디버그] 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재합니다.")
 else:
     print(f"[디버그] !!! 경고: 키워드 점수 파일이 '{KEYWORD_SCORES_PATH}' 경로에 존재하지 않습니다. !!!")
-# --- 디버깅 코드 끝 ---
-
-
-# --- 전처리 및 피처 생성 함수들 ---
 
 try:
     keyword_scores = joblib.load(KEYWORD_SCORES_PATH)
@@ -135,9 +132,9 @@ def get_age_score(age: int) -> float:
 def get_gender_score(gender_encoded: int) -> float:
     if pd.isna(gender_encoded):
         return 0.0
-    if gender_encoded == 1: # 남성
+    if gender_encoded == 1:
         return 0.05
-    elif gender_encoded == 0: # 여성
+    elif gender_encoded == 0:
         return 0.0
     return 0.0
 
@@ -173,11 +170,11 @@ def infer_writng_trget_dscd(age: int, features_text: str, code_info_dict: Dict) 
 
     if age is not None:
         if age <= 18:
-            return '071' # 아동
+            return '071'
         elif age >= 65:
-            return '070' # 고령자
+            return '070'
 
-    return '072' # 일반
+    return '072'
 
 def calculate_all_scores(data: Dict) -> Dict:
     total_score = 0.0
@@ -217,12 +214,11 @@ def calculate_all_scores(data: Dict) -> Dict:
     details['code_desc'] = code_desc
     details['code_process_type'] = process_type
 
-    final_score = round(min(total_score, 1.0), 3) # 점수 상한선을 1.0으로 설정
+    final_score = round(min(total_score, 1.0), 3)
     details['total_score'] = final_score
 
     return details
 
-# --- 모델 로드 ---
 model_rf = None
 try:
     model_rf = joblib.load(RF_MODEL_PATH)
@@ -233,8 +229,6 @@ except Exception as e:
     print("[심각 오류] Random Forest 모델 로드에 실패하여 애플리케이션을 종료합니다.")
     exit(1)
 
-
-# --- predict_danger_level 함수 (핵심) ---
 def predict_danger_level(data_list: List[Dict]) -> List[str]:
 
     if model_rf is None:
@@ -250,7 +244,6 @@ def predict_danger_level(data_list: List[Dict]) -> List[str]:
             gender_raw = data.get('gender')
             keywords_text = data.get('keywords', '')
 
-            # gender_encoded 계산
             gender_encoded = None
             if isinstance(gender_raw, str):
                 if gender_raw.upper() == '남' or gender_raw.upper() == 'MALE':
@@ -263,7 +256,6 @@ def predict_danger_level(data_list: List[Dict]) -> List[str]:
                 gender_encoded = 2 
 
             _, keyword_score_sum = extract_keyword_scores(keywords_text, keyword_scores, top_n=2)
-
 
             model_feature_names = ['age', 'gender_encoded', 'keyword_score_sum']
 
@@ -284,11 +276,9 @@ def predict_danger_level(data_list: List[Dict]) -> List[str]:
     except Exception as e:
         print(f"[오류] predict_danger_level 함수에서 예측 실패: {e}")
         traceback.print_exc()
-        # 오류 발생 시 모든 항목에 대해 '예측 실패 (내부 오류)'를 반환하여 길이를 맞춤
         return ["예측 실패 (내부 오류)"] * len(data_list)
 
     return predictions
-
 
 def calculate_age(birth_date_str):
     if not birth_date_str:
@@ -320,11 +310,12 @@ except Exception as e:
     traceback.print_exc()
     exit(1)
 
-
 def sync_missing_api_data():
-    API_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-20597"
+    API_URL = os.getenv('SAFETY_API_URL', 'https://www.safetydata.go.kr/V2/api/DSSP-IF-20597')
+    SERVICE_KEY = os.getenv('SAFETY_API_KEY', '3FQG91W954658S1F')
+    
     params = {
-        "serviceKey": "3FQG91W954658S1F",
+        "serviceKey": SERVICE_KEY,
         "returnType": "json",
         "pageNo": "1",
         "numOfRows": "500"
@@ -338,15 +329,12 @@ def sync_missing_api_data():
         response.raise_for_status()
         data = response.json()
 
-        # --- API 응답 전체를 파일로 저장하는 디버깅 코드 추가 ---
         with open("api_response_full.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         print("[DEBUG] API 응답 전체가 'api_response_full.json' 파일로 저장되었습니다.")
-        # --- 디버깅 코드 끝 ---
 
         items = data.get('body', [])
 
-        # API 응답에 존재하는 모든 external_id를 추적
         current_external_ids_from_api = []
 
         batch_items = []
@@ -359,15 +347,14 @@ def sync_missing_api_data():
                 external_id = f"gen-{uuid.uuid4()}"
             current_external_ids_from_api.append(external_id)
 
-            # [DEBUG_GENDER] 로그도 GNDR_SE로 변경
-            raw_gender_from_api = item.get("GNDR_SE", "필드_없음_또는_None") # <-- 여기서 GNDR_SE로 변경
+            raw_gender_from_api = item.get("GNDR_SE", "필드_없음_또는_None")
             print(f"[DEBUG_GENDER] external_id: {external_id}, Raw Gender from API: '{raw_gender_from_api}'")
 
             processed_item_data = {
                 'external_id': external_id,
                 'name': item.get("FLNM", "이름없음"),
                 'age': int(item.get("NOW_AGE")) if item.get("NOW_AGE") and str(item.get("NOW_AGE")).isdigit() else None,
-                'gender': item.get("GNDR_SE", None), # <-- 여기서 SEXDSTN_DSC 대신 GNDR_SE로 변경!
+                'gender': item.get("GNDR_SE", None),
                 'missing_date': parse_date(item.get("OCRN_DT")),
                 'missing_location': item.get("OCRN_PLC", "미상"),
                 'keywords': item.get("PHBB_SPFE", "정보 없음"),
@@ -375,11 +362,9 @@ def sync_missing_api_data():
             }
             batch_items.append(processed_item_data)
 
-            # 배치 처리 또는 마지막 항목인 경우 처리
             if (i + 1) % BATCH_SIZE == 0 or (i + 1) == len(items):
                 print(f"[동기화 진행] {i + 1} / {len(items)} 항목 처리 중...")
 
-                # predict_danger_level에 필요한 최소한의 원본 데이터만 전달
                 danger_levels = predict_danger_level([
                     {'age': d['age'], 'gender': d['gender'], 'keywords': d['keywords']}
                     for d in batch_items
@@ -391,52 +376,44 @@ def sync_missing_api_data():
                     age_to_store = processed_data['age']
                     gender_api = processed_data['gender']
 
-                    gender_api = processed_data['gender']
-
                     gender_to_store = None
                     if gender_api is not None:
                         cleaned_gender = str(gender_api).strip().upper() 
                         
-                        if cleaned_gender == '남' or cleaned_gender == 'MALE' or cleaned_gender == '남자': # '남자' 추가
+                        if cleaned_gender == '남' or cleaned_gender == 'MALE' or cleaned_gender == '남자':
                             gender_to_store = 1
-                        elif cleaned_gender == '여' or cleaned_gender == 'FEMALE' or cleaned_gender == '여자': # '여자' 추가
+                        elif cleaned_gender == '여' or cleaned_gender == 'FEMALE' or cleaned_gender == '여자':
                             gender_to_store = 0
                         else:
-                            gender_to_store = 2 # 인식 불가 문자열
+                            gender_to_store = 2
                             print(f"[경고] 알 수 없는 성별 값: '{gender_api}'. 2으로 처리합니다.")
                     else:
-                        gender_to_store = 2 # gender_api가 None인 경우
+                        gender_to_store = 2
                         print(f"[경고] 성별 정보가 None입니다. 2으로 처리합니다.")
-
-
 
                     missing_date = processed_data['missing_date']
                     missing_location = processed_data['missing_location']
                     features = processed_data['keywords']
                     image_url = processed_data['image_url']
-                    danger_level = danger_levels[j] # 예측된 위험 수준
+                    danger_level = danger_levels[j]
 
                     print(f"\n--- 현재 처리 중인 API 데이터 ---")
                     print(f"  external_id: {external_id_to_use}")
-                    # 로그 출력 시 gender_to_store 사용
                     print(f"  검색 키: name='{name}', age={age_to_store}, gender={gender_to_store}, missing_date={missing_date}")
                     print(f"--- DB에서 기존 레코드 검색 시도 중 ---")
 
-                    # 기존 레코드 존재 여부 확인 (name, age, gender, missing_date 조합으로)
                     existing_record = db.execute(f"""
                         SELECT id, external_id FROM api_missing_data
                         WHERE name = %s AND age = %s AND gender = %s AND missing_date = %s
                     """, (name, age_to_store, gender_to_store, missing_date)).fetchone()
 
                     if existing_record:
-                        # existing_record가 딕셔너리 형태일 것이므로 키로 접근
                         print(f"  [FOUND] 기존 레코드 발견: id={existing_record['id']}, external_id={existing_record['external_id']}")
                         print(f"  [스킵] 중복 레코드를 발견했습니다. (ID: {existing_record['id']}). 업데이트하지 않고 다음으로 넘어갑니다.")
-                        continue # 이 항목은 스킵하고 다음 항목으로 넘어갑니다.
+                        continue
                     else:
                         print(f"  [NOT FOUND] 기존 레코드 없음. 새 레코드 삽입 예정.")
 
-                    # 기존 레코드가 없다면 삽입
                     db.execute("""
                         INSERT INTO api_missing_data (
                             external_id, name, age, gender, missing_date,
@@ -449,12 +426,9 @@ def sync_missing_api_data():
                     ), commit=True)
                     print(f"  [삽입] 새로운 레코드 삽입 완료 (external_id: {external_id_to_use}).")
 
-                # 배치 처리 후 다음 배치를 위해 리스트 초기화
                 batch_items = []
 
-        # API 응답에 없는 레코드 'hidden' 처리
         if current_external_ids_from_api:
-            # 현재 API 응답에 있는 모든 external_id를 이용해 플레이스홀더 생성
             placeholders = ",".join(["%s"] * len(current_external_ids_from_api))
             db.execute(f"""
                 UPDATE api_missing_data

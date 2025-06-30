@@ -1,5 +1,11 @@
-# /home/livon/projects/songil/requirements.txt
 Flask==2.3.3
-PyMySQL==1.1.0
-python-dotenv==1.0.0
+mysql-connector-python==8.1.0
+Werkzeug==2.3.7
 requests==2.31.0
+python-dotenv==1.0.0
+APScheduler==3.10.4
+pandas==2.0.3
+numpy==1.24.3
+scikit-learn==1.3.0
+joblib==1.3.2
+gunicorn==21.2.0
