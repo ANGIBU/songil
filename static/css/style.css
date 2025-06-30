@@ -274,8 +274,7 @@ body.modal-open {
 }
 
 .main-nav a:hover {
-    color: var(--primary-orange);
-    background-color: var(--primary-orange-soft);
+    color: var(--gray-500);
 }
 
 .main-nav a.active {
