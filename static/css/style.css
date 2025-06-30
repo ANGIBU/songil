@@ -87,6 +87,7 @@
     --transition-opacity: opacity 0.3s ease;
     --transition-transform: transform 0.3s ease;
     --transition-fast: all 0.15s ease;
+    --transition-base: all 0.2s ease;
     
     /* Z-INDEX 체계 통일 - 전역 관리 */
     --z-index-header: 1000;
@@ -274,7 +275,8 @@ body.modal-open {
 }
 
 .main-nav a:hover {
-    color: var(--gray-500);
+    color: var(--primary-orange);
+    background-color: var(--primary-orange-soft);
 }
 
 .main-nav a.active {
@@ -301,6 +303,72 @@ body.modal-open {
     gap: var(--spacing-2);
     min-width: 200px;
     justify-content: flex-end;
+}
+
+/* 포인트샵 버튼 스타일 */
+.points-shop-btn-container {
+    display: flex;
+    align-items: center;
+    margin-right: var(--spacing-3);
+}
+
+.points-shop-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    background: linear-gradient(135deg, var(--warning-amber) 0%, var(--warning-amber-light) 100%);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    transition: var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.points-shop-btn:hover {
+    background: linear-gradient(135deg, var(--warning-amber-light) 0%, #fcd34d 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.points-shop-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.points-shop-btn:hover::before {
+    left: 100%;
+}
+
+.points-display {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+}
+
+.points-display .points-amount {
+    font-weight: 700;
+    color: var(--white);
+}
+
+.points-display .points-unit {
+    font-size: var(--font-size-xs);
+    opacity: 0.9;
+}
+
+.shop-icon {
+    font-size: var(--font-size-base);
+    opacity: 0.9;
 }
 
 /* 알림 종 버튼 스타일 - hover 크기 고정 */
@@ -1733,6 +1801,18 @@ hr {
         grid-row: 2;
         justify-self: start;
         min-width: auto;
+    }
+    
+    .points-shop-btn {
+        padding: var(--spacing-1) var(--spacing-3);
+    }
+    
+    .points-display {
+        font-size: var(--font-size-xs);
+    }
+    
+    .points-display .points-amount {
+        font-size: var(--font-size-sm);
     }
     
     .urgent-cards {

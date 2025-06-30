@@ -17,18 +17,16 @@ from sync_api import sync_missing_api_data
 import atexit
 import hashlib
 import hmac
-from dotenv import load_dotenv
 
-load_dotenv()
 
 db = DBManager()
 db.connect()
 ranking_service = RankingService(db)
 app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'songil_secret_key_2024')
+app.secret_key = 'songil_secret_key_2024'
 
-API_URL = os.getenv('SAFETY_API_URL', 'https://www.safetydata.go.kr/V2/api/DSSP-IF-20597')
-SERVICE_KEY = os.getenv('SAFETY_API_KEY', '3FQG91W954658S1F')
+API_URL = "https://www.safetydata.go.kr/V2/api/DSSP-IF-20597"
+SERVICE_KEY = "3FQG91W954658S1F"
 
 @app.route('/')
 def index():
@@ -447,14 +445,214 @@ def generate_sample_activities():
     
     return activities
 
+# 포인트샵 관련 API 엔드포인트들
+@app.route('/pointshop')
+def pointshop():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('로그인이 필요합니다.')
+            return redirect(url_for('login'))
+        return render_template('user/pointshop.html')
+    except Exception as e:
+        print(f"Error rendering pointshop: {e}")
+        return redirect(url_for('index'))
+
+@app.route('/api/user/points', methods=['GET'])
+def get_user_points():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        # 실제 DB에서 사용자 포인트 조회
+        # user_points = db.get_user_points(user_id)
+        
+        # 임시 데이터
+        user_points = 1250
+        
+        return jsonify({
+            'success': True,
+            'points': user_points
+        })
+        
+    except Exception as e:
+        app.logger.error(f"사용자 포인트 조회 오류: {e}")
+        return jsonify({'success': False, 'error': '포인트 정보를 불러오는 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/user/points-history', methods=['GET'])
+def get_user_points_history():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        period = request.args.get('period', 'month')
+        history_type = request.args.get('type', 'all')
+        
+        # 실제 DB에서 포인트 내역 조회
+        # points_history = db.get_user_points_history(user_id, period, history_type)
+        
+        # 임시 데이터
+        base_time = datetime.now()
+        points_history = [
+            {
+                'id': 1,
+                'type': 'earn',
+                'title': '목격 신고 승인',
+                'description': '김○○님 목격 신고 승인',
+                'points': 150,
+                'timestamp': (base_time - timedelta(hours=2)).isoformat()
+            },
+            {
+                'id': 2,
+                'type': 'use',
+                'title': '스타벅스 아메리카노 구매',
+                'description': '포인트샵에서 구매',
+                'points': -500,
+                'timestamp': (base_time - timedelta(hours=22)).isoformat()
+            },
+            {
+                'id': 3,
+                'type': 'earn',
+                'title': '실종자 UP 버튼',
+                'description': '실종자 게시물 추천',
+                'points': 10,
+                'timestamp': (base_time - timedelta(hours=29)).isoformat()
+            },
+            {
+                'id': 4,
+                'type': 'earn',
+                'title': '목격 신고 승인',
+                'description': '최○○님 목격 신고 승인',
+                'points': 300,
+                'timestamp': (base_time - timedelta(days=2, hours=1)).isoformat()
+            },
+            {
+                'id': 5,
+                'type': 'earn',
+                'title': '회원가입 보너스',
+                'description': '플랫폼 가입 환영 보너스',
+                'points': 100,
+                'timestamp': (base_time - timedelta(days=3, hours=12)).isoformat()
+            }
+        ]
+        
+        # 필터링
+        if history_type != 'all':
+            points_history = [h for h in points_history if h['type'] == history_type]
+        
+        return jsonify({
+            'success': True,
+            'history': points_history
+        })
+        
+    except Exception as e:
+        app.logger.error(f"포인트 내역 조회 오류: {e}")
+        return jsonify({'success': False, 'error': '포인트 내역을 불러오는 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/pointshop/products', methods=['GET'])
+def get_pointshop_products():
+    try:
+        category = request.args.get('category', 'all')
+        sort_by = request.args.get('sort', 'popular')
+        
+        # 실제 DB에서 상품 목록 조회
+        # products = db.get_pointshop_products(category, sort_by)
+        
+        # 임시 상품 데이터
+        products = [
+            {
+                'id': 1,
+                'name': '스타벅스 아메리카노',
+                'description': '따뜻한 아메리카노 기프티콘',
+                'price': 500,
+                'original_price': 5000,
+                'category': 'giftcard',
+                'image': '/static/images/placeholder.jpg',
+                'stock': 95,
+                'is_popular': True,
+                'is_new': False
+            },
+            {
+                'id': 2,
+                'name': '럭키박스 골드',
+                'description': '최대 10,000원 상당의 랜덤 상품',
+                'price': 1000,
+                'expected_value': 7500,
+                'category': 'randombox',
+                'image': '/static/images/placeholder.jpg',
+                'stock': 50,
+                'is_popular': False,
+                'is_new': True
+            }
+        ]
+        
+        # 카테고리 필터링
+        if category != 'all':
+            products = [p for p in products if p['category'] == category]
+        
+        return jsonify({
+            'success': True,
+            'products': products
+        })
+        
+    except Exception as e:
+        app.logger.error(f"상품 목록 조회 오류: {e}")
+        return jsonify({'success': False, 'error': '상품 목록을 불러오는 중 오류가 발생했습니다.'}), 500
+
+@app.route('/api/pointshop/purchase', methods=['POST'])
+def purchase_pointshop_product():
+    try:
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+        
+        data = request.get_json()
+        product_id = data.get('productId')
+        price = data.get('price')
+        
+        if not product_id or not price:
+            return jsonify({'success': False, 'message': '필수 정보가 누락되었습니다.'}), 400
+        
+        # 사용자 포인트 확인
+        # user_points = db.get_user_points(user_id)
+        user_points = 1250  # 임시 데이터
+        
+        if user_points < price:
+            return jsonify({'success': False, 'message': '포인트가 부족합니다.'}), 400
+        
+        # 상품 재고 확인
+        # product = db.get_product(product_id)
+        # if not product or product['stock'] <= 0:
+        #     return jsonify({'success': False, 'message': '재고가 부족합니다.'}), 400
+        
+        # 구매 처리
+        # purchase_id = db.create_purchase(user_id, product_id, price)
+        # db.update_user_points(user_id, -price)
+        # db.update_product_stock(product_id, -1)
+        
+        # 포인트 내역 추가
+        # db.add_points_history(user_id, 'use', f'상품 구매', -price)
+        
+        return jsonify({
+            'success': True,
+            'message': '구매가 완료되었습니다.',
+            'remaining_points': user_points - price
+        })
+        
+    except Exception as e:
+        app.logger.error(f"상품 구매 오류: {e}")
+        return jsonify({'success': False, 'error': '구매 처리 중 오류가 발생했습니다.'}), 500
+
 @app.route('/api/missing/recent')
 def get_recent_missing():
     try:
         limit = request.args.get('limit', 5, type=int)
 
         try:
-            response = requests.get(API_URL, params={
-                "serviceKey": SERVICE_KEY,
+            response = requests.get("https://www.safetydata.go.kr/V2/api/DSSP-IF-20597", params={
+                "serviceKey": "3FQG91W954658S1F",
                 "returnType": "json",
                 "pageNo": "1",
                 "numOfRows": "500" 
@@ -836,6 +1034,10 @@ def reset_password():
 @app.route('/mypage')
 def mypage():
     try:
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('로그인이 필요합니다.')
+            return redirect(url_for('login'))
         return render_template('user/mypage.html')
     except Exception as e:
         print(f"Error rendering mypage: {e}")
@@ -898,6 +1100,10 @@ def missing_detail(missing_id):
 @app.route('/missing_report')
 def missing_report():
     try:
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('로그인이 필요합니다.')
+            return redirect(url_for('login'))
         return render_template('user/missing_report.html')
     except Exception as e:
         print(f"Error rendering missing_report: {e}")
@@ -911,6 +1117,11 @@ def report_redirect():
 def witness_report(missing_id):
     db_witness = None 
     try:
+        user_id = session.get('user_id')
+        if not user_id:
+            flash('로그인이 필요합니다.')
+            return redirect(url_for('login'))
+            
         db_witness = DBManager()
         db_witness.connect()
 
@@ -941,14 +1152,6 @@ def witness_report(missing_id):
     finally:
         if db_witness:
             db_witness.disconnect()
-
-@app.route('/pointshop')
-def pointshop():
-    try:
-        return render_template('user/pointshop.html')
-    except Exception as e:
-        print(f"Error rendering pointshop: {e}")
-        return redirect(url_for('index'))
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -1033,7 +1236,7 @@ def api_witness_report():
 
         uploaded_files = request.files
         allowed_ext = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-        max_size = int(os.getenv('MAX_FILE_SIZE', 5242880))
+        max_size = 5 * 1024 * 1024
 
         for key in uploaded_files:
             file = uploaded_files[key]
@@ -1046,7 +1249,7 @@ def api_witness_report():
                     return jsonify({'status': 'error', 'message': '파일은 5MB를 초과할 수 없습니다.'}), 400
                 file.seek(0)
                 filename = f"witness_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.{ext}"
-                upload_dir = os.getenv('UPLOAD_DIR', 'static/uploads')
+                upload_dir = os.path.join('static', 'uploads')
                 os.makedirs(upload_dir, exist_ok=True)
                 filepath = os.path.join(upload_dir, filename)
                 file.save(filepath)
@@ -1215,10 +1418,9 @@ atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
     is_docker = os.getenv('IS_DOCKER', 'false').lower() == 'true'
-    port = int(os.getenv('FLASK_PORT', 5004))
-    debug_mode = os.getenv('FLASK_DEBUG', 'false').lower() == 'true'
+    port = int(os.getenv('PORT', 5004))
     
     if is_docker:
-        app.run(debug=debug_mode, host='0.0.0.0', port=port)
+        app.run(debug=False, host='0.0.0.0', port=port)
     else:
         app.run(debug=True, host='0.0.0.0', port=port, use_reloader=False)

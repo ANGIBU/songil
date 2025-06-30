@@ -1,7 +1,3 @@
-paste-8.txt
-38.48 KB •1196줄
-•
-원본과 형식이 일치하지 않을 수 있습니다
 // static/js/pointshop.js
 
 // React 및 상태 관리
@@ -37,6 +33,17 @@ function initializePointShop() {
     initializeAnimations();
     setupTimers();
     updateUI();
+    syncHeaderPoints();
+}
+
+// 헤더 포인트 동기화
+function syncHeaderPoints() {
+    const headerPointsElement = document.getElementById('headerUserPoints');
+    if (headerPointsElement) {
+        headerPointsElement.textContent = pointShopState.userPoints.toLocaleString();
+    }
+    
+    updateUserPointsDisplay();
 }
 
 // 초기 데이터 로드
@@ -359,7 +366,7 @@ function setupEventListeners() {
 // 상품 카드 이벤트 설정
 function setupProductCardEvents() {
     document.addEventListener('click', function(e) {
-        // 퀴ㄱ 구매 버튼
+        // 퀵 구매 버튼
         if (e.target.closest('.quick-buy-btn')) {
             e.preventDefault();
             e.stopPropagation();
@@ -602,11 +609,12 @@ function updateUI() {
     updateUserPointsDisplay();
     updateProductGrid();
     updateCategoryTabs();
+    syncHeaderPoints();
 }
 
 // 사용자 포인트 표시 업데이트
 function updateUserPointsDisplay() {
-    const pointElements = document.querySelectorAll('.points-amount, #userPoints');
+    const pointElements = document.querySelectorAll('.points-amount, #userPoints, #headerUserPoints');
     pointElements.forEach(el => {
         if (el) {
             const currentPoints = parseInt(el.textContent.replace(/[^\d]/g, '')) || 0;
@@ -885,6 +893,7 @@ async function confirmPurchase() {
                 // 포인트 차감
                 pointShopState.userPoints -= pointShopState.selectedProduct.price;
                 updateUserPointsDisplay();
+                syncHeaderPoints();
                 
                 // 구매 내역 추가
                 pointShopState.purchaseHistory.unshift({
@@ -927,6 +936,7 @@ async function confirmPurchase() {
         // 포인트 차감
         pointShopState.userPoints -= pointShopState.selectedProduct.price;
         updateUserPointsDisplay();
+        syncHeaderPoints();
         
         // 구매 완료
         closePurchaseModal();
