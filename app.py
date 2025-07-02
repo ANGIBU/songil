@@ -569,7 +569,7 @@ def get_pointshop_products():
                 'price': 500,
                 'original_price': 5000,
                 'category': 'giftcard',
-                'image': '/static/images/placeholder.jpg',
+                'image': None,
                 'stock': 95,
                 'is_popular': True,
                 'is_new': False
@@ -581,7 +581,7 @@ def get_pointshop_products():
                 'price': 1000,
                 'expected_value': 7500,
                 'category': 'randombox',
-                'image': '/static/images/placeholder.jpg',
+                'image': None,
                 'stock': 50,
                 'is_popular': False,
                 'is_new': True
@@ -706,7 +706,7 @@ def get_recent_missing():
                 "date": occr_date.strftime("%Y.%m.%d"),
                 "location": item.get("OCRN_PLC") or "미상",
                 "clothing": item.get("PHBB_SPFE") or "정보 없음",
-                "image": "/static/images/placeholder.jpg",
+                "image": None,
                 "upCount": 0,
                 "sort_date": occr_date
             })
@@ -742,7 +742,7 @@ def get_recent_missing_from_db(limit=5):
                 "date": record['missing_date'].strftime("%Y.%m.%d") if record['missing_date'] else "날짜 미상",
                 "location": record['missing_location'] if record['missing_location'] else "미상",
                 "clothing": record['features'] if record['features'] else "정보 없음",
-                "image": "/static/images/placeholder.jpg",
+                "image": None,
                 "upCount": 0
             })
         
@@ -815,7 +815,7 @@ def api_missing_search():
                 "date": record['missing_date'].strftime("%Y.%m.%d") if record['missing_date'] else "날짜 미상",
                 "location": record['missing_location'] if record['missing_location'] else "미상",
                 "description": record['features'] if record['features'] else "정보 없음",
-                "image": record['image_url'] if record['image_url'] else "/static/images/placeholder.jpg",
+                "image": record['image_url'] if record['image_url'] else None,
                 "dangerLevel": record['danger_level'],
                 "upCount": 0,
             })

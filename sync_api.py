@@ -409,7 +409,7 @@ def sync_missing_api_data():
                 'missing_date': parse_date(item.get("OCRN_DT")),
                 'missing_location': item.get("OCRN_PLC", "미상"),
                 'keywords': item.get("PHBB_SPFE", "정보 없음"),
-                'image_url': "/static/images/placeholder.jpg"
+                'image_url': None
             }
             batch_items.append(processed_item_data)
 
